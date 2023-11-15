@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@android:color/transparent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bottom_sheet_design"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/name_of_type_of_schedule"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:gravity="center"
+            android:layout_marginTop="3dp"
+            android:layout_marginBottom="3dp"
+            android:fontFamily="@font/poppins_bold"
+            android:textSize="@dimen/_16sdp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/today_date_of_leave_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:layout_marginStart="7dp"
+        android:layout_marginEnd="7dp"
+        android:layout_marginTop="7dp"
+        android:textSize="@dimen/_13sdp"
+        android:fontFamily="@font/poppins_bold"/>
+    <TextView
+        android:id="@+id/today_date_name_of_leave_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:layout_marginStart="7dp"
+        android:layout_marginEnd="7dp"
+        android:layout_marginBottom="7dp"
+        android:textSize="@dimen/_13sdp"
+        android:fontFamily="@font/poppins_bold"/>
+
+    <TextView
+        android:id="@+id/full_day_off_msg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Full Day Off"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:layout_margin="@dimen/_10sdp"
+        android:textSize="@dimen/_12sdp"
+        android:fontFamily="@font/poppins_bold"
+        tools:ignore="HardcodedText" />
+
+    <RelativeLayout
+        android:id="@+id/time_sc_relative_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/_10sdp">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/off_time_schedule_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    </RelativeLayout>
+
+
+</LinearLayout>

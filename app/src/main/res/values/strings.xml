@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">DocDiary</string>
+    <string name="appointment_schedule">Appointment Schedule</string>
+    <string name="doc_dashboard_name">Dashboard</string>
+    <string name="doc_profile">Profile</string>
+    <string name="doc_leave">Block Time</string>
+</resources>

@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".login.DocLogin">
+
+    <LinearLayout
+        android:id="@+id/login_full_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:weightSum="10"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="3.5"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:background="@drawable/login_front_view">
+
+            <ImageView
+                android:layout_width="@dimen/_140sdp"
+                android:layout_height="@dimen/_140sdp"
+                android:layout_marginStart="@dimen/_40sdp"
+                android:layout_marginEnd="@dimen/_40sdp"
+                android:layout_marginBottom="@dimen/_60sdp"
+                android:layout_marginTop="@dimen/_8sdp"
+                android:src="@drawable/doc_diary_logo_shadow"
+                tools:ignore="ContentDescription" />
+
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="6.5"
+            android:scrollbars="none"
+            android:layout_margin="2dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:fontFamily="@font/poppins_bold"
+                    android:gravity="center"
+                    android:text="WELCOME!"
+                    android:textColor="@color/green_sea"
+                    android:textSize="@dimen/_22sdp"
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginBottom="10dp"
+                    android:fontFamily="@font/patua_one"
+                    android:text="Login to continue"
+                    android:visibility="visible"
+                    android:textSize="@dimen/_12sdp"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/selected_center_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginBottom="5dp"
+                    android:textColor="@color/green_sea"
+                    android:fontFamily="@font/patua_one"
+                    android:text=""
+                    android:textSize="@dimen/_13sdp"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/user_code_log_in_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    app:boxCornerRadiusBottomEnd="50dp"
+                    app:boxCornerRadiusTopEnd="50dp"
+                    app:boxCornerRadiusBottomStart="50dp"
+                    app:boxCornerRadiusTopStart="50dp"
+                    app:boxStrokeColor="@color/white"
+                    app:boxStrokeWidth="0dp"
+                    app:boxBackgroundColor="@color/clouds"
+                    app:helperTextEnabled="true"
+                    app:helperText=""
+                    app:hintEnabled="false"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/user_code_given_log_in"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ems="10"
+                        android:text=""
+                        android:hint="User Code"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:paddingTop="@dimen/_13sdp"
+                        android:paddingStart="@dimen/_20sdp"
+                        android:paddingBottom="@dimen/_15sdp"
+                        android:paddingEnd="@dimen/_20sdp"
+                        android:textColor="@color/black"
+                        android:inputType="text"
+                        android:imeOptions="actionDone"
+                        tools:ignore="HardcodedText" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/password_log_in_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginBottom="10dp"
+                    app:boxCornerRadiusBottomEnd="50dp"
+                    app:boxCornerRadiusTopEnd="50dp"
+                    app:boxCornerRadiusBottomStart="50dp"
+                    app:boxCornerRadiusTopStart="50dp"
+                    app:boxStrokeColor="@color/white"
+                    app:boxBackgroundColor="@color/clouds"
+                    app:boxStrokeWidth="0dp"
+                    app:endIconMode="password_toggle"
+                    app:endIconTint="@color/back_color"
+                    app:helperTextEnabled="true"
+                    app:helperText=""
+                    app:hintEnabled="false"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/password_given_log_in"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:ems="10"
+                        android:text=""
+                        android:hint="Password"
+                        android:paddingTop="@dimen/_13sdp"
+                        android:paddingStart="@dimen/_20sdp"
+                        android:paddingBottom="@dimen/_15sdp"
+                        android:paddingEnd="@dimen/_20sdp"
+                        android:imeOptions="actionDone"
+                        android:fontFamily="@font/ubuntu_medium"
+                        android:textColor="@color/black"
+                        android:inputType="textPassword"
+                        tools:ignore="HardcodedText" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginStart="20dp"
+                    android:layout_gravity="start">
+                    <CheckBox
+                        android:id="@+id/remember_checkbox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="false"
+                        android:layout_gravity="start"
+                        android:fontFamily="@font/open_sans"
+                        android:text="Remember Me"
+                        android:textColor="@color/back_color"
+                        android:buttonTint="@color/green_sea"
+                        android:gravity="center"
+                        tools:ignore="HardcodedText" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/doc_log_in_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="30dp"
+                    android:background="@drawable/custom_button"
+                    android:fontFamily="@font/poppins_bold"
+                    android:text="LOGIN"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_14sdp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@null"
+                    tools:ignore="HardcodedText" />
+
+                <!--                    <TextView-->
+                <!--                        android:id="@+id/forgot_password"-->
+                <!--                        android:layout_width="match_parent"-->
+                <!--                        android:layout_height="wrap_content"-->
+                <!--                        android:textColor="@color/light_green"-->
+                <!--                        android:textStyle="bold"-->
+                <!--                        android:textSize="@dimen/_10sdp"-->
+                <!--                        android:text="Forgot Account?"-->
+                <!--                        android:gravity="center"-->
+                <!--                        android:layout_marginBottom="20dp"-->
+                <!--                        android:fontFamily="@font/patua_one"-->
+                <!--                        android:layout_gravity="bottom"/>-->
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:fontFamily="@font/poppins"
+                    android:gravity="center"
+                    android:text="Don't have an account?"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/_10sdp"
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/contact_here_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="20dp"
+                    android:fontFamily="@font/poppins_bold"
+                    android:gravity="center"
+                    android:text="Contact Here"
+                    android:textColor="@color/light_green"
+                    android:textSize="@dimen/_11sdp"
+                    android:textStyle="bold"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+        </ScrollView>
+
+    </LinearLayout>
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progress_indicator_doc_log_in"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:indeterminate="true"
+        android:layout_gravity="center"/>
+
+</RelativeLayout>
