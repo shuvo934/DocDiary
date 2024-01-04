@@ -47,14 +47,13 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
                 android:orientation="vertical">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="20dp"
-                    android:layout_marginTop="5dp"
+                    android:layout_marginTop="15dp"
                     android:layout_marginEnd="20dp"
                     android:layout_marginBottom="10dp"
                     android:fontFamily="@font/poppins_bold"
@@ -243,7 +242,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
                     android:layout_marginTop="5dp"
-                    android:layout_marginBottom="20dp"
+                    android:layout_marginBottom="15dp"
                     android:fontFamily="@font/poppins_bold"
                     android:gravity="center"
                     android:text="Contact Here"

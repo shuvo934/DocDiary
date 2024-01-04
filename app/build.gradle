@@ -52,11 +52,13 @@ dependencies {
 //    implementation 'com.github.sundeepk:compact-calendar-view:3.0.0'
 //    implementation 'com.github.tizisdeepan:eventscalendar:1.6.1'
 
-    implementation 'com.applandeo:material-calendar-view:1.7.0'
+    implementation 'com.applandeo:material-calendar-view:1.6.0'
 
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
     implementation 'com.github.bumptech.glide:glide:4.13.2'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.13.2'
 
+    //in app update
+    implementation 'com.google.android.play:app-update:2.1.0'
 
 }

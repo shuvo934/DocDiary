@@ -1,6 +1,12 @@
 package ttit.com.shuvo.docdiary;
 
+import static com.google.android.play.core.install.model.AppUpdateType.IMMEDIATE;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.IntentSenderRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
@@ -16,6 +22,14 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.play.core.appupdate.AppUpdateInfo;
+import com.google.android.play.core.appupdate.AppUpdateManager;
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
+import com.google.android.play.core.appupdate.AppUpdateOptions;
+import com.google.android.play.core.install.model.UpdateAvailability;
+
 import ttit.com.shuvo.docdiary.dashboard.DocDashboard;
 import ttit.com.shuvo.docdiary.login.DocLogin;
 
@@ -27,6 +41,23 @@ public class MainActivity extends AppCompatActivity {
     public static final String LOGIN_ACTIVITY_FILE = "LOGIN_ACTIVITY_FILE_DOCDIARY";
     public static final String LOGIN_TF = "TRUE_FALSE";
 
+    AppUpdateManager appUpdateManager;
+
+    ActivityResultLauncher<IntentSenderRequest> activityResultLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartIntentSenderForResult(),
+                    result -> {
+                        if (result.getResultCode() != RESULT_OK) {
+
+                            MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(MainActivity.this)
+                                    .setTitle("Update Failed!")
+                                    .setMessage("Failed to update the app. Please try again.")
+                                    .setIcon(R.drawable.doc_diary_default)
+                                    .setPositiveButton("Retry", (dialog, which) -> getAppUpdate())
+                                    .setNegativeButton("Cancel", (dialog, which) -> finish());
+                            AlertDialog alertDialog = alertDialogBuilder.create();
+                            alertDialog.show();
+                        }
+                    });
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
@@ -66,13 +97,54 @@ public class MainActivity extends AppCompatActivity {
         getWindow().requestFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
+        appUpdateManager = AppUpdateManagerFactory.create(MainActivity.this);
         sharedPreferences = getSharedPreferences(LOGIN_ACTIVITY_FILE, MODE_PRIVATE);
 
         loginfile = sharedPreferences.getBoolean(LOGIN_TF,false);
 
         System.out.println(loginfile);
-        enableFileAccess();
+        getAppUpdate();
 
+    }
+
+    private void getAppUpdate() {
+        Task<AppUpdateInfo> appUpdateInfoTask = appUpdateManager.getAppUpdateInfo();
+        appUpdateInfoTask.addOnSuccessListener(appUpdateInfo -> {
+            if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                    && appUpdateInfo.isUpdateTypeAllowed(IMMEDIATE))  {
+
+                appUpdateManager.startUpdateFlowForResult(appUpdateInfo,
+                        activityResultLauncher, AppUpdateOptions
+                                .newBuilder(IMMEDIATE)
+                                .build());
+            }
+            else {
+                System.out.println("No update available");
+                enableFileAccess();
+            }
+        });
+        appUpdateInfoTask.addOnFailureListener(e -> {
+            System.out.println("FAILED TO LISTEN");
+            enableFileAccess();
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        appUpdateManager
+                .getAppUpdateInfo()
+                .addOnSuccessListener(
+                        appUpdateInfo -> {
+                            if (appUpdateInfo.updateAvailability()
+                                    == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS) {
+                                // If an in-app update is already running, resume the update.
+                                appUpdateManager.startUpdateFlowForResult(appUpdateInfo,
+                                        activityResultLauncher,AppUpdateOptions
+                                                .newBuilder(IMMEDIATE)
+                                                .build());
+                            }
+                        });
     }
 
     private void goToActivity() {
@@ -87,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             showSystemUI();
             finish();
-        }, 1500);
+        }, 1000);
     }
 
     private void enableFileAccess() {

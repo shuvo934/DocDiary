@@ -23,13 +23,13 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight=".9"
-            android:background="@color/light_green"
-            android:padding="16dp">
+            android:background="@color/light_green">
 
             <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="@dimen/_19sdp"
+                android:layout_height="@dimen/_19sdp"
                 android:id="@+id/back_logo_of_doc_leave"
+                android:layout_marginStart="@dimen/_12sdp"
                 android:layout_centerVertical="true"
                 android:src="@drawable/arrow_back"
                 app:tint="@color/white"
@@ -45,7 +45,7 @@
                 android:fontFamily="@font/poppins_bold"
                 android:text="@string/doc_leave"
                 android:textColor="@color/white"
-                android:textSize="18sp" />
+                android:textSize="@dimen/_14sdp" />
 
         </RelativeLayout>
 

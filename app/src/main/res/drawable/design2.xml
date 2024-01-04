@@ -10,10 +10,10 @@
 
         android:endColor="@color/clouds"
         android:angle="90"/>
-    <padding android:left="7dp"
-        android:top="7dp"
-        android:right="7dp"
-        android:bottom="7dp" />
+    <padding android:left="@dimen/_4sdp"
+        android:top="@dimen/_4sdp"
+        android:right="@dimen/_4sdp"
+        android:bottom="@dimen/_4sdp" />
     <!--    <stroke-->
     <!--        android:width="1dip"-->
     <!--        android:color="#b2bec3" />-->

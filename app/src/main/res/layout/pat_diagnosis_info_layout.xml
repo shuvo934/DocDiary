@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:weightSum="10">
+
+    <TextView
+        android:id="@+id/pat_diagnosis_dm_name"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="9"
+        android:background="@color/clouds"
+        android:text="Diagnosis"
+        android:fontFamily="@font/open_sans_bold"
+        android:textColor="@color/default_text_color"
+        android:padding="4dp"
+        android:layout_marginEnd="2dp"
+        android:gravity="center"
+        android:textSize="@dimen/_9sdp"/>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:background="@color/clouds"
+        android:layout_marginStart="2dp"
+        android:gravity="center"
+        android:padding="4dp"
+        android:layout_weight="1">
+
+        <ImageView
+            android:id="@+id/pat_diagnosis_info_edit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/edit_24"/>
+
+    </LinearLayout>
+
+<!--    <LinearLayout-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:background="@color/clouds"-->
+<!--        android:layout_marginStart="2dp"-->
+<!--        android:gravity="center"-->
+<!--        android:padding="4dp"-->
+<!--        android:layout_weight="1">-->
+
+<!--        <ImageView-->
+<!--            android:id="@+id/pat_diagnosis_info_delete"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:src="@drawable/cancel_24"/>-->
+
+<!--    </LinearLayout>-->
+
+</LinearLayout>

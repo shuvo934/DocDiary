@@ -22,11 +22,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/clouds"
-            android:padding="16dp">
+            android:padding="@dimen/_12sdp">
 
             <ImageView
-                android:layout_width="28dp"
-                android:layout_height="28dp"
+                android:layout_width="@dimen/_22sdp"
+                android:layout_height="@dimen/_22sdp"
                 android:id="@+id/doc_diary_logo"
                 android:layout_centerVertical="true"
                 android:src="@drawable/doc_diary_default"
@@ -44,12 +44,12 @@
                 android:fontFamily="@font/poppins_bold"
                 android:text="@string/doc_dashboard_name"
                 android:textColor="@color/black"
-                android:textSize="18sp" />
+                android:textSize="@dimen/_14sdp" />
 
             <ImageView
                 android:id="@+id/log_out_doc"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="@dimen/_18sdp"
+                android:layout_height="@dimen/_18sdp"
                 android:src="@drawable/logout_24"
                 android:layout_centerVertical="true"
                 android:layout_alignParentEnd="true"
@@ -68,7 +68,8 @@
 
             <ScrollView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:scrollbars="none">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -116,7 +117,7 @@
                                 android:id="@+id/progressView_horizontal"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                app:trackThickness="110dp"
+                                app:trackThickness="@dimen/_86sdp"
                                 android:layout_centerHorizontal="true"
                                 app:trackColor="@color/progress_back_color"
                                 app:indicatorColor="@color/light_green"
@@ -200,6 +201,7 @@
                                         android:layout_weight="5.5"
                                         android:text=""
                                         android:gravity="start"
+                                        android:textSize="@dimen/_11sdp"
                                         android:textColor="@color/white"
                                         android:fontFamily="@font/poppins_medium"
                                         android:layout_marginTop="5dp"
@@ -216,8 +218,8 @@
 
                                         <ImageView
                                             android:id="@+id/timer_icon_image"
-                                            android:layout_width="18dp"
-                                            android:layout_height="18dp"
+                                            android:layout_width="@dimen/_14sdp"
+                                            android:layout_height="@dimen/_14sdp"
                                             android:src="@drawable/baseline_timer_24"
                                             android:layout_gravity="end|center"
                                             app:tint="@color/white"
@@ -227,8 +229,8 @@
                                             android:id="@+id/normalCountDownView"
                                             android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
-                                            app:normal_timer_text_size="13sp"
-                                            app:normal_timer_label_text_size="10sp"
+                                            app:normal_timer_text_size="@dimen/_10sdp"
+                                            app:normal_timer_label_text_size="@dimen/_8sdp"
                                             app:normal_timer_text_color="@color/white"
                                             app:normal_timer_text_label_color="@color/white"
                                             app:normal_timer_text_isBold="true"
@@ -454,7 +456,7 @@
                                 <androidx.cardview.widget.CardView
                                     android:layout_width="0dp"
                                     android:layout_weight="4"
-                                    android:layout_height="100dp"
+                                    android:layout_height="@dimen/_77sdp"
                                     app:cardBackgroundColor="#ffbe76"
                                     app:cardElevation="3dp"
                                     android:layout_margin="5dp"
@@ -493,7 +495,7 @@
                                         <TextView
                                             android:id="@+id/total_meeting_count"
                                             android:layout_width="match_parent"
-                                            android:layout_height="match_parent"
+                                            android:layout_height="wrap_content"
                                             android:layout_gravity="center"
                                             android:fontFamily="@font/baloo"
                                             android:layout_alignParentStart="true"
@@ -511,7 +513,7 @@
                                 <androidx.cardview.widget.CardView
                                     android:layout_width="0dp"
                                     android:layout_weight="4"
-                                    android:layout_height="100dp"
+                                    android:layout_height="@dimen/_77sdp"
                                     app:cardBackgroundColor="@color/light_green"
                                     app:cardElevation="3dp"
                                     android:layout_margin="5dp"
@@ -549,7 +551,7 @@
                                         <TextView
                                             android:id="@+id/completed_meeting_count"
                                             android:layout_width="match_parent"
-                                            android:layout_height="match_parent"
+                                            android:layout_height="wrap_content"
                                             android:text=""
                                             android:textColor="@color/white"
                                             android:layout_alignParentStart="true"
@@ -567,7 +569,7 @@
                                 <androidx.cardview.widget.CardView
                                     android:layout_width="0dp"
                                     android:layout_weight="4"
-                                    android:layout_height="100dp"
+                                    android:layout_height="@dimen/_77sdp"
                                     app:cardBackgroundColor="@color/back_color"
                                     app:cardElevation="3dp"
                                     android:layout_margin="5dp"
@@ -605,7 +607,7 @@
                                         <TextView
                                             android:id="@+id/remaining_meeting_count"
                                             android:layout_width="match_parent"
-                                            android:layout_height="match_parent"
+                                            android:layout_height="wrap_content"
                                             android:text=""
                                             android:layout_alignParentStart="true"
                                             android:layout_alignParentEnd="true"
@@ -663,6 +665,7 @@
         android:layout_alignParentEnd="true"
         app:backgroundTint="@color/light_green"
         android:background="@drawable/design2"
+        app:itemIconSize="@dimen/_17sdp"
         app:itemTextAppearanceActive="@style/BottomNavigationViewTextStyle"
         app:itemTextAppearanceInactive="@style/BottomNavigationViewTextStyle"
         app:itemIconTint="@drawable/bottom_nav_icon_color_selector_2"

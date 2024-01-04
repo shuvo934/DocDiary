@@ -276,8 +276,14 @@ public class AppointmentSchedule extends AppCompatActivity {
             }
         });
 
-        getAppointmentData();
 
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getAppointmentData();
     }
 
     public Drawable getRoundRect() {
@@ -316,11 +322,17 @@ public class AppointmentSchedule extends AppCompatActivity {
                     for (int i = 0; i < array.length(); i++) {
                         JSONObject apptDataInfo = array.getJSONObject(i);
 
+                        String adm_date = apptDataInfo.getString("adm_date")
+                                .equals("null") ? "" : apptDataInfo.getString("adm_date");
                         String schedule_time = apptDataInfo.getString("schedule_time")
                                 .equals("null") ? "" : apptDataInfo.getString("schedule_time");
 
                         String patient_data = apptDataInfo.getString("patient_data")
                                 .equals("null") ? "" :apptDataInfo.getString("patient_data");
+                        String depts_id = apptDataInfo.getString("depts_id")
+                                .equals("null") ? "" :apptDataInfo.getString("depts_id");
+                        String depts_name = apptDataInfo.getString("depts_name")
+                                .equals("null") ? "" :apptDataInfo.getString("depts_name");
                         String pat_name = apptDataInfo.getString("pat_name")
                                 .equals("null") ? "" :apptDataInfo.getString("pat_name");
                         String pat_code = apptDataInfo.getString("pat_code")
@@ -333,9 +345,26 @@ public class AppointmentSchedule extends AppCompatActivity {
                                 .equals("null") ? "" :apptDataInfo.getString("doc_video_link");
                         String ts_video_conf_flag = apptDataInfo.getString("ts_video_conf_flag")
                                 .equals("null") ? "0" :apptDataInfo.getString("ts_video_conf_flag");
+                        String pmm = apptDataInfo.getString("pmm")
+                                .equals("null") ? "0" :apptDataInfo.getString("pmm");
+                        String is_ranked = apptDataInfo.getString("is_ranked")
+                                .equals("null") ? "0" :apptDataInfo.getString("is_ranked");
+                        String pph_progress = apptDataInfo.getString("pph_progress")
+                                .equals("null") ? "0" :apptDataInfo.getString("pph_progress");
+                        String pfn_id = apptDataInfo.getString("pfn_id")
+                                .equals("null") ? "" :apptDataInfo.getString("pfn_id");
+                        String ph_cat_id = apptDataInfo.getString("ph_cat_id")
+                                .equals("null") ? "" :apptDataInfo.getString("ph_cat_id");
+                        String ad_id = apptDataInfo.getString("ad_id")
+                                .equals("null") ? "" :apptDataInfo.getString("ad_id");
+                        String ad_prm_id = apptDataInfo.getString("ad_prm_id")
+                                .equals("null") ? "" :apptDataInfo.getString("ad_prm_id");
+                        String ad_prd_id = apptDataInfo.getString("ad_prd_id")
+                                .equals("null") ? "" :apptDataInfo.getString("ad_prd_id");
 
-                        apptScheduleInfoLists.add(new ApptScheduleInfoList(schedule_time, "",pat_name,patient_data,pat_code,selected_date,
-                                pat_age_now,pfn_fee_name, doc_video_link, ts_video_conf_flag));
+                        apptScheduleInfoLists.add(new ApptScheduleInfoList(adm_date, schedule_time, "",pat_name,patient_data,pat_code,selected_date,
+                                pat_age_now,pfn_fee_name, doc_video_link, ts_video_conf_flag, pmm,depts_id,depts_name,is_ranked,pph_progress,
+                                pfn_id, ph_cat_id, ad_id, ad_prm_id, ad_prd_id));
 
                     }
                 }

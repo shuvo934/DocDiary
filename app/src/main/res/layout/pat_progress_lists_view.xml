@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/serial_no_for_p_ph"
+        android:layout_width="@dimen/_25sdp"
+        android:layout_height="match_parent"
+        android:background="@color/clouds"
+        android:text="1"
+        android:fontFamily="@font/open_sans_bold"
+        android:textColor="@color/default_text_color"
+        android:padding="4dp"
+        android:layout_marginEnd="2dp"
+        android:gravity="center"
+        android:textSize="@dimen/_9sdp"/>
+
+    <TextView
+        android:id="@+id/progress_date_for_p_ph"
+        android:layout_width="@dimen/_60sdp"
+        android:layout_height="match_parent"
+        android:background="@color/clouds"
+        android:text="Date"
+        android:fontFamily="@font/open_sans_bold"
+        android:textColor="@color/default_text_color"
+        android:padding="4dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        android:gravity="center"
+        android:textSize="@dimen/_9sdp"/>
+
+    <TextView
+        android:id="@+id/service_name_for_p_ph"
+        android:layout_width="@dimen/_110sdp"
+        android:layout_height="match_parent"
+        android:background="@color/clouds"
+        android:text="Service Name"
+        android:fontFamily="@font/open_sans_bold"
+        android:textColor="@color/default_text_color"
+        android:padding="4dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        android:gravity="center"
+        android:textSize="@dimen/_9sdp"/>
+
+    <TextView
+        android:id="@+id/unit_name_for_p_ph"
+        android:layout_width="@dimen/_110sdp"
+        android:layout_height="match_parent"
+        android:background="@color/clouds"
+        android:text="Unit"
+        android:fontFamily="@font/open_sans_bold"
+        android:textColor="@color/default_text_color"
+        android:padding="4dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        android:gravity="center"
+        android:textSize="@dimen/_9sdp"/>
+
+    <TextView
+        android:id="@+id/doctor_name_for_p_ph"
+        android:layout_width="@dimen/_110sdp"
+        android:layout_height="match_parent"
+        android:background="@color/clouds"
+        android:text="Doctor/Therapist"
+        android:fontFamily="@font/open_sans_bold"
+        android:textColor="@color/default_text_color"
+        android:padding="4dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        android:gravity="center"
+        android:textSize="@dimen/_9sdp"/>
+
+    <TextView
+        android:id="@+id/progress_score_for_p_ph"
+        android:layout_width="@dimen/_50sdp"
+        android:layout_height="match_parent"
+        android:background="@color/clouds"
+        android:text="Progress"
+        android:fontFamily="@font/open_sans_bold"
+        android:textColor="@color/black"
+        android:padding="4dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
+        android:gravity="center"
+        android:textSize="@dimen/_11sdp"/>
+
+    <TextView
+        android:id="@+id/progress_notes_for_p_ph"
+        android:layout_width="@dimen/_230sdp"
+        android:layout_height="match_parent"
+        android:background="@color/clouds"
+        android:text="Progress_notes"
+        android:fontFamily="@font/open_sans_bold"
+        android:textColor="@color/default_text_color"
+        android:padding="4dp"
+        android:layout_marginStart="2dp"
+        android:gravity="center"
+        android:textSize="@dimen/_9sdp"/>
+
+</LinearLayout>
