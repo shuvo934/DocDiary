@@ -123,6 +123,7 @@
                                     android:layout_marginBottom="@dimen/_4sdp"
                                     android:fontFamily="@font/poppins_bold"
                                     android:textColor="@color/white"
+                                    android:textSize="@dimen/_11sdp"
                                     tools:ignore="HardcodedText" />
 
 

@@ -8,10 +8,13 @@ import androidx.core.content.ContextCompat;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.util.Base64;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,6 +32,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.navigation.NavigationBarView;
@@ -70,6 +74,7 @@ public class DocDashboard extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
     TextView welcomeText;
     TextView docName;
+    TextView docCenterName;
     TextView meetingTime;
     ImageView logOut;
 
@@ -99,6 +104,7 @@ public class DocDashboard extends AppCompatActivity {
     String next_schedule = "";
     String patient_name = "";
     String doc_id = "";
+    String doc_fl_flag = "";
     int progress_track = 100;
     int total_seconds = 1;
     NormalCountDownView normalCountDownView;
@@ -135,6 +141,9 @@ public class DocDashboard extends AppCompatActivity {
     String hostUserName = "";
     String osName = "";
     String android_id = "";
+    Bitmap bitmap;
+    private boolean imageFound = false;
+    ImageView docImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,6 +159,8 @@ public class DocDashboard extends AppCompatActivity {
         circularProgressIndicator.setVisibility(View.GONE);
         welcomeText = findViewById(R.id.greetings_text);
         docName = findViewById(R.id.doctor_name);
+        docImage = findViewById(R.id.doc_profile_image_in_dashboard);
+        docCenterName = findViewById(R.id.doctor_s_center_name);
         logOut = findViewById(R.id.log_out_doc);
         horizontalProgressView = findViewById(R.id.progressView_horizontal);
 
@@ -482,6 +493,7 @@ public class DocDashboard extends AppCompatActivity {
     public void onBackPressed() {
         MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
         alertDialogBuilder.setTitle("Exit!")
+                .setIcon(R.drawable.doc_diary_default)
                 .setMessage("Do you want to exit?")
                 .setPositiveButton("Yes", (dialog, which) -> {
                     dialog.dismiss();
@@ -614,9 +626,13 @@ public class DocDashboard extends AppCompatActivity {
 
                             first_login_flag = docInfo.getString("doc_app_first_login_flag")
                                     .equals("null") ? "0" :docInfo.getString("doc_app_first_login_flag");
+                            String doc_center_name = docInfo.getString("doc_center_name")
+                                    .equals("null") ? "" : docInfo.getString("doc_center_name");
 
                             userInfoLists.add(new UserInfoList(doc_name,nn_doc_id,doc_code,depts_name,deptd_name,deptm_name,
-                                    desig_name,doc_eff_date,doc_status,depts_id,desig_id,doc_video_link,doc_video_link_enable_flag));
+                                    desig_name,doc_eff_date,doc_status,depts_id,desig_id,doc_video_link,doc_video_link_enable_flag,doc_center_name));
+                            doc_fl_flag = docInfo.getString("fl_flag")
+                                    .equals("null") ? "0" :docInfo.getString("fl_flag");
 
                             userAvailable = true;
                         }
@@ -634,16 +650,21 @@ public class DocDashboard extends AppCompatActivity {
                 }
 
                 if (userAvailable) {
-                    if (first_login_flag.equals("1")) {
-                        loginLogInsert();
-                        System.out.println("FFF");
+                    if (doc_fl_flag.equals("1")) {
+                        connected = true;
+                        updateInterface();
                     }
                     else {
-                        if (expiry_date.isEmpty()) {
-                            expiry_date = dateFormat.format(mmm);
+                        if (first_login_flag.equals("1")) {
+                            loginLogInsert();
+                            System.out.println("FFF");
+                        } else {
+                            if (expiry_date.isEmpty()) {
+                                expiry_date = dateFormat.format(mmm);
+                            }
+                            requestQueue.add(expDateUpdate);
+                            System.out.println("GGG");
                         }
-                        requestQueue.add(expDateUpdate);
-                        System.out.println("GGG");
                     }
                 }
                 else {
@@ -737,6 +758,7 @@ public class DocDashboard extends AppCompatActivity {
         String docDataUrl = pre_url_api+"doc_dashboard/getMeetingSchedule?doc_id="+doc_id+"&time_now="+time_now+"";
         String docMeetingUrl = pre_url_api+"doc_dashboard/getMeetingCount?doc_id="+doc_id+"&first_date="+date_now+"&end_date="+date_now+"";
         String docScheduleUrl = pre_url_api+"doc_dashboard/getScheduleCount?doc_id="+doc_id+"&first_date="+date_now+"&end_date="+date_now+"";
+        String docPicUrl = pre_url_api+"doc_dashboard/getDocPic?doc_id="+doc_id;
 
         last_schedule = "";
         next_schedule = "";
@@ -748,6 +770,72 @@ public class DocDashboard extends AppCompatActivity {
         blocked_schedule = 0;
 
         RequestQueue requestQueue = Volley.newRequestQueue(DocDashboard.this);
+
+        StringRequest docPicReq = new StringRequest(Request.Method.GET, docPicUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject docInfo = array.getJSONObject(i);
+
+                        String doc_profile_pic = docInfo.optString("doc_profile_pic");
+
+                        if (doc_profile_pic.equals("null") || doc_profile_pic.equals("") ) {
+                            System.out.println("NULL IMAGE");
+                            imageFound = false;
+                        }
+                        else {
+                            byte[] decodedString = Base64.decode(doc_profile_pic,Base64.DEFAULT);
+                            bitmap = BitmapFactory.decodeByteArray(decodedString,0,decodedString.length);
+                            if (bitmap != null) {
+                                System.out.println("OK");
+                                imageFound = true;
+                            }
+                            else {
+                                System.out.println("NOT OK");
+                                imageFound = false;
+                            }
+                        }
+
+                    }
+                }
+
+                connected = true;
+                if (first_flag == 0) {
+                    updateInterface();
+                }
+                else {
+                    updateLayout();
+                }
+
+            }
+            catch (JSONException e) {
+                connected = false;
+                e.printStackTrace();
+                parsing_message = e.getLocalizedMessage();
+                if (first_flag == 0) {
+                    updateInterface();
+                }
+                else {
+                    updateLayout();
+                }
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            error.printStackTrace();
+            parsing_message = error.getLocalizedMessage();
+            if (first_flag == 0) {
+                updateInterface();
+            }
+            else {
+                updateLayout();
+            }
+        });
 
         StringRequest docSchCountReq = new StringRequest(Request.Method.GET, docScheduleUrl, response -> {
             conn = true;
@@ -771,13 +859,7 @@ public class DocDashboard extends AppCompatActivity {
                     }
                 }
 
-                connected = true;
-                if (first_flag == 0) {
-                    updateInterface();
-                }
-                else {
-                    updateLayout();
-                }
+                requestQueue.add(docPicReq);
 
             }
             catch (JSONException e) {
@@ -926,21 +1008,7 @@ public class DocDashboard extends AppCompatActivity {
         if (conn) {
             if (connected) {
                 if (userAvailable) {
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
-                    Date exp_date = null;
-                    Date now_date = Calendar.getInstance().getTime();
-                    String nnn_date = dateFormat.format(now_date);
-                    try {
-                        exp_date = dateFormat.parse(expiry_date);
-                        now_date = dateFormat.parse(nnn_date);
-                    } catch (ParseException e) {
-                        throw new RuntimeException(e);
-                    }
-                    assert exp_date != null;
-                    assert now_date != null;
-//                    System.out.println(now_date);
-//                    System.out.println(exp_date);
-                    if (exp_date.getTime() < now_date.getTime()) {
+                    if (doc_fl_flag.equals("1")) {
                         fullLayout.setVisibility(View.GONE);
                         bottomNavigationView.setVisibility(View.GONE);
                         circularProgressIndicator.setVisibility(View.GONE);
@@ -950,11 +1018,9 @@ public class DocDashboard extends AppCompatActivity {
                         tabRefresh.setVisibility(View.GONE);
 
                         MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
-                        alertDialogBuilder.setTitle("Date Expired!")
-                                .setMessage("Your access to the app is expired on: "+expiry_date+".\n" +
-                                        "To gain access to the app, Please contact with the administrator")
+                        alertDialogBuilder.setTitle("Forced Log Out!")
+                                .setMessage("You are forced to log out from the app for server maintenance.We are sorry for the disturbance. Please Login again to continue the app.")
                                 .setPositiveButton("OK", (dialog, which) -> {
-
                                     SharedPreferences.Editor editor1 = sharedPreferences.edit();
                                     editor1.remove(DOC_USER_CODE);
                                     editor1.remove(DOC_USER_PASSWORD);
@@ -962,8 +1028,11 @@ public class DocDashboard extends AppCompatActivity {
                                     editor1.remove(LOGIN_TF);
                                     editor1.apply();
                                     editor1.commit();
+
+                                    Intent intent = new Intent(DocDashboard.this, DocLogin.class);
+                                    startActivity(intent);
+                                    finish();
                                     dialog.dismiss();
-                                    System.exit(0);
                                 });
 
                         AlertDialog alert = alertDialogBuilder.create();
@@ -972,219 +1041,283 @@ public class DocDashboard extends AppCompatActivity {
                         alert.show();
                     }
                     else {
-                        fullLayout.setVisibility(View.VISIBLE);
-                        bottomNavigationView.setVisibility(View.VISIBLE);
-                        circularProgressIndicator.setVisibility(View.GONE);
-                        tabFullLayout.setVisibility(View.VISIBLE);
-                        tabCircularProgressIndicator.setVisibility(View.GONE);
-                        tabLayout.setVisibility(View.VISIBLE);
-                        tabRefresh.setVisibility(View.GONE);
-
-                        conn = false;
-                        connected = false;
-                        userAvailable = false;
-
-                        progress_track_flag_value = 0;
-                        String doc_name = "Dr. "+userInfoLists.get(0).getDoc_name();
-                        docName.setText(doc_name);
-
-                        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.ENGLISH);
-                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm a", Locale.ENGLISH);
-                        SimpleDateFormat only_date_format = new SimpleDateFormat("dd", Locale.ENGLISH);
-                        SimpleDateFormat full_date_format = new SimpleDateFormat("dd MMM, yy", Locale.ENGLISH);
-                        SimpleDateFormat full_date_format_range = new SimpleDateFormat("dd MMMM, yy", Locale.ENGLISH);
-
-
-                        if (!last_schedule.isEmpty() && !next_schedule.isEmpty()) {
-                            nextMeetingText.setText("Next Meeting");
-                            meetingTime.setVisibility(View.VISIBLE);
-                            patientName.setVisibility(View.VISIBLE);
-                            timerIcon.setVisibility(View.VISIBLE);
-                            normalCountDownView.setVisibility(View.VISIBLE);
-                            Date prv_meeting_date = null;
-                            try {
-                                prv_meeting_date = sdf.parse(last_schedule);
-                            } catch (ParseException e) {
-                                throw new RuntimeException(e);
-                            }
-
-                            Date to_Date = Calendar.getInstance().getTime();
-
-                            Date next_meeting_date = null;
-                            try {
-                                next_meeting_date = sdf.parse(next_schedule);
-                            } catch (ParseException e) {
-                                throw new RuntimeException(e);
-                            }
-
-
-                            assert next_meeting_date != null;
-                            assert prv_meeting_date != null;
-                            total_seconds = (int) ((next_meeting_date.getTime() - prv_meeting_date.getTime())/1000);
-
-                            System.out.println("total_seconds: "+total_seconds);
-
-                            int remaining_seconds = (int) ((next_meeting_date.getTime()- to_Date.getTime())/1000);
-
-                            System.out.println("remaining_seconds: "+remaining_seconds);
-
-                            progress_track = (int) (100 * remaining_seconds) / total_seconds;
-
-                            if (progress_track < 0) {
-                                progress_track = 0;
-                            }
-
-                            System.out.println("progress_track: "+progress_track);
-
-                            String time = simpleDateFormat.format(next_meeting_date);
-                            String date = only_date_format.format(next_meeting_date);
-                            String n_date = only_date_format.format(Calendar.getInstance().getTime());
-                            String full_date = full_date_format.format(next_meeting_date);
-
-                            if (date.equals(n_date)) {
-
-                                if (time.startsWith("0")) {
-                                    time = time.substring(1);
-                                }
-
-                                meetingTime.setText("At  "+time);
-                            }
-                            else {
-                                String  tt = "At  " + time +"\nIn  "+ full_date;
-                                meetingTime.setText(tt);
-                            }
-
-                            horizontalProgressView.setProgressCompat(progress_track,true);
-                            normalCountDownView.stopTimer();
-
-                            int mm = (int) remaining_seconds / 60;
-                            int hh = (int) mm / 60;
-                            normalCountDownView.setShowHour(hh != 0);
-
-                            normalCountDownView.setShowMinutes(mm != 0);
-
-                            normalCountDownView.initTimer(remaining_seconds, HappyTimer.Type.COUNT_DOWN);
-                            normalCountDownView.startTimer();
-
-                            if (patient_name.isEmpty()) {
-                                String text = "No Name Found";
-                                patientName.setText(text);
-                            }
-                            else {
-                                String text = "With Mr. "+patient_name;
-                                patientName.setText(text);
-                            }
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
+                        Date exp_date = null;
+                        Date now_date = Calendar.getInstance().getTime();
+                        String nnn_date = dateFormat.format(now_date);
+                        try {
+                            exp_date = dateFormat.parse(expiry_date);
+                            now_date = dateFormat.parse(nnn_date);
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
                         }
-                        else if (last_schedule.isEmpty() && !next_schedule.isEmpty()) {
-                            nextMeetingText.setText("Next Meeting");
-                            meetingTime.setVisibility(View.VISIBLE);
-                            patientName.setVisibility(View.VISIBLE);
-                            timerIcon.setVisibility(View.VISIBLE);
-                            normalCountDownView.setVisibility(View.VISIBLE);
+                        assert exp_date != null;
+                        assert now_date != null;
+//                    System.out.println(now_date);
+//                    System.out.println(exp_date);
+                        if (exp_date.getTime() < now_date.getTime()) {
+                            fullLayout.setVisibility(View.GONE);
+                            bottomNavigationView.setVisibility(View.GONE);
+                            circularProgressIndicator.setVisibility(View.GONE);
+                            tabFullLayout.setVisibility(View.GONE);
+                            tabCircularProgressIndicator.setVisibility(View.GONE);
+                            tabLayout.setVisibility(View.GONE);
+                            tabRefresh.setVisibility(View.GONE);
 
-                            Date to_Date = Calendar.getInstance().getTime();
+                            MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
+                            alertDialogBuilder.setTitle("Date Expired!")
+                                    .setMessage("Your access to the app is expired on: "+expiry_date+".\n" +
+                                            "To gain access to the app, Please contact with the administrator")
+                                    .setPositiveButton("OK", (dialog, which) -> {
 
-                            Date next_meeting_date = null;
-                            try {
-                                next_meeting_date = sdf.parse(next_schedule);
-                            } catch (ParseException e) {
-                                throw new RuntimeException(e);
-                            }
+                                        SharedPreferences.Editor editor1 = sharedPreferences.edit();
+                                        editor1.remove(DOC_USER_CODE);
+                                        editor1.remove(DOC_USER_PASSWORD);
+                                        editor1.remove(DOC_DATA_API);
+                                        editor1.remove(LOGIN_TF);
+                                        editor1.apply();
+                                        editor1.commit();
+                                        dialog.dismiss();
+                                        System.exit(0);
+                                    });
 
-
-                            assert next_meeting_date != null;
-
-                            total_seconds = (int) ((next_meeting_date.getTime() - to_Date.getTime())/1000);
-
-                            System.out.println("total_seconds: "+total_seconds);
-
-                            int remaining_seconds = (int) ((next_meeting_date.getTime()- to_Date.getTime())/1000);
-
-                            System.out.println("remaining_seconds: "+remaining_seconds);
-
-                            progress_track = (int) (100 * remaining_seconds) / total_seconds;
-
-                            if (progress_track < 0) {
-                                progress_track = 0;
-                            }
-
-                            System.out.println("progress_track: "+progress_track);
-
-                            String time = simpleDateFormat.format(next_meeting_date);
-                            String date = only_date_format.format(next_meeting_date);
-                            String n_date = only_date_format.format(Calendar.getInstance().getTime());
-                            String full_date = full_date_format.format(next_meeting_date);
-
-                            if (date.equals(n_date)) {
-                                meetingTime.setText("At "+time);
-                            }
-                            else {
-                                String  tt = "At " + time +"\nIn "+ full_date;
-                                meetingTime.setText(tt);
-                            }
-
-                            horizontalProgressView.setProgressCompat(progress_track,true);
-                            normalCountDownView.stopTimer();
-
-                            int mm = (int) remaining_seconds / 60;
-                            int hh = (int) mm / 60;
-                            normalCountDownView.setShowHour(hh != 0);
-
-                            normalCountDownView.setShowMinutes(mm != 0);
-
-                            normalCountDownView.initTimer(remaining_seconds, HappyTimer.Type.COUNT_DOWN);
-                            normalCountDownView.startTimer();
-
-                            if (patient_name.isEmpty()) {
-                                String text = "No Name Found";
-                                patientName.setText(text);
-                            }
-                            else {
-                                String text = "With Mr. "+patient_name;
-                                patientName.setText(text);
-                            }
-                        }
-                        else  {
-                            nextMeetingText.setText("No Upcoming Meeting Available");
-                            meetingTime.setVisibility(View.GONE);
-                            patientName.setVisibility(View.GONE);
-                            timerIcon.setVisibility(View.GONE);
-                            normalCountDownView.setVisibility(View.GONE);
-                            progress_track = 0;
-                            horizontalProgressView.setProgressCompat(progress_track,true);
-
-                        }
-
-                        Date dateRangCc = Calendar.getInstance().getTime();
-                        String date_range_text = full_date_format_range.format(dateRangCc);
-                        dateRangeText.setText(date_range_text);
-
-                        total.setText(String.valueOf(total_meeting));
-                        completed.setText(String.valueOf(completed_meeting));
-                        remaining.setText(String.valueOf(remaining_meeting));
-                        totalSchedule.setText(String.valueOf(total_schedule));
-                        blockedSchedule.setText(String.valueOf(blocked_schedule));
-
-                        int currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-                        String wt = "";
-                        if (currentHour >= 4 && currentHour <= 11) {
-                            wt = "Good Morning,";
-                        }
-                        else if (currentHour >= 12 && currentHour <= 16) {
-                            wt = "Good Afternoon,";
-                        }
-                        else if (currentHour >= 17 && currentHour <= 22) {
-                            wt = "Good Evening,";
+                            AlertDialog alert = alertDialogBuilder.create();
+                            alert.setCancelable(false);
+                            alert.setCanceledOnTouchOutside(false);
+                            alert.show();
                         }
                         else {
-                            wt = "Hello,";
+                            fullLayout.setVisibility(View.VISIBLE);
+                            bottomNavigationView.setVisibility(View.VISIBLE);
+                            circularProgressIndicator.setVisibility(View.GONE);
+                            tabFullLayout.setVisibility(View.VISIBLE);
+                            tabCircularProgressIndicator.setVisibility(View.GONE);
+                            tabLayout.setVisibility(View.VISIBLE);
+                            tabRefresh.setVisibility(View.GONE);
+
+                            conn = false;
+                            connected = false;
+                            userAvailable = false;
+
+                            progress_track_flag_value = 0;
+                            String doc_name = "Dr. "+userInfoLists.get(0).getDoc_name();
+                            docName.setText(doc_name);
+                            String doc_center = userInfoLists.get(0).getDoc_center_name();
+                            if (doc_center.isEmpty()) {
+                                docCenterName.setVisibility(View.GONE);
+                            }
+                            else {
+                                docCenterName.setVisibility(View.VISIBLE);
+                                doc_center = "("+doc_center+")";
+                                docCenterName.setText(doc_center);
+                            }
+
+                            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.ENGLISH);
+                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm a", Locale.ENGLISH);
+                            SimpleDateFormat only_date_format = new SimpleDateFormat("dd", Locale.ENGLISH);
+                            SimpleDateFormat full_date_format = new SimpleDateFormat("dd MMM, yy", Locale.ENGLISH);
+                            SimpleDateFormat full_date_format_range = new SimpleDateFormat("dd MMMM, yy", Locale.ENGLISH);
+
+
+                            if (!last_schedule.isEmpty() && !next_schedule.isEmpty()) {
+                                nextMeetingText.setText("Next Meeting");
+                                meetingTime.setVisibility(View.VISIBLE);
+                                patientName.setVisibility(View.VISIBLE);
+                                timerIcon.setVisibility(View.VISIBLE);
+                                normalCountDownView.setVisibility(View.VISIBLE);
+                                Date prv_meeting_date = null;
+                                try {
+                                    prv_meeting_date = sdf.parse(last_schedule);
+                                } catch (ParseException e) {
+                                    throw new RuntimeException(e);
+                                }
+
+                                Date to_Date = Calendar.getInstance().getTime();
+
+                                Date next_meeting_date = null;
+                                try {
+                                    next_meeting_date = sdf.parse(next_schedule);
+                                } catch (ParseException e) {
+                                    throw new RuntimeException(e);
+                                }
+
+
+                                assert next_meeting_date != null;
+                                assert prv_meeting_date != null;
+                                total_seconds = (int) ((next_meeting_date.getTime() - prv_meeting_date.getTime())/1000);
+
+                                System.out.println("total_seconds: "+total_seconds);
+
+                                int remaining_seconds = (int) ((next_meeting_date.getTime()- to_Date.getTime())/1000);
+
+                                System.out.println("remaining_seconds: "+remaining_seconds);
+
+                                progress_track = (int) (100 * remaining_seconds) / total_seconds;
+
+                                if (progress_track < 0) {
+                                    progress_track = 0;
+                                }
+
+                                System.out.println("progress_track: "+progress_track);
+
+                                String time = simpleDateFormat.format(next_meeting_date);
+                                String date = only_date_format.format(next_meeting_date);
+                                String n_date = only_date_format.format(Calendar.getInstance().getTime());
+                                String full_date = full_date_format.format(next_meeting_date);
+
+                                if (date.equals(n_date)) {
+
+                                    if (time.startsWith("0")) {
+                                        time = time.substring(1);
+                                    }
+
+                                    meetingTime.setText("At  "+time);
+                                }
+                                else {
+                                    String  tt = "At  " + time +"\nIn  "+ full_date;
+                                    meetingTime.setText(tt);
+                                }
+
+                                horizontalProgressView.setProgressCompat(progress_track,true);
+                                normalCountDownView.stopTimer();
+
+                                int mm = (int) remaining_seconds / 60;
+                                int hh = (int) mm / 60;
+                                normalCountDownView.setShowHour(hh != 0);
+
+                                normalCountDownView.setShowMinutes(mm != 0);
+
+                                normalCountDownView.initTimer(remaining_seconds, HappyTimer.Type.COUNT_DOWN);
+                                normalCountDownView.startTimer();
+
+                                if (patient_name.isEmpty()) {
+                                    String text = "No Name Found";
+                                    patientName.setText(text);
+                                }
+                                else {
+                                    String text = "With "+patient_name;
+                                    patientName.setText(text);
+                                }
+                            }
+                            else if (last_schedule.isEmpty() && !next_schedule.isEmpty()) {
+                                nextMeetingText.setText("Next Meeting");
+                                meetingTime.setVisibility(View.VISIBLE);
+                                patientName.setVisibility(View.VISIBLE);
+                                timerIcon.setVisibility(View.VISIBLE);
+                                normalCountDownView.setVisibility(View.VISIBLE);
+
+                                Date to_Date = Calendar.getInstance().getTime();
+
+                                Date next_meeting_date = null;
+                                try {
+                                    next_meeting_date = sdf.parse(next_schedule);
+                                } catch (ParseException e) {
+                                    throw new RuntimeException(e);
+                                }
+
+
+                                assert next_meeting_date != null;
+
+                                total_seconds = (int) ((next_meeting_date.getTime() - to_Date.getTime())/1000);
+
+                                System.out.println("total_seconds: "+total_seconds);
+
+                                int remaining_seconds = (int) ((next_meeting_date.getTime()- to_Date.getTime())/1000);
+
+                                System.out.println("remaining_seconds: "+remaining_seconds);
+
+                                progress_track = (int) (100 * remaining_seconds) / total_seconds;
+
+                                if (progress_track < 0) {
+                                    progress_track = 0;
+                                }
+
+                                System.out.println("progress_track: "+progress_track);
+
+                                String time = simpleDateFormat.format(next_meeting_date);
+                                String date = only_date_format.format(next_meeting_date);
+                                String n_date = only_date_format.format(Calendar.getInstance().getTime());
+                                String full_date = full_date_format.format(next_meeting_date);
+
+                                if (date.equals(n_date)) {
+                                    meetingTime.setText("At "+time);
+                                }
+                                else {
+                                    String  tt = "At " + time +"\nIn "+ full_date;
+                                    meetingTime.setText(tt);
+                                }
+
+                                horizontalProgressView.setProgressCompat(progress_track,true);
+                                normalCountDownView.stopTimer();
+
+                                int mm = (int) remaining_seconds / 60;
+                                int hh = (int) mm / 60;
+                                normalCountDownView.setShowHour(hh != 0);
+
+                                normalCountDownView.setShowMinutes(mm != 0);
+
+                                normalCountDownView.initTimer(remaining_seconds, HappyTimer.Type.COUNT_DOWN);
+                                normalCountDownView.startTimer();
+
+                                if (patient_name.isEmpty()) {
+                                    String text = "No Name Found";
+                                    patientName.setText(text);
+                                }
+                                else {
+                                    String text = "With "+patient_name;
+                                    patientName.setText(text);
+                                }
+                            }
+                            else  {
+                                nextMeetingText.setText("No Upcoming Meeting Available");
+                                meetingTime.setVisibility(View.GONE);
+                                patientName.setVisibility(View.GONE);
+                                timerIcon.setVisibility(View.GONE);
+                                normalCountDownView.setVisibility(View.GONE);
+                                progress_track = 0;
+                                horizontalProgressView.setProgressCompat(progress_track,true);
+
+                            }
+
+                            Date dateRangCc = Calendar.getInstance().getTime();
+                            String date_range_text = full_date_format_range.format(dateRangCc);
+                            dateRangeText.setText(date_range_text);
+
+                            total.setText(String.valueOf(total_meeting));
+                            completed.setText(String.valueOf(completed_meeting));
+                            remaining.setText(String.valueOf(remaining_meeting));
+                            totalSchedule.setText(String.valueOf(total_schedule));
+                            blockedSchedule.setText(String.valueOf(blocked_schedule));
+
+                            int currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+                            String wt = "";
+                            if (currentHour >= 4 && currentHour <= 11) {
+                                wt = "Good Morning,";
+                            }
+                            else if (currentHour >= 12 && currentHour <= 16) {
+                                wt = "Good Afternoon,";
+                            }
+                            else if (currentHour >= 17 && currentHour <= 22) {
+                                wt = "Good Evening,";
+                            }
+                            else {
+                                wt = "Hello,";
+                            }
+                            welcomeText.setText(wt);
+
+                            if (imageFound) {
+                                Glide.with(DocDashboard.this)
+                                        .load(bitmap)
+                                        .fitCenter()
+                                        .into(docImage);
+                            }
+                            else {
+                                docImage.setImageResource(R.drawable.doctor);
+                            }
+
+                            first_flag = 1;
                         }
-                        welcomeText.setText(wt);
-
-                        first_flag = 1;
                     }
-
-
                 }
                 else {
                     fullLayout.setVisibility(View.GONE);
@@ -1361,7 +1494,7 @@ public class DocDashboard extends AppCompatActivity {
                         patientName.setText(text);
                     }
                     else {
-                        String text = "With Mr. "+patient_name;
+                        String text = "With "+patient_name;
                         patientName.setText(text);
                     }
                 }
@@ -1430,7 +1563,7 @@ public class DocDashboard extends AppCompatActivity {
                         patientName.setText(text);
                     }
                     else {
-                        String text = "With Mr. "+patient_name;
+                        String text = "With "+patient_name;
                         patientName.setText(text);
                     }
                 }
@@ -1473,6 +1606,16 @@ public class DocDashboard extends AppCompatActivity {
 
                 TabLayout.Tab tabAt = tabLayout.getTabAt(0);
                 tabLayout.selectTab(tabAt);
+
+                if (imageFound) {
+                    Glide.with(DocDashboard.this)
+                            .load(bitmap)
+                            .fitCenter()
+                            .into(docImage);
+                }
+                else {
+                    docImage.setImageResource(R.drawable.doctor);
+                }
 
                 first_flag = 1;
             }

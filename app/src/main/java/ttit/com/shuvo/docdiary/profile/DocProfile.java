@@ -63,6 +63,8 @@ public class DocProfile extends AppCompatActivity {
     String dep_name = "";
     TextView unitName;
     String unit_name = "";
+    TextView docCenter;
+    String doc_center_name = "";
     TextView streetAdds;
     String street_adds = "";
     TextView postOff;
@@ -108,6 +110,7 @@ public class DocProfile extends AppCompatActivity {
         desigName = findViewById(R.id.doc_designation_name);
         depName = findViewById(R.id.doc_department_name);
         unitName = findViewById(R.id.doc_unit_name);
+        docCenter = findViewById(R.id.doc_s_center_name_in_profile);
         chngPass = findViewById(R.id.change_password_button);
         videoCall = findViewById(R.id.video_call_button_with_doc);
 
@@ -128,6 +131,7 @@ public class DocProfile extends AppCompatActivity {
         desig_name = userInfoLists.get(0).getDesig_name();
         dep_name = userInfoLists.get(0).getDeptd_name();
         unit_name = userInfoLists.get(0).getDepts_name();
+        doc_center_name = userInfoLists.get(0).getDoc_center_name();
         doc_video = userInfoLists.get(0).getDoc_video_link();
         doc_video_enable_flag = userInfoLists.get(0).getDoc_video_link_enable_flag();
 
@@ -151,6 +155,13 @@ public class DocProfile extends AppCompatActivity {
         desigName.setText(desig_name);
         depName.setText(dep_name);
         unitName.setText(unit_name);
+        if (doc_center_name.isEmpty()) {
+            docCenter.setVisibility(View.GONE);
+        }
+        else {
+            docCenter.setVisibility(View.VISIBLE);
+            docCenter.setText(doc_center_name);
+        }
 
         backButton.setOnClickListener(v -> finish());
 

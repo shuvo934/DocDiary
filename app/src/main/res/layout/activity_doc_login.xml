@@ -114,19 +114,19 @@
                     style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/user_code_given_log_in"
+                        android:id="@+id/user_mobile_given_log_in"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:ems="10"
                         android:text=""
-                        android:hint="User Code"
+                        android:hint="Mobile No"
                         android:fontFamily="@font/ubuntu_medium"
                         android:paddingTop="@dimen/_13sdp"
                         android:paddingStart="@dimen/_20sdp"
                         android:paddingBottom="@dimen/_15sdp"
                         android:paddingEnd="@dimen/_20sdp"
                         android:textColor="@color/black"
-                        android:inputType="text"
+                        android:inputType="phone"
                         android:imeOptions="actionDone"
                         tools:ignore="HardcodedText" />
 
