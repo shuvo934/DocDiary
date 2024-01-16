@@ -73,6 +73,8 @@ public class DocProfile extends AppCompatActivity {
     String thana_name = "";
     TextView districtName;
     String dist_name = "";
+    String doc_dd_id = "";
+    String dist_id = "";
     TextView mobNum;
     String mob_num = "";
     TextView homePhn;
@@ -94,6 +96,7 @@ public class DocProfile extends AppCompatActivity {
     private boolean imageFound = false;
     boolean onResumeLoad = true;
 
+    ImageView editAddress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,6 +124,8 @@ public class DocProfile extends AppCompatActivity {
         mobNum = findViewById(R.id.doc_mobile_no);
         homePhn = findViewById(R.id.doc_home_phn_no);
         docEmail = findViewById(R.id.doc_email_no);
+
+        editAddress = findViewById(R.id.edit_doctor_address_profile);
 
         docImage = findViewById(R.id.doc_profile_image);
         cameraCap = findViewById(R.id.camera_view);
@@ -189,6 +194,17 @@ public class DocProfile extends AppCompatActivity {
             CropImage.activity()
                     .setGuidelines(CropImageView.Guidelines.ON)
                     .start(DocProfile.this);
+        });
+
+        editAddress.setOnClickListener(v -> {
+            onResumeLoad = true;
+            Intent intent = new Intent(DocProfile.this, UpdateAddress.class);
+            intent.putExtra("STREET",street_adds);
+            intent.putExtra("POST_OFF",post_off);
+            intent.putExtra("THANA_NAME",thana_name);
+            intent.putExtra("DD_ID",doc_dd_id);
+            intent.putExtra("DISTRICT",dist_name);
+            startActivity(intent);
         });
     }
 
@@ -268,6 +284,12 @@ public class DocProfile extends AppCompatActivity {
 
                         doc_email = docInfo.getString("doc_email")
                                 .equals("null") ? "" : docInfo.getString("doc_email");
+
+                        doc_dd_id = docInfo.getString("doc_dd_id")
+                                .equals("null") ? "" : docInfo.getString("doc_dd_id");
+
+                        dist_id = docInfo.getString("dist_id")
+                                .equals("null") ? "" : docInfo.getString("dist_id");
 
                         String doc_profile_pic = docInfo.optString("doc_profile_pic");
 

@@ -4,6 +4,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -41,9 +42,11 @@ import java.util.Objects;
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.dashboard.DocDashboard;
 import ttit.com.shuvo.docdiary.login.arraylists.CenterList;
+import ttit.com.shuvo.docdiary.login.arraylists.MultipleUserList;
 import ttit.com.shuvo.docdiary.login.dialogue.SelectCenterDialogue;
+import ttit.com.shuvo.docdiary.login.dialogue.SelectUserIdDialogue;
 
-public class DocLogin extends AppCompatActivity {
+public class DocLogin extends AppCompatActivity implements CallBackListener,IDCallbackListener,CloseCallBack{
 
     LinearLayout fullLayout;
     CircularProgressIndicator circularProgressIndicator;
@@ -55,7 +58,7 @@ public class DocLogin extends AppCompatActivity {
     TextView contactAdmin;
 
     String user_mobile = "";
-    String doc_code = "";
+    public static String center_doc_code = "";
     String user_password = "";
     private Boolean conn = false;
     private Boolean connected = false;
@@ -101,6 +104,7 @@ public class DocLogin extends AppCompatActivity {
         contactAdmin = findViewById(R.id.contact_here_text);
         centerName = findViewById(R.id.selected_center_name);
         centerName.setVisibility(View.GONE);
+        centerLists = new ArrayList<>();
 
         sharedpreferences = getSharedPreferences(LOGIN_ACTIVITY_FILE, MODE_PRIVATE);
         sharedLoginRemember = getSharedPreferences(MyPREFERENCES, MODE_PRIVATE);
@@ -374,6 +378,9 @@ public class DocLogin extends AppCompatActivity {
         connected = false;
         loading = true;
         prv_message = "";
+        centerLists = new ArrayList<>();
+        center_api = "";
+        center_doc_code = "";
         System.out.println("START");
 
         String useridUrl = "http://103.56.208.123:8001/apex/cstar_local/"+"login/getUserloginData?doc_code="+ user_mobile +"&doc_password="+user_password+"";
@@ -389,9 +396,33 @@ public class DocLogin extends AppCompatActivity {
                 JSONObject jsonObject = new JSONObject(response);
                 user_message = jsonObject.getString("is_online");
                 is_available = jsonObject.getString("is_available");
-                doc_code = jsonObject.getString("p_doc_code");
+                center_doc_code = jsonObject.getString("p_doc_code");
                 center_api = jsonObject.getString("p_center_api");
 
+                if (is_available.equals("1")) {
+//                    connected = true;
+//                    updateLayout();
+                    centerLists.add(new CenterList("CSTAR - BASHUNDHARA",center_api, center_doc_code,new ArrayList<>()));
+                    System.out.println("4th Found : 1");
+                }
+                else if (is_available.equals("3")) {
+                    String p_doc_list = jsonObject.getString("p_doc_list");
+                    JSONArray array = new JSONArray(p_doc_list);
+                    ArrayList<MultipleUserList> multipleUserLists = new ArrayList<>();
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject docInfo = array.getJSONObject(i);
+                        String dc = docInfo.getString("doc_code")
+                                .equals("null") ? "" : docInfo.getString("doc_code");
+                        String dn = docInfo.getString("doc_name")
+                                .equals("null") ? "" : docInfo.getString("doc_name");
+                        String dep_name = docInfo.getString("depts_name")
+                                .equals("null") ? "" : docInfo.getString("depts_name");
+                        multipleUserLists.add(new MultipleUserList(dc,dn,dep_name));
+                    }
+                    centerLists.add(new CenterList("CSTAR - BASHUNDHARA",center_api, center_doc_code,multipleUserLists));
+                    System.out.println("4th Found : 3");
+                }
+                System.out.println("4th Found : 2,0");
                 connected = true;
                 updateLayout();
 
@@ -414,19 +445,45 @@ public class DocLogin extends AppCompatActivity {
                 JSONObject jsonObject = new JSONObject(response);
                 user_message = jsonObject.getString("is_online");
                 is_available = jsonObject.getString("is_available");
-                doc_code = jsonObject.getString("p_doc_code");
+                center_doc_code = jsonObject.getString("p_doc_code");
                 center_api = jsonObject.getString("p_center_api");
-                if (is_available.equals("1")) {
-                    connected = true;
-                    updateLayout();
-                } else if (is_available.equals("0")) {
+                switch (is_available) {
+                    case "1":
 //                    connected = true;
 //                    updateLayout();
-                    prv_message = user_message;
-                    requestQueue.add(getUserMessage4);
-                }
-                else {
-                    requestQueue.add(getUserMessage4);
+                        centerLists.add(new CenterList("CRP - SAVAR", center_api, center_doc_code, new ArrayList<>()));
+                        requestQueue.add(getUserMessage4);
+                        System.out.println("3rd Found : 1");
+                        break;
+                    case "0":
+//                    connected = true;
+//                    updateLayout();
+                        prv_message = user_message;
+                        requestQueue.add(getUserMessage4);
+                        System.out.println("3rd Found : 0");
+                        break;
+                    case "3":
+                        String p_doc_list = jsonObject.getString("p_doc_list");
+                        JSONArray array = new JSONArray(p_doc_list);
+                        ArrayList<MultipleUserList> multipleUserLists = new ArrayList<>();
+                        for (int i = 0; i < array.length(); i++) {
+                            JSONObject docInfo = array.getJSONObject(i);
+                            String dc = docInfo.getString("doc_code")
+                                    .equals("null") ? "" : docInfo.getString("doc_code");
+                            String dn = docInfo.getString("doc_name")
+                                    .equals("null") ? "" : docInfo.getString("doc_name");
+                            String dep_name = docInfo.getString("depts_name")
+                                    .equals("null") ? "" : docInfo.getString("depts_name");
+                            multipleUserLists.add(new MultipleUserList(dc, dn, dep_name));
+                        }
+                        centerLists.add(new CenterList("CRP - SAVAR", center_api, center_doc_code, multipleUserLists));
+                        requestQueue.add(getUserMessage4);
+                        System.out.println("3rd Found : 3");
+                        break;
+                    default:
+                        requestQueue.add(getUserMessage4);
+                        System.out.println("3rd Found : 2");
+                        break;
                 }
 
             }
@@ -449,19 +506,45 @@ public class DocLogin extends AppCompatActivity {
                 JSONObject jsonObject = new JSONObject(response);
                 user_message = jsonObject.getString("is_online");
                 is_available = jsonObject.getString("is_available");
-                doc_code = jsonObject.getString("p_doc_code");
+                center_doc_code = jsonObject.getString("p_doc_code");
                 center_api = jsonObject.getString("p_center_api");
-                if (is_available.equals("1")) {
-                    connected = true;
-                    updateLayout();
-                } else if (is_available.equals("0")) {
+                switch (is_available) {
+                    case "1":
 //                    connected = true;
 //                    updateLayout();
-                    prv_message = user_message;
-                    requestQueue.add(getUserMessage3);
-                }
-                else {
-                    requestQueue.add(getUserMessage3);
+                        centerLists.add(new CenterList("CSTAR - RAMPURA", center_api, center_doc_code, new ArrayList<>()));
+                        requestQueue.add(getUserMessage3);
+                        System.out.println("2nd Found : 1");
+                        break;
+                    case "0":
+//                    connected = true;
+//                    updateLayout();
+                        prv_message = user_message;
+                        requestQueue.add(getUserMessage3);
+                        System.out.println("2nd Found : 0");
+                        break;
+                    case "3":
+                        String p_doc_list = jsonObject.getString("p_doc_list");
+                        JSONArray array = new JSONArray(p_doc_list);
+                        ArrayList<MultipleUserList> multipleUserLists = new ArrayList<>();
+                        for (int i = 0; i < array.length(); i++) {
+                            JSONObject docInfo = array.getJSONObject(i);
+                            String dc = docInfo.getString("doc_code")
+                                    .equals("null") ? "" : docInfo.getString("doc_code");
+                            String dn = docInfo.getString("doc_name")
+                                    .equals("null") ? "" : docInfo.getString("doc_name");
+                            String dep_name = docInfo.getString("depts_name")
+                                    .equals("null") ? "" : docInfo.getString("depts_name");
+                            multipleUserLists.add(new MultipleUserList(dc, dn, dep_name));
+                        }
+                        centerLists.add(new CenterList("CSTAR - RAMPURA", center_api, center_doc_code, multipleUserLists));
+                        requestQueue.add(getUserMessage3);
+                        System.out.println("2nd Found : 3");
+                        break;
+                    default:
+                        requestQueue.add(getUserMessage3);
+                        System.out.println("2nd Found : 2");
+                        break;
                 }
 
             }
@@ -485,19 +568,45 @@ public class DocLogin extends AppCompatActivity {
                 JSONObject jsonObject = new JSONObject(response);
                 user_message = jsonObject.getString("is_online");
                 is_available = jsonObject.getString("is_available");
-                doc_code = jsonObject.getString("p_doc_code");
+                center_doc_code = jsonObject.getString("p_doc_code");
                 center_api = jsonObject.getString("p_center_api");
-                if (is_available.equals("1")) {
-                    connected = true;
-                    updateLayout();
-                } else if (is_available.equals("0")) {
+                switch (is_available) {
+                    case "1":
 //                    connected = true;
 //                    updateLayout();
-                    prv_message = user_message;
-                    requestQueue.add(getUserMessage2);
-                }
-                else {
-                    requestQueue.add(getUserMessage2);
+                        centerLists.add(new CenterList("CSTAR - LOCAL", center_api, center_doc_code, new ArrayList<>()));
+                        requestQueue.add(getUserMessage2);
+                        System.out.println("1st Found : 1");
+                        break;
+                    case "0":
+//                    connected = true;
+//                    updateLayout();
+                        prv_message = user_message;
+                        requestQueue.add(getUserMessage2);
+                        System.out.println("1st Found : 0");
+                        break;
+                    case "3":
+                        String p_doc_list = jsonObject.getString("p_doc_list");
+                        JSONArray array = new JSONArray(p_doc_list);
+                        ArrayList<MultipleUserList> multipleUserLists = new ArrayList<>();
+                        for (int i = 0; i < array.length(); i++) {
+                            JSONObject docInfo = array.getJSONObject(i);
+                            String dc = docInfo.getString("doc_code")
+                                    .equals("null") ? "" : docInfo.getString("doc_code");
+                            String dn = docInfo.getString("doc_name")
+                                    .equals("null") ? "" : docInfo.getString("doc_name");
+                            String dep_name = docInfo.getString("depts_name")
+                                    .equals("null") ? "" : docInfo.getString("depts_name");
+                            multipleUserLists.add(new MultipleUserList(dc, dn, dep_name));
+                        }
+                        centerLists.add(new CenterList("CSTAR - LOCAL", center_api, center_doc_code, multipleUserLists));
+                        requestQueue.add(getUserMessage2);
+                        System.out.println("1st Found : 3");
+                        break;
+                    default:
+                        requestQueue.add(getUserMessage2);
+                        System.out.println("1st Found : 2");
+                        break;
                 }
 
             }
@@ -518,15 +627,35 @@ public class DocLogin extends AppCompatActivity {
     }
 
     private void updateLayout() {
-        if (conn) {
-            if (connected) {
-                if (user_message.equals("true")) {
+        if (centerLists.size() != 0) {
+            if (centerLists.size() == 1) {
+                ArrayList<MultipleUserList> multipleUserLists = centerLists.get(0).getMultipleUserLists();
+                if (multipleUserLists.size() == 0) {
+                    center_doc_code = centerLists.get(0).getDoc_code();
+                    center_api = centerLists.get(0).getCenter_api();
+                    System.out.println("Center Found : "+centerLists.size());
                     updateFLFlag();
                 }
                 else {
-                    fullLayout.setVisibility(View.VISIBLE);
-                    circularProgressIndicator.setVisibility(View.GONE);
-                    loading = false;
+                    System.out.println("USERs Found : "+multipleUserLists.size());
+                    center_api = centerLists.get(0).getCenter_api();
+                    String cn = centerLists.get(0).getCenter_name();
+                    SelectUserIdDialogue selectUserIdDialogue = new SelectUserIdDialogue(multipleUserLists,DocLogin.this,cn);
+                    selectUserIdDialogue.show(getSupportFragmentManager(),"USER_CENTER");
+                }
+            }
+            else {
+                System.out.println("Center Found : "+centerLists.size());
+                SelectCenterDialogue selectCenterDialogue = new SelectCenterDialogue(centerLists,DocLogin.this);
+                selectCenterDialogue.show(getSupportFragmentManager(),"CENTER");
+            }
+        }
+        else {
+            fullLayout.setVisibility(View.VISIBLE);
+            circularProgressIndicator.setVisibility(View.GONE);
+            loading = false;
+            if (conn) {
+                if (connected) {
                     MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocLogin.this);
                     if (is_available.equals("0")) {
                         alertDialogBuilder.setTitle("Warning!")
@@ -558,6 +687,34 @@ public class DocLogin extends AppCompatActivity {
                         }
                     }
                 }
+                else {
+                    fullLayout.setVisibility(View.VISIBLE);
+                    circularProgressIndicator.setVisibility(View.GONE);
+                    loading = false;
+                    MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocLogin.this);
+                    if (prv_message.isEmpty()) {
+                        alertDialogBuilder.setTitle("Warning!")
+                                .setIcon(R.drawable.doc_diary_default)
+                                .setMessage("There is a network issue in the server. Please Try later.")
+                                .setPositiveButton("Retry", (dialog, which) -> {
+                                    loginCheck();
+                                    dialog.dismiss();
+                                });
+
+                        AlertDialog alert = alertDialogBuilder.create();
+                        alert.show();
+                    }
+                    else {
+                        alertDialogBuilder.setTitle("Warning!")
+                                .setIcon(R.drawable.doc_diary_default)
+                                .setMessage(prv_message)
+                                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+
+                        AlertDialog alert = alertDialogBuilder.create();
+                        alert.show();
+                    }
+
+                }
             }
             else {
                 fullLayout.setVisibility(View.VISIBLE);
@@ -567,7 +724,7 @@ public class DocLogin extends AppCompatActivity {
                 if (prv_message.isEmpty()) {
                     alertDialogBuilder.setTitle("Warning!")
                             .setIcon(R.drawable.doc_diary_default)
-                            .setMessage("There is a network issue in the server. Please Try later.")
+                            .setMessage("Server Problem or Internet Not Connected")
                             .setPositiveButton("Retry", (dialog, which) -> {
                                 loginCheck();
                                 dialog.dismiss();
@@ -585,34 +742,6 @@ public class DocLogin extends AppCompatActivity {
                     AlertDialog alert = alertDialogBuilder.create();
                     alert.show();
                 }
-
-            }
-        }
-        else {
-            fullLayout.setVisibility(View.VISIBLE);
-            circularProgressIndicator.setVisibility(View.GONE);
-            loading = false;
-            MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocLogin.this);
-            if (prv_message.isEmpty()) {
-                alertDialogBuilder.setTitle("Warning!")
-                        .setIcon(R.drawable.doc_diary_default)
-                        .setMessage("Server Problem or Internet Not Connected")
-                        .setPositiveButton("Retry", (dialog, which) -> {
-                            loginCheck();
-                            dialog.dismiss();
-                        });
-
-                AlertDialog alert = alertDialogBuilder.create();
-                alert.show();
-            }
-            else {
-                alertDialogBuilder.setTitle("Warning!")
-                        .setIcon(R.drawable.doc_diary_default)
-                        .setMessage(prv_message)
-                        .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
-
-                AlertDialog alert = alertDialogBuilder.create();
-                alert.show();
             }
         }
     }
@@ -652,7 +781,7 @@ public class DocLogin extends AppCompatActivity {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headers = new HashMap<>();
-                headers.put("P_DOC_CODE",doc_code);
+                headers.put("P_DOC_CODE", center_doc_code);
                 return headers;
             }
         };
@@ -690,7 +819,7 @@ public class DocLogin extends AppCompatActivity {
                 editor1.remove(DOC_DATA_API);
                 editor1.remove(LOGIN_TF);
 
-                editor1.putString(DOC_USER_CODE, doc_code);
+                editor1.putString(DOC_USER_CODE, center_doc_code);
                 editor1.putString(DOC_USER_PASSWORD, user_password);
                 editor1.putString(DOC_DATA_API, center_api);
                 editor1.putBoolean(LOGIN_TF, true);
@@ -729,5 +858,22 @@ public class DocLogin extends AppCompatActivity {
                 dialog.dismiss();
             });
         }
+    }
+
+    @Override
+    public void onDismiss() {
+        updateFLFlag();
+    }
+
+    @Override
+    public void onIdDismiss() {
+        updateFLFlag();
+    }
+
+    @Override
+    public void closeCallDismiss() {
+        fullLayout.setVisibility(View.VISIBLE);
+        circularProgressIndicator.setVisibility(View.GONE);
+        loading = false;
     }
 }

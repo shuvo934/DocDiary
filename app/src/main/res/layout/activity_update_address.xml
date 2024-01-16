@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".profile.UpdateAddress">
+
+    <LinearLayout
+        android:id="@+id/doc_update_address_full_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:id="@+id/doc_address_update_app_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/clouds"
+            android:padding="@dimen/_12sdp">
+
+            <ImageView
+                android:layout_width="@dimen/_21sdp"
+                android:layout_height="@dimen/_21sdp"
+                android:id="@+id/close_logo_of_doc_address_update"
+                android:layout_centerVertical="true"
+                android:src="@drawable/close_24"
+                app:tint="@color/black"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"
+                android:layout_toEndOf="@+id/close_logo_of_doc_address_update"
+                android:fontFamily="@font/poppins_bold"
+                android:text="Update Address"
+                android:paddingTop="2dp"
+                android:paddingBottom="0dp"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_14sdp"
+                tools:ignore="HardcodedText" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/design_bar"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/green_sea"
+            android:orientation="vertical"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_above="@+id/doc_edit_address_button"
+                android:layout_margin="@dimen/_4sdp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/street_address_text_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="4dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeColor="@color/green_sea"
+                        app:boxCornerRadiusTopStart="10dp"
+                        app:boxCornerRadiusTopEnd="10dp"
+                        app:boxCornerRadiusBottomEnd="10dp"
+                        app:boxCornerRadiusBottomStart="10dp"
+                        android:textColorHint="#b2bec3"
+                        app:helperTextEnabled="true"
+                        app:helperText=""
+                        app:helperTextTextColor="@android:color/holo_red_dark"
+                        app:hintEnabled="true"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        tools:ignore="HardcodedText">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/street_address_text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:ems="10"
+                            android:text=""
+                            android:hint="Street Address/Village"
+                            android:textAppearance="@style/CustomTextFont"
+                            android:inputType="text"
+                            android:imeOptions="actionDone"
+                            android:textColor="@color/black"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/post_office_text_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="4dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeColor="@color/green_sea"
+                        app:boxCornerRadiusTopStart="10dp"
+                        app:boxCornerRadiusTopEnd="10dp"
+                        app:boxCornerRadiusBottomEnd="10dp"
+                        app:boxCornerRadiusBottomStart="10dp"
+                        android:textColorHint="#b2bec3"
+                        app:helperTextEnabled="true"
+                        app:helperText=""
+                        app:helperTextTextColor="@android:color/holo_red_dark"
+                        app:hintEnabled="true"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        tools:ignore="HardcodedText">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/post_office_text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:ems="10"
+                            android:text=""
+                            android:hint="Post Office"
+                            android:textAppearance="@style/CustomTextFont"
+                            android:inputType="text"
+                            android:imeOptions="actionDone"
+                            android:textColor="@color/black"/>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/thana_upazilla_text_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="4dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeColor="@color/green_sea"
+                        app:boxCornerRadiusTopStart="10dp"
+                        app:boxCornerRadiusTopEnd="10dp"
+                        app:boxCornerRadiusBottomEnd="10dp"
+                        app:boxCornerRadiusBottomStart="10dp"
+                        android:textColorHint="#b2bec3"
+                        app:helperTextEnabled="true"
+                        app:helperText=""
+                        app:helperTextTextColor="@android:color/holo_red_dark"
+                        app:hintEnabled="true"
+                        app:endIconMode="dropdown_menu"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        tools:ignore="HardcodedText">
+
+                        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                            style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox"
+                            android:id="@+id/thana_upazilla_text"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:ems="10"
+                            android:text=""
+                            android:hint="Thana/Upazila"
+                            android:textAppearance="@style/CustomTextFont"
+                            android:imeOptions="actionDone"
+                            android:textColor="@color/black"
+                            android:inputType="text"
+                            android:importantForAutofill="no"
+                            android:ellipsize="none"
+                            android:maxLines="100"
+                            android:scrollHorizontally="false" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="4dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        app:boxStrokeColor="@color/back_color"
+                        app:boxStrokeWidth="0dp"
+                        app:boxCornerRadiusTopStart="5dp"
+                        app:boxCornerRadiusTopEnd="5dp"
+                        app:boxCornerRadiusBottomEnd="5dp"
+                        app:boxCornerRadiusBottomStart="5dp"
+                        app:boxBackgroundMode="filled"
+                        android:clickable="false"
+                        android:enabled="false"
+                        app:boxBackgroundColor="@color/white"
+                        app:hintTextColor="@color/black"
+                        android:textColorHint="#b2bec3"
+                        app:helperTextEnabled="true"
+                        app:helperText=""
+                        app:helperTextTextColor="@android:color/holo_red_dark"
+                        app:hintEnabled="true"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                        tools:ignore="HardcodedText"
+                        >
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/district_text_doc_profile"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:ems="10"
+                            android:clickable="false"
+                            android:enabled="false"
+                            android:textSize="12sp"
+                            android:text=""
+                            android:textStyle="bold"
+                            android:fontFamily="@font/open_sans"
+                            android:textColor="@color/black"
+                            android:inputType="text"
+                            android:hint="District:"
+                            android:textAppearance="@style/CustomTextFont"
+                            android:imeOptions="actionDone"
+                            />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+
+            </ScrollView>
+
+            <Button
+                android:id="@+id/doc_edit_address_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_gravity="center"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/custom_button"
+                android:fontFamily="@font/poppins_bold"
+                android:text="UPDATE"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_14sdp"
+                android:textStyle="bold"
+                app:backgroundTint="@null"
+                tools:ignore="HardcodedText"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"/>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progress_indicator_doc_profile_update_address"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:indeterminate="true"
+        android:layout_gravity="center"/>
+
+</RelativeLayout>

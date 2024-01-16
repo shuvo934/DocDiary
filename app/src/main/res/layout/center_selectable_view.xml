@@ -34,18 +34,35 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="16dp"
-                android:layout_marginEnd="5dp"
+                android:layout_marginEnd="6dp"
                 android:paddingTop="4dp"
                 android:paddingBottom="0dp"
                 android:layout_toEndOf="@+id/icon_select_center"
+                android:layout_toStartOf="@+id/close_center_choice"
                 android:fontFamily="@font/poppins_bold"
                 android:text="SELECT CENTER"
                 android:textColor="@color/white"
                 android:textSize="18sp"
                 tools:ignore="HardcodedText" />
 
+            <ImageView
+                android:id="@+id/close_center_choice"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/close_24"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                app:tint="@color/white"/>
+
         </RelativeLayout>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="We have found Multiple Center for your login credentials. Please Select One to proceed."
+            android:layout_margin="10dp"
+            android:fontFamily="@font/poppins_medium"
+            android:gravity="center"/>
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/center_list_view"
             android:layout_width="match_parent"
