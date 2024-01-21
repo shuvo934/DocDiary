@@ -29,6 +29,7 @@ import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
+import com.jakewharton.processphoenix.ProcessPhoenix;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -201,7 +202,17 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
         prescription_type = intent.getStringExtra("PRESCRIPTION_TYPE");
         ph_id = intent.getStringExtra("P_PH_ID");
 
-        doc_id = userInfoLists.get(0).getDoc_id();
+        if (userInfoLists == null) {
+            restart("Could Not Get Doctor Data. Please Restart the App.");
+        }
+        else {
+            if (userInfoLists.size() == 0) {
+                restart("Could Not Get Doctor Data. Please Restart the App.");
+            }
+            else {
+                doc_id = userInfoLists.get(0).getDoc_id();
+            }
+        }
 
         complainLists = new ArrayList<>();
         patDiagnosisLists = new ArrayList<>();
@@ -247,7 +258,12 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
                     });
 
             AlertDialog alert = alertDialogBuilder.create();
-            alert.show();
+            try {
+                alert.show();
+            }
+            catch (Exception e) {
+                restart("App is paused for a long time. Please Start the app again.");
+            }
         });
 
         complainAdd.setOnClickListener(v -> {
@@ -905,7 +921,12 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
         alert.setCanceledOnTouchOutside(false);
-        alert.show();
+        try {
+            alert.show();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
     }
 
     public static void updateDiagnosis() {
@@ -1052,7 +1073,12 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
         alert.setCanceledOnTouchOutside(false);
-        alert.show();
+        try {
+            alert.show();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
     }
 
     @Override
@@ -1206,7 +1232,12 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
         alert.setCanceledOnTouchOutside(false);
-        alert.show();
+        try {
+            alert.show();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
     }
 
     @Override
@@ -1335,7 +1366,12 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
         alert.setCanceledOnTouchOutside(false);
-        alert.show();
+        try {
+            alert.show();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
     }
 
     public void updatePatAdmFlag(String flag) {
@@ -1435,6 +1471,20 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
         alert.setCanceledOnTouchOutside(false);
-        alert.show();
+        try {
+            alert.show();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
+    }
+    public void restart(String msg) {
+        try {
+            ProcessPhoenix.triggerRebirth(getApplicationContext());
+        }
+        catch (Exception e) {
+            Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_SHORT).show();
+            System.exit(0);
+        }
     }
 }

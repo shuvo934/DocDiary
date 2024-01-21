@@ -10,8 +10,8 @@ android {
         applicationId "ttit.com.shuvo.docdiary"
         minSdk 23
         targetSdk 33
-        versionCode 3
-        versionName "1.2"
+        versionCode 4
+        versionName "1.2.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -52,7 +52,7 @@ dependencies {
 //    implementation 'com.github.sundeepk:compact-calendar-view:3.0.0'
 //    implementation 'com.github.tizisdeepan:eventscalendar:1.6.1'
 
-    implementation 'com.applandeo:material-calendar-view:1.6.0'
+    implementation 'com.applandeo:material-calendar-view:1.9.0-rc04'
 
     implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
     implementation 'com.github.bumptech.glide:glide:4.13.2'
@@ -61,4 +61,5 @@ dependencies {
     //in app update
     implementation 'com.google.android.play:app-update:2.1.0'
 
+    implementation 'com.jakewharton:process-phoenix:2.1.2'
 }

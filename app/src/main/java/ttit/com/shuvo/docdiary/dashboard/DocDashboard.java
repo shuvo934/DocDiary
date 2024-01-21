@@ -1,6 +1,5 @@
 package ttit.com.shuvo.docdiary.dashboard;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -13,10 +12,8 @@ import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.util.Base64;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -35,11 +32,10 @@ import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
-import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
+import com.jakewharton.processphoenix.ProcessPhoenix;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -140,7 +136,6 @@ public class DocDashboard extends AppCompatActivity {
     String ipAddress = "";
     String hostUserName = "";
     String osName = "";
-    String android_id = "";
     Bitmap bitmap;
     private boolean imageFound = false;
     ImageView docImage;
@@ -384,7 +379,12 @@ public class DocDashboard extends AppCompatActivity {
                     });
 
             AlertDialog alert = alertDialogBuilder.create();
-            alert.show();
+            try {
+                alert.show();
+            }
+            catch (Exception e) {
+                restart("App is paused for a long time. Please Start the app again.");
+            }
         });
 
         first_flag = 0;
@@ -432,15 +432,23 @@ public class DocDashboard extends AppCompatActivity {
                     if (!addr.isLoopbackAddress()) {
                         String sAddr = addr.getHostAddress();
                         //boolean isIPv4 = InetAddressUtils.isIPv4Address(sAddr);
-                        boolean isIPv4 = sAddr.indexOf(':')<0;
+                        boolean isIPv4 = false;
+                        if (sAddr != null) {
+                            isIPv4 = sAddr.indexOf(':')<0;
+                        }
 
                         if (useIPv4) {
                             if (isIPv4)
                                 return sAddr;
                         } else {
                             if (!isIPv4) {
-                                int delim = sAddr.indexOf('%'); // drop ip6 zone suffix
-                                return delim<0 ? sAddr.toUpperCase() : sAddr.substring(0, delim).toUpperCase();
+                                int delim = 0; // drop ip6 zone suffix
+                                if (sAddr != null) {
+                                    delim = sAddr.indexOf('%');
+                                }
+                                if (sAddr != null) {
+                                    return delim<0 ? sAddr.toUpperCase() : sAddr.substring(0, delim).toUpperCase();
+                                }
                             }
                         }
                     }
@@ -504,7 +512,12 @@ public class DocDashboard extends AppCompatActivity {
                 });
 
         AlertDialog alert = alertDialogBuilder.create();
-        alert.show();
+        try {
+            alert.show();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
     }
 
     public void getDocData() {
@@ -755,6 +768,15 @@ public class DocDashboard extends AppCompatActivity {
         SimpleDateFormat timeFormat = new SimpleDateFormat("dd-MMM-yy hh:mm a", Locale.ENGLISH);
         String time_now = simpleDateFormat.format(Calendar.getInstance().getTime());
         String date_now = dateFormat.format(Calendar.getInstance().getTime());
+
+        if (doc_id == null) {
+           restart("Could Not Get Doctor Data. Please Restart the App.");
+        }
+        else {
+            if (doc_id.isEmpty()) {
+                restart("Could Not Get Doctor Data. Please Restart the App.");
+            }
+        }
         String docDataUrl = pre_url_api+"doc_dashboard/getMeetingSchedule?doc_id="+doc_id+"&time_now="+time_now+"";
         String docMeetingUrl = pre_url_api+"doc_dashboard/getMeetingCount?doc_id="+doc_id+"&first_date="+date_now+"&end_date="+date_now+"";
         String docScheduleUrl = pre_url_api+"doc_dashboard/getScheduleCount?doc_id="+doc_id+"&first_date="+date_now+"&end_date="+date_now+"";
@@ -1019,7 +1041,7 @@ public class DocDashboard extends AppCompatActivity {
 
                         MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
                         alertDialogBuilder.setTitle("Forced Log Out!")
-                                .setMessage("You are forced to log out from the app for server maintenance.We are sorry for the disturbance. Please Login again to continue the app.")
+                                .setMessage("You are forced to log out from the app for server maintenance. We are sorry for the disturbance. Please Login again to continue the app.")
                                 .setPositiveButton("OK", (dialog, which) -> {
                                     SharedPreferences.Editor editor1 = sharedPreferences.edit();
                                     editor1.remove(DOC_USER_CODE);
@@ -1038,7 +1060,12 @@ public class DocDashboard extends AppCompatActivity {
                         AlertDialog alert = alertDialogBuilder.create();
                         alert.setCancelable(false);
                         alert.setCanceledOnTouchOutside(false);
-                        alert.show();
+                        try {
+                            alert.show();
+                        }
+                        catch (Exception e) {
+                            restart("App is paused for a long time. Please Start the app again.");
+                        }
                     }
                     else {
                         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
@@ -1084,7 +1111,12 @@ public class DocDashboard extends AppCompatActivity {
                             AlertDialog alert = alertDialogBuilder.create();
                             alert.setCancelable(false);
                             alert.setCanceledOnTouchOutside(false);
-                            alert.show();
+                            try {
+                                alert.show();
+                            }
+                            catch (Exception e) {
+                                restart("App is paused for a long time. Please Start the app again.");
+                            }
                         }
                         else {
                             fullLayout.setVisibility(View.VISIBLE);
@@ -1100,9 +1132,23 @@ public class DocDashboard extends AppCompatActivity {
                             userAvailable = false;
 
                             progress_track_flag_value = 0;
-                            String doc_name = "Dr. "+userInfoLists.get(0).getDoc_name();
-                            docName.setText(doc_name);
-                            String doc_center = userInfoLists.get(0).getDoc_center_name();
+                            String doc_center = "";
+                            if (userInfoLists == null) {
+                                restart("Could Not Get Doctor Data. Please Restart the App.");
+                            }
+                            else {
+                                if (userInfoLists.size() == 0) {
+                                    restart("Could Not Get Doctor Data. Please Restart the App.");
+                                }
+                                else {
+                                    doc_id = userInfoLists.get(0).getDoc_id();
+                                    String doc_name = "Dr. "+userInfoLists.get(0).getDoc_name();
+                                    docName.setText(doc_name);
+
+                                    doc_center = userInfoLists.get(0).getDoc_center_name();
+                                }
+                            }
+
                             if (doc_center.isEmpty()) {
                                 docCenterName.setVisibility(View.GONE);
                             }
@@ -1348,7 +1394,12 @@ public class DocDashboard extends AppCompatActivity {
                     AlertDialog alert = alertDialogBuilder.create();
                     alert.setCancelable(false);
                     alert.setCanceledOnTouchOutside(false);
-                    alert.show();
+                    try {
+                        alert.show();
+                    }
+                    catch (Exception e) {
+                        restart("App is paused for a long time. Please Start the app again.");
+                    }
                 }
             }
             else {
@@ -1393,7 +1444,12 @@ public class DocDashboard extends AppCompatActivity {
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
         alert.setCanceledOnTouchOutside(false);
-        alert.show();
+        try {
+            alert.show();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
     }
 
     private void updateLayout() {
@@ -1670,7 +1726,12 @@ public class DocDashboard extends AppCompatActivity {
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
         alert.setCanceledOnTouchOutside(false);
-        alert.show();
+        try {
+            alert.show();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
     }
 
     public void getDocMeetingCount() {
@@ -1848,6 +1909,20 @@ public class DocDashboard extends AppCompatActivity {
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
         alert.setCanceledOnTouchOutside(false);
-        alert.show();
+        try {
+            alert.show();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
+    }
+    public void restart(String msg) {
+        try {
+            ProcessPhoenix.triggerRebirth(getApplicationContext());
+        }
+        catch (Exception e) {
+            Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_SHORT).show();
+            System.exit(0);
+        }
     }
 }

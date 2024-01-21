@@ -33,6 +33,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.jakewharton.processphoenix.ProcessPhoenix;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -119,7 +120,17 @@ public class UpdatePassword extends AppCompatActivity {
         doc_password = sharedpreferences.getString(DOC_USER_PASSWORD,"");
         login_tf = sharedpreferences.getBoolean(LOGIN_TF,false);
 
-        doc_id = userInfoLists.get(0).getDoc_id();
+        if (userInfoLists == null) {
+            restart("Could Not Get Doctor Data. Please Restart the App.");
+        }
+        else {
+            if (userInfoLists.size() == 0) {
+                restart("Could Not Get Doctor Data. Please Restart the App.");
+            }
+            else {
+                doc_id = userInfoLists.get(0).getDoc_id();
+            }
+        }
 
         close.setOnClickListener(v -> finish());
 
@@ -358,7 +369,12 @@ public class UpdatePassword extends AppCompatActivity {
                 AlertDialog alert = alertDialogBuilder.create();
                 alert.setCancelable(false);
                 alert.setCanceledOnTouchOutside(false);
-                alert.show();
+                try {
+                    alert.show();
+                }
+                catch (Exception e) {
+                    restart("App is paused for a long time. Please Start the app again.");
+                }
             }
             else {
                 alertMessage();
@@ -393,6 +409,20 @@ public class UpdatePassword extends AppCompatActivity {
                 });
 
         AlertDialog alert = alertDialogBuilder.create();
-        alert.show();
+        try {
+            alert.show();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
+    }
+    public void restart(String msg) {
+        try {
+            ProcessPhoenix.triggerRebirth(getApplicationContext());
+        }
+        catch (Exception e) {
+            Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_SHORT).show();
+            System.exit(0);
+        }
     }
 }

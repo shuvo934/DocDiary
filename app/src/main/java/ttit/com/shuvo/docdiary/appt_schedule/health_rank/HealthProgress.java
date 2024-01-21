@@ -40,6 +40,7 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
+import com.jakewharton.processphoenix.ProcessPhoenix;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -61,19 +62,6 @@ import ttit.com.shuvo.docdiary.appt_schedule.health_rank.arraylists.ChoiceDoctor
 import ttit.com.shuvo.docdiary.appt_schedule.health_rank.arraylists.ChoiceServiceList;
 import ttit.com.shuvo.docdiary.appt_schedule.health_rank.arraylists.ChoiceUnitList;
 import ttit.com.shuvo.docdiary.appt_schedule.health_rank.arraylists.HealthProgressList;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.adapters.ComplainAdapter;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.adapters.PatDiagnosisAdapter;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.adapters.PatRefServiceAdapter;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.adapters.PatReferralUnitAdapter;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.ClinicalFindings;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.DrugHistory;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.ManagementPlan;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.MedicalHistory;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.Medication;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.PatAdvice;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.PatReference;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.DrugHistoryModify;
 
 public class HealthProgress extends AppCompatActivity {
 
@@ -208,9 +196,19 @@ public class HealthProgress extends AppCompatActivity {
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(patProgressHistView.getContext(),DividerItemDecoration.VERTICAL);
         patProgressHistView.addItemDecoration(dividerItemDecoration);
 
-        doc_name = userInfoLists.get(0).getDoc_name();
-        doc_id = userInfoLists.get(0).getDoc_id();
-        doc_code = userInfoLists.get(0).getDoc_code();
+        if (userInfoLists == null) {
+            restart("Could Not Get Doctor Data. Please Restart the App.");
+        }
+        else {
+            if (userInfoLists.size() == 0) {
+                restart("Could Not Get Doctor Data. Please Restart the App.");
+            }
+            else {
+                doc_name = userInfoLists.get(0).getDoc_name();
+                doc_id = userInfoLists.get(0).getDoc_id();
+                doc_code = userInfoLists.get(0).getDoc_code();
+            }
+        }
 
         Intent intent = getIntent();
         pat_name = intent.getStringExtra("P_NAME");
@@ -478,7 +476,12 @@ public class HealthProgress extends AppCompatActivity {
                             });
 
                     AlertDialog alert = alertDialogBuilder.create();
-                    alert.show();
+                    try {
+                        alert.show();
+                    }
+                    catch (Exception e) {
+                        restart("App is paused for a long time. Please Start the app again.");
+                    }
                 }
                 else {
                     Toast.makeText(getApplicationContext(),"Please Provide Progress Note",Toast.LENGTH_SHORT).show();
@@ -1012,7 +1015,12 @@ public class HealthProgress extends AppCompatActivity {
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
         alert.setCanceledOnTouchOutside(false);
-        alert.show();
+        try {
+            alert.show();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
     }
 
     public void addPatProgress() {
@@ -1124,6 +1132,20 @@ public class HealthProgress extends AppCompatActivity {
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
         alert.setCanceledOnTouchOutside(false);
-        alert.show();
+        try {
+            alert.show();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
+    }
+    public void restart(String msg) {
+        try {
+            ProcessPhoenix.triggerRebirth(getApplicationContext());
+        }
+        catch (Exception e) {
+            Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_SHORT).show();
+            System.exit(0);
+        }
     }
 }

@@ -29,6 +29,7 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
+import com.jakewharton.processphoenix.ProcessPhoenix;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -239,7 +240,12 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
 
                     });
             AlertDialog alert = builder.create();
-            alert.show();
+            try {
+                alert.show();
+            }
+            catch (Exception e) {
+                restart("App is paused for a long time. Please Start the app again.");
+            }
         }
 
     }
@@ -386,11 +392,12 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
         String useridUrl = "http://103.56.208.123:8001/apex/cstar_local/"+"login/getUserloginData?doc_code="+ user_mobile +"&doc_password="+user_password+"";
         String userIdUrl2 = "http://103.73.227.28:8080/cstar/cstar-ramp/"+"login/getUserloginData?doc_code="+ user_mobile +"&doc_password="+user_password+"";
         String userIdUrl3 = "http://202.4.109.126:8003/crps/crp_savar/"+"login/getUserloginData?doc_code="+ user_mobile +"&doc_password="+user_password+"";
-        String userIdUrl4 = "http://103.73.227.28:8080/cstar/cstar_bsd/"+"login/getUserloginData?doc_code="+ user_mobile +"&doc_password="+user_password+"";
+        String userIdUrl4 = "http://144.48.119.59:8002/apex/crp_mirpur/"+"login/getUserloginData?doc_code="+ user_mobile +"&doc_password="+user_password+"";
+        String userIdUrl5 = "http://103.73.227.28:8080/cstar/cstar_bsd/"+"login/getUserloginData?doc_code="+ user_mobile +"&doc_password="+user_password+"";
 
         RequestQueue requestQueue = Volley.newRequestQueue(DocLogin.this);
 
-        StringRequest getUserMessage4 = new StringRequest(Request.Method.GET, userIdUrl4, response -> {
+        StringRequest getUserMessage5 = new StringRequest(Request.Method.GET, userIdUrl5, response -> {
             conn = true;
             try {
                 JSONObject jsonObject = new JSONObject(response);
@@ -403,7 +410,7 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
 //                    connected = true;
 //                    updateLayout();
                     centerLists.add(new CenterList("CSTAR - BASHUNDHARA",center_api, center_doc_code,new ArrayList<>()));
-                    System.out.println("4th Found : 1");
+                    System.out.println("5th Found : 1");
                 }
                 else if (is_available.equals("3")) {
                     String p_doc_list = jsonObject.getString("p_doc_list");
@@ -420,9 +427,9 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
                         multipleUserLists.add(new MultipleUserList(dc,dn,dep_name));
                     }
                     centerLists.add(new CenterList("CSTAR - BASHUNDHARA",center_api, center_doc_code,multipleUserLists));
-                    System.out.println("4th Found : 3");
+                    System.out.println("5th Found : 3");
                 }
-                System.out.println("4th Found : 2,0");
+                System.out.println("5th Found : 2,0");
                 connected = true;
                 updateLayout();
 
@@ -437,6 +444,67 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
             connected = false;
             error.printStackTrace();
             updateLayout();
+        });
+
+        StringRequest getUserMessage4 = new StringRequest(Request.Method.GET, userIdUrl4, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                user_message = jsonObject.getString("is_online");
+                is_available = jsonObject.getString("is_available");
+                center_doc_code = jsonObject.getString("p_doc_code");
+                center_api = jsonObject.getString("p_center_api");
+                switch (is_available) {
+                    case "1":
+//                    connected = true;
+//                    updateLayout();
+                        centerLists.add(new CenterList("CRP - MIRPUR", center_api, center_doc_code, new ArrayList<>()));
+                        requestQueue.add(getUserMessage5);
+                        System.out.println("4th Found : 1");
+                        break;
+                    case "0":
+//                    connected = true;
+//                    updateLayout();
+                        prv_message = user_message;
+                        requestQueue.add(getUserMessage5);
+                        System.out.println("4th Found : 0");
+                        break;
+                    case "3":
+                        String p_doc_list = jsonObject.getString("p_doc_list");
+                        JSONArray array = new JSONArray(p_doc_list);
+                        ArrayList<MultipleUserList> multipleUserLists = new ArrayList<>();
+                        for (int i = 0; i < array.length(); i++) {
+                            JSONObject docInfo = array.getJSONObject(i);
+                            String dc = docInfo.getString("doc_code")
+                                    .equals("null") ? "" : docInfo.getString("doc_code");
+                            String dn = docInfo.getString("doc_name")
+                                    .equals("null") ? "" : docInfo.getString("doc_name");
+                            String dep_name = docInfo.getString("depts_name")
+                                    .equals("null") ? "" : docInfo.getString("depts_name");
+                            multipleUserLists.add(new MultipleUserList(dc, dn, dep_name));
+                        }
+                        centerLists.add(new CenterList("CRP - MIRPUR", center_api, center_doc_code, multipleUserLists));
+                        requestQueue.add(getUserMessage5);
+                        System.out.println("4th Found : 3");
+                        break;
+                    default:
+                        requestQueue.add(getUserMessage5);
+                        System.out.println("4th Found : 2");
+                        break;
+                }
+
+            }
+            catch (JSONException e) {
+                connected = false;
+                e.printStackTrace();
+                requestQueue.add(getUserMessage5);
+            }
+
+        }, error -> {
+            conn = false;
+            connected = false;
+            error.printStackTrace();
+            requestQueue.add(getUserMessage5);
         });
 
         StringRequest getUserMessage3 = new StringRequest(Request.Method.GET, userIdUrl3, response -> {
@@ -664,7 +732,12 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
                                 .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
 
                         AlertDialog alert = alertDialogBuilder.create();
-                        alert.show();
+                        try {
+                            alert.show();
+                        }
+                        catch (Exception e) {
+                            restart("App is paused for a long time. Please Start the app again.");
+                        }
                     }
                     else {
                         if (prv_message.isEmpty()) {
@@ -674,7 +747,12 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
                                     .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
 
                             AlertDialog alert = alertDialogBuilder.create();
-                            alert.show();
+                            try {
+                                alert.show();
+                            }
+                            catch (Exception e) {
+                                restart("App is paused for a long time. Please Start the app again.");
+                            }
                         }
                         else {
                             alertDialogBuilder.setTitle("Warning!")
@@ -683,7 +761,12 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
                                     .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
 
                             AlertDialog alert = alertDialogBuilder.create();
-                            alert.show();
+                            try {
+                                alert.show();
+                            }
+                            catch (Exception e) {
+                                restart("App is paused for a long time. Please Start the app again.");
+                            }
                         }
                     }
                 }
@@ -702,7 +785,12 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
                                 });
 
                         AlertDialog alert = alertDialogBuilder.create();
-                        alert.show();
+                        try {
+                            alert.show();
+                        }
+                        catch (Exception e) {
+                            restart("App is paused for a long time. Please Start the app again.");
+                        }
                     }
                     else {
                         alertDialogBuilder.setTitle("Warning!")
@@ -711,7 +799,12 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
                                 .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
 
                         AlertDialog alert = alertDialogBuilder.create();
-                        alert.show();
+                        try {
+                            alert.show();
+                        }
+                        catch (Exception e) {
+                            restart("App is paused for a long time. Please Start the app again.");
+                        }
                     }
 
                 }
@@ -731,7 +824,12 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
                             });
 
                     AlertDialog alert = alertDialogBuilder.create();
-                    alert.show();
+                    try {
+                        alert.show();
+                    }
+                    catch (Exception e) {
+                        restart("App is paused for a long time. Please Start the app again.");
+                    }
                 }
                 else {
                     alertDialogBuilder.setTitle("Warning!")
@@ -740,7 +838,12 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
                             .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
 
                     AlertDialog alert = alertDialogBuilder.create();
-                    alert.show();
+                    try {
+                        alert.show();
+                    }
+                    catch (Exception e) {
+                        restart("App is paused for a long time. Please Start the app again.");
+                    }
                 }
             }
         }
@@ -875,5 +978,14 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
         fullLayout.setVisibility(View.VISIBLE);
         circularProgressIndicator.setVisibility(View.GONE);
         loading = false;
+    }
+    public void restart(String msg) {
+        try {
+            ProcessPhoenix.triggerRebirth(getApplicationContext());
+        }
+        catch (Exception e) {
+            Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_SHORT).show();
+            System.exit(0);
+        }
     }
 }

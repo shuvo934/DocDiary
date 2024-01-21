@@ -21,7 +21,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -50,12 +49,8 @@ import java.util.Map;
 import java.util.Objects;
 
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.adapters.ComplainAdapter;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.arraylists.ListOfComplains;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.arraylists.ListOfInjuries;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.arraylists.ComplainLists;
-import ttit.com.shuvo.docdiary.profile.UpdatePassword;
 
 public class ComplainModify extends AppCompatActivity {
 

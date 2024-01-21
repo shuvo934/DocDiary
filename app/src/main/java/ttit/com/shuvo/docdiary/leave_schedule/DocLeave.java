@@ -8,13 +8,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -24,6 +24,7 @@ import com.applandeo.materialcalendarview.CalendarView;
 import com.applandeo.materialcalendarview.EventDay;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.jakewharton.processphoenix.ProcessPhoenix;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,14 +35,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.leave_schedule.adapters.TimeSchAdapter;
 import ttit.com.shuvo.docdiary.leave_schedule.arraylists.LeaveCalenderValues;
-import ttit.com.shuvo.docdiary.leave_schedule.arraylists.LeaveDays;
 import ttit.com.shuvo.docdiary.leave_schedule.arraylists.LeaveTimeSchedule;
 import ttit.com.shuvo.docdiary.progressbar.WaitProgress;
 
@@ -77,7 +76,17 @@ public class DocLeave extends AppCompatActivity {
 //        leaveDays = new ArrayList<>();
         leaveCalenderValues = new ArrayList<>();
 
-        doc_id = userInfoLists.get(0).getDoc_id();
+        if (userInfoLists == null) {
+            restart("Could Not Get Doctor Data. Please Restart the App.");
+        }
+        else {
+            if (userInfoLists.size() == 0) {
+                restart("Could Not Get Doctor Data. Please Restart the App.");
+            }
+            else {
+                doc_id = userInfoLists.get(0).getDoc_id();
+            }
+        }
 
         backButton.setOnClickListener(v -> finish());
 
@@ -353,7 +362,7 @@ public class DocLeave extends AppCompatActivity {
                 conn = false;
                 connected = false;
                 List<EventDay> events = new ArrayList<>();
-                List<Date> listOfDates = new ArrayList<>();
+                //List<Date> listOfDates = new ArrayList<>();
                 List<Date> listOfTimeDates = new ArrayList<>();
                 List<Calendar> l_d_date = new ArrayList<>();
 
@@ -499,7 +508,21 @@ public class DocLeave extends AppCompatActivity {
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
         alert.setCanceledOnTouchOutside(false);
-        alert.show();
+        try {
+            alert.show();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
+    }
+    public void restart(String msg) {
+        try {
+            ProcessPhoenix.triggerRebirth(getApplicationContext());
+        }
+        catch (Exception e) {
+            Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_SHORT).show();
+            System.exit(0);
+        }
     }
 
 //    public static List<Date> getDaysBetweenDates(Date startdate, Date enddate)

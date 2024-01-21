@@ -8,6 +8,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
@@ -20,6 +24,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -28,6 +33,7 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
+import com.jakewharton.processphoenix.ProcessPhoenix;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,6 +47,7 @@ import java.util.Locale;
 
 import devs.mulham.horizontalcalendar.HorizontalCalendar;
 import devs.mulham.horizontalcalendar.utils.HorizontalCalendarListener;
+import ttit.com.shuvo.docdiary.MainActivity;
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.adapters.TimeLineAdapter;
 import ttit.com.shuvo.docdiary.appt_schedule.arraylists.ApptScheduleInfoList;
@@ -99,7 +106,17 @@ public class AppointmentSchedule extends AppCompatActivity {
         monthSelectionLists = new ArrayList<>();
         apptScheduleInfoLists = new ArrayList<>();
 
-        doc_id = userInfoLists.get(0).getDoc_id();
+        if (userInfoLists == null) {
+            restart("Could Not Get Doctor Data. Please Restart the App.");
+        }
+        else {
+            if (userInfoLists.size() == 0) {
+                restart("Could Not Get Doctor Data. Please Restart the App.");
+            }
+            else {
+                doc_id = userInfoLists.get(0).getDoc_id();
+            }
+        }
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy",Locale.ENGLISH);
         selected_date = simpleDateFormat.format(Calendar.getInstance().getTime());
@@ -279,7 +296,15 @@ public class AppointmentSchedule extends AppCompatActivity {
 
 
     }
-
+    public void restart(String msg) {
+        try {
+            ProcessPhoenix.triggerRebirth(getApplicationContext());
+        }
+        catch (Exception e) {
+            Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_SHORT).show();
+            System.exit(0);
+        }
+    }
     @Override
     protected void onResume() {
         super.onResume();
@@ -437,6 +462,11 @@ public class AppointmentSchedule extends AppCompatActivity {
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
         alert.setCanceledOnTouchOutside(false);
-        alert.show();
+        try {
+            alert.show();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
     }
 }

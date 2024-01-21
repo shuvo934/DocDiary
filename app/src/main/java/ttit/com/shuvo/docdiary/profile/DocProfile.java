@@ -29,6 +29,7 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
+import com.jakewharton.processphoenix.ProcessPhoenix;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
@@ -38,6 +39,7 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -130,15 +132,25 @@ public class DocProfile extends AppCompatActivity {
         docImage = findViewById(R.id.doc_profile_image);
         cameraCap = findViewById(R.id.camera_view);
 
-        doc_id = userInfoLists.get(0).getDoc_id();
-        doc_name = userInfoLists.get(0).getDoc_name();
-        doc_code = userInfoLists.get(0).getDoc_code();
-        desig_name = userInfoLists.get(0).getDesig_name();
-        dep_name = userInfoLists.get(0).getDeptd_name();
-        unit_name = userInfoLists.get(0).getDepts_name();
-        doc_center_name = userInfoLists.get(0).getDoc_center_name();
-        doc_video = userInfoLists.get(0).getDoc_video_link();
-        doc_video_enable_flag = userInfoLists.get(0).getDoc_video_link_enable_flag();
+        if (userInfoLists == null) {
+            restart("Could Not Get Doctor Data. Please Restart the App.");
+        }
+        else {
+            if (userInfoLists.size() == 0) {
+                restart("Could Not Get Doctor Data. Please Restart the App.");
+            }
+            else {
+                doc_id = userInfoLists.get(0).getDoc_id();
+                doc_name = userInfoLists.get(0).getDoc_name();
+                doc_code = userInfoLists.get(0).getDoc_code();
+                desig_name = userInfoLists.get(0).getDesig_name();
+                dep_name = userInfoLists.get(0).getDeptd_name();
+                unit_name = userInfoLists.get(0).getDepts_name();
+                doc_center_name = userInfoLists.get(0).getDoc_center_name();
+                doc_video = userInfoLists.get(0).getDoc_video_link();
+                doc_video_enable_flag = userInfoLists.get(0).getDoc_video_link_enable_flag();
+            }
+        }
 
         if (doc_video_enable_flag.equals("1")) {
             videoCall.setVisibility(View.VISIBLE);
@@ -395,7 +407,12 @@ public class DocProfile extends AppCompatActivity {
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
         alert.setCanceledOnTouchOutside(false);
-        alert.show();
+        try {
+            alert.show();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
     }
 
     public void updateUserImage() {
@@ -553,7 +570,20 @@ public class DocProfile extends AppCompatActivity {
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
         alert.setCanceledOnTouchOutside(false);
-        alert.show();
+        try {
+            alert.show();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
     }
-
+    public void restart(String msg) {
+        try {
+            ProcessPhoenix.triggerRebirth(getApplicationContext());
+        }
+        catch (Exception e) {
+            Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_SHORT).show();
+            System.exit(0);
+        }
+    }
 }

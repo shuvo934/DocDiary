@@ -38,6 +38,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.jakewharton.processphoenix.ProcessPhoenix;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -107,7 +108,17 @@ public class UpdateAddress extends AppCompatActivity {
 
         update = findViewById(R.id.doc_edit_address_button);
 
-        doc_id = userInfoLists.get(0).getDoc_id();
+        if (userInfoLists == null) {
+            restart("Could Not Get Doctor Data. Please Restart the App.");
+        }
+        else {
+            if (userInfoLists.size() == 0) {
+                restart("Could Not Get Doctor Data. Please Restart the App.");
+            }
+            else {
+                doc_id = userInfoLists.get(0).getDoc_id();
+            }
+        }
         thanaLists = new ArrayList<>();
 
         Intent intent = getIntent();
@@ -164,7 +175,7 @@ public class UpdateAddress extends AppCompatActivity {
 
         streetAddress.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
-                String ss = streetAddress.getText().toString();
+                String ss = Objects.requireNonNull(streetAddress.getText()).toString();
                 if (ss.isEmpty()) {
                     streetAddressLay.setHelperText("Please Provide Street Address/Village");
                 }
@@ -214,7 +225,7 @@ public class UpdateAddress extends AppCompatActivity {
 
         postOffice.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
-                String ss = postOffice.getText().toString();
+                String ss = Objects.requireNonNull(postOffice.getText()).toString();
                 if (ss.isEmpty()) {
                     postOfficeLay.setHelperText("Please Provide Post Office");
                 }
@@ -289,13 +300,11 @@ public class UpdateAddress extends AppCompatActivity {
                     else {
                         district.setText(district_name);
                     }
-                    System.out.println(selectedFromItems);
                     System.out.println("thana_name: " + thana_name);
                     System.out.println("dd_id: "+ dd_id);
                 }
                 else {
                     selectedFromItems = false;
-                    System.out.println(selectedFromItems);
                     System.out.println("thana_name: " + thana_name);
                     System.out.println("dd_id: "+ dd_id);
                 }
@@ -337,7 +346,12 @@ public class UpdateAddress extends AppCompatActivity {
                                 });
 
                         AlertDialog alert = alertDialogBuilder.create();
-                        alert.show();
+                        try {
+                            alert.show();
+                        }
+                        catch (Exception e) {
+                            restart("App is paused for a long time. Please Start the app again.");
+                        }
                     }
                     else {
                         Toast.makeText(getApplicationContext(),"Please Select Thana/Upazila",Toast.LENGTH_SHORT).show();
@@ -501,7 +515,12 @@ public class UpdateAddress extends AppCompatActivity {
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
         alert.setCanceledOnTouchOutside(false);
-        alert.show();
+        try {
+            alert.show();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
     }
 
     public void updateAddress() {
@@ -577,7 +596,12 @@ public class UpdateAddress extends AppCompatActivity {
                 AlertDialog alert = alertDialogBuilder.create();
                 alert.setCancelable(false);
                 alert.setCanceledOnTouchOutside(false);
-                alert.show();
+                try {
+                    alert.show();
+                }
+                catch (Exception e) {
+                    restart("App is paused for a long time. Please Start the app again.");
+                }
             }
             else {
                 alertMessageFailedUpdate();
@@ -613,6 +637,20 @@ public class UpdateAddress extends AppCompatActivity {
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
         alert.setCanceledOnTouchOutside(false);
-        alert.show();
+        try {
+            alert.show();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
+    }
+    public void restart(String msg) {
+        try {
+            ProcessPhoenix.triggerRebirth(getApplicationContext());
+        }
+        catch (Exception e) {
+            Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_SHORT).show();
+            System.exit(0);
+        }
     }
 }
