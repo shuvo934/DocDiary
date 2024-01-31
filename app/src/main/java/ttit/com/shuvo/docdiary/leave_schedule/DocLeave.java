@@ -245,8 +245,14 @@ public class DocLeave extends AppCompatActivity {
     }
 
     public void getLeaveScheduleData() {
-        waitProgress.show(getSupportFragmentManager(), "WaitBar");
-        waitProgress.setCancelable(false);
+        try {
+            waitProgress.show(getSupportFragmentManager(), "WaitBar");
+            waitProgress.setCancelable(false);
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
+
         conn = false;
         connected = false;
 
@@ -469,7 +475,12 @@ public class DocLeave extends AppCompatActivity {
 //                    }
                     calendarView.setHighlightedDays(l_d_date);
                     calendarView.setEvents(events);
-                    waitProgress.dismiss();
+                    try {
+                        waitProgress.dismiss();
+                    }
+                    catch (Exception e) {
+                        restart("App is paused for a long time. Please Start the app again.");
+                    }
                 },1000);
 
 
@@ -484,7 +495,13 @@ public class DocLeave extends AppCompatActivity {
     }
 
     public void alertMessage() {
-        waitProgress.dismiss();
+        try {
+            waitProgress.dismiss();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
+
         if (parsing_message != null) {
             if (parsing_message.isEmpty() || parsing_message.equals("null")) {
                 parsing_message = "Server problem or Internet not connected";

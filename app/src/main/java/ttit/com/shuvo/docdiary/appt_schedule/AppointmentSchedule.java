@@ -326,8 +326,14 @@ public class AppointmentSchedule extends AppCompatActivity {
     }
 
     public void getAppointmentData() {
-        waitProgress.show(getSupportFragmentManager(), "WaitBar");
-        waitProgress.setCancelable(false);
+        try {
+            waitProgress.show(getSupportFragmentManager(), "WaitBar");
+            waitProgress.setCancelable(false);
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
+
         conn = false;
         connected = false;
 
@@ -416,7 +422,13 @@ public class AppointmentSchedule extends AppCompatActivity {
     private void updateInterface() {
         if (conn) {
             if (connected) {
-                waitProgress.dismiss();
+                try {
+                    waitProgress.dismiss();
+                }
+                catch (Exception e) {
+                    restart("App is paused for a long time. Please Start the app again.");
+                }
+
                 conn = false;
                 connected = false;
                 if (apptScheduleInfoLists.size() == 0) {
@@ -438,7 +450,13 @@ public class AppointmentSchedule extends AppCompatActivity {
     }
 
     public void alertMessage() {
-        waitProgress.dismiss();
+        try {
+            waitProgress.dismiss();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
+
         if (parsing_message != null) {
             if (parsing_message.isEmpty() || parsing_message.equals("null")) {
                 parsing_message = "Server problem or Internet not connected";

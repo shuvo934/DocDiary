@@ -10,8 +10,8 @@ android {
         applicationId "ttit.com.shuvo.docdiary"
         minSdk 23
         targetSdk 33
-        versionCode 4
-        versionName "1.2.1"
+        versionCode 5
+        versionName "1.2.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -62,4 +62,9 @@ dependencies {
     implementation 'com.google.android.play:app-update:2.1.0'
 
     implementation 'com.jakewharton:process-phoenix:2.1.2'
+
+    //retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'
 }

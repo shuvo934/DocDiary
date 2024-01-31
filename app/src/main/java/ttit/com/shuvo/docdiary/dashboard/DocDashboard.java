@@ -1142,7 +1142,17 @@ public class DocDashboard extends AppCompatActivity {
                                 }
                                 else {
                                     doc_id = userInfoLists.get(0).getDoc_id();
-                                    String doc_name = "Dr. "+userInfoLists.get(0).getDoc_name();
+                                    String dd = userInfoLists.get(0).getDoc_name();
+                                    dd = dd.length() < 3 ? dd : dd.substring(0, 3);
+                                    dd = dd.toLowerCase();
+
+                                    String doc_name;
+                                    if (dd.contains("dr.")) {
+                                        doc_name = userInfoLists.get(0).getDoc_name();
+                                    }
+                                    else {
+                                        doc_name = "Dr. "+userInfoLists.get(0).getDoc_name();
+                                    }
                                     docName.setText(doc_name);
 
                                     doc_center = userInfoLists.get(0).getDoc_center_name();

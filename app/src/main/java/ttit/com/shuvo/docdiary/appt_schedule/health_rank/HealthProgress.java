@@ -1,8 +1,11 @@
 package ttit.com.shuvo.docdiary.appt_schedule.health_rank;
 
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.userInfoLists;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
@@ -18,6 +21,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -56,12 +60,18 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.health_rank.adapters.HealthProgressAdapter;
 import ttit.com.shuvo.docdiary.appt_schedule.health_rank.arraylists.ChoiceDoctorList;
 import ttit.com.shuvo.docdiary.appt_schedule.health_rank.arraylists.ChoiceServiceList;
 import ttit.com.shuvo.docdiary.appt_schedule.health_rank.arraylists.ChoiceUnitList;
+import ttit.com.shuvo.docdiary.appt_schedule.health_rank.arraylists.HealthProgressAdder;
 import ttit.com.shuvo.docdiary.appt_schedule.health_rank.arraylists.HealthProgressList;
+import ttit.com.shuvo.docdiary.appt_schedule.health_rank.arraylists.HealthProgressResponse;
+import ttit.com.shuvo.docdiary.appt_schedule.health_rank.retrofit_process.ApiClient;
 
 public class HealthProgress extends AppCompatActivity {
 
@@ -469,7 +479,7 @@ public class HealthProgress extends AppCompatActivity {
                                 Date nd = cc.getTime();
                                 entry_time = smdft.format(nd);
                                 dialog.dismiss();
-                                addPatProgress();
+                                addPatProgress(healthProgressAdder());
                             })
                             .setNegativeButton("No",(dialog, which) -> {
                                 dialog.dismiss();
@@ -906,6 +916,7 @@ public class HealthProgress extends AppCompatActivity {
                                 .equals("null") ? "" : info.getString("pph_progress");
                         String pph_notes = info.getString("pph_notes")
                                 .equals("null") ? "" : info.getString("pph_notes");
+                        pph_notes = transformText(pph_notes);
                         String pph_rec_no = info.getString("pph_rec_no")
                                 .equals("null") ? "" : info.getString("pph_rec_no");
 
@@ -1023,66 +1034,131 @@ public class HealthProgress extends AppCompatActivity {
         }
     }
 
-    public void addPatProgress() {
+    public HealthProgressAdder healthProgressAdder() {
+        HealthProgressAdder hpAdd = new HealthProgressAdder();
+
+        hpAdd.setP_PH_ID(ph_id);
+        hpAdd.setP_CAT_ID(cat_id);
+        hpAdd.setP_DOC_ID(doc_id);
+        hpAdd.setP_DEPTS_ID(depts_id);
+        hpAdd.setP_PRM_ID(prm_id);
+        hpAdd.setP_PFN_ID(pfn_id);
+        hpAdd.setP_PRD_ID(prd_id);
+        hpAdd.setP_AD_ID(ad_id);
+        hpAdd.setP_PROGRESS(pat_progress);
+        hpAdd.setP_NOTES(progress_notes);
+        hpAdd.setP_DOC_CODE(doc_code);
+        hpAdd.setP_ENTRY_TIME(entry_time);
+
+        return hpAdd;
+    }
+
+
+    public void addPatProgress(HealthProgressAdder healthProgressAdder) {
         fullLayout.setVisibility(View.GONE);
         circularProgressIndicator.setVisibility(View.VISIBLE);
         conn = false;
         connected = false;
         patProgressLoading = true;
 
-        String insertProgress = pre_url_api+"health_progress/InsertPatProgress";
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        Call<HealthProgressResponse> healthProgressResponseCall = ApiClient.getService().addHealthProgress(healthProgressAdder);
 
-        StringRequest request = new StringRequest(Request.Method.POST, insertProgress, response -> {
-            conn = true;
-            try {
-                JSONObject jsonObject = new JSONObject(response);
-                String string_out = jsonObject.getString("string_out");
-                parsing_message = string_out;
+        healthProgressResponseCall.enqueue(new Callback<HealthProgressResponse>() {
+            @Override
+            public void onResponse(Call<HealthProgressResponse> call, @NonNull Response<HealthProgressResponse> response) {
 
-                if (string_out.equals("Successfully Created")) {
-                    connected = true;
-                    updateAfterAdd();
+                if (response.isSuccessful()) {
+                    conn = true;
+                    String string_out = Objects.requireNonNull(response.body()).getString_out();
+                    parsing_message = string_out;
+
+                    if (string_out.equals("Successfully Created")) {
+                        connected = true;
+                        updateAfterAdd();
+                    }
+                    else {
+                        connected = false;
+                        updateAfterAdd();
+                    }
                 }
                 else {
+                    conn = false;
                     connected = false;
+                    parsing_message = "";
                     updateAfterAdd();
                 }
             }
-            catch (JSONException e) {
+
+            @Override
+            public void onFailure(Call<HealthProgressResponse> call, @NonNull Throwable t) {
+                conn = false;
                 connected = false;
-                e.printStackTrace();
-                parsing_message = e.getLocalizedMessage();
+                t.printStackTrace();
+                parsing_message = t.getLocalizedMessage();
                 updateAfterAdd();
             }
-        }, error -> {
-            conn = false;
-            connected = false;
-            error.printStackTrace();
-            parsing_message = error.getLocalizedMessage();
-            updateAfterAdd();
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> headers = new HashMap<>();
-                headers.put("P_PH_ID",ph_id);
-                headers.put("P_CAT_ID",cat_id);
-                headers.put("P_DOC_ID",doc_id);
-                headers.put("P_DEPTS_ID",depts_id);
-                headers.put("P_PRM_ID",prm_id);
-                headers.put("P_PFN_ID",pfn_id);
-                headers.put("P_PRD_ID",prd_id);
-                headers.put("P_AD_ID",ad_id);
-                headers.put("P_PROGRESS",pat_progress);
-                headers.put("P_NOTES",progress_notes);
-                headers.put("P_DOC_CODE",doc_code);
-                headers.put("P_ENTRY_TIME",entry_time);
-                return headers;
-            }
-        };
-
-        requestQueue.add(request);
+        });
     }
+//    public void addPatProgress() {
+//        fullLayout.setVisibility(View.GONE);
+//        circularProgressIndicator.setVisibility(View.VISIBLE);
+//        conn = false;
+//        connected = false;
+//        patProgressLoading = true;
+//
+//        String insertProgress = pre_url_api+"health_progress/InsertPatProgress";
+//        RequestQueue requestQueue = Volley.newRequestQueue(this);
+//
+//        StringRequest request = new StringRequest(Request.Method.POST, insertProgress, response -> {
+//            conn = true;
+//            try {
+//                JSONObject jsonObject = new JSONObject(response);
+//                String string_out = jsonObject.getString("string_out");
+//                parsing_message = string_out;
+//
+//                if (string_out.equals("Successfully Created")) {
+//                    connected = true;
+//                    updateAfterAdd();
+//                }
+//                else {
+//                    connected = false;
+//                    updateAfterAdd();
+//                }
+//            }
+//            catch (JSONException e) {
+//                connected = false;
+//                e.printStackTrace();
+//                parsing_message = e.getLocalizedMessage();
+//                updateAfterAdd();
+//            }
+//        }, error -> {
+//            conn = false;
+//            connected = false;
+//            error.printStackTrace();
+//            parsing_message = error.getLocalizedMessage();
+//            updateAfterAdd();
+//        }) {
+//            @Override
+//            public Map<String, String> getHeaders() throws AuthFailureError {
+//                Map<String, String> headers = new HashMap<>();
+//                headers.put("P_PH_ID",ph_id);
+//                headers.put("P_CAT_ID",cat_id);
+//                headers.put("P_DOC_ID",doc_id);
+//                headers.put("P_DEPTS_ID",depts_id);
+//                headers.put("P_PRM_ID",prm_id);
+//                headers.put("P_PFN_ID",pfn_id);
+//                headers.put("P_PRD_ID",prd_id);
+//                headers.put("P_AD_ID",ad_id);
+//                headers.put("P_PROGRESS",pat_progress);
+//                headers.put("P_NOTES",progress_notes);
+//                headers.put("P_DOC_CODE",doc_code);
+//                headers.put("P_ENTRY_TIME",entry_time);
+//                return headers;
+//            }
+//        };
+//
+//        requestQueue.add(request);
+//    }
 
     private void updateAfterAdd() {
         patProgressLoading = false;
@@ -1122,7 +1198,7 @@ public class HealthProgress extends AppCompatActivity {
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
-                    addPatProgress();
+                    addPatProgress(healthProgressAdder());
                     dialog.dismiss();
                 })
                 .setNegativeButton("Cancel",(dialog, which) -> {
@@ -1147,5 +1223,9 @@ public class HealthProgress extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_SHORT).show();
             System.exit(0);
         }
+    }
+    private String transformText(String text) {
+        byte[] bytes = text.getBytes(ISO_8859_1);
+        return new String(bytes, UTF_8);
     }
 }

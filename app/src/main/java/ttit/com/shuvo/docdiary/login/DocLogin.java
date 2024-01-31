@@ -162,7 +162,7 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
                     .setPositiveButton("Yes", (dialog, which) -> {
                         dialog.dismiss();
                         Intent intent = new Intent(Intent.ACTION_VIEW);
-                        Uri data = Uri.parse("mailto:"+mmm);
+                        Uri data = Uri.parse("mailto:"+mmm+"?subject="+"New Account Creation Request From DocDiary");
                         intent.setData(data);
                         try {
                             startActivity(intent);
