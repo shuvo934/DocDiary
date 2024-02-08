@@ -140,6 +140,7 @@ public class HealthProgress extends AppCompatActivity {
     String entry_time = "";
     String pat_progress = "";
     String progress_notes = "";
+    boolean from_psv = false;
 
     private boolean conn = false;
     private boolean connected = false;
@@ -221,66 +222,54 @@ public class HealthProgress extends AppCompatActivity {
         }
 
         Intent intent = getIntent();
+        from_psv = intent.getBooleanExtra("FROM_PSV",false);
         pat_name = intent.getStringExtra("P_NAME");
         pat_code = intent.getStringExtra("P_CODE");
         ph_id = intent.getStringExtra("P_PH_ID");
-        is_ranked = intent.getStringExtra("IS_RANKED");
-        adm_date = intent.getStringExtra("ADM_DATE");
-        sch_time = intent.getStringExtra("APPT_TIME");
-        pfn_name = intent.getStringExtra("PFN_NAME");
-        depts_name = intent.getStringExtra("DEPTS_NAME");
-        cat_id = intent.getStringExtra("CAT_ID");
-        pfn_id = intent.getStringExtra("PFN_ID");
-        depts_id = intent.getStringExtra("DEPTS_ID");
-        prm_id = intent.getStringExtra("PRM_ID");
-        prd_id = intent.getStringExtra("PRD_ID");
-        ad_id = intent.getStringExtra("AD_ID");
+        if (!from_psv) {
+            is_ranked = intent.getStringExtra("IS_RANKED");
+            adm_date = intent.getStringExtra("ADM_DATE");
+            sch_time = intent.getStringExtra("APPT_TIME");
+            pfn_name = intent.getStringExtra("PFN_NAME");
+            depts_name = intent.getStringExtra("DEPTS_NAME");
+            cat_id = intent.getStringExtra("CAT_ID");
+            pfn_id = intent.getStringExtra("PFN_ID");
+            depts_id = intent.getStringExtra("DEPTS_ID");
+            prm_id = intent.getStringExtra("PRM_ID");
+            prd_id = intent.getStringExtra("PRD_ID");
+            ad_id = intent.getStringExtra("AD_ID");
 
-        patName.setText(pat_name);
-        patCode.setText(pat_code);
+            progressDate.setText(adm_date);
+            serviceName.setText(pfn_name);
+            doctorName.setText(doc_name);
+            unitName.setText(depts_name);
 
-        progressDate.setText(adm_date);
-        serviceName.setText(pfn_name);
-        doctorName.setText(doc_name);
-        unitName.setText(depts_name);
+            String appt_date = adm_date;
+            appt_date = appt_date + " " + sch_time;
+            System.out.println("APP DATE: "+ appt_date);
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy hh:mm a", Locale.ENGLISH);
+            Date appDate;
+            try {
+                appDate = simpleDateFormat.parse(appt_date);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
 
-        ArrayList<String> progressScoreList = new ArrayList<>();
-        progressScoreList.add("1");
-        progressScoreList.add("2");
-        progressScoreList.add("3");
-        progressScoreList.add("4");
-        progressScoreList.add("5");
-        progressScoreList.add("6");
-        progressScoreList.add("7");
-        progressScoreList.add("8");
-        progressScoreList.add("9");
-        progressScoreList.add("10");
+            Calendar calendar = Calendar.getInstance();
+            Date nowDate = calendar.getTime();
+            SimpleDateFormat sss = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
+            String nnn = sss.format(nowDate);
+            nnn = nnn.toUpperCase();
 
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(HealthProgress.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,progressScoreList);
-        patProgressScore.setAdapter(arrayAdapter);
-
-        String appt_date = adm_date;
-        appt_date = appt_date + " " + sch_time;
-        System.out.println("APP DATE: "+ appt_date);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy hh:mm a", Locale.ENGLISH);
-        Date appDate;
-        try {
-            appDate = simpleDateFormat.parse(appt_date);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-
-        Calendar calendar = Calendar.getInstance();
-        Date nowDate = calendar.getTime();
-        SimpleDateFormat sss = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
-        String nnn = sss.format(nowDate);
-        nnn = nnn.toUpperCase();
-
-        if (nnn.equals(adm_date)) {
-            if (appDate != null) {
-                if (appDate.before(nowDate)) {
-                    if (is_ranked.equals("0")) {
-                        addPrSHCard.setVisibility(View.VISIBLE);
+            if (nnn.equals(adm_date)) {
+                if (appDate != null) {
+                    if (appDate.before(nowDate)) {
+                        if (is_ranked.equals("0")) {
+                            addPrSHCard.setVisibility(View.VISIBLE);
+                        }
+                        else {
+                            addPrSHCard.setVisibility(View.GONE);
+                        }
                     }
                     else {
                         addPrSHCard.setVisibility(View.GONE);
@@ -297,6 +286,25 @@ public class HealthProgress extends AppCompatActivity {
         else {
             addPrSHCard.setVisibility(View.GONE);
         }
+
+
+        patName.setText(pat_name);
+        patCode.setText(pat_code);
+
+        ArrayList<String> progressScoreList = new ArrayList<>();
+        progressScoreList.add("1");
+        progressScoreList.add("2");
+        progressScoreList.add("3");
+        progressScoreList.add("4");
+        progressScoreList.add("5");
+        progressScoreList.add("6");
+        progressScoreList.add("7");
+        progressScoreList.add("8");
+        progressScoreList.add("9");
+        progressScoreList.add("10");
+
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(HealthProgress.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,progressScoreList);
+        patProgressScore.setAdapter(arrayAdapter);
 
         shortAnimationDuration = getResources().getInteger(
                 android.R.integer.config_shortAnimTime);
@@ -517,7 +525,9 @@ public class HealthProgress extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        getPatPrgHistData();
+        if (!patProgressLoading) {
+            getPatPrgHistData();
+        }
 
     }
 
@@ -765,6 +775,10 @@ public class HealthProgress extends AppCompatActivity {
         choiceUnitLists = new ArrayList<>();
         choiceDoctorLists = new ArrayList<>();
 
+        search_doc_id = "";
+        search_depts_id = "";
+        search_pfn_id = "";
+
         String patPrgUrl = pre_url_api+"health_progress/getHealthProgress?p_ph_id="+ph_id+"";
         String patPrgServiceUrl = pre_url_api+"health_progress/getService?p_ph_id="+ph_id+"";
         String patPrgUnitUrl = pre_url_api+"health_progress/getUnit?p_ph_id="+ph_id+"";
@@ -945,7 +959,6 @@ public class HealthProgress extends AppCompatActivity {
     }
 
     private void updateInterface() {
-        patProgressLoading = false;
         if(conn) {
             if (connected) {
                 fullLayout.setVisibility(View.VISIBLE);
@@ -966,6 +979,7 @@ public class HealthProgress extends AppCompatActivity {
                 healthProgressAdapter = new HealthProgressAdapter(healthProgressLists, HealthProgress.this);
                 patProgressHistView.setAdapter(healthProgressAdapter);
 
+                serviceSearch.setText("");
                 ArrayList<String> type = new ArrayList<>();
                 for(int i = 0; i < choiceServiceLists.size(); i++) {
                     type.add(choiceServiceLists.get(i).getPfn_name());
@@ -974,6 +988,7 @@ public class HealthProgress extends AppCompatActivity {
                 ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(HealthProgress.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
                 serviceSearch.setAdapter(arrayAdapter);
 
+                unitSearch.setText("");
                 ArrayList<String> type1 = new ArrayList<>();
                 for(int i = 0; i < choiceUnitLists.size(); i++) {
                     type1.add(choiceUnitLists.get(i).getDetps_name());
@@ -982,6 +997,7 @@ public class HealthProgress extends AppCompatActivity {
                 ArrayAdapter<String> arrayAdapter1 = new ArrayAdapter<String>(HealthProgress.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type1);
                 unitSearch.setAdapter(arrayAdapter1);
 
+                doctorSearch.setText("");
                 ArrayList<String> type2 = new ArrayList<>();
                 for(int i = 0; i < choiceDoctorLists.size(); i++) {
                     type2.add(choiceDoctorLists.get(i).getDoc_name());
@@ -989,6 +1005,7 @@ public class HealthProgress extends AppCompatActivity {
 
                 ArrayAdapter<String> arrayAdapter2 = new ArrayAdapter<String>(HealthProgress.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type2);
                 doctorSearch.setAdapter(arrayAdapter2);
+                patProgressLoading = false;
 
             }
             else {
@@ -1015,10 +1032,12 @@ public class HealthProgress extends AppCompatActivity {
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
+                    patProgressLoading = false;
                     getPatPrgHistData();
                     dialog.dismiss();
                 })
                 .setNegativeButton("Exit",(dialog, which) -> {
+                    patProgressLoading = false;
                     dialog.dismiss();
                     finish();
                 });
@@ -1161,7 +1180,6 @@ public class HealthProgress extends AppCompatActivity {
 //    }
 
     private void updateAfterAdd() {
-        patProgressLoading = false;
         if (conn) {
             if (connected) {
                 conn = false;
@@ -1172,6 +1190,7 @@ public class HealthProgress extends AppCompatActivity {
                 patAddProgressLay.setAlpha(0.0f);
                 patPrHistLay.setVisibility(View.VISIBLE);
                 patPrHistLay.setAlpha(1.0f);
+                patProgressLoading = false;
                 getPatPrgHistData();
             }
             else {
@@ -1198,10 +1217,12 @@ public class HealthProgress extends AppCompatActivity {
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
+                    patProgressLoading = false;
                     addPatProgress(healthProgressAdder());
                     dialog.dismiss();
                 })
                 .setNegativeButton("Cancel",(dialog, which) -> {
+                    patProgressLoading = false;
                     dialog.dismiss();
                 });
 
@@ -1215,6 +1236,7 @@ public class HealthProgress extends AppCompatActivity {
             restart("App is paused for a long time. Please Start the app again.");
         }
     }
+
     public void restart(String msg) {
         try {
             ProcessPhoenix.triggerRebirth(getApplicationContext());
@@ -1224,6 +1246,7 @@ public class HealthProgress extends AppCompatActivity {
             System.exit(0);
         }
     }
+
     private String transformText(String text) {
         byte[] bytes = text.getBytes(ISO_8859_1);
         return new String(bytes, UTF_8);

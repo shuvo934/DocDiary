@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="7dp"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="---------------------------------------------------------"
+            android:fontFamily="@font/open_sans_bold"
+            android:gravity="center"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="INJURY DETAILS"
+            android:fontFamily="@font/open_sans_bold"
+            android:textColor="@color/green_sea"
+            android:textSize="@dimen/_13sdp"
+            android:gravity="center"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="---------------------------------------------------------"
+            android:fontFamily="@font/open_sans_bold"
+            android:gravity="center"/>
+
+    </LinearLayout>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="7dp"
+        app:cardElevation="3dp"
+        app:cardCornerRadius="@dimen/_10sdp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="10"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="3.5"
+                    android:background="@color/light_green"
+                    android:text="Complain"
+                    android:fontFamily="@font/patua_one"
+                    android:textColor="@color/white"
+                    android:padding="4dp"
+                    android:layout_marginEnd="2dp"
+                    android:gravity="center"
+                    android:textSize="@dimen/_11sdp"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="3.5"
+                    android:background="@color/light_green"
+                    android:text="Cause of Injury"
+                    android:fontFamily="@font/patua_one"
+                    android:textColor="@color/white"
+                    android:padding="4dp"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="2dp"
+                    android:gravity="center"
+                    android:textSize="@dimen/_11sdp"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="3"
+                    android:background="@color/light_green"
+                    android:text="Injury Date"
+                    android:fontFamily="@font/patua_one"
+                    android:textColor="@color/white"
+                    android:layout_marginStart="2dp"
+                    android:padding="4dp"
+                    android:gravity="center"
+                    android:textSize="@dimen/_11sdp"/>
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/complain_injury_recyclerview_pat_pres_v"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/no_information_found_msg_complain_pat_pres_v"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No Information Found"
+                android:gravity="center"
+                android:fontFamily="@font/poppins_medium"
+                android:layout_margin="5dp"/>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="7dp"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="---------------------------------------------------------"
+            android:fontFamily="@font/open_sans_bold"
+            android:gravity="center"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="PAST MEDICAL INFORMATION"
+            android:fontFamily="@font/open_sans_bold"
+            android:textColor="@color/green_sea"
+            android:textSize="@dimen/_13sdp"
+            android:gravity="center"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="---------------------------------------------------------"
+            android:fontFamily="@font/open_sans_bold"
+            android:gravity="center"/>
+
+    </LinearLayout>
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/history_findings_layout_pat_pres_v"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:tabBackground="@drawable/tab_color_selector"
+        app:tabIndicator="@color/white"
+        app:tabMode="fixed"
+        android:layout_marginTop="17dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="5dp"
+        app:tabIndicatorColor="@color/white"
+        app:tabSelectedTextColor="@color/white"
+        app:tabTextAppearance="@style/NavigationTabTextAppeareance">
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/medical_history_tab_pat_pres_v"
+            android:text="Medical History"/>
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/drug_history_tab_pat_pres_v"
+            android:text="Drug History"/>
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/clinical_findings_tab_pat_pres_v"
+            android:text="Clinical Findings"/>
+
+    </com.google.android.material.tabs.TabLayout>
+
+    <FrameLayout
+        android:id="@+id/frame_layout_for_history_tab_pat_pres_v"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="7dp"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="---------------------------------------------------------"
+            android:fontFamily="@font/open_sans_bold"
+            android:gravity="center"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="DIAGNOSIS DETAILS"
+            android:fontFamily="@font/open_sans_bold"
+            android:textColor="@color/green_sea"
+            android:textSize="@dimen/_13sdp"
+            android:gravity="center"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="---------------------------------------------------------"
+            android:fontFamily="@font/open_sans_bold"
+            android:gravity="center"/>
+
+    </LinearLayout>
+
+    <include
+        layout="@layout/pat_pres_v_diagnosis_layout"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="7dp"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="---------------------------------------------------------"
+            android:fontFamily="@font/open_sans_bold"
+            android:gravity="center"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="PRESCRIPTION DETAILS"
+            android:fontFamily="@font/open_sans_bold"
+            android:textColor="@color/green_sea"
+            android:textSize="@dimen/_13sdp"
+            android:gravity="center"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="---------------------------------------------------------"
+            android:fontFamily="@font/open_sans_bold"
+            android:gravity="center"/>
+
+    </LinearLayout>
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/medication_plan_layout_pat_pres_v"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:tabBackground="@drawable/tab_color_selector"
+        app:tabIndicator="@color/white"
+        app:tabMode="fixed"
+        android:layout_marginTop="17dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="5dp"
+        app:tabIndicatorColor="@color/white"
+        app:tabSelectedTextColor="@color/white"
+        app:tabTextAppearance="@style/NavigationTabTextAppeareance">
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/management_plan_tab_pat_pres_v"
+            android:text="Management"/>
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/medication_tab_pat_pres_v"
+            android:text="Medication"/>
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/advice_tab_pat_pres_v"
+            android:text="Advice"/>
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/reference_tab_pat_pres_v"
+            android:text="Reference"/>
+
+    </com.google.android.material.tabs.TabLayout>
+
+    <FrameLayout
+        android:id="@+id/frame_layout_for_medication_plan_tab_pat_pres_v"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="7dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"/>
+
+    <CheckBox
+        android:id="@+id/pat_admission_flag_checkbox_pat_pres_v"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:text="Patient Admission"
+        android:textStyle="bold"
+        android:enabled="false"
+        android:clickable="false"
+        android:textColor="@color/light_green"
+        android:fontFamily="@font/patua_one"/>
+
+</LinearLayout>

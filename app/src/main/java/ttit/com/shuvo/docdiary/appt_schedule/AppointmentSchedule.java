@@ -8,10 +8,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
@@ -47,7 +43,6 @@ import java.util.Locale;
 
 import devs.mulham.horizontalcalendar.HorizontalCalendar;
 import devs.mulham.horizontalcalendar.utils.HorizontalCalendarListener;
-import ttit.com.shuvo.docdiary.MainActivity;
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.adapters.TimeLineAdapter;
 import ttit.com.shuvo.docdiary.appt_schedule.arraylists.ApptScheduleInfoList;
@@ -75,6 +70,7 @@ public class AppointmentSchedule extends AppCompatActivity {
     String selected_date = "";
     private Boolean conn = false;
     private Boolean connected = false;
+    private Boolean loading = false;
     String parsing_message = "";
     TextView noSchMess;
     ImageView backButton;
@@ -308,7 +304,14 @@ public class AppointmentSchedule extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        getAppointmentData();
+        if (loading != null) {
+            if (!loading) {
+                getAppointmentData();
+            }
+        }
+        else {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
     }
 
     public Drawable getRoundRect() {
@@ -336,6 +339,7 @@ public class AppointmentSchedule extends AppCompatActivity {
 
         conn = false;
         connected = false;
+        loading = true;
 
         apptScheduleInfoLists = new ArrayList<>();
 
@@ -439,6 +443,7 @@ public class AppointmentSchedule extends AppCompatActivity {
                 }
                 timeLineAdapter = new TimeLineAdapter(apptScheduleInfoLists,AppointmentSchedule.this);
                 timelineView.setAdapter(timeLineAdapter);
+                loading = false;
             }
             else {
                 alertMessage();
@@ -469,10 +474,12 @@ public class AppointmentSchedule extends AppCompatActivity {
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
+                    loading = false;
                     getAppointmentData();
                     dialog.dismiss();
                 })
                 .setNegativeButton("Exit",(dialog, which) -> {
+                    loading = false;
                     dialog.dismiss();
                     finish();
                 });

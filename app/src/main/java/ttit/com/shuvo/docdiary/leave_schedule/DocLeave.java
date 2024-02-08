@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.StrictMode;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -62,6 +63,7 @@ public class DocLeave extends AppCompatActivity {
     WaitProgress waitProgress = new WaitProgress();
     private Boolean conn = false;
     private Boolean connected = false;
+    private Boolean loading = false;
 
     String parsing_message = "";
 
@@ -185,7 +187,14 @@ public class DocLeave extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        getLeaveScheduleData();
+        if (loading != null) {
+            if (!loading) {
+                getLeaveScheduleData();
+            }
+        }
+        else {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
     }
 
     private void showBottomSheetDialog(boolean fullDay, ArrayList<String> times,String tot_sc) {
@@ -255,6 +264,7 @@ public class DocLeave extends AppCompatActivity {
 
         conn = false;
         connected = false;
+        loading = true;
 
         leaveTimeSchedules = new ArrayList<>();
 //        leaveDays = new ArrayList<>();
@@ -481,6 +491,7 @@ public class DocLeave extends AppCompatActivity {
                     catch (Exception e) {
                         restart("App is paused for a long time. Please Start the app again.");
                     }
+                    loading = false;
                 },1000);
 
 
@@ -514,10 +525,12 @@ public class DocLeave extends AppCompatActivity {
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
+                    loading = false;
                     getLeaveScheduleData();
                     dialog.dismiss();
                 })
                 .setNegativeButton("Exit",(dialog, which) -> {
+                    loading = false;
                     dialog.dismiss();
                     finish();
                 });

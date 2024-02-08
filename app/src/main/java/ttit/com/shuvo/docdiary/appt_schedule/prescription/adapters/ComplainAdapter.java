@@ -173,7 +173,6 @@ public class ComplainAdapter extends RecyclerView.Adapter<ComplainAdapter.CMPHol
     }
 
     public void updateAfterDeleteComp(String pci_id,int pos) {
-        PrescriptionSetup.prescriptionLoading = false;
         if (conn) {
             if (connected) {
                 PrescriptionSetup.circularProgressIndicator.setVisibility(View.GONE);
@@ -187,6 +186,7 @@ public class ComplainAdapter extends RecyclerView.Adapter<ComplainAdapter.CMPHol
                 else {
                     PrescriptionSetup.noComplainFoundMsg.setVisibility(View.GONE);
                 }
+                PrescriptionSetup.prescriptionLoading = false;
             }
             else {
                 alertMessageForFailedDeleteComp(pci_id,pos);
@@ -212,10 +212,12 @@ public class ComplainAdapter extends RecyclerView.Adapter<ComplainAdapter.CMPHol
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
+                    PrescriptionSetup.prescriptionLoading = false;
                     deleteComplain(pci_id,pos);
                     dialog.dismiss();
                 })
                 .setNegativeButton("Cancel",(dialog, which) -> {
+                    PrescriptionSetup.prescriptionLoading = false;
                     dialog.dismiss();
                 });
 

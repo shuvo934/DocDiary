@@ -312,7 +312,7 @@
                                             app:boxStrokeWidth="0dp"
                                             android:clickable="true"
                                             android:focusable="false"
-                                            android:hint="Search by Doctor"
+                                            android:hint="Search by Doctor/Therapist"
                                             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
                                             >
 

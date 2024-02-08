@@ -21,6 +21,11 @@
         android:icon="@drawable/timer_off_24"
         android:title="@string/doc_leave"
         android:enabled="true"/>
+    <item
+        android:id="@+id/patient_search_menu"
+        android:icon="@drawable/patient_icon"
+        android:title="Patient"
+        android:enabled="true"/>
 
 
 </menu>

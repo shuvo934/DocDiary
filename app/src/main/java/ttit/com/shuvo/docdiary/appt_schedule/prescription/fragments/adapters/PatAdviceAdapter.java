@@ -155,7 +155,6 @@ public class PatAdviceAdapter extends RecyclerView.Adapter<PatAdviceAdapter.PAAH
     }
 
     public void updateAfterDeleteAdv(String pa_id,int pos) {
-        PrescriptionSetup.prescriptionLoading = false;
         if (conn) {
             if (connected) {
                 PrescriptionSetup.circularProgressIndicator.setVisibility(View.GONE);
@@ -169,6 +168,7 @@ public class PatAdviceAdapter extends RecyclerView.Adapter<PatAdviceAdapter.PAAH
                 else {
                     PatAdvice.noAdviceMsg.setVisibility(View.GONE);
                 }
+                PrescriptionSetup.prescriptionLoading = false;
             }
             else {
                 alertMessageForFailedDeleteAdv(pa_id,pos);
@@ -194,10 +194,12 @@ public class PatAdviceAdapter extends RecyclerView.Adapter<PatAdviceAdapter.PAAH
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
+                    PrescriptionSetup.prescriptionLoading = false;
                     deleteAdvice(pa_id,pos);
                     dialog.dismiss();
                 })
                 .setNegativeButton("Cancel",(dialog, which) -> {
+                    PrescriptionSetup.prescriptionLoading = false;
                     dialog.dismiss();
                 });
 

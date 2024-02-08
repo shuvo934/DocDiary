@@ -90,6 +90,7 @@ public class DocProfile extends AppCompatActivity {
 
     private Boolean conn = false;
     private Boolean connected = false;
+    private Boolean loading = false;
     String parsing_message = "";
     String doc_id = "";
 
@@ -225,9 +226,26 @@ public class DocProfile extends AppCompatActivity {
         super.onResume();
         if (onResumeLoad) {
             System.out.println("RESUME");
-            getDocData();
+            if (loading != null) {
+                if (!loading) {
+                    getDocData();
+                }
+            }
+            else {
+                restart("App is paused for a long time. Please Start the app again.");
+            }
         }
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (loading) {
+            Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+        }
+        else {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -260,6 +278,7 @@ public class DocProfile extends AppCompatActivity {
         circularProgressIndicator.setVisibility(View.VISIBLE);
         conn = false;
         connected = false;
+        loading = true;
 
         String url = pre_url_api+"doc_profile/getDocProfile?doc_id="+doc_id+"";
 
@@ -370,6 +389,7 @@ public class DocProfile extends AppCompatActivity {
                 else {
                     docImage.setImageResource(R.drawable.doctor);
                 }
+                loading = false;
 
             }
             else {
@@ -396,10 +416,12 @@ public class DocProfile extends AppCompatActivity {
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
+                    loading = false;
                     getDocData();
                     dialog.dismiss();
                 })
                 .setNegativeButton("Exit",(dialog, which) -> {
+                    loading = false;
                     dialog.dismiss();
                     finish();
                 });
@@ -419,6 +441,7 @@ public class DocProfile extends AppCompatActivity {
         String url = pre_url_api+"doc_profile/updateImage";
         conn = false;
         connected = false;
+        loading = true;
         circularProgressIndicator.setVisibility(View.VISIBLE);
         fullLayout.setVisibility(View.GONE);
 
@@ -535,6 +558,7 @@ public class DocProfile extends AppCompatActivity {
                         .fitCenter()
                         .into(docImage);
 
+                loading = false;
             }
             else {
                 updateAlertMessage();
@@ -560,10 +584,12 @@ public class DocProfile extends AppCompatActivity {
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
+                    loading = false;
                     updateUserImage();
                     dialog.dismiss();
                 })
                 .setNegativeButton("Cancel",(dialog, which) -> {
+                    loading = false;
                     dialog.dismiss();
                 });
 

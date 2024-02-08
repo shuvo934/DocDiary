@@ -166,7 +166,6 @@ public class PatDrugHistAdapter extends RecyclerView.Adapter<PatDrugHistAdapter.
     }
 
     public void updateAfterDeleteDH(String pdh_id,int pos) {
-        PrescriptionSetup.prescriptionLoading = false;
         if (conn) {
             if (connected) {
                 PrescriptionSetup.circularProgressIndicator.setVisibility(View.GONE);
@@ -180,6 +179,7 @@ public class PatDrugHistAdapter extends RecyclerView.Adapter<PatDrugHistAdapter.
                 else {
                     DrugHistory.noPatDrugHistMsg.setVisibility(View.GONE);
                 }
+                PrescriptionSetup.prescriptionLoading = false;
             }
             else {
                 alertMessageForFailedDeleteDH(pdh_id,pos);
@@ -205,10 +205,12 @@ public class PatDrugHistAdapter extends RecyclerView.Adapter<PatDrugHistAdapter.
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
+                    PrescriptionSetup.prescriptionLoading = false;
                     deleteDrugHistory(pdh_id,pos);
                     dialog.dismiss();
                 })
                 .setNegativeButton("Cancel",(dialog, which) -> {
+                    PrescriptionSetup.prescriptionLoading = false;
                     dialog.dismiss();
                 });
 

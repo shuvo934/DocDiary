@@ -455,6 +455,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
                 intent.putExtra("PRM_ID",mCategory.get(getAdapterPosition()).getAd_prm_id());
                 intent.putExtra("PRD_ID",mCategory.get(getAdapterPosition()).getAd_prd_id());
                 intent.putExtra("AD_ID",mCategory.get(getAdapterPosition()).getAd_id());
+                intent.putExtra("FROM_PSV",false);
                 activity.startActivity(intent);
             });
 

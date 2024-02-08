@@ -368,11 +368,7 @@ public class UpdateAddress extends AppCompatActivity {
                 streetAddressLay.setHelperText("Please Provide Street Address/Village");
             }
         });
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
         getThanas();
     }
 

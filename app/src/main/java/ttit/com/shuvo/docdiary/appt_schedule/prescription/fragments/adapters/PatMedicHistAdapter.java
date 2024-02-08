@@ -164,7 +164,6 @@ public class PatMedicHistAdapter extends RecyclerView.Adapter<PatMedicHistAdapte
     }
 
     public void updateAfterDeleteMH(String pmh_id,int pos) {
-        PrescriptionSetup.prescriptionLoading = false;
         if (conn) {
             if (connected) {
                 PrescriptionSetup.circularProgressIndicator.setVisibility(View.GONE);
@@ -178,6 +177,7 @@ public class PatMedicHistAdapter extends RecyclerView.Adapter<PatMedicHistAdapte
                 else {
                     MedicalHistory.noPatMedHistMsg.setVisibility(View.GONE);
                 }
+                PrescriptionSetup.prescriptionLoading = false;
             }
             else {
                 alertMessageForFailedDeleteMH(pmh_id,pos);
@@ -203,10 +203,12 @@ public class PatMedicHistAdapter extends RecyclerView.Adapter<PatMedicHistAdapte
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
+                    PrescriptionSetup.prescriptionLoading = false;
                     deleteMedicalHistory(pmh_id,pos);
                     dialog.dismiss();
                 })
                 .setNegativeButton("Cancel",(dialog, which) -> {
+                    PrescriptionSetup.prescriptionLoading = false;
                     dialog.dismiss();
                 });
 

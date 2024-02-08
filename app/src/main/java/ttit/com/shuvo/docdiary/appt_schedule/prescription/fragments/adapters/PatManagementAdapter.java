@@ -155,7 +155,6 @@ public class PatManagementAdapter extends RecyclerView.Adapter<PatManagementAdap
     }
 
     public void updateAfterDeleteMang(String pmap_id,int pos) {
-        PrescriptionSetup.prescriptionLoading = false;
         if (conn) {
             if (connected) {
                 PrescriptionSetup.circularProgressIndicator.setVisibility(View.GONE);
@@ -169,6 +168,7 @@ public class PatManagementAdapter extends RecyclerView.Adapter<PatManagementAdap
                 else {
                     ManagementPlan.noManagementMsg.setVisibility(View.GONE);
                 }
+                PrescriptionSetup.prescriptionLoading = false;
             }
             else {
                 alertMessageForFailedDeleteMang(pmap_id,pos);
@@ -194,10 +194,12 @@ public class PatManagementAdapter extends RecyclerView.Adapter<PatManagementAdap
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
+                    PrescriptionSetup.prescriptionLoading = false;
                     deleteManagement(pmap_id,pos);
                     dialog.dismiss();
                 })
                 .setNegativeButton("Cancel",(dialog, which) -> {
+                    PrescriptionSetup.prescriptionLoading = false;
                     dialog.dismiss();
                 });
 

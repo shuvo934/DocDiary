@@ -24,17 +24,28 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DocDiary"
         android:usesCleartextTraffic="true"
+        android:largeHeap="true"
         tools:targetApi="31">
+        <activity
+            android:name=".patient_search.prescription.PatPrescriptionV"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".patient_search.PatientSearch"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".profile.UpdateAddress"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:exported="false"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".appt_schedule.health_rank.HealthProgress"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
-            android:screenOrientation="portrait"
-            android:exported="false" />
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".appt_schedule.prescription.fragments.addinfo.ReferenceModify"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"

@@ -165,7 +165,6 @@ public class PatRefServiceAdapter extends RecyclerView.Adapter<PatRefServiceAdap
     }
 
     public void updateAfterDeleteSLV(String drs_id,int pos) {
-        PrescriptionSetup.prescriptionLoading = false;
         if (conn) {
             if (connected) {
                 PrescriptionSetup.circularProgressIndicator.setVisibility(View.GONE);
@@ -175,6 +174,7 @@ public class PatRefServiceAdapter extends RecyclerView.Adapter<PatRefServiceAdap
                 PrescriptionSetup.patReferralLists.get(PrescriptionSetup.selectedPosition2).setChild_count(String.valueOf(mCategory.size()));
                 notifyDataSetChanged();
                 PrescriptionSetup.updateDiagnosis();
+                PrescriptionSetup.prescriptionLoading = false;
             }
             else {
                 alertMessageForFailedDeleteSLV(drs_id,pos);
@@ -200,10 +200,12 @@ public class PatRefServiceAdapter extends RecyclerView.Adapter<PatRefServiceAdap
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
+                    PrescriptionSetup.prescriptionLoading = false;
                     deleteService(drs_id,pos);
                     dialog.dismiss();
                 })
                 .setNegativeButton("Cancel",(dialog, which) -> {
+                    PrescriptionSetup.prescriptionLoading = false;
                     dialog.dismiss();
                 });
 

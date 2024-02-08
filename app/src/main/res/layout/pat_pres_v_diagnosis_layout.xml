@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="5dp"
+    android:layout_marginEnd="5dp"
+    android:layout_marginTop="17dp"
+    android:layout_marginBottom="7dp"
+    app:cardElevation="3dp"
+    app:cardCornerRadius="@dimen/_10sdp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/light_green"
+            android:text="Diagnosis"
+            android:fontFamily="@font/patua_one"
+            android:textColor="@color/white"
+            android:padding="4dp"
+            android:gravity="center"
+            android:textSize="@dimen/_11sdp"
+            tools:ignore="HardcodedText" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/diagnosis_recyclerview_pat_pres_v"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/no_information_found_msg_diagnosis_pat_pres_v"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No Information Found"
+            android:gravity="center"
+            android:fontFamily="@font/poppins_medium"
+            android:layout_margin="5dp"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/divider_pat_psv_ref_unit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/_10sdp"
+            android:gravity="center"
+            android:fontFamily="@font/open_sans_bold"
+            android:text="---------------------------------------------------"/>
+
+
+        <LinearLayout
+            android:id="@+id/referral_unit_layout_pat_pres_v"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="10"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="5"
+                    android:background="@color/light_green"
+                    android:text="Referral Unit"
+                    android:fontFamily="@font/patua_one"
+                    android:textColor="@color/white"
+                    android:padding="4dp"
+                    android:layout_marginEnd="2dp"
+                    android:gravity="center"
+                    android:textSize="@dimen/_11sdp"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="5"
+                    android:background="@color/light_green"
+                    android:text="Referral Doctor"
+                    android:fontFamily="@font/patua_one"
+                    android:textColor="@color/white"
+                    android:padding="4dp"
+                    android:layout_marginStart="2dp"
+                    android:gravity="center"
+                    android:textSize="@dimen/_11sdp"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/referral_unit_recyclerview_pat_pres_v"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/no_information_found_msg_referral_unit_pat_pres_v"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No Information Found"
+                android:gravity="center"
+                android:fontFamily="@font/poppins_medium"
+                android:layout_margin="5dp"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:id="@+id/divider_pat_psv_service_unit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/_10sdp"
+                android:gravity="center"
+                android:fontFamily="@font/open_sans_bold"
+                android:text="---------------------------------------------------"/>
+            <LinearLayout
+                android:id="@+id/service_unit_layout_pat_pres_v"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:weightSum="10"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="6.5"
+                        android:background="@color/light_green"
+                        android:text="Service Name"
+                        android:fontFamily="@font/patua_one"
+                        android:textColor="@color/white"
+                        android:padding="4dp"
+                        android:layout_marginEnd="2dp"
+                        android:gravity="center"
+                        android:textSize="@dimen/_11sdp"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="3.5"
+                        android:background="@color/light_green"
+                        android:text="Quantity"
+                        android:fontFamily="@font/patua_one"
+                        android:textColor="@color/white"
+                        android:padding="4dp"
+                        android:layout_marginStart="2dp"
+                        android:gravity="center"
+                        android:textSize="@dimen/_11sdp"
+                        tools:ignore="HardcodedText" />
+
+                </LinearLayout>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/service_unit_recyclerview_pat_pres_v"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+                </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/no_information_found_msg_service_unit_pat_pres_v"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="No Information Found"
+                    android:gravity="center"
+                    android:fontFamily="@font/poppins_medium"
+                    android:layout_margin="5dp"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>

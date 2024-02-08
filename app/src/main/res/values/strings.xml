@@ -6,5 +6,6 @@
     <string name="doc_leave">Block Time</string>
     <string name="pat_prescription">Prescription</string>
     <string name="pat_health">Health Progress</string>
+    <string name="pat_search">Patient\'s Prescription</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

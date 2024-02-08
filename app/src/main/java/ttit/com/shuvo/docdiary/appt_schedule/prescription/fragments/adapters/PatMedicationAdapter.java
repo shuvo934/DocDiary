@@ -178,7 +178,6 @@ public class PatMedicationAdapter extends RecyclerView.Adapter<PatMedicationAdap
     }
 
     public void updateAfterDeleteMed(String pmp_id,int pos) {
-        PrescriptionSetup.prescriptionLoading = false;
         if (conn) {
             if (connected) {
                 PrescriptionSetup.circularProgressIndicator.setVisibility(View.GONE);
@@ -192,6 +191,7 @@ public class PatMedicationAdapter extends RecyclerView.Adapter<PatMedicationAdap
                 else {
                     Medication.noPatMedMsg.setVisibility(View.GONE);
                 }
+                PrescriptionSetup.prescriptionLoading = false;
             }
             else {
                 alertMessageForFailedDeleteMed(pmp_id,pos);
@@ -217,10 +217,12 @@ public class PatMedicationAdapter extends RecyclerView.Adapter<PatMedicationAdap
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
+                    PrescriptionSetup.prescriptionLoading = false;
                     deleteMedicine(pmp_id,pos);
                     dialog.dismiss();
                 })
                 .setNegativeButton("Cancel",(dialog, which) -> {
+                    PrescriptionSetup.prescriptionLoading = false;
                     dialog.dismiss();
                 });
 

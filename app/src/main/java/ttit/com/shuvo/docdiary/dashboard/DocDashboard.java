@@ -61,6 +61,7 @@ import ttit.com.shuvo.docdiary.appt_schedule.AppointmentSchedule;
 import ttit.com.shuvo.docdiary.dashboard.arraylists.UserInfoList;
 import ttit.com.shuvo.docdiary.leave_schedule.DocLeave;
 import ttit.com.shuvo.docdiary.login.DocLogin;
+import ttit.com.shuvo.docdiary.patient_search.PatientSearch;
 import ttit.com.shuvo.docdiary.profile.DocProfile;
 
 public class DocDashboard extends AppCompatActivity {
@@ -87,6 +88,7 @@ public class DocDashboard extends AppCompatActivity {
     String first_login_flag = "";
     private Boolean conn = false;
     private Boolean connected = false;
+    private Boolean loading = false;
     private Boolean userAvailable = false;
     String effected_date = "";
     String doctor_status = "";
@@ -220,16 +222,23 @@ public class DocDashboard extends AppCompatActivity {
 
             @Override
             public void onTimeUp() {
-                fullLayout.setVisibility(View.GONE);
-                bottomNavigationView.setVisibility(View.GONE);
-                circularProgressIndicator.setVisibility(View.VISIBLE);
-                tabFullLayout.setVisibility(View.GONE);
-                tabCircularProgressIndicator.setVisibility(View.GONE);
-                tabLayout.setVisibility(View.GONE);
-                tabRefresh.setVisibility(View.GONE);
-                conn = false;
-                connected = false;
-                mHandler.postDelayed(() -> getDocSchedule(),3000);
+                if (!loading) {
+                    fullLayout.setVisibility(View.GONE);
+                    bottomNavigationView.setVisibility(View.GONE);
+                    circularProgressIndicator.setVisibility(View.VISIBLE);
+                    tabFullLayout.setVisibility(View.GONE);
+                    tabCircularProgressIndicator.setVisibility(View.GONE);
+                    tabLayout.setVisibility(View.GONE);
+                    tabRefresh.setVisibility(View.GONE);
+                    conn = false;
+                    connected = false;
+                    loading = true;
+                    mHandler.postDelayed(() -> getDocSchedule(),3000);
+                }
+                else {
+                    mHandler.postDelayed(() -> onResume(),3000);
+                }
+
 
             }
         });
@@ -350,6 +359,10 @@ public class DocDashboard extends AppCompatActivity {
             }
             else if (item.getItemId() == R.id.leave_schedule_menu) {
                 Intent intent = new Intent(DocDashboard.this, DocLeave.class);
+                startActivity(intent);
+            }
+            else if (item.getItemId() == R.id.patient_search_menu) {
+                Intent intent = new Intent(DocDashboard.this, PatientSearch.class);
                 startActivity(intent);
             }
             return true;
@@ -474,20 +487,28 @@ public class DocDashboard extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         System.out.println("First_flag on resume: "+ first_flag);
-        if (first_flag == 0) {
-            getDocData();
+        if(loading != null) {
+            if (!loading) {
+                if (first_flag == 0) {
+                    getDocData();
+                }
+                else {
+                    fullLayout.setVisibility(View.GONE);
+                    bottomNavigationView.setVisibility(View.GONE);
+                    circularProgressIndicator.setVisibility(View.VISIBLE);
+                    tabFullLayout.setVisibility(View.GONE);
+                    tabCircularProgressIndicator.setVisibility(View.GONE);
+                    tabLayout.setVisibility(View.GONE);
+                    tabRefresh.setVisibility(View.GONE);
+                    conn = false;
+                    connected = false;
+                    loading = true;
+                    getDocSchedule();
+                }
+            }
         }
         else {
-            fullLayout.setVisibility(View.GONE);
-            bottomNavigationView.setVisibility(View.GONE);
-            circularProgressIndicator.setVisibility(View.VISIBLE);
-            tabFullLayout.setVisibility(View.GONE);
-            tabCircularProgressIndicator.setVisibility(View.GONE);
-            tabLayout.setVisibility(View.GONE);
-            tabRefresh.setVisibility(View.GONE);
-            conn = false;
-            connected = false;
-            getDocSchedule();
+            restart("App is paused for a long time. Please Start the app again.");
         }
     }
 
@@ -530,6 +551,7 @@ public class DocDashboard extends AppCompatActivity {
         tabRefresh.setVisibility(View.GONE);
         conn = false;
         connected = false;
+        loading = true;
         userAvailable = false;
         userInfoLists = new ArrayList<>();
 
@@ -1411,6 +1433,7 @@ public class DocDashboard extends AppCompatActivity {
                         restart("App is paused for a long time. Please Start the app again.");
                     }
                 }
+                loading = false;
             }
             else {
                 alertMessage();
@@ -1443,10 +1466,12 @@ public class DocDashboard extends AppCompatActivity {
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
+                    loading = false;
                     getDocData();
                     dialog.dismiss();
                 })
                 .setNegativeButton("Exit",(dialog, which) -> {
+                    loading = false;
                     dialog.dismiss();
                     System.exit(0);
                 });
@@ -1684,6 +1709,7 @@ public class DocDashboard extends AppCompatActivity {
                 }
 
                 first_flag = 1;
+                loading = false;
             }
             else {
                 alertMessage2();
@@ -1716,6 +1742,7 @@ public class DocDashboard extends AppCompatActivity {
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
+                    loading = false;
                     fullLayout.setVisibility(View.GONE);
                     bottomNavigationView.setVisibility(View.GONE);
                     circularProgressIndicator.setVisibility(View.VISIBLE);
@@ -1725,10 +1752,12 @@ public class DocDashboard extends AppCompatActivity {
                     tabRefresh.setVisibility(View.GONE);
                     conn = false;
                     connected = false;
+                    loading = true;
                     getDocSchedule();
                     dialog.dismiss();
                 })
                 .setNegativeButton("Exit",(dialog, which) -> {
+                    loading = false;
                     dialog.dismiss();
                     System.exit(0);
                 });
@@ -1751,6 +1780,7 @@ public class DocDashboard extends AppCompatActivity {
         tabRefresh.setVisibility(View.GONE);
         conn = false;
         connected = false;
+        loading = true;
 
 //        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm a", Locale.ENGLISH);
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
@@ -1884,6 +1914,7 @@ public class DocDashboard extends AppCompatActivity {
                 remaining.setText(String.valueOf(remaining_meeting));
                 totalSchedule.setText(String.valueOf(total_schedule));
                 blockedSchedule.setText(String.valueOf(blocked_schedule));
+                loading = false;
 
             }
             else {
@@ -1913,6 +1944,7 @@ public class DocDashboard extends AppCompatActivity {
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("OK", (dialog, which) -> {
+                    loading = false;
                     dialog.dismiss();
                 });
 
@@ -1926,6 +1958,7 @@ public class DocDashboard extends AppCompatActivity {
             restart("App is paused for a long time. Please Start the app again.");
         }
     }
+
     public void restart(String msg) {
         try {
             ProcessPhoenix.triggerRebirth(getApplicationContext());

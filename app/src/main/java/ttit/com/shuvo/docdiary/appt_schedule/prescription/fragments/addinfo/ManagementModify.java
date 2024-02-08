@@ -210,18 +210,14 @@ public class ManagementModify extends AppCompatActivity {
                 managementMissing.setVisibility(View.VISIBLE);
             }
         });
+
+        getData();
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         closeKeyBoard();
         return super.onTouchEvent(event);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        getData();
     }
 
     @Override

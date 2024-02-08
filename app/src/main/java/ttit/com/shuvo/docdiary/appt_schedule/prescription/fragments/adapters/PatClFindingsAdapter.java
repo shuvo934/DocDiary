@@ -165,7 +165,6 @@ public class PatClFindingsAdapter extends RecyclerView.Adapter<PatClFindingsAdap
     }
 
     public void updateAfterDeleteCFL(String cf_id,int pos) {
-        PrescriptionSetup.prescriptionLoading = false;
         if (conn) {
             if (connected) {
                 PrescriptionSetup.circularProgressIndicator.setVisibility(View.GONE);
@@ -179,6 +178,7 @@ public class PatClFindingsAdapter extends RecyclerView.Adapter<PatClFindingsAdap
                 else {
                     ClinicalFindings.noPatClFindMsg.setVisibility(View.GONE);
                 }
+                PrescriptionSetup.prescriptionLoading = false;
             }
             else {
                 alertMessageForFailedDeleteCFL(cf_id,pos);
@@ -204,10 +204,12 @@ public class PatClFindingsAdapter extends RecyclerView.Adapter<PatClFindingsAdap
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
+                    PrescriptionSetup.prescriptionLoading = false;
                     deleteClinicalFindings(cf_id,pos);
                     dialog.dismiss();
                 })
                 .setNegativeButton("Cancel",(dialog, which) -> {
+                    PrescriptionSetup.prescriptionLoading = false;
                     dialog.dismiss();
                 });
 

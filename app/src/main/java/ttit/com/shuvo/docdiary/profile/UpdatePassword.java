@@ -82,6 +82,7 @@ public class UpdatePassword extends AppCompatActivity {
     private Boolean conn = false;
     private Boolean connected = false;
     String parsing_message = "";
+    boolean loading = false;
 
     String confirm_pass = "";
     String doc_id = "";
@@ -132,7 +133,7 @@ public class UpdatePassword extends AppCompatActivity {
             }
         }
 
-        close.setOnClickListener(v -> finish());
+        close.setOnClickListener(v -> onBackPressed());
 
         currentPass.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH ||
@@ -242,21 +243,30 @@ public class UpdatePassword extends AppCompatActivity {
                 if (doc_password.equals(current_pass)) {
 
                     if (!new_pass.isEmpty()) {
-
-                        if (!confirm_pass.isEmpty()) {
-
-                            if (new_pass.equals(confirm_pass)) {
-                                updatePassword();
-                            }
-                            else {
-                                confirmLay.setHelperText("Confirm Password did not match");
-                                Toast.makeText(UpdatePassword.this, "Confirm Password did not match", Toast.LENGTH_SHORT).show();
-
-                            }
+                        if(new_pass.contains(" ") || new_pass.contains("\n") || new_pass.contains("'") || new_pass.contains("\"")) {
+                            newPassLay.setHelperText("Invalid Character! Blank space, Quotation or New line is not allowed");
+                            Toast.makeText(UpdatePassword.this, "Invalid Character! Blank space, Quotation or New line is not allowed", Toast.LENGTH_SHORT).show();
                         }
                         else {
-                            confirmLay.setHelperText("Please Provide Confirm Password");
-                            Toast.makeText(UpdatePassword.this, "Please Provide Confirm Password to Update", Toast.LENGTH_SHORT).show();
+                            if (!confirm_pass.isEmpty()) {
+                                if (confirm_pass.contains(" ") || confirm_pass.contains("\n") || confirm_pass.contains("'") || confirm_pass.contains("\"")) {
+                                    confirmLay.setHelperText("Invalid Character! Blank space, Quotation or New line is not allowed");
+                                    Toast.makeText(UpdatePassword.this, "Invalid Character! Blank space, Quotation or New line is not allowed", Toast.LENGTH_SHORT).show();
+                                }
+                                else {
+                                    if (new_pass.equals(confirm_pass)) {
+                                        updatePassword();
+                                    }
+                                    else {
+                                        confirmLay.setHelperText("Confirm Password did not match");
+                                        Toast.makeText(UpdatePassword.this, "Confirm Password did not match", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            }
+                            else {
+                                confirmLay.setHelperText("Please Provide Confirm Password");
+                                Toast.makeText(UpdatePassword.this, "Please Provide Confirm Password to Update", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     }
                     else {
@@ -278,6 +288,16 @@ public class UpdatePassword extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+        if (loading) {
+            Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+        }
+        else {
+            super.onBackPressed();
+        }
+    }
+
     private void closeKeyBoard () {
         View view = this.getCurrentFocus();
         if (view != null) {
@@ -292,6 +312,7 @@ public class UpdatePassword extends AppCompatActivity {
         circularProgressIndicator.setVisibility(View.VISIBLE);
         conn = false;
         connected = false;
+        loading = true;
 
         String updatePassUrl = pre_url_api+"doc_profile/updatePassword";
 
@@ -338,6 +359,7 @@ public class UpdatePassword extends AppCompatActivity {
     }
 
     private void updateLayout() {
+        loading = false;
         if(conn) {
             if (connected) {
                 fullLayout.setVisibility(View.VISIBLE);

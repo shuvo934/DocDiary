@@ -157,7 +157,6 @@ public class PatReferenceAdapter extends RecyclerView.Adapter<PatReferenceAdapte
     }
 
     public void updateAfterDeleteRef(String pref_id,int pos) {
-        PrescriptionSetup.prescriptionLoading = false;
         if (conn) {
             if (connected) {
                 PrescriptionSetup.circularProgressIndicator.setVisibility(View.GONE);
@@ -171,6 +170,7 @@ public class PatReferenceAdapter extends RecyclerView.Adapter<PatReferenceAdapte
                 else {
                     PatReference.noRefMsg.setVisibility(View.GONE);
                 }
+                PrescriptionSetup.prescriptionLoading = false;
             }
             else {
                 alertMessageForFailedDeleteRef(pref_id,pos);
@@ -196,10 +196,12 @@ public class PatReferenceAdapter extends RecyclerView.Adapter<PatReferenceAdapte
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
+                    PrescriptionSetup.prescriptionLoading = false;
                     deleteRef(pref_id,pos);
                     dialog.dismiss();
                 })
                 .setNegativeButton("Cancel",(dialog, which) -> {
+                    PrescriptionSetup.prescriptionLoading = false;
                     dialog.dismiss();
                 });
 

@@ -83,6 +83,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
     String pmm_id = "";
     String pmm_date = "";
     String pat_cat_id = "";
+    String pmm_admission_flag = "0";
     String doc_id = "";
     LinearLayout prescription_after_create_layout;
     MaterialButton create_prescription;
@@ -373,14 +374,16 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
     @Override
     protected void onResume() {
         super.onResume();
-        getPrescriptionData();
+        if (!prescriptionLoading && !historyLoading && !medicationLoading) {
+            getPrescriptionData();
+        }
     }
 
     @Override
     public void onBackPressed() {
-        System.out.println(historyLoading);
-        System.out.println(prescriptionLoading);
-        System.out.println(medicationLoading);
+//        System.out.println(historyLoading);
+//        System.out.println(prescriptionLoading);
+//        System.out.println(medicationLoading);
         if (prescriptionLoading || historyLoading || medicationLoading) {
             Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
         }
@@ -408,6 +411,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
         pmm_id = "";
         pmm_date = "";
         pat_cat_id = "";
+        pmm_admission_flag = "0";
 
         String newPresUrl = pre_url_api+"prescription/getNewPatData?p_ph_id="+ph_id+"";
         String oldPresUrl = pre_url_api+"prescription/getOldPatData?p_ph_id="+ph_id+"";
@@ -497,6 +501,8 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
                                 .equals("null") ? "" : info.getString("pmm_date");
                         pat_cat_id = info.getString("pat_category_id")
                                 .equals("null") ? "" : info.getString("pat_category_id");
+                        pmm_admission_flag = info.getString("pmm_admission_flag")
+                                .equals("null") ? "0" : info.getString("pmm_admission_flag");
                     }
                 }
 
@@ -775,7 +781,6 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
     }
 
     private void updateInterface() {
-        prescriptionLoading = false;
         if(conn) {
             if (connected) {
                 fullLayout.setVisibility(View.VISIBLE);
@@ -803,6 +808,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
                 patCatgory.setText(pat_category);
                 patStatus.setText(pat_status);
                 patAddress.setText(pat_address);
+                patAdmission.setChecked(pmm_admission_flag.equals("1"));
 
                 if (complainLists.size() == 0) {
                     noComplainFoundMsg.setVisibility(View.VISIBLE);
@@ -885,6 +891,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
                 else {
                     getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab, PatReference.newInstance(pmm_id,"false"),"PRTEST").commit();
                 }
+                prescriptionLoading = false;
             }
             else {
                 alertMessage();
@@ -910,10 +917,12 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
+                    prescriptionLoading = false;
                     getPrescriptionData();
                     dialog.dismiss();
                 })
                 .setNegativeButton("Exit",(dialog, which) -> {
+                    prescriptionLoading = false;
                     dialog.dismiss();
                     finish();
                 });
@@ -1038,12 +1047,10 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
                 getPrescriptionData();
             }
             else {
-                prescriptionLoading = false;
                 alertMessageForCreationPresc();
             }
         }
         else {
-            prescriptionLoading = false;
             alertMessageForCreationPresc();
         }
     }
@@ -1063,10 +1070,12 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
+                    prescriptionLoading = false;
                     createPrescription();
                     dialog.dismiss();
                 })
                 .setNegativeButton("Cancel",(dialog, which) -> {
+                    prescriptionLoading = false;
                     dialog.dismiss();
                 });
 
@@ -1169,7 +1178,6 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
     }
 
     private void updateReferralData() {
-        prescriptionLoading = false;
         if (conn) {
             if (connected) {
                 conn = false;
@@ -1197,6 +1205,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
                 }
                 patRefServiceAdapter = new PatRefServiceAdapter(patRefServiceLists,PrescriptionSetup.this);
                 refServiceView.setAdapter(patRefServiceAdapter);
+                prescriptionLoading = false;
             }
             else {
                 alertMessageForGettingRef();
@@ -1222,10 +1231,12 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
+                    prescriptionLoading = false;
                     getReferralDataBySelect();
                     dialog.dismiss();
                 })
                 .setNegativeButton("Cancel",(dialog, which) -> {
+                    prescriptionLoading = false;
                     dialog.dismiss();
                 });
 
@@ -1314,7 +1325,6 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
     }
 
     private void updateRefServiceData() {
-        prescriptionLoading = false;
         if (conn) {
             if (connected) {
                 conn = false;
@@ -1331,6 +1341,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
                 }
                 patRefServiceAdapter = new PatRefServiceAdapter(patRefServiceLists,PrescriptionSetup.this);
                 refServiceView.setAdapter(patRefServiceAdapter);
+                prescriptionLoading = false;
             }
             else {
                 alertMessageForGettingServ();
@@ -1356,10 +1367,12 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
+                    prescriptionLoading = false;
                     getRefServiceDataBySelect();
                     dialog.dismiss();
                 })
                 .setNegativeButton("Cancel",(dialog, which) -> {
+                    prescriptionLoading = false;
                     dialog.dismiss();
                 });
 
@@ -1425,13 +1438,13 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
     }
 
     private void updateAfterUpdatePAF(String flag) {
-        prescriptionLoading = false;
         if (conn) {
             if (connected) {
                 fullLayout.setVisibility(View.VISIBLE);
                 circularProgressIndicator.setVisibility(View.GONE);
                 conn = false;
                 connected = false;
+                prescriptionLoading = false;
             }
             else {
                 boolean pat = patAdmission.isChecked();
@@ -1461,10 +1474,12 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
+                    prescriptionLoading = false;
                     updatePatAdmFlag(flag);
                     dialog.dismiss();
                 })
                 .setNegativeButton("cancel",(dialog, which) -> {
+                    prescriptionLoading = false;
                     dialog.dismiss();
                 });
 
