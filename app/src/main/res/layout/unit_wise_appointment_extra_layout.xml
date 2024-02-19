@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:gravity="center"
+    android:layout_margin="@dimen/_5sdp"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:id="@+id/search_unit_of_app_sch_card_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_3sdp"
+        android:layout_marginStart="@dimen/_4sdp"
+        android:layout_marginEnd="@dimen/_4sdp"
+        android:layout_marginBottom="@dimen/_5sdp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:weightSum="10"
+        android:orientation="horizontal">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/unit_search_card_view_un_app"
+            android:layout_width="0dp"
+            android:layout_weight="8"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="10dp"
+            android:layout_gravity="center"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/white">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/light_green">
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/spinner_layout_unit_select_for_unit_app_sch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="1dp"
+                    app:boxCornerRadiusTopStart="10dp"
+                    app:boxCornerRadiusTopEnd="10dp"
+                    app:boxCornerRadiusBottomEnd="10dp"
+                    app:boxCornerRadiusBottomStart="10dp"
+                    app:boxBackgroundColor="@color/white"
+                    app:boxBackgroundMode="filled"
+                    app:endIconMode="dropdown_menu"
+                    app:boxStrokeWidth="0dp"
+                    android:clickable="true"
+                    android:focusable="false"
+                    android:hint="Unit"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                    tools:ignore="HardcodedText">
+
+                    <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                        android:id="@+id/unit_select_for_unit_app_sch"
+                        style="@style/Widget.MaterialComponents.AutoCompleteTextView.FilledBox"
+                        android:layout_width="match_parent"
+                        android:text=""
+                        android:inputType="text"
+                        android:importantForAutofill="no"
+                        android:ellipsize="none"
+                        android:maxLines="100"
+                        android:clickable="true"
+                        android:fontFamily="@font/open_sans"
+                        android:focusable="false"
+                        android:textSize="@dimen/_9sdp"
+                        android:textColor="@color/black"
+                        android:scrollHorizontally="false"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionDone"
+                        />
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_marginStart="@dimen/_8sdp"
+            android:orientation="horizontal"
+            android:background="@drawable/border_design_2"
+            tools:ignore="UseCompoundDrawables">
+
+            <ImageView
+                android:layout_width="@dimen/_17sdp"
+                android:layout_height="@dimen/_17sdp"
+                android:layout_gravity="center"
+                android:src="@drawable/access_time_filled_24"
+                tools:ignore="ContentDescription" />
+            <TextView
+                android:id="@+id/unit_app_count_un_app"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="@font/open_sans_bold"
+                android:text=""
+                android:textSize="@dimen/_8sdp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/search_doctor_of_app_sch_card_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/_4sdp"
+        android:layout_marginEnd="@dimen/_4sdp"
+        android:layout_marginBottom="@dimen/_8sdp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/search_unit_of_app_sch_card_view"
+        android:orientation="horizontal"
+        android:weightSum="10">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/search_doctor_of_app_sch_card_view_un_app"
+            android:layout_width="0dp"
+            android:layout_weight="8"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="10dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/white">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/light_green">
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/spinner_layout_doctor_select_for_unit_app_sch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="1dp"
+                    app:boxCornerRadiusTopStart="10dp"
+                    app:boxCornerRadiusTopEnd="10dp"
+                    app:boxCornerRadiusBottomEnd="10dp"
+                    app:boxCornerRadiusBottomStart="10dp"
+                    app:boxBackgroundColor="@color/white"
+                    app:boxBackgroundMode="filled"
+                    app:endIconMode="dropdown_menu"
+                    app:boxStrokeWidth="0dp"
+                    android:clickable="true"
+                    android:focusable="false"
+                    android:hint="Select Doctor/Therapist"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                    tools:ignore="HardcodedText">
+
+                    <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                        android:id="@+id/doctor_select_for_unit_app_sch"
+                        style="@style/Widget.MaterialComponents.AutoCompleteTextView.FilledBox"
+                        android:layout_width="match_parent"
+                        android:text=""
+                        android:inputType="text"
+                        android:importantForAutofill="no"
+                        android:ellipsize="none"
+                        android:maxLines="100"
+                        android:clickable="true"
+                        android:fontFamily="@font/open_sans"
+                        android:focusable="false"
+                        android:textSize="@dimen/_9sdp"
+                        android:textColor="@color/black"
+                        android:scrollHorizontally="false"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionDone"
+                        />
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:layout_marginStart="@dimen/_8sdp"
+            android:orientation="horizontal"
+            tools:ignore="UseCompoundDrawables"
+            android:background="@drawable/border_design_2">
+
+            <ImageView
+                android:layout_width="@dimen/_17sdp"
+                android:layout_height="@dimen/_17sdp"
+                android:layout_gravity="center"
+                android:src="@drawable/person_24"
+                tools:ignore="ContentDescription" />
+            <TextView
+                android:id="@+id/unit_docs_count_un_app"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="@font/open_sans_bold"
+                android:text=""
+                android:textSize="@dimen/_8sdp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:gravity="center"
+        android:layout_below="@+id/search_doctor_of_app_sch_card_view">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/previous_month_button_unit_app_sch"
+            android:layout_width="48dp"
+            android:layout_height="25dp"
+            style="@style/Widget.MaterialComponents.Button.Icon"
+            app:icon="@drawable/keyboard_arrow_left"
+            app:iconTint="@color/white"
+            app:iconSize="24dp"
+            app:iconPadding="0dp"
+            android:layout_alignParentStart="true"
+            android:layout_marginStart="@dimen/_5sdp"
+            android:layout_centerVertical="true"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:layout_marginEnd="@dimen/_5sdp"
+            android:insetBottom="0dp"
+            app:backgroundTint="@color/light_green" />
+
+        <TextView
+            android:id="@+id/selected_month_name_unit_app_sch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginStart="@dimen/_5sdp"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:layout_marginEnd="@dimen/_5sdp"
+            android:layout_marginBottom="@dimen/_5sdp"
+            android:fontFamily="@font/poppins_bold"
+            android:gravity="center"
+            android:text="OCTOBER, 2023"
+            android:textColor="@color/green_sea"
+            android:textSize="@dimen/_12sdp"
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/next_month_button_unit_app_sch"
+            android:layout_width="48dp"
+            android:layout_height="25dp"
+            style="@style/Widget.MaterialComponents.Button.Icon"
+            app:icon="@drawable/keyboard_arrow_right"
+            app:iconTint="@color/white"
+            app:iconSize="24dp"
+            app:iconPadding="0dp"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="@dimen/_5sdp"
+            android:layout_centerVertical="true"
+            android:insetRight="0dp"
+            android:layout_marginStart="@dimen/_5sdp"
+            android:insetBottom="0dp"
+            app:backgroundTint="@color/light_green" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

@@ -329,6 +329,7 @@ public class AppointmentSchedule extends AppCompatActivity {
     }
 
     public void getAppointmentData() {
+        loading = true;
         try {
             waitProgress.show(getSupportFragmentManager(), "WaitBar");
             waitProgress.setCancelable(false);
@@ -339,7 +340,6 @@ public class AppointmentSchedule extends AppCompatActivity {
 
         conn = false;
         connected = false;
-        loading = true;
 
         apptScheduleInfoLists = new ArrayList<>();
 

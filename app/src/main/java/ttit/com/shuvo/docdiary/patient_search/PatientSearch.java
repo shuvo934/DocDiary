@@ -153,7 +153,7 @@ public class PatientSearch extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 searching_data = s.toString();
-                filter(s.toString());
+                filter(searching_data);
             }
         });
 
@@ -177,19 +177,34 @@ public class PatientSearch extends AppCompatActivity {
 
     private void filter(String text) {
         filteredList = new ArrayList<>();
-        for (PatientSearchList item : patientSearchLists) {
-            if (item.getPat_name().toLowerCase().contains(text.toLowerCase()) || item.getSub_code().toLowerCase().contains(text.toLowerCase())) {
-                filteredList.add((item));
+        if (patientSearchLists != null) {
+            for (PatientSearchList item : patientSearchLists) {
+                if (item.getPat_name().toLowerCase().contains(text.toLowerCase()) || item.getSub_code().toLowerCase().contains(text.toLowerCase())) {
+                    filteredList.add((item));
+                }
+            }
+
+            if (filteredList.size() == 0) {
+                noPatientFound.setVisibility(View.VISIBLE);
+            }
+            else {
+                noPatientFound.setVisibility(View.GONE);
+            }
+            if (patientSearchAdapter != null) {
+                try {
+                    patientSearchAdapter.filterList(filteredList);
+                }
+                catch (Exception e) {
+                    restart("App is paused for a long time. Please Start the app again.");
+                }
+            }
+            else {
+                restart("App is paused for a long time. Please Start the app again.");
             }
         }
-
-        if (filteredList.size() == 0) {
-            noPatientFound.setVisibility(View.VISIBLE);
-        }
         else {
-            noPatientFound.setVisibility(View.GONE);
+            restart("App is paused for a long time. Please Start the app again.");
         }
-        patientSearchAdapter.filterList(filteredList);
     }
 
     private void closeKeyBoard() {

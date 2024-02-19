@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/_10sdp"
+        app:cardCornerRadius="@dimen/_8sdp"
+        android:layout_margin="@dimen/_5sdp"
+        android:layout_gravity="center"
+        app:cardBackgroundColor="@color/clouds"
+        android:id="@+id/car_view_of_doc_app_sch_view"
+        app:cardElevation="3dp">
+
+        <RelativeLayout
+            android:id="@+id/border_layout_unit_wise_doctor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/_8sdp">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/time_schedule_of_docs_unit_wise"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_bold"
+                android:gravity="center"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center"
+                android:layout_alignParentTop="true"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_11sdp"
+                tools:text="8:00 AM" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/_10sdp"
+                android:gravity="center"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:layout_marginTop="5dp"
+                android:textColor="@color/default_text_color"
+                android:id="@+id/message_for_docs_unit_wise"
+                android:fontFamily="@font/poppins_semibold"
+                tools:text="BUSY"/>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/_10sdp"
+                android:layout_marginTop="5dp"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/time_schedule_of_docs_unit_wise"
+                android:gravity="center"
+                android:textColor="@color/default_text_color"
+                android:id="@+id/pat_name_for_docs_unit_wise"
+                android:fontFamily="@font/poppins_semibold"
+                tools:text="KAYUM HOSSEN"/>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/_8sdp"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/pat_name_for_docs_unit_wise"
+                android:textColor="@color/default_text_color"
+                android:id="@+id/pat_code_for_docs_unit_wise"
+                android:fontFamily="@font/poppins"
+                android:gravity="center"
+                tools:text="(24.0001.002.01)"/>
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/_9sdp"
+                android:gravity="center"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@+id/pat_code_for_docs_unit_wise"                android:textColor="@color/default_text_color"
+                android:id="@+id/pat_fee_service_name_for_docs_unit_wise"
+                android:fontFamily="@font/poppins"
+                tools:text="Physiotherapy Service Charge"/>
+
+        </RelativeLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+</LinearLayout>

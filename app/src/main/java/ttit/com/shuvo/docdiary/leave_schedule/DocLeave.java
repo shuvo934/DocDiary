@@ -129,12 +129,12 @@ public class DocLeave extends AppCompatActivity {
 //        System.out.println("End Date : "+endDates.getTime().toString());
 
         List<Calendar> disabledDays = new ArrayList<>();
+        SimpleDateFormat dayNameFormat3 = new SimpleDateFormat("EEE", Locale.ENGLISH);
         do {
-            SimpleDateFormat dayNameFormat = new SimpleDateFormat("EEE", Locale.ENGLISH);
             String text = "";
             Calendar ddc = Calendar.getInstance();
             if (testStartdates.getTime().equals(startDates.getTime())) {
-                text = dayNameFormat.format(testStartdates.getTime());
+                text = dayNameFormat3.format(testStartdates.getTime());
                 if (text.contains("Fri")) {
                     ddc.setTime(testStartdates.getTime());
                     disabledDays.add(ddc);
@@ -142,7 +142,7 @@ public class DocLeave extends AppCompatActivity {
             }
 
             testStartdates.add(Calendar.DAY_OF_MONTH,1);
-            text = dayNameFormat.format(testStartdates.getTime());
+            text = dayNameFormat3.format(testStartdates.getTime());
             if (text.contains("Fri")) {
                 ddc.setTime(testStartdates.getTime());
                 disabledDays.add(ddc);

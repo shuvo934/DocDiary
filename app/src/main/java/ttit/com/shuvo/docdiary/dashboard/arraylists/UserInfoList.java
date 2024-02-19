@@ -15,8 +15,9 @@ public class UserInfoList {
     private String doc_video_link;
     private String doc_video_link_enable_flag;
     private String doc_center_name;
+    private String deptd_id;
 
-    public UserInfoList(String doc_name, String doc_id, String doc_code, String depts_name, String deptd_name, String deptm_name, String desig_name, String docd_eff_date, String docd_status, String depts_id, String desig_id,String doc_video_link, String doc_video_link_enable_flag, String doc_center_name) {
+    public UserInfoList(String doc_name, String doc_id, String doc_code, String depts_name, String deptd_name, String deptm_name, String desig_name, String docd_eff_date, String docd_status, String depts_id, String desig_id,String doc_video_link, String doc_video_link_enable_flag, String doc_center_name, String deptd_id) {
         this.doc_name = doc_name;
         this.doc_id = doc_id;
         this.doc_code = doc_code;
@@ -31,6 +32,7 @@ public class UserInfoList {
         this.doc_video_link = doc_video_link;
         this.doc_video_link_enable_flag = doc_video_link_enable_flag;
         this.doc_center_name = doc_center_name;
+        this.deptd_id = deptd_id;
     }
 
     public String getDoc_name() {
@@ -143,5 +145,13 @@ public class UserInfoList {
 
     public void setDoc_center_name(String doc_center_name) {
         this.doc_center_name = doc_center_name;
+    }
+
+    public String getDeptd_id() {
+        return deptd_id;
+    }
+
+    public void setDeptd_id(String deptd_id) {
+        this.deptd_id = deptd_id;
     }
 }

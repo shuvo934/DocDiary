@@ -31,6 +31,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
@@ -63,6 +64,7 @@ import ttit.com.shuvo.docdiary.leave_schedule.DocLeave;
 import ttit.com.shuvo.docdiary.login.DocLogin;
 import ttit.com.shuvo.docdiary.patient_search.PatientSearch;
 import ttit.com.shuvo.docdiary.profile.DocProfile;
+import ttit.com.shuvo.docdiary.unit_app_schedule.UnitWiseAppointment;
 
 public class DocDashboard extends AppCompatActivity {
 
@@ -103,6 +105,7 @@ public class DocDashboard extends AppCompatActivity {
     String patient_name = "";
     String doc_id = "";
     String doc_fl_flag = "";
+    String doc_head_flag = "";
     int progress_track = 100;
     int total_seconds = 1;
     NormalCountDownView normalCountDownView;
@@ -141,6 +144,7 @@ public class DocDashboard extends AppCompatActivity {
     Bitmap bitmap;
     private boolean imageFound = false;
     ImageView docImage;
+    MaterialButton unitDoctor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,6 +169,8 @@ public class DocDashboard extends AppCompatActivity {
         nextMeetingText = findViewById(R.id.next_meeting_text_view);
         timerIcon = findViewById(R.id.timer_icon_image);
         patientName = findViewById(R.id.next_meeting_patient_name);
+
+        unitDoctor = findViewById(R.id.unit_wise_doctor_button);
 
         meetingTime = findViewById(R.id.next_meeting_time_dashboard);
 
@@ -434,6 +440,11 @@ public class DocDashboard extends AppCompatActivity {
         }
         osName = builder.toString();
 //        android_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+
+        unitDoctor.setOnClickListener(v -> {
+            Intent intent = new Intent(DocDashboard.this, UnitWiseAppointment.class);
+            startActivity(intent);
+        });
     }
 
     public static String getIPAddress(boolean useIPv4) {
@@ -663,9 +674,13 @@ public class DocDashboard extends AppCompatActivity {
                                     .equals("null") ? "0" :docInfo.getString("doc_app_first_login_flag");
                             String doc_center_name = docInfo.getString("doc_center_name")
                                     .equals("null") ? "" : docInfo.getString("doc_center_name");
+                            String deptd_id = docInfo.getString("deptd_id")
+                                    .equals("null") ? "" :docInfo.getString("deptd_id");
+                            doc_head_flag = docInfo.getString("doc_deptd_head_flag")
+                                    .equals("null") ? "0" :docInfo.getString("doc_deptd_head_flag");
 
                             userInfoLists.add(new UserInfoList(doc_name,nn_doc_id,doc_code,depts_name,deptd_name,deptm_name,
-                                    desig_name,doc_eff_date,doc_status,depts_id,desig_id,doc_video_link,doc_video_link_enable_flag,doc_center_name));
+                                    desig_name,doc_eff_date,doc_status,depts_id,desig_id,doc_video_link,doc_video_link_enable_flag,doc_center_name,deptd_id));
                             doc_fl_flag = docInfo.getString("fl_flag")
                                     .equals("null") ? "0" :docInfo.getString("fl_flag");
 
@@ -1188,6 +1203,12 @@ public class DocDashboard extends AppCompatActivity {
                                 docCenterName.setVisibility(View.VISIBLE);
                                 doc_center = "("+doc_center+")";
                                 docCenterName.setText(doc_center);
+                            }
+                            if (doc_head_flag.equals("1")) {
+                                unitDoctor.setVisibility(View.VISIBLE);
+                            }
+                            else {
+                                unitDoctor.setVisibility(View.GONE);
                             }
 
                             SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.ENGLISH);
