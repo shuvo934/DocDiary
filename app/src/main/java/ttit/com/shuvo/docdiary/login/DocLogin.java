@@ -29,6 +29,7 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.gson.Gson;
 import com.jakewharton.processphoenix.ProcessPhoenix;
 
 import org.json.JSONArray;
@@ -74,6 +75,7 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
     public static final String DOC_USER_CODE = "DOC_USER_CODE";
     public static final String DOC_USER_PASSWORD = "DOC_USER_PASSWORD";
     public static final String DOC_DATA_API = "DOC_DATA_API";
+    public static final String DOC_ALL_ID = "DOC_ALL_ID";
 
     public static final String MyPREFERENCES = "UserPass";
     public static final String user_mobile_remember = "nameKey";
@@ -88,6 +90,8 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
     public static String center_api = "";
     ArrayList<CenterList> centerLists;
     boolean loading = false;
+    Gson gson = new Gson();
+    String json = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -708,14 +712,27 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
                     System.out.println("USERs Found : "+multipleUserLists.size());
                     center_api = centerLists.get(0).getCenter_api();
                     String cn = centerLists.get(0).getCenter_name();
+                    json = gson.toJson(centerLists);
                     SelectUserIdDialogue selectUserIdDialogue = new SelectUserIdDialogue(multipleUserLists,DocLogin.this,cn);
-                    selectUserIdDialogue.show(getSupportFragmentManager(),"USER_CENTER");
+                    try {
+                        selectUserIdDialogue.show(getSupportFragmentManager(),"USER_CENTER");
+                    }
+                    catch (Exception e) {
+                        restart("App is paused for a long time. Please Start the app again.");
+                    }
                 }
             }
             else {
                 System.out.println("Center Found : "+centerLists.size());
+                json = gson.toJson(centerLists);
+
                 SelectCenterDialogue selectCenterDialogue = new SelectCenterDialogue(centerLists,DocLogin.this);
-                selectCenterDialogue.show(getSupportFragmentManager(),"CENTER");
+                try {
+                    selectCenterDialogue.show(getSupportFragmentManager(),"CENTER");
+                }
+                catch (Exception e) {
+                    restart("App is paused for a long time. Please Start the app again.");
+                }
             }
         }
         else {
@@ -920,11 +937,13 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
                 editor1.remove(DOC_USER_CODE);
                 editor1.remove(DOC_USER_PASSWORD);
                 editor1.remove(DOC_DATA_API);
+                editor1.remove(DOC_ALL_ID);
                 editor1.remove(LOGIN_TF);
 
                 editor1.putString(DOC_USER_CODE, center_doc_code);
                 editor1.putString(DOC_USER_PASSWORD, user_password);
                 editor1.putString(DOC_DATA_API, center_api);
+                editor1.putString(DOC_ALL_ID, json);
                 editor1.putBoolean(LOGIN_TF, true);
                 editor1.apply();
                 editor1.commit();

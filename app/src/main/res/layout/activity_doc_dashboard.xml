@@ -30,6 +30,7 @@
                 android:id="@+id/doc_diary_logo"
                 android:layout_centerVertical="true"
                 android:src="@drawable/doc_diary_default"
+                android:layout_alignParentStart="true"
                 tools:ignore="ContentDescription" />
 
             <TextView
@@ -53,6 +54,17 @@
                 android:src="@drawable/logout_24"
                 android:layout_centerVertical="true"
                 android:layout_alignParentEnd="true"
+                app:tint="@color/green_sea"
+                tools:ignore="ContentDescription" />
+
+            <ImageView
+                android:id="@+id/switch_user_icon"
+                android:layout_width="@dimen/_18sdp"
+                android:layout_height="@dimen/_18sdp"
+                android:src="@drawable/switch_user_icon"
+                android:layout_centerVertical="true"
+                android:layout_toStartOf="@+id/log_out_doc"
+                android:layout_marginEnd="@dimen/_12sdp"
                 app:tint="@color/green_sea"
                 tools:ignore="ContentDescription" />
 

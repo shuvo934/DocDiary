@@ -36,6 +36,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.tabs.TabLayout;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.jakewharton.processphoenix.ProcessPhoenix;
 
 import org.json.JSONArray;
@@ -44,6 +46,7 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.text.ParseException;
@@ -60,13 +63,19 @@ import java.util.Map;
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.AppointmentSchedule;
 import ttit.com.shuvo.docdiary.dashboard.arraylists.UserInfoList;
+import ttit.com.shuvo.docdiary.dashboard.dialogue.CenterSelectDialogue;
+import ttit.com.shuvo.docdiary.dashboard.dialogue.UserSelectDialogue;
 import ttit.com.shuvo.docdiary.leave_schedule.DocLeave;
+import ttit.com.shuvo.docdiary.login.CallBackListener;
 import ttit.com.shuvo.docdiary.login.DocLogin;
+import ttit.com.shuvo.docdiary.login.IDCallbackListener;
+import ttit.com.shuvo.docdiary.login.arraylists.CenterList;
+import ttit.com.shuvo.docdiary.login.arraylists.MultipleUserList;
 import ttit.com.shuvo.docdiary.patient_search.PatientSearch;
 import ttit.com.shuvo.docdiary.profile.DocProfile;
 import ttit.com.shuvo.docdiary.unit_app_schedule.UnitWiseAppointment;
 
-public class DocDashboard extends AppCompatActivity {
+public class DocDashboard extends AppCompatActivity implements CallBackListener, IDCallbackListener {
 
     LinearLayout fullLayout;
     CircularProgressIndicator circularProgressIndicator;
@@ -83,6 +92,7 @@ public class DocDashboard extends AppCompatActivity {
     public static final String DOC_USER_CODE = "DOC_USER_CODE";
     public static final String DOC_USER_PASSWORD = "DOC_USER_PASSWORD";
     public static final String DOC_DATA_API = "DOC_DATA_API";
+    public static final String DOC_ALL_ID = "DOC_ALL_ID";
     String doc_code = "";
     public static String pre_url_api = "";
     public static ArrayList<UserInfoList> userInfoLists;
@@ -145,6 +155,9 @@ public class DocDashboard extends AppCompatActivity {
     private boolean imageFound = false;
     ImageView docImage;
     MaterialButton unitDoctor;
+    ImageView switchUser;
+    private boolean user_switch = false;
+    ArrayList<CenterList> centerLists;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -187,12 +200,7 @@ public class DocDashboard extends AppCompatActivity {
         dateRangeText = findViewById(R.id.date_range_tab_text);
         totalSchedule = findViewById(R.id.total_schedule_count);
         blockedSchedule = findViewById(R.id.blocked_schedule_count);
-
-        sharedPreferences = getSharedPreferences(LOGIN_ACTIVITY_FILE,MODE_PRIVATE);
-        doc_code = sharedPreferences.getString(DOC_USER_CODE,"");
-        pre_url_api = sharedPreferences.getString(DOC_DATA_API,"");
-
-        userInfoLists = new ArrayList<>();
+        switchUser = findViewById(R.id.switch_user_icon);
 
         bottomNavigationView = findViewById(R.id.bottom_navigation_layout);
         bottomNavigationView.getMenu().setGroupCheckable(0, false, true);
@@ -384,6 +392,7 @@ public class DocDashboard extends AppCompatActivity {
                         editor1.remove(DOC_USER_CODE);
                         editor1.remove(DOC_USER_PASSWORD);
                         editor1.remove(DOC_DATA_API);
+                        editor1.remove(DOC_ALL_ID);
                         editor1.remove(LOGIN_TF);
                         editor1.apply();
                         editor1.commit();
@@ -406,6 +415,92 @@ public class DocDashboard extends AppCompatActivity {
             }
         });
 
+        unitDoctor.setOnClickListener(v -> {
+            Intent intent = new Intent(DocDashboard.this, UnitWiseAppointment.class);
+            startActivity(intent);
+        });
+
+        switchUser.setOnClickListener(v -> {
+            if (centerLists != null && centerLists.size() != 0) {
+                if (centerLists.size() == 1) {
+                    ArrayList<MultipleUserList> multipleUserLists = centerLists.get(0).getMultipleUserLists();
+                    String cn = centerLists.get(0).getCenter_name();
+                    String c_api = centerLists.get(0).getCenter_api();
+                    UserSelectDialogue userSelectDialogue = new UserSelectDialogue(centerLists,multipleUserLists,DocDashboard.this,cn,c_api);
+                    try {
+                        userSelectDialogue.show(getSupportFragmentManager(),"USER_CENTER");
+                    }
+                    catch (Exception e) {
+                        restart("App is paused for a long time. Please Start the app again.");
+                    }
+                }
+                else {
+                    CenterSelectDialogue centerSelectDialogue = new CenterSelectDialogue(centerLists,DocDashboard.this);
+                    try {
+                        centerSelectDialogue.show(getSupportFragmentManager(),"CENTER");
+                    }
+                    catch (Exception e) {
+                        restart("App is paused for a long time. Please Start the app again.");
+                    }
+                }
+            }
+        });
+
+        initData();
+    }
+
+    private void initData() {
+        sharedPreferences = getSharedPreferences(LOGIN_ACTIVITY_FILE,MODE_PRIVATE);
+        doc_code = sharedPreferences.getString(DOC_USER_CODE,"");
+        pre_url_api = sharedPreferences.getString(DOC_DATA_API,"");
+        Gson gson1 = new Gson();
+        String json1 = sharedPreferences.getString(DOC_ALL_ID, "");
+        Type type = new TypeToken<ArrayList<CenterList>>(){}.getType();
+        centerLists = gson1.fromJson(json1, type);
+
+//        int index = -1;
+//        int multi_index = -1;
+//        int multi_center_index = -1;
+        if (centerLists != null) {
+            if (centerLists.size() == 0) {
+                System.out.println("NO USER");
+                switchUser.setVisibility(View.GONE);
+            }
+            else {
+                switchUser.setVisibility(View.VISIBLE);
+//                for (int i = 0; i < centerLists.size(); i++) {
+//                    ArrayList<MultipleUserList> multipleUserLists = centerLists.get(i).getMultipleUserLists();
+//                    if (multipleUserLists.size() == 0) {
+//                        System.out.println("MULTI USER NAI");
+//                        if (centerLists.get(i).getDoc_code().equals(doc_code) && centerLists.get(i).getCenter_api().equals(pre_url_api)) {
+//                            index = i;
+//                        }
+//                    }
+//                    else {
+//                        System.out.println("MULTI USER PAISE");
+//                        for (int j = 0; j < multipleUserLists.size(); j++) {
+//                            if (multipleUserLists.get(j).getDoc_code().equals(doc_code) && centerLists.get(i).getCenter_api().equals(pre_url_api)) {
+//                                multi_index = j;
+//                                multi_center_index = i;
+//                            }
+//                        }
+//                    }
+//                }
+//                if (index >= 0) {
+//                    centerLists.remove(index);
+//                }
+//                if (multi_index >= 0) {
+//                    centerLists.get(multi_center_index).getMultipleUserLists().remove(multi_index);
+//                }
+            }
+        }
+        else {
+            System.out.println("USER NULL PAISE");
+            switchUser.setVisibility(View.GONE);
+        }
+
+        userInfoLists = new ArrayList<>();
+
         first_flag = 0;
         System.out.println("First_flag: "+ first_flag );
 
@@ -416,7 +511,6 @@ public class DocDashboard extends AppCompatActivity {
         ipAddress = getIPAddress(true);
 
         hostUserName = getHostName("localhost");
-
 
         StringBuilder builder = new StringBuilder();
         builder.append("ANDROID: ").append(Build.VERSION.RELEASE);
@@ -439,12 +533,8 @@ public class DocDashboard extends AppCompatActivity {
             }
         }
         osName = builder.toString();
-//        android_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
-
-        unitDoctor.setOnClickListener(v -> {
-            Intent intent = new Intent(DocDashboard.this, UnitWiseAppointment.class);
-            startActivity(intent);
-        });
+        //        android_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+        System.out.println("1st Phase");
     }
 
     public static String getIPAddress(boolean useIPv4) {
@@ -504,6 +594,7 @@ public class DocDashboard extends AppCompatActivity {
                     getDocData();
                 }
                 else {
+                    loading = true;
                     fullLayout.setVisibility(View.GONE);
                     bottomNavigationView.setVisibility(View.GONE);
                     circularProgressIndicator.setVisibility(View.VISIBLE);
@@ -513,7 +604,6 @@ public class DocDashboard extends AppCompatActivity {
                     tabRefresh.setVisibility(View.GONE);
                     conn = false;
                     connected = false;
-                    loading = true;
                     getDocSchedule();
                 }
             }
@@ -553,6 +643,7 @@ public class DocDashboard extends AppCompatActivity {
     }
 
     public void getDocData() {
+        loading = true;
         fullLayout.setVisibility(View.GONE);
         bottomNavigationView.setVisibility(View.GONE);
         circularProgressIndicator.setVisibility(View.VISIBLE);
@@ -562,9 +653,13 @@ public class DocDashboard extends AppCompatActivity {
         tabRefresh.setVisibility(View.GONE);
         conn = false;
         connected = false;
-        loading = true;
         userAvailable = false;
         userInfoLists = new ArrayList<>();
+        expiry_date = "";
+        doctor_status = "";
+        doc_head_flag = "0";
+        first_login_flag ="1";
+        System.out.println("2nd Phase");
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
 
@@ -578,6 +673,7 @@ public class DocDashboard extends AppCompatActivity {
 
         String docDataUrl = pre_url_api+"doc_dashboard/getDocData?doc_code="+doc_code+"";
         String expiryDateUrl = pre_url_api+"doc_dashboard/updateDocExpDate";
+        String flagUpdateUrl = pre_url_api+"login/updateFLFlag";
 
         RequestQueue requestQueue = Volley.newRequestQueue(DocDashboard.this);
 
@@ -736,7 +832,50 @@ public class DocDashboard extends AppCompatActivity {
             updateInterface();
         });
 
-        requestQueue.add(docDataReq);
+        StringRequest flagUpdateReq = new StringRequest(Request.Method.POST, flagUpdateUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String string_out = jsonObject.getString("string_out");
+                if (string_out.equals("Successfully Created")) {
+                    requestQueue.add(docDataReq);
+                }
+                else {
+                    System.out.println(string_out);
+                    parsing_message = string_out;
+                    connected = false;
+                    updateInterface();
+                }
+            }
+            catch (JSONException e) {
+                e.printStackTrace();
+                connected = false;
+                parsing_message = e.getLocalizedMessage();
+                updateInterface();
+            }
+        }, error -> {
+            error.printStackTrace();
+            conn = false;
+            connected = false;
+            parsing_message = error.getLocalizedMessage();
+            updateInterface();
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("P_DOC_CODE", doc_code);
+                return headers;
+            }
+        };
+
+        if (user_switch) {
+            requestQueue.add(flagUpdateReq);
+            System.out.println("USER SWITCHED");
+        }
+        else {
+            requestQueue.add(docDataReq);
+            System.out.println("USER NOT SWITCHED");
+        }
     }
 
     public void loginLogInsert() {
@@ -1084,6 +1223,7 @@ public class DocDashboard extends AppCompatActivity {
                                     editor1.remove(DOC_USER_CODE);
                                     editor1.remove(DOC_USER_PASSWORD);
                                     editor1.remove(DOC_DATA_API);
+                                    editor1.remove(DOC_ALL_ID);
                                     editor1.remove(LOGIN_TF);
                                     editor1.apply();
                                     editor1.commit();
@@ -1138,6 +1278,7 @@ public class DocDashboard extends AppCompatActivity {
                                         editor1.remove(DOC_USER_CODE);
                                         editor1.remove(DOC_USER_PASSWORD);
                                         editor1.remove(DOC_DATA_API);
+                                        editor1.remove(DOC_ALL_ID);
                                         editor1.remove(LOGIN_TF);
                                         editor1.apply();
                                         editor1.commit();
@@ -1167,6 +1308,7 @@ public class DocDashboard extends AppCompatActivity {
                             conn = false;
                             connected = false;
                             userAvailable = false;
+                            user_switch = false;
 
                             progress_track_flag_value = 0;
                             String doc_center = "";
@@ -1405,10 +1547,15 @@ public class DocDashboard extends AppCompatActivity {
                             welcomeText.setText(wt);
 
                             if (imageFound) {
-                                Glide.with(DocDashboard.this)
-                                        .load(bitmap)
-                                        .fitCenter()
-                                        .into(docImage);
+                                try {
+                                    Glide.with(getApplicationContext())
+                                            .load(bitmap)
+                                            .fitCenter()
+                                            .into(docImage);
+                                }
+                                catch (Exception e) {
+                                    restart("App is paused for a long time. Please Start the app again.");
+                                }
                             }
                             else {
                                 docImage.setImageResource(R.drawable.doctor);
@@ -1427,16 +1574,24 @@ public class DocDashboard extends AppCompatActivity {
                     tabLayout.setVisibility(View.GONE);
                     tabRefresh.setVisibility(View.GONE);
 
+                    String e_msg;
+                    if (doctor_status.isEmpty()) {
+                        e_msg = "No User Data Found";
+                    }
+                    else {
+                        e_msg ="Your status is: "+doctor_status+", with effected date: "+effected_date+". " +
+                                "So, You are not eligible to access this app.";
+                    }
                     MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
                     alertDialogBuilder.setTitle("Access Denied!")
-                            .setMessage("Your status is: "+doctor_status+", with effected date: "+effected_date+". " +
-                                    "So, You are not eligible to access this app.")
+                            .setMessage(e_msg)
                             .setPositiveButton("OK", (dialog, which) -> {
 
                                 SharedPreferences.Editor editor1 = sharedPreferences.edit();
                                 editor1.remove(DOC_USER_CODE);
                                 editor1.remove(DOC_USER_PASSWORD);
                                 editor1.remove(DOC_DATA_API);
+                                editor1.remove(DOC_ALL_ID);
                                 editor1.remove(LOGIN_TF);
                                 editor1.apply();
                                 editor1.commit();
@@ -1455,6 +1610,7 @@ public class DocDashboard extends AppCompatActivity {
                     }
                 }
                 loading = false;
+                user_switch = false;
             }
             else {
                 alertMessage();
@@ -1720,10 +1876,15 @@ public class DocDashboard extends AppCompatActivity {
                 tabLayout.selectTab(tabAt);
 
                 if (imageFound) {
-                    Glide.with(DocDashboard.this)
-                            .load(bitmap)
-                            .fitCenter()
-                            .into(docImage);
+                    try {
+                        Glide.with(getApplicationContext())
+                                .load(bitmap)
+                                .fitCenter()
+                                .into(docImage);
+                    }
+                    catch (Exception e) {
+                        restart("App is paused for a long time. Please Start the app again.");
+                    }
                 }
                 else {
                     docImage.setImageResource(R.drawable.doctor);
@@ -1988,5 +2149,23 @@ public class DocDashboard extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_SHORT).show();
             System.exit(0);
         }
+    }
+
+    @Override
+    public void onDismiss() {
+        normalCountDownView.stopTimer();
+        loading = false;
+        user_switch = true;
+        initData();
+        getDocData();
+    }
+
+    @Override
+    public void onIdDismiss() {
+        normalCountDownView.stopTimer();
+        loading = false;
+        user_switch = true;
+        initData();
+        getDocData();
     }
 }

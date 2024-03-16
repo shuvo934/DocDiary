@@ -57,12 +57,14 @@
         </RelativeLayout>
 
         <TextView
+            android:id="@+id/multi_center_notified_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="We have found Multiple Center for your login credentials. Please Select One to proceed."
             android:layout_margin="10dp"
             android:fontFamily="@font/poppins_medium"
-            android:gravity="center"/>
+            android:gravity="center"
+            tools:ignore="HardcodedText" />
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/center_list_view"
             android:layout_width="match_parent"

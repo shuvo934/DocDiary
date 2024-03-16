@@ -74,7 +74,7 @@ public class AppointmentSchedule extends AppCompatActivity {
     String parsing_message = "";
     TextView noSchMess;
     ImageView backButton;
-    WaitProgress waitProgress = new WaitProgress();
+
 
 
     @Override
@@ -330,6 +330,7 @@ public class AppointmentSchedule extends AppCompatActivity {
 
     public void getAppointmentData() {
         loading = true;
+        WaitProgress waitProgress = new WaitProgress();
         try {
             waitProgress.show(getSupportFragmentManager(), "WaitBar");
             waitProgress.setCancelable(false);
@@ -404,26 +405,26 @@ public class AppointmentSchedule extends AppCompatActivity {
                     }
                 }
                 connected = true;
-                updateInterface();
+                updateInterface(waitProgress);
             }
             catch (JSONException e) {
                 connected = false;
                 e.printStackTrace();
                 parsing_message = e.getLocalizedMessage();
-                updateInterface();
+                updateInterface(waitProgress);
             }
         }, error -> {
             conn = false;
             connected = false;
             error.printStackTrace();
             parsing_message = error.getLocalizedMessage();
-            updateInterface();
+            updateInterface(waitProgress);
         });
 
         requestQueue.add(apptDataReq);
     }
 
-    private void updateInterface() {
+    private void updateInterface(WaitProgress waitProgress) {
         if (conn) {
             if (connected) {
                 try {
@@ -446,15 +447,15 @@ public class AppointmentSchedule extends AppCompatActivity {
                 loading = false;
             }
             else {
-                alertMessage();
+                alertMessage(waitProgress);
             }
         }
         else {
-            alertMessage();
+            alertMessage(waitProgress);
         }
     }
 
-    public void alertMessage() {
+    public void alertMessage(WaitProgress waitProgress) {
         try {
             waitProgress.dismiss();
         }

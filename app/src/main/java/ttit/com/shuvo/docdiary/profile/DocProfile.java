@@ -381,10 +381,15 @@ public class DocProfile extends AppCompatActivity {
                 docEmail.setText(doc_email);
 
                 if (imageFound) {
-                    Glide.with(DocProfile.this)
-                            .load(bitmap)
-                            .fitCenter()
-                            .into(docImage);
+                    try {
+                        Glide.with(getApplicationContext())
+                                .load(bitmap)
+                                .fitCenter()
+                                .into(docImage);
+                    }
+                    catch (Exception e) {
+                        restart("App is paused for a long time. Please Start the app again.");
+                    }
                 }
                 else {
                     docImage.setImageResource(R.drawable.doctor);
@@ -553,10 +558,15 @@ public class DocProfile extends AppCompatActivity {
 
                 Toast.makeText(getApplicationContext(), "Picture Uploaded", Toast.LENGTH_SHORT).show();
 
-                Glide.with(DocProfile.this)
-                        .load(selectedBitmap)
-                        .fitCenter()
-                        .into(docImage);
+                try {
+                    Glide.with(getApplicationContext())
+                            .load(selectedBitmap)
+                            .fitCenter()
+                            .into(docImage);
+                }
+                catch (Exception e) {
+                    restart("App is paused for a long time. Please Start the app again.");
+                }
 
                 loading = false;
             }
