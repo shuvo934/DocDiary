@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".all_appointment.AllAppointment">
+
+    <LinearLayout
+        android:id="@+id/all_doc_appointment_schedule_full_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:id="@+id/all_doc_app_sch_app_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/clouds"
+            android:padding="@dimen/_11sdp">
+
+            <ImageView
+                android:layout_width="@dimen/_21sdp"
+                android:layout_height="@dimen/_21sdp"
+                android:id="@+id/back_logo_of_all_doc_appointment_schedule"
+                android:layout_centerVertical="true"
+                android:src="@drawable/arrow_back"
+                app:tint="@color/black"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="@dimen/_12sdp"
+                android:layout_toEndOf="@+id/back_logo_of_all_doc_appointment_schedule"
+                android:fontFamily="@font/poppins_bold"
+                android:text="All Appointment"
+                android:paddingTop="2dp"
+                android:paddingBottom="0dp"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_14sdp"
+                tools:ignore="HardcodedText" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/design_bar"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/green_sea"
+            android:orientation="vertical"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <include
+                layout="@layout/all_doc_app_sch_extra_layout"/>
+
+            <devs.mulham.horizontalcalendar.HorizontalCalendarView
+                android:id="@+id/calendarView_all_app_sch"
+                android:layout_width="match_parent"
+                app:textColorNormal="@color/back_color"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                app:textColorSelected="#FFFF"
+                app:selectorColor="@android:color/transparent" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/timeline_recycle_view_all_app_sch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"/>
+
+            <TextView
+                android:id="@+id/no_doctor_found_message_all_app_sch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_marginTop="@dimen/_4sdp"
+                android:text="No Doctor/Therapist Found"
+                android:fontFamily="@font/poppins_bold"
+                android:textSize="@dimen/_12sdp"
+                tools:ignore="HardcodedText" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progress_indicator_all_doc_appointment_schdeule"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:indeterminate="true"
+        android:layout_gravity="center"/>
+
+</RelativeLayout>

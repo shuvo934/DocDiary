@@ -160,13 +160,22 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
 
         contactAdmin.setOnClickListener(v -> {
             String mmm = "info@techterrain-it.com";
+            String bodyText = "Please fill out the field to create your user id.\n\n" +
+                    "Center/Hospital Name: \n" +
+                    "Center/Hospital Address: \n" +
+                    "User Name: \n" +
+                    "User Mobile No: \n" +
+                    "User Designation: \n" +
+                    "User Mail: \n" +
+                    "User Code(If any): ";
             MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocLogin.this)
                     .setMessage("Do you want to send an email to "+mmm+" ?")
 //                        .setIcon(R.drawable.terrain_shop_icon)
                     .setPositiveButton("Yes", (dialog, which) -> {
                         dialog.dismiss();
                         Intent intent = new Intent(Intent.ACTION_VIEW);
-                        Uri data = Uri.parse("mailto:"+mmm+"?subject="+"New Account Creation Request From DocDiary");
+                        Uri data = Uri.parse("mailto:"+mmm+"?subject="+"New Account Creation Request From DocDiary"
+                                +"&body="+Uri.encode(bodyText));
                         intent.setData(data);
                         try {
                             startActivity(intent);

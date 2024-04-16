@@ -44,6 +44,13 @@ public class DoctorsListAdapter extends RecyclerView.Adapter<DoctorsListAdapter.
 
         if (doctorAppSchLists.size() == 0) {
             holder.noSchFound.setVisibility(View.VISIBLE);
+            RecyclerView.LayoutManager layoutManager =
+                    new LinearLayoutManager(myContext, LinearLayoutManager.HORIZONTAL,false);
+            DoctorAppSchAdapter doctorAppSchAdapter = new DoctorAppSchAdapter(doctorAppSchLists,myContext);
+
+            holder.recyclerView.setHasFixedSize(true);
+            holder.recyclerView.setLayoutManager(layoutManager);
+            holder.recyclerView.setAdapter(doctorAppSchAdapter);
         }
         else {
             holder.noSchFound.setVisibility(View.GONE);

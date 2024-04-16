@@ -61,6 +61,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import ttit.com.shuvo.docdiary.R;
+import ttit.com.shuvo.docdiary.all_appointment.AllAppointment;
 import ttit.com.shuvo.docdiary.appt_schedule.AppointmentSchedule;
 import ttit.com.shuvo.docdiary.dashboard.arraylists.UserInfoList;
 import ttit.com.shuvo.docdiary.dashboard.dialogue.CenterSelectDialogue;
@@ -116,6 +117,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     String doc_id = "";
     String doc_fl_flag = "";
     String doc_head_flag = "";
+    String doc_manager_flag = "";
     int progress_track = 100;
     int total_seconds = 1;
     NormalCountDownView normalCountDownView;
@@ -155,6 +157,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     private boolean imageFound = false;
     ImageView docImage;
     MaterialButton unitDoctor;
+    MaterialButton allDoctorAppointment;
     ImageView switchUser;
     private boolean user_switch = false;
     ArrayList<CenterList> centerLists;
@@ -184,6 +187,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         patientName = findViewById(R.id.next_meeting_patient_name);
 
         unitDoctor = findViewById(R.id.unit_wise_doctor_button);
+        allDoctorAppointment = findViewById(R.id.all_doctor_appointment_button);
 
         meetingTime = findViewById(R.id.next_meeting_time_dashboard);
 
@@ -417,6 +421,11 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
         unitDoctor.setOnClickListener(v -> {
             Intent intent = new Intent(DocDashboard.this, UnitWiseAppointment.class);
+            startActivity(intent);
+        });
+
+        allDoctorAppointment.setOnClickListener(v -> {
+            Intent intent = new Intent(DocDashboard.this, AllAppointment.class);
             startActivity(intent);
         });
 
@@ -658,6 +667,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         expiry_date = "";
         doctor_status = "";
         doc_head_flag = "0";
+        doc_manager_flag = "0";
         first_login_flag ="1";
         System.out.println("2nd Phase");
 
@@ -774,6 +784,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                     .equals("null") ? "" :docInfo.getString("deptd_id");
                             doc_head_flag = docInfo.getString("doc_deptd_head_flag")
                                     .equals("null") ? "0" :docInfo.getString("doc_deptd_head_flag");
+                            doc_manager_flag = docInfo.getString("doc_manager_flag")
+                                    .equals("null") ? "0" :docInfo.getString("doc_manager_flag");
 
                             userInfoLists.add(new UserInfoList(doc_name,nn_doc_id,doc_code,depts_name,deptd_name,deptm_name,
                                     desig_name,doc_eff_date,doc_status,depts_id,desig_id,doc_video_link,doc_video_link_enable_flag,doc_center_name,deptd_id));
@@ -1346,11 +1358,18 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                 doc_center = "("+doc_center+")";
                                 docCenterName.setText(doc_center);
                             }
-                            if (doc_head_flag.equals("1")) {
-                                unitDoctor.setVisibility(View.VISIBLE);
+                            if (doc_manager_flag.equals("1")) {
+                                allDoctorAppointment.setVisibility(View.VISIBLE);
+                                unitDoctor.setVisibility(View.GONE);
                             }
                             else {
-                                unitDoctor.setVisibility(View.GONE);
+                                allDoctorAppointment.setVisibility(View.GONE);
+                                if (doc_head_flag.equals("1")) {
+                                    unitDoctor.setVisibility(View.VISIBLE);
+                                }
+                                else {
+                                    unitDoctor.setVisibility(View.GONE);
+                                }
                             }
 
                             SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.ENGLISH);

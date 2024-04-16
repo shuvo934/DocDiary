@@ -28,10 +28,15 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
-            android:name=".unit_app_schedule.UnitWiseAppointment"
-            android:exported="false"
+            android:name=".all_appointment.AllAppointment"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:exported="false"
             android:screenOrientation="portrait"/>
+        <activity
+            android:name=".unit_app_schedule.UnitWiseAppointment"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".patient_search.prescription.PatPrescriptionV"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
