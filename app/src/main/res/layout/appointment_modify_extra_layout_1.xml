@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/search_patient_selectable_card_view_app_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:layout_marginStart="@dimen/_4sdp"
+        android:layout_marginEnd="@dimen/_4sdp"
+        android:layout_marginBottom="@dimen/_4sdp"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/light_green">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/spinner_layout_search_patient_for_app_cancel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="1dp"
+            app:boxCornerRadiusTopStart="@dimen/_8sdp"
+            app:boxCornerRadiusTopEnd="@dimen/_8sdp"
+            app:boxCornerRadiusBottomEnd="@dimen/_8sdp"
+            app:boxCornerRadiusBottomStart="@dimen/_8sdp"
+            app:boxBackgroundColor="@color/white"
+            app:boxBackgroundMode="filled"
+            app:startIconDrawable="@drawable/search_24"
+            app:startIconTint="@color/black"
+            app:boxStrokeWidth="0dp"
+            android:clickable="true"
+            android:focusable="false"
+            android:hint="Select Patient"
+            tools:ignore="HardcodedText"
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox">
+
+            <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                android:id="@+id/search_patient_for_app_cancel_spinner"
+                style="@style/Widget.MaterialComponents.AutoCompleteTextView.FilledBox"
+                android:layout_width="match_parent"
+                android:text=""
+                android:inputType="text"
+                android:importantForAutofill="no"
+                android:ellipsize="none"
+                android:clickable="true"
+                android:focusable="false"
+                android:fontFamily="@font/archivo_bold"
+                android:textSize="@dimen/_11sdp"
+                android:maxLines="100"
+                android:textColor="@color/black"
+                android:scrollHorizontally="false"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionDone" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/select_pat_for_app_cancel_error_handling_msg"
+        android:layout_marginStart="@dimen/_8sdp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="@dimen/_7sdp"
+        android:layout_marginEnd="@dimen/_7sdp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Please Select Patient"
+        android:textColor="@android:color/holo_red_light"
+        android:textStyle="bold"
+        android:visibility="visible"
+        tools:ignore="HardcodedText" />
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_4sdp"
+        android:layout_marginStart="@dimen/_4sdp"
+        android:layout_marginEnd="@dimen/_4sdp"
+        android:layout_marginBottom="@dimen/_4sdp"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/light_green">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/spinner_layout_select_doctor_for_app_cancel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="1dp"
+            app:boxCornerRadiusTopStart="@dimen/_8sdp"
+            app:boxCornerRadiusTopEnd="@dimen/_8sdp"
+            app:boxCornerRadiusBottomEnd="@dimen/_8sdp"
+            app:boxCornerRadiusBottomStart="@dimen/_8sdp"
+            app:boxBackgroundColor="@color/white"
+            app:boxBackgroundMode="filled"
+            app:endIconMode="custom"
+            android:clickable="true"
+            android:focusable="false"
+            app:endIconDrawable="@drawable/arrow_drop_down_24"
+            app:boxStrokeWidth="0dp"
+            android:enabled="false"
+            android:hint="Select Doctor"
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+            tools:ignore="HardcodedText">
+
+            <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                android:id="@+id/select_doctor_for_app_cancel_spinner"
+                style="@style/Widget.MaterialComponents.AutoCompleteTextView.FilledBox"
+                android:layout_width="match_parent"
+                android:text=""
+                android:inputType="text"
+                android:importantForAutofill="no"
+                android:clickable="true"
+                android:focusable="false"
+                android:ellipsize="none"
+                android:maxLines="100"
+                android:textSize="@dimen/_11sdp"
+                android:fontFamily="@font/archivo_bold"
+                android:textColor="@color/black"
+                android:scrollHorizontally="false"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionDone" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/select_doctor_for_app_cancel_error_handling_msg"
+        android:layout_marginStart="@dimen/_8sdp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="@dimen/_7sdp"
+        android:layout_marginEnd="@dimen/_7sdp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Please Select Doctor"
+        android:textColor="@android:color/holo_red_light"
+        android:textStyle="bold"
+        android:visibility="visible"
+        tools:ignore="HardcodedText" />
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_4sdp"
+        android:layout_marginStart="@dimen/_4sdp"
+        android:layout_marginEnd="@dimen/_4sdp"
+        android:layout_marginBottom="@dimen/_4sdp"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/light_green">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/spinner_layout_select_unit_for_app_cancel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="1dp"
+            app:boxCornerRadiusTopStart="@dimen/_8sdp"
+            app:boxCornerRadiusTopEnd="@dimen/_8sdp"
+            app:boxCornerRadiusBottomEnd="@dimen/_8sdp"
+            app:boxCornerRadiusBottomStart="@dimen/_8sdp"
+            app:boxBackgroundColor="@color/white"
+            app:boxBackgroundMode="filled"
+            app:boxStrokeWidth="0dp"
+            android:enabled="false"
+            android:hint="Unit"
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+            tools:ignore="HardcodedText">
+
+            <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                android:id="@+id/select_unit_for_app_cancel_spinner"
+                style="@style/Widget.MaterialComponents.AutoCompleteTextView.FilledBox"
+                android:layout_width="match_parent"
+                android:text=""
+                android:inputType="text"
+                android:importantForAutofill="no"
+                android:ellipsize="none"
+                android:maxLines="100"
+                android:textSize="@dimen/_11sdp"
+                android:fontFamily="@font/archivo_bold"
+                android:textColor="@color/black"
+                android:scrollHorizontally="false"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionDone" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_4sdp"
+        android:layout_marginStart="@dimen/_4sdp"
+        android:layout_marginEnd="@dimen/_4sdp"
+        android:layout_marginBottom="@dimen/_4sdp"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/light_green">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/spinner_layout_select_service_for_app_cancel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="1dp"
+            app:boxCornerRadiusTopStart="@dimen/_8sdp"
+            app:boxCornerRadiusTopEnd="@dimen/_8sdp"
+            app:boxCornerRadiusBottomEnd="@dimen/_8sdp"
+            app:boxCornerRadiusBottomStart="@dimen/_8sdp"
+            app:boxBackgroundColor="@color/white"
+            app:boxBackgroundMode="filled"
+            app:endIconMode="dropdown_menu"
+            app:boxStrokeWidth="0dp"
+            android:enabled="false"
+            android:hint="Select Service"
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+            tools:ignore="HardcodedText">
+
+            <com.rosemaryapp.amazingspinner.AmazingSpinner
+                android:id="@+id/select_service_for_app_cancel_spinner"
+                style="@style/Widget.MaterialComponents.AutoCompleteTextView.FilledBox"
+                android:layout_width="match_parent"
+                android:text=""
+                android:textSize="@dimen/_11sdp"
+                android:fontFamily="@font/archivo_bold"
+                android:textColor="@color/black"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/select_service_for_app_cancel_error_handling_msg"
+        android:layout_marginStart="@dimen/_8sdp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="@dimen/_7sdp"
+        android:layout_marginEnd="@dimen/_7sdp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Please Select Service"
+        android:textColor="@android:color/holo_red_light"
+        android:textStyle="bold"
+        android:visibility="visible"
+        tools:ignore="HardcodedText" />
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_4sdp"
+        android:layout_marginStart="@dimen/_4sdp"
+        android:layout_marginEnd="@dimen/_4sdp"
+        android:layout_marginBottom="@dimen/_4sdp"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/light_green">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/spinner_layout_select_appoint_date_for_app_cancel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="1dp"
+            app:boxCornerRadiusTopStart="@dimen/_8sdp"
+            app:boxCornerRadiusTopEnd="@dimen/_8sdp"
+            app:boxCornerRadiusBottomEnd="@dimen/_8sdp"
+            app:boxCornerRadiusBottomStart="@dimen/_8sdp"
+            app:boxBackgroundColor="@color/white"
+            app:boxBackgroundMode="filled"
+            app:endIconMode="dropdown_menu"
+            app:boxStrokeWidth="0dp"
+            android:enabled="false"
+            android:hint="Select Appointment Date"
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+            tools:ignore="HardcodedText">
+
+            <com.rosemaryapp.amazingspinner.AmazingSpinner
+                android:id="@+id/select_appoint_date_for_app_cancel_spinner"
+                style="@style/Widget.MaterialComponents.AutoCompleteTextView.FilledBox"
+                android:layout_width="match_parent"
+                android:text=""
+                android:textSize="@dimen/_11sdp"
+                android:fontFamily="@font/archivo_bold"
+                android:textColor="@color/black"
+                android:layout_height="wrap_content" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/select_appoint_date_for_app_cancel_error_handling_msg"
+        android:layout_marginStart="@dimen/_8sdp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="@dimen/_7sdp"
+        android:layout_marginEnd="@dimen/_7sdp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Please Select Appointment Date"
+        android:textColor="@android:color/holo_red_light"
+        android:textStyle="bold"
+        android:visibility="visible"
+        tools:ignore="HardcodedText" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/taken_schedule_app_cancel_layout_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:layout_marginTop="@dimen/_8sdp"
+        android:layout_marginStart="@dimen/_4sdp"
+        android:layout_marginEnd="@dimen/_4sdp"
+        android:layout_marginBottom="@dimen/_4sdp"
+        app:cardCornerRadius="10dp"
+        app:cardElevation="2dp"
+        app:cardBackgroundColor="@color/clouds">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Time Schedule:"
+                android:fontFamily="@font/poppins_bold"
+                android:textColor="@color/green_sea"
+                android:layout_margin="@dimen/_4sdp"
+                android:paddingTop="@dimen/_3sdp"
+                android:paddingBottom="@dimen/_1sdp"
+                android:textSize="@dimen/_11sdp"
+                android:textStyle="bold"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_4sdp"
+                android:layout_marginEnd="@dimen/_4sdp">
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/taken_appointment_time_for_app_cancel_recyclerview_for_patient"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            </RelativeLayout>
+
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</LinearLayout>

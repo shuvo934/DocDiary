@@ -1,5 +1,7 @@
 package ttit.com.shuvo.docdiary.patient_search.adapters;
 
+import static ttit.com.shuvo.docdiary.patient_search.PatientSearchAdmin.needToUpdatePatList;
+
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -22,6 +24,7 @@ import java.util.ArrayList;
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.health_rank.HealthProgress;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
+import ttit.com.shuvo.docdiary.patient_search.appointment_calendar.PatAppointmentCalendar;
 import ttit.com.shuvo.docdiary.patient_search.arraylists.PatientSearchList;
 import ttit.com.shuvo.docdiary.patient_search.prescription.PatPrescriptionV;
 
@@ -74,6 +77,17 @@ public class PatientSearchAdapter extends RecyclerView.Adapter<PatientSearchAdap
             holder.hpBar.setProgress(Integer.parseInt(pph_prog));
             holder.viewProgress.setVisibility(View.VISIBLE);
         }
+        String pyear = patientSearchList.getPat_year();
+        if (!pyear.isEmpty()) {
+            String tt = "(" + pyear + ")";
+            holder.patYear.setText(tt);
+            holder.patYear.setVisibility(View.VISIBLE);
+        }
+        else {
+            String tt = "()";
+            holder.patYear.setText(tt);
+            holder.patYear.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -87,12 +101,14 @@ public class PatientSearchAdapter extends RecyclerView.Adapter<PatientSearchAdap
         AppCompatTextView patName;
         AppCompatTextView patArea;
         AppCompatTextView patCode;
+        AppCompatTextView patYear;
 
         RelativeLayout hpLayout;
         TextView hpText;
         ProgressBar hpBar;
         TextView hpMissing;
         MaterialButton viewProgress;
+        MaterialButton appCalendar;
         public PSAHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -106,10 +122,13 @@ public class PatientSearchAdapter extends RecyclerView.Adapter<PatientSearchAdap
             hpBar = itemView.findViewById(R.id.pat_health_progress_bar_in_pat_search);
             hpMissing = itemView.findViewById(R.id.text_pat_search_hp_not_found);
             viewProgress = itemView.findViewById(R.id.patient_view_health_progress_pat_search);
+            appCalendar = itemView.findViewById(R.id.patient_view_appointment_calendar_pat_search);
+            patYear = itemView.findViewById(R.id.patient_year_in_pat_search);
 
             cardView.setOnClickListener(v -> {
                 System.out.println(mCategory.get(getAdapterPosition()).getPat_name());
                 AppCompatActivity activity = (AppCompatActivity) v.getContext();
+                needToUpdatePatList = false;
                 Intent intent = new Intent(mContext, PatPrescriptionV.class);
                 intent.putExtra("P_PH_ID",mCategory.get(getAdapterPosition()).getPh_id());
                 activity.startActivity(intent);
@@ -117,6 +136,7 @@ public class PatientSearchAdapter extends RecyclerView.Adapter<PatientSearchAdap
 
             viewProgress.setOnClickListener(v -> {
                 AppCompatActivity activity = (AppCompatActivity) v.getContext();
+                needToUpdatePatList = false;
                 Intent intent = new Intent(mContext, HealthProgress.class);
                 intent.putExtra("P_NAME",mCategory.get(getAdapterPosition()).getPat_name());
                 intent.putExtra("P_CODE",mCategory.get(getAdapterPosition()).getSub_code());
@@ -125,6 +145,17 @@ public class PatientSearchAdapter extends RecyclerView.Adapter<PatientSearchAdap
 
                 activity.startActivity(intent);
 
+            });
+
+            appCalendar.setOnClickListener(v -> {
+                needToUpdatePatList = false;
+                AppCompatActivity activity = (AppCompatActivity) v.getContext();
+                Intent intent = new Intent(mContext, PatAppointmentCalendar.class);
+                intent.putExtra("P_NAME",mCategory.get(getAdapterPosition()).getPat_name());
+                intent.putExtra("P_CODE",mCategory.get(getAdapterPosition()).getSub_code());
+                intent.putExtra("P_PH_ID",mCategory.get(getAdapterPosition()).getPh_id());
+
+                activity.startActivity(intent);
             });
         }
     }

@@ -44,33 +44,80 @@
                     android:layout_centerVertical="true"
                     android:fontFamily="@font/poppins_bold"
                     android:textColor="@color/black"
-                    android:layout_toStartOf="@+id/patient_area_in_pat_search"
+                    android:layout_toStartOf="@+id/patient_area_layout_in_pat_search"
                     android:textSize="@dimen/_11sdp"
                     android:layout_marginEnd="@dimen/_7sdp"
                     android:text="Nahar Akter  Akter Akter Akter Akter Akter Akter Akter"/>
 
-                <androidx.appcompat.widget.AppCompatTextView
+                <LinearLayout
+                    android:id="@+id/patient_area_layout_in_pat_search"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="@dimen/_9sdp"
-                    android:textColor="@color/default_text_color"
                     android:layout_alignParentEnd="true"
                     android:layout_centerVertical="true"
-                    android:id="@+id/patient_area_in_pat_search"
-                    android:fontFamily="@font/poppins_medium"
-                    android:text="(Mohammadpur)" />
+                    android:orientation="vertical">
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/_9sdp"
+                        android:layout_gravity="end"
+                        android:textColor="@color/default_text_color"
+                        android:id="@+id/patient_area_in_pat_search"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="(Mohammadpur)" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/_9sdp"
+                        android:layout_gravity="end"
+                        android:textColor="@color/default_text_color"
+                        android:id="@+id/patient_year_in_pat_search"
+                        android:fontFamily="@font/poppins_medium"
+                        android:text="(2024)" />
+
+                </LinearLayout>
+
+
 
             </RelativeLayout>
 
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/pat_ph_code_in_pat_search"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/_10sdp"
-                android:textColor="@color/default_text_color"
-                android:fontFamily="@font/poppins_semibold"
-                android:text="23.02.024260.01"
-                />
+                android:layout_height="wrap_content">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/pat_ph_code_in_pat_search"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/_10sdp"
+                    android:textColor="@color/default_text_color"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:text="23.02.024260.01"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:layout_toStartOf="@+id/patient_view_appointment_calendar_pat_search"
+                    android:layout_marginEnd="@dimen/_7sdp"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/patient_view_appointment_calendar_pat_search"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/_25sdp"
+                    android:text="Appointment View"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:paddingTop="3dp"
+                    android:paddingBottom="1dp"
+                    android:textSize="@dimen/_7sdp"
+                    android:fontFamily="@font/poppins"
+                    android:textColor="@color/green_sea"
+                    app:backgroundTint="@color/white"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    app:strokeColor="@color/green_sea"
+                    app:cornerRadius="@dimen/_8sdp"/>
+
+            </RelativeLayout>
 
 
 

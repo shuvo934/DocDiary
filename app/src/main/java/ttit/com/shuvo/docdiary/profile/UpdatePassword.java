@@ -248,24 +248,30 @@ public class UpdatePassword extends AppCompatActivity {
                             Toast.makeText(UpdatePassword.this, "Invalid Character! Blank space, Quotation or New line is not allowed", Toast.LENGTH_SHORT).show();
                         }
                         else {
-                            if (!confirm_pass.isEmpty()) {
-                                if (confirm_pass.contains(" ") || confirm_pass.contains("\n") || confirm_pass.contains("'") || confirm_pass.contains("\"")) {
-                                    confirmLay.setHelperText("Invalid Character! Blank space, Quotation or New line is not allowed");
-                                    Toast.makeText(UpdatePassword.this, "Invalid Character! Blank space, Quotation or New line is not allowed", Toast.LENGTH_SHORT).show();
-                                }
-                                else {
-                                    if (new_pass.equals(confirm_pass)) {
-                                        updatePassword();
+                            if (!new_pass.equals(current_pass)) {
+                                if (!confirm_pass.isEmpty()) {
+                                    if (confirm_pass.contains(" ") || confirm_pass.contains("\n") || confirm_pass.contains("'") || confirm_pass.contains("\"")) {
+                                        confirmLay.setHelperText("Invalid Character! Blank space, Quotation or New line is not allowed");
+                                        Toast.makeText(UpdatePassword.this, "Invalid Character! Blank space, Quotation or New line is not allowed", Toast.LENGTH_SHORT).show();
                                     }
                                     else {
-                                        confirmLay.setHelperText("Confirm Password did not match");
-                                        Toast.makeText(UpdatePassword.this, "Confirm Password did not match", Toast.LENGTH_SHORT).show();
+                                        if (new_pass.equals(confirm_pass)) {
+                                            updatePassword();
+                                        }
+                                        else {
+                                            confirmLay.setHelperText("Confirm Password did not match");
+                                            Toast.makeText(UpdatePassword.this, "Confirm Password did not match", Toast.LENGTH_SHORT).show();
+                                        }
                                     }
+                                }
+                                else {
+                                    confirmLay.setHelperText("Please Provide Confirm Password");
+                                    Toast.makeText(UpdatePassword.this, "Please Provide Confirm Password to Update", Toast.LENGTH_SHORT).show();
                                 }
                             }
                             else {
-                                confirmLay.setHelperText("Please Provide Confirm Password");
-                                Toast.makeText(UpdatePassword.this, "Please Provide Confirm Password to Update", Toast.LENGTH_SHORT).show();
+                                newPassLay.setHelperText("New Password is matched with Current Password.");
+                                Toast.makeText(UpdatePassword.this, "New Password is matched with Current Password.", Toast.LENGTH_SHORT).show();
                             }
                         }
                     }
@@ -377,15 +383,17 @@ public class UpdatePassword extends AppCompatActivity {
                 SharedPreferences.Editor editor1 = sharedpreferences.edit();
                 editor1.remove(DOC_USER_PASSWORD);
                 editor1.putString(DOC_USER_PASSWORD, confirm_pass);
+                editor1.remove(LOGIN_TF);
+                editor1.putBoolean(LOGIN_TF,false);
                 editor1.apply();
                 editor1.commit();
 
                 MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(UpdatePassword.this);
                 alertDialogBuilder.setTitle("Success!")
-                        .setMessage("Password Updated Successfully.")
+                        .setMessage("Password Updated Successfully. App needs to Restart.")
                         .setPositiveButton("OK", (dialog, which) -> {
                             dialog.dismiss();
-                            finish();
+                            restart("Password Changed. App need to Restart");
                         });
 
                 AlertDialog alert = alertDialogBuilder.create();

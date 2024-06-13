@@ -207,20 +207,6 @@ public class HealthProgress extends AppCompatActivity {
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(patProgressHistView.getContext(),DividerItemDecoration.VERTICAL);
         patProgressHistView.addItemDecoration(dividerItemDecoration);
 
-        if (userInfoLists == null) {
-            restart("Could Not Get Doctor Data. Please Restart the App.");
-        }
-        else {
-            if (userInfoLists.size() == 0) {
-                restart("Could Not Get Doctor Data. Please Restart the App.");
-            }
-            else {
-                doc_name = userInfoLists.get(0).getDoc_name();
-                doc_id = userInfoLists.get(0).getDoc_id();
-                doc_code = userInfoLists.get(0).getDoc_code();
-            }
-        }
-
         Intent intent = getIntent();
         from_psv = intent.getBooleanExtra("FROM_PSV",false);
         pat_name = intent.getStringExtra("P_NAME");
@@ -238,6 +224,20 @@ public class HealthProgress extends AppCompatActivity {
             prm_id = intent.getStringExtra("PRM_ID");
             prd_id = intent.getStringExtra("PRD_ID");
             ad_id = intent.getStringExtra("AD_ID");
+
+            if (userInfoLists == null) {
+                restart("Could Not Get Doctor Data. Please Restart the App.");
+            }
+            else {
+                if (userInfoLists.size() == 0) {
+                    restart("Could Not Get Doctor Data. Please Restart the App.");
+                }
+                else {
+                    doc_name = userInfoLists.get(0).getDoc_name();
+                    doc_id = userInfoLists.get(0).getDoc_id();
+                    doc_code = userInfoLists.get(0).getDoc_code();
+                }
+            }
 
             progressDate.setText(adm_date);
             serviceName.setText(pfn_name);

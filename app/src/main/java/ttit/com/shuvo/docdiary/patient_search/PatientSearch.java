@@ -271,7 +271,7 @@ public class PatientSearch extends AppCompatActivity {
                     String pph_progress = docInfo.getString("pph_progress")
                             .equals("null") ? "0" : docInfo.getString("pph_progress");
 
-                    patientSearchLists.add(new PatientSearchList(pat_id,pat_name,dd_thana_name,ph_id,sub_code,pph_progress));
+                    patientSearchLists.add(new PatientSearchList(pat_id,pat_name,dd_thana_name,ph_id,sub_code,pph_progress,""));
                 }
 
                 connected = true;

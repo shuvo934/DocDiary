@@ -39,7 +39,7 @@
                 android:layout_marginStart="@dimen/_12sdp"
                 android:layout_toEndOf="@+id/back_logo_of_all_doc_appointment_schedule"
                 android:fontFamily="@font/poppins_bold"
-                android:text="All Appointment"
+                android:text="@string/all_docs_appointment_schedule"
                 android:paddingTop="2dp"
                 android:paddingBottom="0dp"
                 android:textColor="@color/black"

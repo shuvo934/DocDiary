@@ -22,15 +22,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/border_design"
+                android:padding="@dimen/_15sdp"
                 android:orientation="vertical">
                 <TextView
                     android:id="@+id/selectable_user_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Marzana Islam Ria"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginEnd="15dp"
-                    android:layout_marginTop="15dp"
                     android:textSize="@dimen/_13sdp"
                     android:textColor="@color/green_sea"
                     android:fontFamily="@font/open_sans_bold"/>
@@ -40,8 +38,6 @@
                     android:layout_height="wrap_content"
                     android:text=""
                     android:layout_marginTop="2dp"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginEnd="15dp"
                     android:textSize="@dimen/_10sdp"
                     android:textColor="@color/default_text_color"
                     android:fontFamily="@font/open_sans_bold"/>
@@ -51,9 +47,6 @@
                     android:layout_height="wrap_content"
                     android:text="0004"
                     android:layout_marginTop="5dp"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginEnd="15dp"
-                    android:layout_marginBottom="15dp"
                     android:textSize="@dimen/_11sdp"
                     android:textColor="@color/black"
                     android:fontFamily="@font/open_sans_bold"/>

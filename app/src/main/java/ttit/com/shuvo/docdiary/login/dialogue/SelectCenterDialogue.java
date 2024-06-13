@@ -1,8 +1,10 @@
 package ttit.com.shuvo.docdiary.login.dialogue;
 
 import static ttit.com.shuvo.docdiary.login.DocLogin.centerName;
+import static ttit.com.shuvo.docdiary.login.DocLogin.center_admin_user_id;
 import static ttit.com.shuvo.docdiary.login.DocLogin.center_api;
 import static ttit.com.shuvo.docdiary.login.DocLogin.center_doc_code;
+import static ttit.com.shuvo.docdiary.login.DocLogin.user_or_admin_flag;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -23,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 import ttit.com.shuvo.docdiary.R;
+import ttit.com.shuvo.docdiary.login.AdminCallBackListener;
 import ttit.com.shuvo.docdiary.login.CallBackListener;
 import ttit.com.shuvo.docdiary.login.CloseCallBack;
 import ttit.com.shuvo.docdiary.login.DocLogin;
@@ -50,6 +53,7 @@ public class SelectCenterDialogue extends AppCompatDialogFragment implements Cen
     }
     private CallBackListener callBackListener;
     private CloseCallBack closeCallBack;
+    private AdminCallBackListener adminCallBackListener;
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -60,6 +64,9 @@ public class SelectCenterDialogue extends AppCompatDialogFragment implements Cen
 
         if (getActivity() instanceof CloseCallBack)
             closeCallBack = (CloseCallBack) getActivity();
+
+        if (getActivity() instanceof AdminCallBackListener)
+            adminCallBackListener = (AdminCallBackListener) getActivity();
 
         View view = inflater.inflate(R.layout.center_selectable_view, null);
 
@@ -95,13 +102,30 @@ public class SelectCenterDialogue extends AppCompatDialogFragment implements Cen
         centerAPI = centerLists.get(CategoryPosition).getCenter_api();
         center_api = centerAPI;
         if (multipleUserLists.size() == 0) {
-            d_code = centerLists.get(CategoryPosition).getDoc_code();
-            center_doc_code = d_code;
+            String user_admin_flag = centerLists.get(CategoryPosition).getUser_admin_flag();
+            if (user_admin_flag.equals("1")) {
+                d_code = centerLists.get(CategoryPosition).getDoc_code();
+                center_doc_code = d_code;
+                user_or_admin_flag = user_admin_flag;
+                center_admin_user_id = centerLists.get(CategoryPosition).getAdmin_user_id();
 
-            if(callBackListener != null)
-                callBackListener.onDismiss();
+                if(callBackListener != null)
+                    callBackListener.onDismiss();
 
-            dialog.dismiss();
+                dialog.dismiss();
+            }
+            else {
+                d_code = centerLists.get(CategoryPosition).getDoc_code();
+                center_doc_code = d_code;
+                user_or_admin_flag = user_admin_flag;
+                center_admin_user_id = centerLists.get(CategoryPosition).getAdmin_user_id();
+
+                if(adminCallBackListener != null)
+                    adminCallBackListener.onAdminCenterSelection();
+
+                dialog.dismiss();
+            }
+
         }
         else {
             System.out.println("USERs Found : "+multipleUserLists.size());

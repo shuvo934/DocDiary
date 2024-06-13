@@ -7,14 +7,16 @@ public class PatientSearchList {
     private String ph_id;
     private String sub_code;
     private String pph_progress;
+    private String pat_year;
 
-    public PatientSearchList(String pat_id, String pat_name, String dd_thana_name, String ph_id, String sub_code, String pph_progress) {
+    public PatientSearchList(String pat_id, String pat_name, String dd_thana_name, String ph_id, String sub_code, String pph_progress, String pat_year) {
         this.pat_id = pat_id;
         this.pat_name = pat_name;
         this.dd_thana_name = dd_thana_name;
         this.ph_id = ph_id;
         this.sub_code = sub_code;
         this.pph_progress = pph_progress;
+        this.pat_year = pat_year;
     }
 
     public String getPat_id() {
@@ -63,5 +65,13 @@ public class PatientSearchList {
 
     public void setPph_progress(String pph_progress) {
         this.pph_progress = pph_progress;
+    }
+
+    public String getPat_year() {
+        return pat_year;
+    }
+
+    public void setPat_year(String pat_year) {
+        this.pat_year = pat_year;
     }
 }

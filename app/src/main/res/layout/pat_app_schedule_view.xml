@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_10sdp"
+        android:layout_marginBottom="@dimen/_10sdp"
+        android:layout_marginStart="@dimen/_5sdp"
+        android:layout_marginEnd="@dimen/_5sdp"
+        app:cardCornerRadius="@dimen/_8sdp"
+        android:layout_gravity="center_vertical"
+        app:cardBackgroundColor="@color/white">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/border_design"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:padding="@dimen/_5sdp"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/_9sdp"
+                    android:layout_margin="@dimen/_3sdp"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentStart="true"
+                    android:textColor="@color/default_text_color"
+                    android:id="@+id/pat_appointment_appt_status_from_calendar"
+                    android:text="( OLD )"
+                    android:fontFamily="@font/poppins_medium" />
+
+                <TextView
+                    android:id="@+id/pat_appointment_sch_date_time_from_calendar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_bold"
+                    android:layout_centerHorizontal="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginStart="@dimen/_3sdp"
+                    android:layout_marginTop="@dimen/_3sdp"
+                    android:layout_marginEnd="@dimen/_3sdp"
+                    android:textColor="@color/green_sea"
+                    android:textSize="@dimen/_12sdp"
+                    android:text="8:00 AM"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/_9sdp"
+                    android:layout_marginStart="@dimen/_3sdp"
+                    android:layout_marginEnd="@dimen/_3sdp"
+                    android:layout_marginBottom="@dimen/_6sdp"
+                    android:layout_centerHorizontal="true"
+                    android:layout_below="@+id/pat_appointment_sch_date_time_from_calendar"
+                    android:textColor="@color/default_text_color"
+                    android:id="@+id/pat_appointment_sch_type_from_calendar"
+                    android:text="( Regular )"
+                    android:fontFamily="@font/patua_one" />
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/card_view_of_pat_appointment_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_margin="@dimen/_3sdp"
+                    app:cardBackgroundColor="@color/default_text_color"
+                    app:cardCornerRadius="@dimen/_15sdp"
+                    app:cardElevation="@dimen/_2sdp">
+
+                    <TextView
+                        android:id="@+id/pat_appointment_status_from_calendar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Upcoming"
+                        android:textColor="@color/white"
+                        android:layout_margin="@dimen/_4sdp"
+                        android:fontFamily="@font/poppins_medium"
+                        android:textSize="@dimen/_7sdp"/>
+
+                </androidx.cardview.widget.CardView>
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="10"
+                android:gravity="center"
+                android:layout_margin="@dimen/_2sdp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:textSize="@dimen/_10sdp"
+                    android:text="Service "
+                    android:textColor="@color/light_green"
+                    android:fontFamily="@font/poppins_semibold"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".5"
+                    android:textSize="@dimen/_10sdp"
+                    android:text=" : "
+                    android:textColor="@color/light_green"
+                    android:fontFamily="@font/poppins_semibold"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="6.5"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/_10sdp"
+                    android:textColor="@color/black"
+                    android:id="@+id/pat_appointment_service_name_from_calendar"
+                    android:text="Physiotherapy Service charge"
+                    android:fontFamily="@font/poppins_medium" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="10"
+                android:layout_margin="@dimen/_2sdp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:textSize="@dimen/_10sdp"
+                    android:text="Doctor "
+                    android:textColor="@color/light_green"
+                    android:fontFamily="@font/poppins_semibold"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".5"
+                    android:textSize="@dimen/_10sdp"
+                    android:text=" : "
+                    android:textColor="@color/light_green"
+                    android:fontFamily="@font/poppins_semibold"
+                    tools:ignore="HardcodedText" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="6.5"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/_10sdp"
+                        android:textColor="@color/black"
+                        android:id="@+id/pat_appointment_doc_name_from_calendar"
+                        android:text="Junayed Ahmed"
+                        android:fontFamily="@font/poppins_medium" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/_9sdp"
+                        android:textColor="@color/default_text_color"
+                        android:id="@+id/pat_appointment_depts_name_from_calendar"
+                        android:text="( Autism Communication Group )"
+                        android:fontFamily="@font/poppins_medium" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/_9sdp"
+                        android:textColor="@color/default_text_color"
+                        android:id="@+id/pat_appointment_deptd_name_from_calendar"
+                        android:text="( Speech &amp; Language Therapy Department )"
+                        android:fontFamily="@font/poppins_medium" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+<!--            <LinearLayout-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:weightSum="10"-->
+<!--                android:gravity="center"-->
+<!--                android:layout_margin="@dimen/_2sdp"-->
+<!--                android:orientation="horizontal">-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight="3"-->
+<!--                    android:textSize="@dimen/_10sdp"-->
+<!--                    android:text="Unit Name"-->
+<!--                    android:textColor="@color/black"-->
+<!--                    android:fontFamily="@font/poppins_semibold"-->
+<!--                    tools:ignore="HardcodedText" />-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight=".5"-->
+<!--                    android:textSize="@dimen/_10sdp"-->
+<!--                    android:text=" : "-->
+<!--                    android:textColor="@color/black"-->
+<!--                    android:fontFamily="@font/poppins_semibold"-->
+<!--                    tools:ignore="HardcodedText" />-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_weight="6.5"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:textSize="@dimen/_10sdp"-->
+<!--                    android:textColor="@color/default_text_color"-->
+<!--                    android:id="@+id/pat_appointment_depts_name_from_calendar"-->
+<!--                    android:text="Autism Communication Group"-->
+<!--                    android:fontFamily="@font/poppins_medium" />-->
+
+<!--            </LinearLayout>-->
+
+<!--            <LinearLayout-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:weightSum="10"-->
+<!--                android:gravity="center"-->
+<!--                android:layout_margin="@dimen/_2sdp"-->
+<!--                android:orientation="horizontal">-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight="3"-->
+<!--                    android:textSize="@dimen/_10sdp"-->
+<!--                    android:text="Department Name"-->
+<!--                    android:textColor="@color/black"-->
+<!--                    android:fontFamily="@font/poppins_semibold"-->
+<!--                    tools:ignore="HardcodedText" />-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight=".5"-->
+<!--                    android:textSize="@dimen/_10sdp"-->
+<!--                    android:text=" : "-->
+<!--                    android:textColor="@color/black"-->
+<!--                    android:fontFamily="@font/poppins_semibold"-->
+<!--                    tools:ignore="HardcodedText" />-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_weight="6.5"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:textSize="@dimen/_10sdp"-->
+<!--                    android:textColor="@color/default_text_color"-->
+<!--                    android:id="@+id/pat_appointment_deptd_name_from_calendar"-->
+<!--                    android:text="Speech &amp; Language Therapy Department"-->
+<!--                    android:fontFamily="@font/poppins_medium" />-->
+
+<!--            </LinearLayout>-->
+
+<!--            <LinearLayout-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:weightSum="10"-->
+<!--                android:gravity="center"-->
+<!--                android:layout_margin="@dimen/_2sdp"-->
+<!--                android:orientation="horizontal">-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight="3"-->
+<!--                    android:textSize="@dimen/_10sdp"-->
+<!--                    android:text="Schedule Type"-->
+<!--                    android:textColor="@color/light_green"-->
+<!--                    android:fontFamily="@font/poppins_semibold"-->
+<!--                    tools:ignore="HardcodedText" />-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight=".5"-->
+<!--                    android:textSize="@dimen/_10sdp"-->
+<!--                    android:text=" : "-->
+<!--                    android:textColor="@color/light_green"-->
+<!--                    android:fontFamily="@font/poppins_semibold"-->
+<!--                    tools:ignore="HardcodedText" />-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_weight="6.5"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:textSize="@dimen/_10sdp"-->
+<!--                    android:textColor="@color/black"-->
+<!--                    android:id="@+id/pat_appointment_sch_type_from_calendar"-->
+<!--                    android:text="Regular"-->
+<!--                    android:fontFamily="@font/poppins_medium" />-->
+
+<!--            </LinearLayout>-->
+
+<!--            <LinearLayout-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:weightSum="10"-->
+<!--                android:gravity="center"-->
+<!--                android:layout_margin="@dimen/_2sdp"-->
+<!--                android:orientation="horizontal">-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight="3"-->
+<!--                    android:textSize="@dimen/_10sdp"-->
+<!--                    android:text="Appointment Status"-->
+<!--                    android:textColor="@color/light_green"-->
+<!--                    android:fontFamily="@font/poppins_semibold"-->
+<!--                    tools:ignore="HardcodedText" />-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_weight=".5"-->
+<!--                    android:textSize="@dimen/_10sdp"-->
+<!--                    android:text=" : "-->
+<!--                    android:textColor="@color/light_green"-->
+<!--                    android:fontFamily="@font/poppins_semibold"-->
+<!--                    tools:ignore="HardcodedText" />-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_weight="6.5"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:textSize="@dimen/_10sdp"-->
+<!--                    android:textColor="@color/black"-->
+<!--                    android:id="@+id/pat_appointment_appt_status_from_calendar"-->
+<!--                    android:text="Old"-->
+<!--                    android:fontFamily="@font/poppins_medium" />-->
+
+<!--            </LinearLayout>-->
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+</LinearLayout>

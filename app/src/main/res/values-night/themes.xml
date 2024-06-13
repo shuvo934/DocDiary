@@ -50,6 +50,7 @@
     <style name="AppModalStyle"
         parent="Widget.MaterialComponents.BottomSheet">
         <!--        <item name="android:background">@drawable/bottom_sheet_design</item>-->
+        <item name="backgroundTint">@android:color/transparent</item>
         <item name="shapeAppearanceOverlay">@style/CustomShapeAppearanceBottomSheetDialog</item>
     </style>
     <style name="CustomShapeAppearanceBottomSheetDialog" parent="">
@@ -62,6 +63,11 @@
 
     <style name="NavigationTabTextAppeareance" parent="TextAppearance.Design.Tab">
         <item name="android:textSize">@dimen/_9sdp</item>
+        <item name="fontFamily">@font/patua_one</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="NavigationTabTextAppeareance2" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">@dimen/_11sdp</item>
         <item name="fontFamily">@font/patua_one</item>
         <item name="android:textStyle">bold</item>
     </style>

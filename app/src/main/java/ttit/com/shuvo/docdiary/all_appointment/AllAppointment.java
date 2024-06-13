@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
@@ -158,16 +159,21 @@ public class AllAppointment extends AppCompatActivity {
         unitDoctorsLists = new ArrayList<>();
         filteredList = new ArrayList<>();
 
-        if (userInfoLists == null) {
-            restart("Could Not Get Doctor Data. Please Restart the App.");
-        }
-        else {
-            if (userInfoLists.size() == 0) {
+        Intent intent = getIntent();
+        String flag = intent.getStringExtra("ADMIN_USER_FLAG");
+        assert flag != null;
+        if (flag.equals("1")) {
+            if (userInfoLists == null) {
                 restart("Could Not Get Doctor Data. Please Restart the App.");
             }
             else {
-                selected_deptd_id = userInfoLists.get(0).getDeptd_id();
-                selected_depts_id = userInfoLists.get(0).getDepts_id();
+                if (userInfoLists.size() == 0) {
+                    restart("Could Not Get Doctor Data. Please Restart the App.");
+                }
+                else {
+                    selected_deptd_id = userInfoLists.get(0).getDeptd_id();
+                    selected_depts_id = userInfoLists.get(0).getDepts_id();
+                }
             }
         }
 

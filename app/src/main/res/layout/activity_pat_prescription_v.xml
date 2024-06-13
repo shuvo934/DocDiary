@@ -66,6 +66,7 @@
                 app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MaterialCardView.Cut">
 
                 <ScrollView
+                    android:id="@+id/scrollview_of_pat_prescription_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scrollbars="none">
@@ -437,6 +438,19 @@
                     </LinearLayout>
 
                 </ScrollView>
+
+                <TextView
+                    android:id="@+id/no_prescription_found_msg_from_patient_search_admin"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="No Prescription Found"
+                    android:visibility="gone"
+                    android:layout_marginTop="@dimen/_15sdp"
+                    android:fontFamily="@font/poppins_bold"
+                    android:textSize="@dimen/_12sdp"
+                    android:textColor="@color/default_text_color"
+                    android:textStyle="bold"/>
 
             </com.google.android.material.card.MaterialCardView>
 

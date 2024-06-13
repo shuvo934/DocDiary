@@ -36,9 +36,21 @@ public class MultipleUserAdapter extends RecyclerView.Adapter<MultipleUserAdapte
     @Override
     public void onBindViewHolder(@NonNull MUHolder holder, int position) {
         MultipleUserList centerList = mCategory.get(position);
-        holder.docName.setText(centerList.getDoc_name());
-        holder.docCode.setText(centerList.getDoc_code());
-        holder.depName.setText(centerList.getDepts_name());
+        String flag = centerList.getUser_admin_flag();
+        if (flag.equals("1")) {
+            holder.docCode.setVisibility(View.VISIBLE);
+            holder.docName.setText(centerList.getDoc_name());
+            holder.docCode.setText(centerList.getDoc_code());
+            holder.depName.setText(centerList.getDepts_name());
+        }
+        else {
+            holder.docCode.setVisibility(View.GONE);
+            String name = centerList.getAdmin_user_fname() + " " + centerList.getAdmin_user_lname();
+            holder.docName.setText(name);
+            String user_name = "("+centerList.getAdmin_user_name()+")";
+            holder.depName.setText(user_name);
+        }
+
     }
 
     @Override

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/_4sdp">
+
+    <TextView
+        android:id="@+id/simple_text_view_for_list"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="02:30 PM"
+        android:fontFamily="@font/poppins_bold"
+        android:textSize="@dimen/_10sdp"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:layout_marginStart="@dimen/_2sdp"
+        android:layout_marginEnd="@dimen/_2sdp"/>
+
+</LinearLayout>

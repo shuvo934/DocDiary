@@ -48,7 +48,7 @@ import ttit.com.shuvo.docdiary.login.arraylists.MultipleUserList;
 import ttit.com.shuvo.docdiary.login.dialogue.SelectCenterDialogue;
 import ttit.com.shuvo.docdiary.login.dialogue.SelectUserIdDialogue;
 
-public class DocLogin extends AppCompatActivity implements CallBackListener,IDCallbackListener,CloseCallBack{
+public class DocLogin extends AppCompatActivity implements CallBackListener,IDCallbackListener,CloseCallBack,AdminIDCallbackListener,AdminCallBackListener{
 
     LinearLayout fullLayout;
     CircularProgressIndicator circularProgressIndicator;
@@ -76,6 +76,8 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
     public static final String DOC_USER_PASSWORD = "DOC_USER_PASSWORD";
     public static final String DOC_DATA_API = "DOC_DATA_API";
     public static final String DOC_ALL_ID = "DOC_ALL_ID";
+    public static final String ADMIN_OR_USER_FLAG = "ADMIN_OR_USER_FLAG";
+    public static final String ADMIN_USR_ID = "ADMIN_USR_ID";
 
     public static final String MyPREFERENCES = "UserPass";
     public static final String user_mobile_remember = "nameKey";
@@ -88,6 +90,8 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
 
     public static TextView centerName;
     public static String center_api = "";
+    public static String center_admin_user_id = "";
+    public static String user_or_admin_flag = "";
     ArrayList<CenterList> centerLists;
     boolean loading = false;
     Gson gson = new Gson();
@@ -170,7 +174,7 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
                     "User Code(If any): ";
             MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocLogin.this)
                     .setMessage("Do you want to send an email to "+mmm+" ?")
-//                        .setIcon(R.drawable.terrain_shop_icon)
+                    .setIcon(R.drawable.doc_diary_default)
                     .setPositiveButton("Yes", (dialog, which) -> {
                         dialog.dismiss();
                         Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -400,13 +404,15 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
         centerLists = new ArrayList<>();
         center_api = "";
         center_doc_code = "";
+        center_admin_user_id = "";
+        user_or_admin_flag = "";
         System.out.println("START");
 
-        String useridUrl = "http://103.56.208.123:8001/apex/cstar_local/"+"login/getUserloginData?doc_code="+ user_mobile +"&doc_password="+user_password+"";
-        String userIdUrl2 = "http://103.73.227.28:8080/cstar/cstar-ramp/"+"login/getUserloginData?doc_code="+ user_mobile +"&doc_password="+user_password+"";
-        String userIdUrl3 = "http://202.4.109.126:8003/crps/crp_savar/"+"login/getUserloginData?doc_code="+ user_mobile +"&doc_password="+user_password+"";
-        String userIdUrl4 = "http://144.48.119.59:8002/apex/crp_mirpur/"+"login/getUserloginData?doc_code="+ user_mobile +"&doc_password="+user_password+"";
-        String userIdUrl5 = "http://103.73.227.28:8080/cstar/cstar_bsd/"+"login/getUserloginData?doc_code="+ user_mobile +"&doc_password="+user_password+"";
+        String useridUrl = "http://103.56.208.123:8001/apex/cstar_local/"+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password+"";
+        String userIdUrl2 = "http://103.73.227.28:8080/cstar/cstar-ramp/"+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password+"";
+        String userIdUrl3 = "http://202.4.109.126:8003/crps/crp_savar/"+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password+"";
+        String userIdUrl4 = "http://144.48.119.59:8002/apex/crp_mirpur/"+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password+"";
+        String userIdUrl5 = "http://103.73.227.28:8080/cstar/cstar_bsd/"+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password+"";
 
         RequestQueue requestQueue = Volley.newRequestQueue(DocLogin.this);
 
@@ -418,34 +424,138 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
                 is_available = jsonObject.getString("is_available");
                 center_doc_code = jsonObject.getString("p_doc_code");
                 center_api = jsonObject.getString("p_center_api");
+                user_or_admin_flag = jsonObject.getString("p_admin_user_flag");
+                center_admin_user_id = jsonObject.getString("p_admin_user_id");
 
-                if (is_available.equals("1")) {
-//                    connected = true;
-//                    updateLayout();
-                    centerLists.add(new CenterList("CSTAR - BASHUNDHARA",center_api, center_doc_code,new ArrayList<>()));
-                    System.out.println("5th Found : 1");
-                }
-                else if (is_available.equals("3")) {
-                    String p_doc_list = jsonObject.getString("p_doc_list");
-                    JSONArray array = new JSONArray(p_doc_list);
-                    ArrayList<MultipleUserList> multipleUserLists = new ArrayList<>();
-                    for (int i = 0; i < array.length(); i++) {
-                        JSONObject docInfo = array.getJSONObject(i);
-                        String dc = docInfo.getString("doc_code")
-                                .equals("null") ? "" : docInfo.getString("doc_code");
-                        String dn = docInfo.getString("doc_name")
-                                .equals("null") ? "" : docInfo.getString("doc_name");
-                        String dep_name = docInfo.getString("depts_name")
-                                .equals("null") ? "" : docInfo.getString("depts_name");
-                        multipleUserLists.add(new MultipleUserList(dc,dn,dep_name));
-                    }
-                    centerLists.add(new CenterList("CSTAR - BASHUNDHARA",center_api, center_doc_code,multipleUserLists));
-                    System.out.println("5th Found : 3");
-                }
-                System.out.println("5th Found : 2,0");
-                connected = true;
-                updateLayout();
+                switch (is_available) {
+                    case "1":
+                        centerLists.add(new CenterList("CSTAR - BASHUNDHARA", center_api, center_doc_code,
+                                center_admin_user_id, user_or_admin_flag, new ArrayList<>()));
+                        System.out.println("5th Found : 1");
+                        connected = true;
+                        updateLayout();
+                        break;
+                    case "0":
+                        System.out.println("5th Found : 0");
+                        connected = true;
+                        updateLayout();
+                        break;
+                    case "3":
+                        String p_doc_list = jsonObject.getString("p_doc_list");
+                        JSONArray array = new JSONArray(p_doc_list);
+                        ArrayList<MultipleUserList> multipleUserLists = new ArrayList<>();
+                        for (int i = 0; i < array.length(); i++) {
+                            JSONObject docInfo = array.getJSONObject(i);
+                            String dc = docInfo.getString("doc_code")
+                                    .equals("null") ? "" : docInfo.getString("doc_code");
+                            String dn = docInfo.getString("doc_name")
+                                    .equals("null") ? "" : docInfo.getString("doc_name");
+                            String dep_name = docInfo.getString("depts_name")
+                                    .equals("null") ? "" : docInfo.getString("depts_name");
+                            multipleUserLists.add(new MultipleUserList(dc, dn, dep_name,user_or_admin_flag,
+                                    "","","",""));
+                        }
+                        centerLists.add(new CenterList("CSTAR - BASHUNDHARA",center_api, center_doc_code,
+                                center_admin_user_id, user_or_admin_flag, multipleUserLists));
+                        System.out.println("5th Found : 3");
+                        connected = true;
+                        updateLayout();
+                        break;
+                    case "4":
+                        String p_admin_list = jsonObject.getString("p_admin_list");
+                        JSONArray admin_array = new JSONArray(p_admin_list);
+                        ArrayList<MultipleUserList> multipleUserLists1 = new ArrayList<>();
+                        for (int i = 0; i < admin_array.length(); i++) {
+                            JSONObject adminInfo = admin_array.getJSONObject(i);
+                            String usr_id = adminInfo.getString("usr_id")
+                                    .equals("null") ? "" : adminInfo.getString("usr_id");
+                            String usr_name = adminInfo.getString("usr_name")
+                                    .equals("null") ? "" : adminInfo.getString("usr_name");
+                            String usr_fname = adminInfo.getString("usr_fname")
+                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
+                            String usr_lname = adminInfo.getString("usr_lname")
+                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
 
+                            multipleUserLists1.add(new MultipleUserList("", "", "",
+                                    user_or_admin_flag, usr_id,usr_fname,usr_lname,usr_name));
+                        }
+                        centerLists.add(new CenterList("CSTAR - BASHUNDHARA", center_api, center_doc_code,
+                                center_admin_user_id, user_or_admin_flag, multipleUserLists1));
+                        connected = true;
+                        updateLayout();
+                        System.out.println("5th Found : 4");
+                        break;
+                    case "5":
+                        String p_admin_list_5 = jsonObject.getString("p_admin_list");
+                        JSONArray admin_array_5 = new JSONArray(p_admin_list_5);
+                        String p_doc_list_5 = jsonObject.getString("p_doc_list");
+                        JSONArray doc_array_5 = new JSONArray(p_doc_list_5);
+                        ArrayList<MultipleUserList> multipleUserLists2 = new ArrayList<>();
+
+                        for (int i = 0; i < admin_array_5.length(); i++) {
+                            JSONObject adminInfo = admin_array_5.getJSONObject(i);
+                            String usr_id = adminInfo.getString("usr_id")
+                                    .equals("null") ? "" : adminInfo.getString("usr_id");
+                            String usr_name = adminInfo.getString("usr_name")
+                                    .equals("null") ? "" : adminInfo.getString("usr_name");
+                            String usr_fname = adminInfo.getString("usr_fname")
+                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
+                            String usr_lname = adminInfo.getString("usr_lname")
+                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
+
+                            multipleUserLists2.add(new MultipleUserList("", "", "",
+                                    "2", usr_id,usr_fname,usr_lname,usr_name));
+                        }
+
+                        for (int i = 0; i < doc_array_5.length(); i++) {
+                            JSONObject docInfo = doc_array_5.getJSONObject(i);
+                            String dc = docInfo.getString("doc_code")
+                                    .equals("null") ? "" : docInfo.getString("doc_code");
+                            String dn = docInfo.getString("doc_name")
+                                    .equals("null") ? "" : docInfo.getString("doc_name");
+                            String dep_name = docInfo.getString("depts_name")
+                                    .equals("null") ? "" : docInfo.getString("depts_name");
+                            multipleUserLists2.add(new MultipleUserList(dc, dn, dep_name,"1",
+                                    "","","",""));
+                        }
+                        centerLists.add(new CenterList("CSTAR - BASHUNDHARA", center_api, center_doc_code,
+                                center_admin_user_id, user_or_admin_flag, multipleUserLists2));
+                        connected = true;
+                        updateLayout();
+                        System.out.println("5th Found : 5");
+                        break;
+                    default:
+                        connected = true;
+                        updateLayout();
+                        System.out.println("5th Found : 2");
+                        break;
+                }
+//                if (is_available.equals("1")) {
+////                    connected = true;
+////                    updateLayout();
+//                    centerLists.add(new CenterList("CSTAR - BASHUNDHARA",center_api, center_doc_code,new ArrayList<>()));
+//                    System.out.println("5th Found : 1");
+//                }
+//                else if (is_available.equals("3")) {
+//                    String p_doc_list = jsonObject.getString("p_doc_list");
+//                    JSONArray array = new JSONArray(p_doc_list);
+//                    ArrayList<MultipleUserList> multipleUserLists = new ArrayList<>();
+//                    for (int i = 0; i < array.length(); i++) {
+//                        JSONObject docInfo = array.getJSONObject(i);
+//                        String dc = docInfo.getString("doc_code")
+//                                .equals("null") ? "" : docInfo.getString("doc_code");
+//                        String dn = docInfo.getString("doc_name")
+//                                .equals("null") ? "" : docInfo.getString("doc_name");
+//                        String dep_name = docInfo.getString("depts_name")
+//                                .equals("null") ? "" : docInfo.getString("depts_name");
+//                        multipleUserLists.add(new MultipleUserList(dc,dn,dep_name,"1","","","",""));
+//                    }
+//                    centerLists.add(new CenterList("CSTAR - BASHUNDHARA",center_api, center_doc_code, center_admin_user_id, "1", multipleUserLists));
+//                    System.out.println("5th Found : 3");
+//                }
+//                System.out.println("5th Found : 2,0");
+//                connected = true;
+//                updateLayout();
             }
             catch (JSONException e) {
                 connected = false;
@@ -467,11 +577,14 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
                 is_available = jsonObject.getString("is_available");
                 center_doc_code = jsonObject.getString("p_doc_code");
                 center_api = jsonObject.getString("p_center_api");
+                user_or_admin_flag = jsonObject.getString("p_admin_user_flag");
+                center_admin_user_id = jsonObject.getString("p_admin_user_id");
                 switch (is_available) {
                     case "1":
 //                    connected = true;
 //                    updateLayout();
-                        centerLists.add(new CenterList("CRP - MIRPUR", center_api, center_doc_code, new ArrayList<>()));
+                        centerLists.add(new CenterList("CRP - MIRPUR", center_api, center_doc_code,
+                                center_admin_user_id, user_or_admin_flag, new ArrayList<>()));
                         requestQueue.add(getUserMessage5);
                         System.out.println("4th Found : 1");
                         break;
@@ -494,11 +607,74 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
                                     .equals("null") ? "" : docInfo.getString("doc_name");
                             String dep_name = docInfo.getString("depts_name")
                                     .equals("null") ? "" : docInfo.getString("depts_name");
-                            multipleUserLists.add(new MultipleUserList(dc, dn, dep_name));
+                            multipleUserLists.add(new MultipleUserList(dc, dn, dep_name,user_or_admin_flag,
+                                    "","","",""));
                         }
-                        centerLists.add(new CenterList("CRP - MIRPUR", center_api, center_doc_code, multipleUserLists));
+                        centerLists.add(new CenterList("CRP - MIRPUR", center_api, center_doc_code,
+                                center_admin_user_id, user_or_admin_flag, multipleUserLists));
                         requestQueue.add(getUserMessage5);
                         System.out.println("4th Found : 3");
+                        break;
+                    case "4":
+                        String p_admin_list = jsonObject.getString("p_admin_list");
+                        JSONArray admin_array = new JSONArray(p_admin_list);
+                        ArrayList<MultipleUserList> multipleUserLists1 = new ArrayList<>();
+                        for (int i = 0; i < admin_array.length(); i++) {
+                            JSONObject adminInfo = admin_array.getJSONObject(i);
+                            String usr_id = adminInfo.getString("usr_id")
+                                    .equals("null") ? "" : adminInfo.getString("usr_id");
+                            String usr_name = adminInfo.getString("usr_name")
+                                    .equals("null") ? "" : adminInfo.getString("usr_name");
+                            String usr_fname = adminInfo.getString("usr_fname")
+                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
+                            String usr_lname = adminInfo.getString("usr_lname")
+                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
+
+                            multipleUserLists1.add(new MultipleUserList("", "", "",
+                                    user_or_admin_flag, usr_id,usr_fname,usr_lname,usr_name));
+                        }
+                        centerLists.add(new CenterList("CRP - MIRPUR", center_api, center_doc_code,
+                                center_admin_user_id, user_or_admin_flag, multipleUserLists1));
+                        requestQueue.add(getUserMessage5);
+                        System.out.println("4th Found : 4");
+                        break;
+                    case "5":
+                        String p_admin_list_5 = jsonObject.getString("p_admin_list");
+                        JSONArray admin_array_5 = new JSONArray(p_admin_list_5);
+                        String p_doc_list_5 = jsonObject.getString("p_doc_list");
+                        JSONArray doc_array_5 = new JSONArray(p_doc_list_5);
+                        ArrayList<MultipleUserList> multipleUserLists2 = new ArrayList<>();
+
+                        for (int i = 0; i < admin_array_5.length(); i++) {
+                            JSONObject adminInfo = admin_array_5.getJSONObject(i);
+                            String usr_id = adminInfo.getString("usr_id")
+                                    .equals("null") ? "" : adminInfo.getString("usr_id");
+                            String usr_name = adminInfo.getString("usr_name")
+                                    .equals("null") ? "" : adminInfo.getString("usr_name");
+                            String usr_fname = adminInfo.getString("usr_fname")
+                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
+                            String usr_lname = adminInfo.getString("usr_lname")
+                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
+
+                            multipleUserLists2.add(new MultipleUserList("", "", "",
+                                    "2", usr_id,usr_fname,usr_lname,usr_name));
+                        }
+
+                        for (int i = 0; i < doc_array_5.length(); i++) {
+                            JSONObject docInfo = doc_array_5.getJSONObject(i);
+                            String dc = docInfo.getString("doc_code")
+                                    .equals("null") ? "" : docInfo.getString("doc_code");
+                            String dn = docInfo.getString("doc_name")
+                                    .equals("null") ? "" : docInfo.getString("doc_name");
+                            String dep_name = docInfo.getString("depts_name")
+                                    .equals("null") ? "" : docInfo.getString("depts_name");
+                            multipleUserLists2.add(new MultipleUserList(dc, dn, dep_name,"1",
+                                    "","","",""));
+                        }
+                        centerLists.add(new CenterList("CRP - MIRPUR", center_api, center_doc_code,
+                                center_admin_user_id, user_or_admin_flag, multipleUserLists2));
+                        requestQueue.add(getUserMessage5);
+                        System.out.println("4th Found : 5");
                         break;
                     default:
                         requestQueue.add(getUserMessage5);
@@ -528,11 +704,14 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
                 is_available = jsonObject.getString("is_available");
                 center_doc_code = jsonObject.getString("p_doc_code");
                 center_api = jsonObject.getString("p_center_api");
+                user_or_admin_flag = jsonObject.getString("p_admin_user_flag");
+                center_admin_user_id = jsonObject.getString("p_admin_user_id");
                 switch (is_available) {
                     case "1":
 //                    connected = true;
 //                    updateLayout();
-                        centerLists.add(new CenterList("CRP - SAVAR", center_api, center_doc_code, new ArrayList<>()));
+                        centerLists.add(new CenterList("CRP - SAVAR", center_api, center_doc_code,
+                                center_admin_user_id, user_or_admin_flag, new ArrayList<>()));
                         requestQueue.add(getUserMessage4);
                         System.out.println("3rd Found : 1");
                         break;
@@ -555,11 +734,74 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
                                     .equals("null") ? "" : docInfo.getString("doc_name");
                             String dep_name = docInfo.getString("depts_name")
                                     .equals("null") ? "" : docInfo.getString("depts_name");
-                            multipleUserLists.add(new MultipleUserList(dc, dn, dep_name));
+                            multipleUserLists.add(new MultipleUserList(dc, dn, dep_name,user_or_admin_flag,
+                                    "","","",""));
                         }
-                        centerLists.add(new CenterList("CRP - SAVAR", center_api, center_doc_code, multipleUserLists));
+                        centerLists.add(new CenterList("CRP - SAVAR", center_api, center_doc_code,
+                                center_admin_user_id, user_or_admin_flag, multipleUserLists));
                         requestQueue.add(getUserMessage4);
                         System.out.println("3rd Found : 3");
+                        break;
+                    case "4":
+                        String p_admin_list = jsonObject.getString("p_admin_list");
+                        JSONArray admin_array = new JSONArray(p_admin_list);
+                        ArrayList<MultipleUserList> multipleUserLists1 = new ArrayList<>();
+                        for (int i = 0; i < admin_array.length(); i++) {
+                            JSONObject adminInfo = admin_array.getJSONObject(i);
+                            String usr_id = adminInfo.getString("usr_id")
+                                    .equals("null") ? "" : adminInfo.getString("usr_id");
+                            String usr_name = adminInfo.getString("usr_name")
+                                    .equals("null") ? "" : adminInfo.getString("usr_name");
+                            String usr_fname = adminInfo.getString("usr_fname")
+                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
+                            String usr_lname = adminInfo.getString("usr_lname")
+                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
+
+                            multipleUserLists1.add(new MultipleUserList("", "", "",
+                                    user_or_admin_flag, usr_id,usr_fname,usr_lname,usr_name));
+                        }
+                        centerLists.add(new CenterList("CRP - SAVAR", center_api, center_doc_code,
+                                center_admin_user_id, user_or_admin_flag, multipleUserLists1));
+                        requestQueue.add(getUserMessage4);
+                        System.out.println("3rd Found : 4");
+                        break;
+                    case "5":
+                        String p_admin_list_5 = jsonObject.getString("p_admin_list");
+                        JSONArray admin_array_5 = new JSONArray(p_admin_list_5);
+                        String p_doc_list_5 = jsonObject.getString("p_doc_list");
+                        JSONArray doc_array_5 = new JSONArray(p_doc_list_5);
+                        ArrayList<MultipleUserList> multipleUserLists2 = new ArrayList<>();
+
+                        for (int i = 0; i < admin_array_5.length(); i++) {
+                            JSONObject adminInfo = admin_array_5.getJSONObject(i);
+                            String usr_id = adminInfo.getString("usr_id")
+                                    .equals("null") ? "" : adminInfo.getString("usr_id");
+                            String usr_name = adminInfo.getString("usr_name")
+                                    .equals("null") ? "" : adminInfo.getString("usr_name");
+                            String usr_fname = adminInfo.getString("usr_fname")
+                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
+                            String usr_lname = adminInfo.getString("usr_lname")
+                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
+
+                            multipleUserLists2.add(new MultipleUserList("", "", "",
+                                    "2", usr_id,usr_fname,usr_lname,usr_name));
+                        }
+
+                        for (int i = 0; i < doc_array_5.length(); i++) {
+                            JSONObject docInfo = doc_array_5.getJSONObject(i);
+                            String dc = docInfo.getString("doc_code")
+                                    .equals("null") ? "" : docInfo.getString("doc_code");
+                            String dn = docInfo.getString("doc_name")
+                                    .equals("null") ? "" : docInfo.getString("doc_name");
+                            String dep_name = docInfo.getString("depts_name")
+                                    .equals("null") ? "" : docInfo.getString("depts_name");
+                            multipleUserLists2.add(new MultipleUserList(dc, dn, dep_name,"1",
+                                    "","","",""));
+                        }
+                        centerLists.add(new CenterList("CRP - SAVAR", center_api, center_doc_code,
+                                center_admin_user_id, user_or_admin_flag, multipleUserLists2));
+                        requestQueue.add(getUserMessage4);
+                        System.out.println("3rd Found : 5");
                         break;
                     default:
                         requestQueue.add(getUserMessage4);
@@ -589,11 +831,14 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
                 is_available = jsonObject.getString("is_available");
                 center_doc_code = jsonObject.getString("p_doc_code");
                 center_api = jsonObject.getString("p_center_api");
+                user_or_admin_flag = jsonObject.getString("p_admin_user_flag");
+                center_admin_user_id = jsonObject.getString("p_admin_user_id");
                 switch (is_available) {
                     case "1":
 //                    connected = true;
 //                    updateLayout();
-                        centerLists.add(new CenterList("CSTAR - RAMPURA", center_api, center_doc_code, new ArrayList<>()));
+                        centerLists.add(new CenterList("CSTAR - RAMPURA", center_api, center_doc_code,
+                                center_admin_user_id, user_or_admin_flag, new ArrayList<>()));
                         requestQueue.add(getUserMessage3);
                         System.out.println("2nd Found : 1");
                         break;
@@ -616,11 +861,74 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
                                     .equals("null") ? "" : docInfo.getString("doc_name");
                             String dep_name = docInfo.getString("depts_name")
                                     .equals("null") ? "" : docInfo.getString("depts_name");
-                            multipleUserLists.add(new MultipleUserList(dc, dn, dep_name));
+                            multipleUserLists.add(new MultipleUserList(dc, dn, dep_name,user_or_admin_flag,
+                                    "","","",""));
                         }
-                        centerLists.add(new CenterList("CSTAR - RAMPURA", center_api, center_doc_code, multipleUserLists));
+                        centerLists.add(new CenterList("CSTAR - RAMPURA", center_api, center_doc_code,
+                                center_admin_user_id, user_or_admin_flag, multipleUserLists));
                         requestQueue.add(getUserMessage3);
                         System.out.println("2nd Found : 3");
+                        break;
+                    case "4":
+                        String p_admin_list = jsonObject.getString("p_admin_list");
+                        JSONArray admin_array = new JSONArray(p_admin_list);
+                        ArrayList<MultipleUserList> multipleUserLists1 = new ArrayList<>();
+                        for (int i = 0; i < admin_array.length(); i++) {
+                            JSONObject adminInfo = admin_array.getJSONObject(i);
+                            String usr_id = adminInfo.getString("usr_id")
+                                    .equals("null") ? "" : adminInfo.getString("usr_id");
+                            String usr_name = adminInfo.getString("usr_name")
+                                    .equals("null") ? "" : adminInfo.getString("usr_name");
+                            String usr_fname = adminInfo.getString("usr_fname")
+                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
+                            String usr_lname = adminInfo.getString("usr_lname")
+                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
+
+                            multipleUserLists1.add(new MultipleUserList("", "", "",
+                                    user_or_admin_flag, usr_id,usr_fname,usr_lname,usr_name));
+                        }
+                        centerLists.add(new CenterList("CSTAR - RAMPURA", center_api, center_doc_code,
+                                center_admin_user_id, user_or_admin_flag, multipleUserLists1));
+                        requestQueue.add(getUserMessage3);
+                        System.out.println("2nd Found : 4");
+                        break;
+                    case "5":
+                        String p_admin_list_5 = jsonObject.getString("p_admin_list");
+                        JSONArray admin_array_5 = new JSONArray(p_admin_list_5);
+                        String p_doc_list_5 = jsonObject.getString("p_doc_list");
+                        JSONArray doc_array_5 = new JSONArray(p_doc_list_5);
+                        ArrayList<MultipleUserList> multipleUserLists2 = new ArrayList<>();
+
+                        for (int i = 0; i < admin_array_5.length(); i++) {
+                            JSONObject adminInfo = admin_array_5.getJSONObject(i);
+                            String usr_id = adminInfo.getString("usr_id")
+                                    .equals("null") ? "" : adminInfo.getString("usr_id");
+                            String usr_name = adminInfo.getString("usr_name")
+                                    .equals("null") ? "" : adminInfo.getString("usr_name");
+                            String usr_fname = adminInfo.getString("usr_fname")
+                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
+                            String usr_lname = adminInfo.getString("usr_lname")
+                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
+
+                            multipleUserLists2.add(new MultipleUserList("", "", "",
+                                    "2", usr_id,usr_fname,usr_lname,usr_name));
+                        }
+
+                        for (int i = 0; i < doc_array_5.length(); i++) {
+                            JSONObject docInfo = doc_array_5.getJSONObject(i);
+                            String dc = docInfo.getString("doc_code")
+                                    .equals("null") ? "" : docInfo.getString("doc_code");
+                            String dn = docInfo.getString("doc_name")
+                                    .equals("null") ? "" : docInfo.getString("doc_name");
+                            String dep_name = docInfo.getString("depts_name")
+                                    .equals("null") ? "" : docInfo.getString("depts_name");
+                            multipleUserLists2.add(new MultipleUserList(dc, dn, dep_name,"1",
+                                    "","","",""));
+                        }
+                        centerLists.add(new CenterList("CSTAR - RAMPURA", center_api, center_doc_code,
+                                center_admin_user_id, user_or_admin_flag, multipleUserLists2));
+                        requestQueue.add(getUserMessage3);
+                        System.out.println("2nd Found : 5");
                         break;
                     default:
                         requestQueue.add(getUserMessage3);
@@ -651,11 +959,14 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
                 is_available = jsonObject.getString("is_available");
                 center_doc_code = jsonObject.getString("p_doc_code");
                 center_api = jsonObject.getString("p_center_api");
+                user_or_admin_flag = jsonObject.getString("p_admin_user_flag");
+                center_admin_user_id = jsonObject.getString("p_admin_user_id");
                 switch (is_available) {
                     case "1":
 //                    connected = true;
 //                    updateLayout();
-                        centerLists.add(new CenterList("CSTAR - LOCAL", center_api, center_doc_code, new ArrayList<>()));
+                        centerLists.add(new CenterList("CSTAR - LOCAL", center_api, center_doc_code,
+                                center_admin_user_id, user_or_admin_flag, new ArrayList<>()));
                         requestQueue.add(getUserMessage2);
                         System.out.println("1st Found : 1");
                         break;
@@ -678,11 +989,74 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
                                     .equals("null") ? "" : docInfo.getString("doc_name");
                             String dep_name = docInfo.getString("depts_name")
                                     .equals("null") ? "" : docInfo.getString("depts_name");
-                            multipleUserLists.add(new MultipleUserList(dc, dn, dep_name));
+                            multipleUserLists.add(new MultipleUserList(dc, dn, dep_name,user_or_admin_flag,
+                                    "","","",""));
                         }
-                        centerLists.add(new CenterList("CSTAR - LOCAL", center_api, center_doc_code, multipleUserLists));
+                        centerLists.add(new CenterList("CSTAR - LOCAL", center_api, center_doc_code,
+                                center_admin_user_id, user_or_admin_flag, multipleUserLists));
                         requestQueue.add(getUserMessage2);
                         System.out.println("1st Found : 3");
+                        break;
+                    case "4":
+                        String p_admin_list = jsonObject.getString("p_admin_list");
+                        JSONArray admin_array = new JSONArray(p_admin_list);
+                        ArrayList<MultipleUserList> multipleUserLists1 = new ArrayList<>();
+                        for (int i = 0; i < admin_array.length(); i++) {
+                            JSONObject adminInfo = admin_array.getJSONObject(i);
+                            String usr_id = adminInfo.getString("usr_id")
+                                    .equals("null") ? "" : adminInfo.getString("usr_id");
+                            String usr_name = adminInfo.getString("usr_name")
+                                    .equals("null") ? "" : adminInfo.getString("usr_name");
+                            String usr_fname = adminInfo.getString("usr_fname")
+                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
+                            String usr_lname = adminInfo.getString("usr_lname")
+                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
+
+                            multipleUserLists1.add(new MultipleUserList("", "", "",
+                                    user_or_admin_flag, usr_id,usr_fname,usr_lname,usr_name));
+                        }
+                        centerLists.add(new CenterList("CSTAR - LOCAL", center_api, center_doc_code,
+                                center_admin_user_id, user_or_admin_flag, multipleUserLists1));
+                        requestQueue.add(getUserMessage2);
+                        System.out.println("1st Found : 4");
+                        break;
+                    case "5":
+                        String p_admin_list_5 = jsonObject.getString("p_admin_list");
+                        JSONArray admin_array_5 = new JSONArray(p_admin_list_5);
+                        String p_doc_list_5 = jsonObject.getString("p_doc_list");
+                        JSONArray doc_array_5 = new JSONArray(p_doc_list_5);
+                        ArrayList<MultipleUserList> multipleUserLists2 = new ArrayList<>();
+
+                        for (int i = 0; i < admin_array_5.length(); i++) {
+                            JSONObject adminInfo = admin_array_5.getJSONObject(i);
+                            String usr_id = adminInfo.getString("usr_id")
+                                    .equals("null") ? "" : adminInfo.getString("usr_id");
+                            String usr_name = adminInfo.getString("usr_name")
+                                    .equals("null") ? "" : adminInfo.getString("usr_name");
+                            String usr_fname = adminInfo.getString("usr_fname")
+                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
+                            String usr_lname = adminInfo.getString("usr_lname")
+                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
+
+                            multipleUserLists2.add(new MultipleUserList("", "", "",
+                                    "2", usr_id,usr_fname,usr_lname,usr_name));
+                        }
+
+                        for (int i = 0; i < doc_array_5.length(); i++) {
+                            JSONObject docInfo = doc_array_5.getJSONObject(i);
+                            String dc = docInfo.getString("doc_code")
+                                    .equals("null") ? "" : docInfo.getString("doc_code");
+                            String dn = docInfo.getString("doc_name")
+                                    .equals("null") ? "" : docInfo.getString("doc_name");
+                            String dep_name = docInfo.getString("depts_name")
+                                    .equals("null") ? "" : docInfo.getString("depts_name");
+                            multipleUserLists2.add(new MultipleUserList(dc, dn, dep_name,"1",
+                                    "","","",""));
+                        }
+                        centerLists.add(new CenterList("CSTAR - LOCAL", center_api, center_doc_code,
+                                center_admin_user_id, user_or_admin_flag, multipleUserLists2));
+                        requestQueue.add(getUserMessage2);
+                        System.out.println("1st Found : 5");
                         break;
                     default:
                         requestQueue.add(getUserMessage2);
@@ -712,10 +1086,18 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
             if (centerLists.size() == 1) {
                 ArrayList<MultipleUserList> multipleUserLists = centerLists.get(0).getMultipleUserLists();
                 if (multipleUserLists.size() == 0) {
+                    user_or_admin_flag = centerLists.get(0).getUser_admin_flag();
                     center_doc_code = centerLists.get(0).getDoc_code();
                     center_api = centerLists.get(0).getCenter_api();
-                    System.out.println("Center Found : "+centerLists.size());
-                    updateFLFlag();
+                    center_admin_user_id = centerLists.get(0).getAdmin_user_id();
+                    json = "";
+                    if (user_or_admin_flag.equals("1")) {
+                        System.out.println("Center Found : "+centerLists.size());
+                        updateFLFlag();
+                    }
+                    else {
+                        updateAdminFLFlag();
+                    }
                 }
                 else {
                     System.out.println("USERs Found : "+multipleUserLists.size());
@@ -948,12 +1330,16 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
                 editor1.remove(DOC_DATA_API);
                 editor1.remove(DOC_ALL_ID);
                 editor1.remove(LOGIN_TF);
+                editor1.remove(ADMIN_OR_USER_FLAG);
+                editor1.remove(ADMIN_USR_ID);
 
                 editor1.putString(DOC_USER_CODE, center_doc_code);
                 editor1.putString(DOC_USER_PASSWORD, user_password);
                 editor1.putString(DOC_DATA_API, center_api);
                 editor1.putString(DOC_ALL_ID, json);
                 editor1.putBoolean(LOGIN_TF, true);
+                editor1.putString(ADMIN_OR_USER_FLAG,user_or_admin_flag);
+                editor1.putString(ADMIN_USR_ID,center_admin_user_id);
                 editor1.apply();
                 editor1.commit();
 
@@ -991,6 +1377,49 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
         }
     }
 
+    public void updateAdminFLFlag() {
+        conn = false;
+        connected = false;
+
+        String flagUpdateUrl = center_api+"login/updateAdminFLFlag";
+        RequestQueue requestQueue = Volley.newRequestQueue(DocLogin.this);
+        StringRequest flagUpdateReq = new StringRequest(Request.Method.POST, flagUpdateUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String string_out = jsonObject.getString("string_out");
+                if (string_out.equals("Successfully Created")) {
+                    connected = true;
+                    updateInterface();
+                }
+                else {
+                    System.out.println(string_out);
+                    connected = false;
+                    updateInterface();
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+                connected = false;
+                updateInterface();
+            }
+        }, error -> {
+            error.printStackTrace();
+            conn = false;
+            connected = false;
+            updateInterface();
+        }) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("P_USR_ID", center_admin_user_id);
+                return headers;
+            }
+        };
+
+        requestQueue.add(flagUpdateReq);
+    }
+
     @Override
     public void onDismiss() {
         updateFLFlag();
@@ -1015,5 +1444,15 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
             Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_SHORT).show();
             System.exit(0);
         }
+    }
+
+    @Override
+    public void onAdminIdSelection() {
+        updateAdminFLFlag();
+    }
+
+    @Override
+    public void onAdminCenterSelection() {
+        updateAdminFLFlag();
     }
 }

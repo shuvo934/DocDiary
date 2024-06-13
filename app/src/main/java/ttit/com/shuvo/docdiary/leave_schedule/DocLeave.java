@@ -21,7 +21,9 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.applandeo.materialcalendarview.CalendarDay;
 import com.applandeo.materialcalendarview.CalendarView;
+import com.applandeo.materialcalendarview.CalendarWeekDay;
 import com.applandeo.materialcalendarview.EventDay;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -67,6 +69,9 @@ public class DocLeave extends AppCompatActivity {
 
     String parsing_message = "";
 
+    Calendar startDates;
+    Calendar endDates;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,63 +109,36 @@ public class DocLeave extends AppCompatActivity {
         last_month = last_month.toUpperCase();
 //        System.out.println("LAST M: "+last_month);
 
-        Calendar startDates = Calendar.getInstance();
+        startDates = Calendar.getInstance();
         startDates.set(Calendar.DAY_OF_MONTH,1);
         startDates.set(Calendar.HOUR_OF_DAY,0);
         startDates.set(Calendar.MINUTE,0);
         startDates.set(Calendar.SECOND,0);
         startDates.set(Calendar.MILLISECOND,0);
 
-        Calendar testStartdates = Calendar.getInstance();
-        testStartdates.set(Calendar.DAY_OF_MONTH,1);
+//        Calendar testStartdates = Calendar.getInstance();
+//        testStartdates.set(Calendar.DAY_OF_MONTH,1);
 //        testStartdates.set(Calendar.HOUR_OF_DAY,0);
 //        testStartdates.set(Calendar.MINUTE,0);
 //        testStartdates.set(Calendar.SECOND,0);
 //        testStartdates.set(Calendar.MILLISECOND,0);
 //        System.out.println("Start Date : "+startDates.getTime().toString());
 
-        Calendar endDates = Calendar.getInstance();
+        endDates = Calendar.getInstance();
         endDates.add(Calendar.MONTH,2);
         endDates.set(Calendar.DAY_OF_MONTH,endDates.getActualMaximum(Calendar.DAY_OF_MONTH));
 
-        Calendar testEndDates = Calendar.getInstance();
-        testEndDates.add(Calendar.MONTH,2);
-        testEndDates.set(Calendar.DAY_OF_MONTH,testEndDates.getActualMaximum(Calendar.DAY_OF_MONTH));
+//        Calendar testEndDates = Calendar.getInstance();
+//        testEndDates.add(Calendar.MONTH,2);
+//        testEndDates.set(Calendar.DAY_OF_MONTH,testEndDates.getActualMaximum(Calendar.DAY_OF_MONTH));
 //        System.out.println("End Date : "+endDates.getTime().toString());
-
-        List<Calendar> disabledDays = new ArrayList<>();
-        SimpleDateFormat dayNameFormat3 = new SimpleDateFormat("EEE", Locale.ENGLISH);
-        do {
-            String text = "";
-            Calendar ddc = Calendar.getInstance();
-            if (testStartdates.getTime().equals(startDates.getTime())) {
-                text = dayNameFormat3.format(testStartdates.getTime());
-                if (text.contains("Fri")) {
-                    ddc.setTime(testStartdates.getTime());
-                    disabledDays.add(ddc);
-                }
-            }
-
-            testStartdates.add(Calendar.DAY_OF_MONTH,1);
-            text = dayNameFormat3.format(testStartdates.getTime());
-            if (text.contains("Fri")) {
-                ddc.setTime(testStartdates.getTime());
-                disabledDays.add(ddc);
-            }
-//            System.out.println(text);
-//            System.out.println(testStartdates.getTime());
-        }
-        while (!testStartdates.getTime().equals(testEndDates.getTime()));
-
-
-
-        calendarView.setDisabledDays(disabledDays);
 
         calendarView.setMinimumDate(startDates);
         calendarView.setMaximumDate(endDates);
+        calendarView.setFirstDayOfWeek(CalendarWeekDay.SATURDAY);
 
-        calendarView.setOnDayClickListener(eventDay -> {
-            Calendar ccc = eventDay.getCalendar();
+        calendarView.setOnCalendarDayClickListener(calendarDay -> {
+            Calendar ccc = calendarDay.getCalendar();
 
             if (ccc.getTime().getTime() >= startDates.getTime().getTime() && ccc.getTime().getTime() <= endDates.getTime().getTime()) {
                 for (int i = 0; i < leaveCalenderValues.size(); i++) {
@@ -181,6 +159,28 @@ public class DocLeave extends AppCompatActivity {
                 }
             }
         });
+//        calendarView.setOnDayClickListener(eventDay -> {
+//            Calendar ccc = eventDay.getCalendar();
+//
+//            if (ccc.getTime().getTime() >= startDates.getTime().getTime() && ccc.getTime().getTime() <= endDates.getTime().getTime()) {
+//                for (int i = 0; i < leaveCalenderValues.size(); i++) {
+//                    if (leaveCalenderValues.get(i).getDate().equals(ccc.getTime())) {
+//                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM, yyyy", Locale.ENGLISH);
+//                        SimpleDateFormat dayNameFormat = new SimpleDateFormat("EEEE", Locale.ENGLISH);
+//                        selected_date = simpleDateFormat.format(ccc.getTime());
+//                        selected_date_day = dayNameFormat.format(ccc.getTime());
+//                        boolean val = false;
+//                        if (leaveCalenderValues.get(i).isFullDay()) {
+//                            val = leaveCalenderValues.get(i).isFullDay();
+//                        }
+//                        ArrayList<String> times = leaveCalenderValues.get(i).getTimeLists();
+//                        String tot_sc = leaveCalenderValues.get(i).getTotal_sc();
+//                        showBottomSheetDialog(val,times,tot_sc);
+//                        break;
+//                    }
+//                }
+//            }
+//        });
 
     }
 
@@ -377,10 +377,10 @@ public class DocLeave extends AppCompatActivity {
 
                 conn = false;
                 connected = false;
-                List<EventDay> events = new ArrayList<>();
+                List<CalendarDay> events = new ArrayList<>();
                 //List<Date> listOfDates = new ArrayList<>();
                 List<Date> listOfTimeDates = new ArrayList<>();
-                List<Calendar> l_d_date = new ArrayList<>();
+//                List<Calendar> l_d_date = new ArrayList<>();
 
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy",Locale.ENGLISH);
 
@@ -465,17 +465,25 @@ public class DocLeave extends AppCompatActivity {
                                 if (listOfTimeDates.get(j).equals(date)) {
                                     String schedule_time = leaveTimeSchedules.get(i).getSchedule_time();
                                     time_schedule.add(schedule_time);
+                                    totsc = leaveTimeSchedules.get(i).getTot_sc();
                                 }
-                                totsc = leaveTimeSchedules.get(i).getTot_sc();
                             }
 
                             leaveCalenderValues.add(new LeaveCalenderValues(cc.getTime(),false,time_schedule,totsc));
-                            l_d_date.add(cc);
+//                            l_d_date.add(cc);
                             if (time_schedule.size() == Integer.parseInt(totsc)) {
-                                events.add(new EventDay(cc, R.drawable.calender_timer_off_red));
+                                CalendarDay calendarDay = new CalendarDay(cc);
+                                calendarDay.setImageResource(R.drawable.calender_timer_off_red);
+                                calendarDay.setLabelColor(R.color.blue_end);
+                                events.add(calendarDay);
+//                                events.add(new EventDay(cc, R.drawable.calender_timer_off_red));
                             }
                             else {
-                                events.add(new EventDay(cc, R.drawable.calender_timer_off_24));
+                                CalendarDay calendarDay = new CalendarDay(cc);
+                                calendarDay.setImageResource(R.drawable.calender_timer_off_24);
+                                calendarDay.setLabelColor(R.color.blue_end);
+                                events.add(calendarDay);
+//                                events.add(new EventDay(cc, R.drawable.calender_timer_off_24));
                             }
                         }
                     }
@@ -483,8 +491,51 @@ public class DocLeave extends AppCompatActivity {
 //                    for (int i = 0; i < l_d_date.size(); i++) {
 //                        System.out.println(l_d_date.get(i).getTime());
 //                    }
-                    calendarView.setHighlightedDays(l_d_date);
-                    calendarView.setEvents(events);
+//                    calendarView.setHighlightedDays(l_d_date);
+
+                    Calendar testStartdates = Calendar.getInstance();
+                    testStartdates.set(Calendar.DAY_OF_MONTH,1);
+
+                    Calendar testEndDates = Calendar.getInstance();
+                    testEndDates.add(Calendar.MONTH,2);
+                    testEndDates.set(Calendar.DAY_OF_MONTH,testEndDates.getActualMaximum(Calendar.DAY_OF_MONTH));
+
+//                    List<CalendarDay> disabledDays = new ArrayList<>();
+
+                    SimpleDateFormat dayNameFormat3 = new SimpleDateFormat("EEE", Locale.ENGLISH);
+                    do {
+                        String text = "";
+                        Calendar ddc = Calendar.getInstance();
+                        if (testStartdates.getTime().equals(startDates.getTime())) {
+                            text = dayNameFormat3.format(testStartdates.getTime());
+                            if (text.contains("Fri")) {
+                                ddc.setTime(testStartdates.getTime());
+                                CalendarDay calendarDay = new CalendarDay(ddc);
+                                calendarDay.setLabelColor(R.color.red_dark);
+                                events.add(calendarDay);
+                            }
+                        }
+
+                        testStartdates.add(Calendar.DAY_OF_MONTH,1);
+                        text = dayNameFormat3.format(testStartdates.getTime());
+                        if (text.contains("Fri")) {
+                            ddc.setTime(testStartdates.getTime());
+                            CalendarDay calendarDay = new CalendarDay(ddc);
+                            calendarDay.setLabelColor(R.color.red_dark);
+                            events.add(calendarDay);
+                        }
+//                        System.out.println(text);
+//                        System.out.println(testStartdates.getTime());
+                    }
+                    while (!testStartdates.getTime().equals(testEndDates.getTime()));
+
+
+
+//                    calendarView.setDisabledDays(disabledDays);
+//                    calendarView.setCalendarDays(disabledDays);
+
+                    calendarView.setCalendarDays(events);
+
                     try {
                         waitProgress.dismiss();
                     }

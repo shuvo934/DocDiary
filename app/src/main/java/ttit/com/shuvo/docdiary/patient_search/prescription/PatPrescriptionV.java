@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -126,6 +127,9 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
     public TabItem managementTab, medicineTab, adviceTab, referenceTab;
 
     CheckBox patAdmission;
+    ScrollView scrollview;
+    TextView noPresFound;
+    Boolean patPrescription = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -178,6 +182,10 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
         referenceTab = findViewById(R.id.reference_tab_pat_pres_v);
 
         patAdmission = findViewById(R.id.pat_admission_flag_checkbox_pat_pres_v);
+
+        scrollview = findViewById(R.id.scrollview_of_pat_prescription_view);
+        noPresFound = findViewById(R.id.no_prescription_found_msg_from_patient_search_admin);
+        noPresFound.setVisibility(View.GONE);
 
         Intent intent = getIntent();
         ph_id = intent.getStringExtra("P_PH_ID");
@@ -309,6 +317,7 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
         pat_cat_id = "";
         pat_age = "";
         pmm_admission_flag = "0";
+        patPrescription = false;
 
         String presUrl = pre_url_api+"patient_search/getPatData?p_ph_id="+ph_id+"";
 
@@ -354,9 +363,14 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
                         pmm_admission_flag = info.getString("pmm_admission_flag")
                                 .equals("null") ? "0" : info.getString("pmm_admission_flag");
                     }
+                    patPrescription = true;
+                    getOldPrescriptionData();
                 }
-
-                getOldPrescriptionData();
+                else {
+                    patPrescription = false;
+                    connected = true;
+                    updateInterface();
+                }
             }
             catch (Exception e) {
                 connected = false;
@@ -628,112 +642,126 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
     private void updateInterface() {
         if(conn) {
             if (connected) {
-                fullLayoutPatPSV.setVisibility(View.VISIBLE);
-                circularProgressIndicatorPatPSV.setVisibility(View.GONE);
-                conn = false;
-                connected = false;
-                previousDataSelectedPatPSV = false;
+                if (patPrescription) {
+                    fullLayoutPatPSV.setVisibility(View.VISIBLE);
+                    circularProgressIndicatorPatPSV.setVisibility(View.GONE);
+                    scrollview.setVisibility(View.VISIBLE);
+                    noPresFound.setVisibility(View.GONE);
+                    conn = false;
+                    connected = false;
+                    previousDataSelectedPatPSV = false;
 
-                patName.setText(pat_name);
-                patSubCode.setText(pat_sub_code);
-                mdtCode.setText(mdt_code);
-                patAge.setText(pat_age);
-                patMaritalStat.setText(pat_marital_stat);
-                patGender.setText(pat_gender);
-                patBlood.setText(pat_blood);
-                patCatgory.setText(pat_category);
-                patStatus.setText(pat_status);
-                patAddress.setText(pat_address);
-                patAdmission.setChecked(pmm_admission_flag.equals("1"));
+                    patName.setText(pat_name);
+                    patSubCode.setText(pat_sub_code);
+                    mdtCode.setText(mdt_code);
+                    patAge.setText(pat_age);
+                    patMaritalStat.setText(pat_marital_stat);
+                    patGender.setText(pat_gender);
+                    patBlood.setText(pat_blood);
+                    patCatgory.setText(pat_category);
+                    patStatus.setText(pat_status);
+                    patAddress.setText(pat_address);
+                    patAdmission.setChecked(pmm_admission_flag.equals("1"));
 
-                if (complainLists.size() == 0) {
-                    noComplainFoundMsgPatPSV.setVisibility(View.VISIBLE);
-                }
-                else {
-                    noComplainFoundMsgPatPSV.setVisibility(View.GONE);
-                }
-                complainPSVAdapter = new ComplainPSVAdapter(complainLists, PatPrescriptionV.this);
-                complainView.setAdapter(complainPSVAdapter);
+                    if (complainLists.size() == 0) {
+                        noComplainFoundMsgPatPSV.setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        noComplainFoundMsgPatPSV.setVisibility(View.GONE);
+                    }
+                    complainPSVAdapter = new ComplainPSVAdapter(complainLists, PatPrescriptionV.this);
+                    complainView.setAdapter(complainPSVAdapter);
 
-                System.out.println("PMM_ID: "+pmm_id);
-                System.out.println("PMM_CODE: "+ mdt_code);
+                    System.out.println("PMM_ID: "+pmm_id);
+                    System.out.println("PMM_CODE: "+ mdt_code);
 
-                int tab_pos  = historytabLayoutPatPSV.getSelectedTabPosition();
-                System.out.println("TAB POS: "+tab_pos);
-                if (tab_pos == 0) {
-                    System.out.println("EKHANE 1");
-                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab_pat_pres_v, MedicalHistPSV.newInstance(pmm_id,"false"),"MHTEST").commit();
-                }
-                else if (tab_pos == 1) {
-                    System.out.println("EKHANE 2");
+                    int tab_pos  = historytabLayoutPatPSV.getSelectedTabPosition();
+                    System.out.println("TAB POS: "+tab_pos);
+                    if (tab_pos == 0) {
+                        System.out.println("EKHANE 1");
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab_pat_pres_v, MedicalHistPSV.newInstance(pmm_id,"false"),"MHTEST").commit();
+                    }
+                    else if (tab_pos == 1) {
+                        System.out.println("EKHANE 2");
 //                    TabLayout.Tab tab = historytabLayout.getTabAt(0);
 //                    historytabLayout.selectTab(tab);
-                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab_pat_pres_v, DrugHistPSV.newInstance(pmm_id,"false"),"DHTEST").commit();
-                }
-                else {
-                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab_pat_pres_v, ClinicalFindPSV.newInstance(pmm_id,"false"),"CFTEST").commit();
-                }
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab_pat_pres_v, DrugHistPSV.newInstance(pmm_id,"false"),"DHTEST").commit();
+                    }
+                    else {
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab_pat_pres_v, ClinicalFindPSV.newInstance(pmm_id,"false"),"CFTEST").commit();
+                    }
 
-                //------
-                if (patDiagnosisLists.size() == 0) {
-                    noDiagnosisFoundMsg.setVisibility(View.VISIBLE);
-                    referralUnitLay.setVisibility(View.GONE);
-                    refUnitDivider.setVisibility(View.GONE);
-                    refServiceUnitLay.setVisibility(View.GONE);
-                    refServiceDivider.setVisibility(View.GONE);
-                }
-                else {
-                    noDiagnosisFoundMsg.setVisibility(View.GONE);
-                    referralUnitLay.setVisibility(View.VISIBLE);
-                    refUnitDivider.setVisibility(View.VISIBLE);
-                    refServiceUnitLay.setVisibility(View.GONE);
-                    refServiceDivider.setVisibility(View.GONE);
-                }
-                patDiagnosisPSVAdapter = new PatDiagnosisPSVAdapter(patDiagnosisLists,PatPrescriptionV.this,PatPrescriptionV.this);
-                diagnosisView.setAdapter(patDiagnosisPSVAdapter);
+                    //------
+                    if (patDiagnosisLists.size() == 0) {
+                        noDiagnosisFoundMsg.setVisibility(View.VISIBLE);
+                        referralUnitLay.setVisibility(View.GONE);
+                        refUnitDivider.setVisibility(View.GONE);
+                        refServiceUnitLay.setVisibility(View.GONE);
+                        refServiceDivider.setVisibility(View.GONE);
+                    }
+                    else {
+                        noDiagnosisFoundMsg.setVisibility(View.GONE);
+                        referralUnitLay.setVisibility(View.VISIBLE);
+                        refUnitDivider.setVisibility(View.VISIBLE);
+                        refServiceUnitLay.setVisibility(View.GONE);
+                        refServiceDivider.setVisibility(View.GONE);
+                    }
+                    patDiagnosisPSVAdapter = new PatDiagnosisPSVAdapter(patDiagnosisLists,PatPrescriptionV.this,PatPrescriptionV.this);
+                    diagnosisView.setAdapter(patDiagnosisPSVAdapter);
 
-                //------
-                if (patReferralListsPatPSV.size() == 0) {
-                    noReferralFoundMsg.setVisibility(View.VISIBLE);
-                    refServiceUnitLay.setVisibility(View.GONE);
-                    refServiceDivider.setVisibility(View.GONE);
-                }
-                else {
-                    noReferralFoundMsg.setVisibility(View.GONE);
-                    refServiceUnitLay.setVisibility(View.VISIBLE);
-                    refServiceDivider.setVisibility(View.VISIBLE);
-                }
-                patReferralUniPSVAdapter = new PatReferralUniPSVAdapter(patReferralListsPatPSV,PatPrescriptionV.this,PatPrescriptionV.this);
-                referralView.setAdapter(patReferralUniPSVAdapter);
+                    //------
+                    if (patReferralListsPatPSV.size() == 0) {
+                        noReferralFoundMsg.setVisibility(View.VISIBLE);
+                        refServiceUnitLay.setVisibility(View.GONE);
+                        refServiceDivider.setVisibility(View.GONE);
+                    }
+                    else {
+                        noReferralFoundMsg.setVisibility(View.GONE);
+                        refServiceUnitLay.setVisibility(View.VISIBLE);
+                        refServiceDivider.setVisibility(View.VISIBLE);
+                    }
+                    patReferralUniPSVAdapter = new PatReferralUniPSVAdapter(patReferralListsPatPSV,PatPrescriptionV.this,PatPrescriptionV.this);
+                    referralView.setAdapter(patReferralUniPSVAdapter);
 
-                //------
-                if (patRefServiceListsPatPSV.size() == 0) {
-                    noRefServiceFoundMsgPatPSV.setVisibility(View.VISIBLE);
-                }
-                else {
-                    noRefServiceFoundMsgPatPSV.setVisibility(View.GONE);
-                }
-                patRefServicePSVAdapter = new PatRefServicePSVAdapter(patRefServiceListsPatPSV,PatPrescriptionV.this);
-                refServiceView.setAdapter(patRefServicePSVAdapter);
+                    //------
+                    if (patRefServiceListsPatPSV.size() == 0) {
+                        noRefServiceFoundMsgPatPSV.setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        noRefServiceFoundMsgPatPSV.setVisibility(View.GONE);
+                    }
+                    patRefServicePSVAdapter = new PatRefServicePSVAdapter(patRefServiceListsPatPSV,PatPrescriptionV.this);
+                    refServiceView.setAdapter(patRefServicePSVAdapter);
 
-                int med_tab_pos  = medicationtabLayoutPatPSV.getSelectedTabPosition();
-                System.out.println("MED TAB POS: "+med_tab_pos);
-                if (med_tab_pos == 0) {
-                    System.out.println("EKHANE 1");
-                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab_pat_pres_v, ManagementPlanPSV.newInstance(pmm_id,"false"),"MPTEST").commit();
-                }
-                else if (med_tab_pos == 1) {
-                    System.out.println("EKHANE 2");
-                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab_pat_pres_v, MedicationPSV.newInstance(pmm_id,"false"),"MEDTEST").commit();
-                }
-                else if (med_tab_pos == 2) {
-                    System.out.println("EKHANE 3");
-                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab_pat_pres_v, PatAdvicePSV.newInstance(pmm_id,"false"),"PATEST").commit();
+                    int med_tab_pos  = medicationtabLayoutPatPSV.getSelectedTabPosition();
+                    System.out.println("MED TAB POS: "+med_tab_pos);
+                    if (med_tab_pos == 0) {
+                        System.out.println("EKHANE 1");
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab_pat_pres_v, ManagementPlanPSV.newInstance(pmm_id,"false"),"MPTEST").commit();
+                    }
+                    else if (med_tab_pos == 1) {
+                        System.out.println("EKHANE 2");
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab_pat_pres_v, MedicationPSV.newInstance(pmm_id,"false"),"MEDTEST").commit();
+                    }
+                    else if (med_tab_pos == 2) {
+                        System.out.println("EKHANE 3");
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab_pat_pres_v, PatAdvicePSV.newInstance(pmm_id,"false"),"PATEST").commit();
+                    }
+                    else {
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab_pat_pres_v, PatReferencePSV.newInstance(pmm_id,"false"),"PRTEST").commit();
+                    }
+                    prescriptionLoadingPatPSV = false;
                 }
                 else {
-                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab_pat_pres_v, PatReferencePSV.newInstance(pmm_id,"false"),"PRTEST").commit();
+                    fullLayoutPatPSV.setVisibility(View.VISIBLE);
+                    circularProgressIndicatorPatPSV.setVisibility(View.GONE);
+                    scrollview.setVisibility(View.GONE);
+                    noPresFound.setVisibility(View.VISIBLE);
+                    conn = false;
+                    connected = false;
+                    previousDataSelectedPatPSV = false;
+                    prescriptionLoadingPatPSV = false;
                 }
-                prescriptionLoadingPatPSV = false;
             }
             else {
                 alertMessage();

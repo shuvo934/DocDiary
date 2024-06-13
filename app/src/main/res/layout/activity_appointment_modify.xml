@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".appointment_admin.AppointmentModify">
+
+    <RelativeLayout
+        android:id="@+id/appointment_modify_full_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:weightSum="10"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:background="@color/light_green">
+
+        <RelativeLayout
+            android:id="@+id/app_bar_appointment_modify"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:paddingTop="@dimen/_7sdp"
+            android:paddingBottom="@dimen/_7sdp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:background="@color/light_green">
+
+            <ImageView
+                android:layout_width="@dimen/_19sdp"
+                android:layout_height="@dimen/_19sdp"
+                android:id="@+id/back_logo_of_appointment_modify"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="@dimen/_12sdp"
+                android:src="@drawable/arrow_back"
+                app:tint="@color/white"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="@dimen/_12sdp"
+                android:layout_marginEnd="@dimen/_4sdp"
+                android:layout_toStartOf="@+id/view_all_appointment_from_add_app_modify"
+                android:layout_toEndOf="@+id/back_logo_of_appointment_modify"
+                android:fontFamily="@font/poppins_bold"
+                android:text="@string/appointment_modify_bar_name"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_14sdp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/view_all_appointment_from_add_app_modify"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:backgroundTint="@color/blue_end"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="@dimen/_12sdp"
+                android:text="VIEW ALL"
+                app:cornerRadius="@dimen/_12sdp"
+                android:textSize="@dimen/_9sdp"
+                android:gravity="center"
+                android:fontFamily="@font/russo_one"
+                tools:ignore="HardcodedText" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_below="@+id/app_bar_appointment_modify"
+            android:layout_marginTop="5dp">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:cardElevation="0dp"
+                android:background="@color/white"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MaterialCardView.Cut">
+                
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <com.google.android.material.tabs.TabLayout
+                        android:id="@+id/appointment_modify_tab_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:tabBackground="@drawable/tab_color_selector_2"
+                        app:tabMode="fixed"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_marginTop="@dimen/_8sdp"
+                        android:layout_marginStart="@dimen/_4sdp"
+                        android:layout_marginEnd="@dimen/_4sdp"
+                        app:tabIndicatorColor="@color/green_sea"
+                        app:tabSelectedTextColor="@color/green_sea"
+                        app:tabTextAppearance="@style/NavigationTabTextAppeareance2">
+
+                        <com.google.android.material.tabs.TabItem
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/add_appointment_modify_tab"
+                            android:text="ADD"/>
+
+                        <com.google.android.material.tabs.TabItem
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:id="@+id/cancel_appointment_modify_tab"
+                            android:text="CANCEL"/>
+
+                    </com.google.android.material.tabs.TabLayout>
+
+                    <ScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_below="@+id/appointment_modify_tab_layout"
+                        android:layout_marginBottom="5dp"
+                        android:layout_above="@+id/appointment_modify_button_layout"
+                        android:scrollbars="none">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <RelativeLayout
+                                android:id="@+id/add_appointment_selected_tab_layout"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content">
+
+                                <include
+                                    layout="@layout/appointment_modify_extra_layout"/>
+
+                            </RelativeLayout>
+
+                            <RelativeLayout
+                                android:id="@+id/cancel_appointment_selected_tab_layout"
+                                android:layout_width="match_parent"
+                                android:visibility="gone"
+                                android:layout_height="wrap_content">
+
+                                <include
+                                    layout="@layout/appointment_modify_extra_layout_1"/>
+
+                            </RelativeLayout>
+
+                        </LinearLayout>
+
+                    </ScrollView>
+
+                    <LinearLayout
+                        android:id="@+id/appointment_modify_button_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:weightSum="10"
+                        android:layout_marginStart="5dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginEnd="5dp"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="5dp"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentEnd="true"
+                        android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/add_appointment_button"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5"
+                            android:background="@drawable/custom_button"
+                            android:fontFamily="@font/poppins_bold"
+                            android:text="ADD APPOINTMENT"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/_13sdp"
+                            android:textStyle="bold"
+                            app:backgroundTint="@null"
+                            tools:ignore="ButtonStyle,HardcodedText" />
+
+                        <Button
+                            android:id="@+id/cancel_appointment_button"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5"
+                            android:background="@drawable/custom_button"
+                            android:fontFamily="@font/poppins_bold"
+                            android:text="CANCEL APPOINTMENT"
+                            android:textColor="@color/white"
+                            android:textSize="@dimen/_13sdp"
+                            android:textStyle="bold"
+                            app:backgroundTint="@null"
+                            tools:ignore="ButtonStyle,HardcodedText" />
+
+                    </LinearLayout>
+                    
+                </RelativeLayout>
+                
+            </com.google.android.material.card.MaterialCardView>
+            
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progress_indicator_appointment_modify"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:indeterminate="true"
+        android:layout_gravity="center"/>
+
+</RelativeLayout>

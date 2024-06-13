@@ -1,0 +1,630 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".payment.service.ServiceModifyForUp">
+
+    <LinearLayout
+        android:id="@+id/service_modify_for_update_payment_full_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:id="@+id/service_modify_for_update_payment_app_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/clouds"
+            android:padding="@dimen/_12sdp">
+
+            <ImageView
+                android:layout_width="@dimen/_21sdp"
+                android:layout_height="@dimen/_21sdp"
+                android:id="@+id/close_logo_of_service_modify_for_update_payment"
+                android:layout_centerVertical="true"
+                android:src="@drawable/close_24"
+                app:tint="@color/black"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/service_modify_for_update_payment_app_bar_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"
+                android:layout_toEndOf="@+id/close_logo_of_service_modify_for_update_payment"
+                android:fontFamily="@font/poppins_bold"
+                android:text="Add Service"
+                android:paddingTop="2dp"
+                android:paddingBottom="0dp"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_14sdp"
+                tools:ignore="HardcodedText" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/design_bar"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/green_sea"
+            android:orientation="vertical"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_above="@+id/service_modify_for_update_payment_button_Layout"
+                android:layout_margin="@dimen/_4sdp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_8sdp"
+                        android:layout_marginStart="@dimen/_4sdp"
+                        android:layout_marginEnd="@dimen/_4sdp"
+                        android:layout_marginBottom="@dimen/_4sdp"
+                        app:cardCornerRadius="10dp"
+                        app:cardElevation="2dp"
+                        app:cardBackgroundColor="@color/white">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/light_green">
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/spinner_layout_service_for_patient_update_payment"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="1dp"
+                                app:boxCornerRadiusTopStart="10dp"
+                                app:boxCornerRadiusTopEnd="10dp"
+                                app:boxCornerRadiusBottomEnd="10dp"
+                                app:boxCornerRadiusBottomStart="10dp"
+                                app:boxBackgroundColor="@color/white"
+                                app:boxBackgroundMode="filled"
+                                app:endIconMode="dropdown_menu"
+                                app:boxStrokeWidth="0dp"
+                                android:hint="Service"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox">
+
+                                <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                                    android:id="@+id/service_for_patient_update_payment_spinner"
+                                    style="@style/Widget.MaterialComponents.AutoCompleteTextView.FilledBox"
+                                    android:layout_width="match_parent"
+                                    android:text=""
+                                    android:inputType="text"
+                                    android:importantForAutofill="no"
+                                    android:ellipsize="none"
+                                    android:maxLines="100"
+                                    android:textColor="@color/black"
+                                    android:scrollHorizontally="false"
+                                    android:layout_height="wrap_content"
+                                    android:imeOptions="actionDone" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <TextView
+                        android:id="@+id/service_for_patient_update_payment_missing_msg"
+                        android:layout_marginStart="@dimen/_7sdp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="@dimen/_7sdp"
+                        android:layout_marginEnd="@dimen/_7sdp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Please Select Service"
+                        android:textColor="@android:color/holo_red_light"
+                        android:textStyle="bold"
+                        android:visibility="visible"
+                        tools:ignore="HardcodedText" />
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_8sdp"
+                        android:layout_marginStart="@dimen/_4sdp"
+                        android:layout_marginEnd="@dimen/_4sdp"
+                        android:layout_marginBottom="@dimen/_4sdp"
+                        app:cardCornerRadius="10dp"
+                        app:cardElevation="2dp"
+                        app:cardBackgroundColor="@color/white">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/light_green">
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/spinner_layout_unit_for_patient_update_payment"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="1dp"
+                                app:boxCornerRadiusTopStart="10dp"
+                                app:boxCornerRadiusTopEnd="10dp"
+                                app:boxCornerRadiusBottomEnd="10dp"
+                                app:boxCornerRadiusBottomStart="10dp"
+                                app:boxBackgroundColor="@color/white"
+                                app:boxBackgroundMode="filled"
+                                app:endIconMode="dropdown_menu"
+                                app:boxStrokeWidth="0dp"
+                                android:hint="Unit"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox">
+
+                                <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                                    android:id="@+id/unit_for_patient_update_payment_spinner"
+                                    style="@style/Widget.MaterialComponents.AutoCompleteTextView.FilledBox"
+                                    android:layout_width="match_parent"
+                                    android:text=""
+                                    android:inputType="text"
+                                    android:importantForAutofill="no"
+                                    android:ellipsize="none"
+                                    android:maxLines="100"
+                                    android:textColor="@color/black"
+                                    android:scrollHorizontally="false"
+                                    android:layout_height="wrap_content"
+                                    android:imeOptions="actionDone" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <TextView
+                        android:id="@+id/unit_for_patient_update_payment_missing_msg"
+                        android:layout_marginStart="@dimen/_7sdp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="@dimen/_7sdp"
+                        android:layout_marginEnd="@dimen/_7sdp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Please Select Unit"
+                        android:textColor="@android:color/holo_red_light"
+                        android:textStyle="bold"
+                        android:visibility="visible"
+                        tools:ignore="HardcodedText" />
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_8sdp"
+                        android:layout_marginStart="@dimen/_4sdp"
+                        android:layout_marginEnd="@dimen/_4sdp"
+                        android:layout_marginBottom="@dimen/_4sdp"
+                        app:cardCornerRadius="10dp"
+                        app:cardElevation="2dp"
+                        app:cardBackgroundColor="@color/white">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/light_green">
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="1dp"
+                                app:boxCornerRadiusTopStart="10dp"
+                                app:boxCornerRadiusTopEnd="10dp"
+                                app:boxCornerRadiusBottomEnd="10dp"
+                                app:boxCornerRadiusBottomStart="10dp"
+                                app:boxStrokeWidthFocused="1dp"
+                                app:boxBackgroundColor="@color/white"
+                                app:boxBackgroundMode="filled"
+                                app:boxStrokeWidth="0dp"
+                                app:helperTextEnabled="true"
+                                android:enabled="false"
+                                android:hint="Rate"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/service_rate_for_patient_update_payment"
+                                    android:layout_width="match_parent"
+                                    android:text=""
+                                    android:ems="10"
+                                    android:inputType="text"
+                                    android:importantForAutofill="no"
+                                    android:ellipsize="none"
+                                    android:maxLines="100"
+                                    android:textColor="@color/black"
+                                    android:scrollHorizontally="false"
+                                    android:layout_height="wrap_content"
+                                    android:imeOptions="actionDone" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <TextView
+                        android:id="@+id/service_rate_for_patient_update_payment_missing_msg"
+                        android:layout_marginStart="@dimen/_7sdp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="@dimen/_7sdp"
+                        android:layout_marginEnd="@dimen/_7sdp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Invalid Rate"
+                        android:textColor="@android:color/holo_red_light"
+                        android:textStyle="bold"
+                        android:visibility="visible"
+                        tools:ignore="HardcodedText" />
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_8sdp"
+                        android:layout_marginStart="@dimen/_4sdp"
+                        android:layout_marginEnd="@dimen/_4sdp"
+                        android:layout_marginBottom="@dimen/_4sdp"
+                        app:cardCornerRadius="10dp"
+                        app:cardElevation="2dp"
+                        app:cardBackgroundColor="@color/white">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/light_green">
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="1dp"
+                                app:boxCornerRadiusTopStart="10dp"
+                                app:boxCornerRadiusTopEnd="10dp"
+                                app:boxCornerRadiusBottomEnd="10dp"
+                                app:boxCornerRadiusBottomStart="10dp"
+                                app:boxStrokeWidthFocused="1dp"
+                                app:boxBackgroundColor="@color/white"
+                                app:boxBackgroundMode="filled"
+                                app:boxStrokeWidth="0dp"
+                                app:helperTextEnabled="true"
+                                android:hint="Quantity"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/service_quantity_for_patient_update_payment"
+                                    android:layout_width="match_parent"
+                                    android:text=""
+                                    android:ems="10"
+                                    android:inputType="numberDecimal"
+                                    android:importantForAutofill="no"
+                                    android:ellipsize="none"
+                                    android:maxLines="100"
+                                    android:textColor="@color/black"
+                                    android:scrollHorizontally="false"
+                                    android:layout_height="wrap_content"
+                                    android:imeOptions="actionDone" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <TextView
+                        android:id="@+id/service_qty_for_patient_update_payment_missing_msg"
+                        android:layout_marginStart="@dimen/_7sdp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="@dimen/_7sdp"
+                        android:layout_marginEnd="@dimen/_7sdp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Please Provide Quantity"
+                        android:textColor="@android:color/holo_red_light"
+                        android:textStyle="bold"
+                        android:visibility="visible"
+                        tools:ignore="HardcodedText" />
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_8sdp"
+                        android:layout_marginStart="@dimen/_4sdp"
+                        android:layout_marginEnd="@dimen/_4sdp"
+                        android:layout_marginBottom="@dimen/_4sdp"
+                        app:cardCornerRadius="10dp"
+                        app:cardElevation="2dp"
+                        app:cardBackgroundColor="@color/white">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/light_green">
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="1dp"
+                                app:boxCornerRadiusTopStart="10dp"
+                                app:boxCornerRadiusTopEnd="10dp"
+                                app:boxCornerRadiusBottomEnd="10dp"
+                                app:boxCornerRadiusBottomStart="10dp"
+                                app:boxStrokeWidthFocused="1dp"
+                                app:boxBackgroundColor="@color/white"
+                                app:boxBackgroundMode="filled"
+                                app:boxStrokeWidth="0dp"
+                                app:helperTextEnabled="true"
+                                android:enabled="false"
+                                android:hint="Total Amount"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/service_amount_for_patient_update_payment"
+                                    android:layout_width="match_parent"
+                                    android:text=""
+                                    android:ems="10"
+                                    android:inputType="text"
+                                    android:importantForAutofill="no"
+                                    android:ellipsize="none"
+                                    android:maxLines="100"
+                                    android:textColor="@color/black"
+                                    android:scrollHorizontally="false"
+                                    android:layout_height="wrap_content"
+                                    android:imeOptions="actionDone" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <LinearLayout
+                        android:id="@+id/layout_of_service_qty_avail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:weightSum="3"
+                            android:baselineAligned="false">
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:hint="Schedule:"
+                                android:layout_weight="1"
+                                android:layout_marginStart="5dp"
+                                android:layout_marginTop="5dp"
+                                android:layout_marginEnd="2.5dp"
+                                app:boxStrokeColor="@color/back_color"
+                                app:boxStrokeWidth="0dp"
+                                app:boxStrokeWidthFocused="1dp"
+                                app:boxCornerRadiusTopStart="5dp"
+                                app:boxCornerRadiusTopEnd="5dp"
+                                app:boxCornerRadiusBottomEnd="5dp"
+                                app:boxCornerRadiusBottomStart="5dp"
+                                app:boxBackgroundMode="filled"
+                                android:clickable="false"
+                                android:enabled="false"
+                                app:boxBackgroundColor="@color/white"
+                                app:hintTextColor="@color/black"
+                                tools:ignore="HardcodedText">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/schedule_taken_qty_for_update_payment"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:ems="10"
+                                    android:clickable="false"
+                                    android:enabled="false"
+                                    android:textSize="12sp"
+                                    android:text=""
+                                    android:textStyle="bold"
+                                    android:fontFamily="@font/open_sans"
+                                    android:textColor="@color/black"
+                                    android:inputType="textMultiLine" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:hint="Cancel:"
+                                android:layout_weight="1"
+                                android:layout_marginStart="2.5dp"
+                                android:layout_marginEnd="2.5dp"
+                                android:layout_marginTop="5dp"
+                                app:boxStrokeColor="@color/back_color"
+                                app:boxStrokeWidth="0dp"
+                                app:boxStrokeWidthFocused="1dp"
+                                app:boxCornerRadiusTopStart="5dp"
+                                app:boxCornerRadiusTopEnd="5dp"
+                                app:boxCornerRadiusBottomEnd="5dp"
+                                app:boxCornerRadiusBottomStart="5dp"
+                                app:boxBackgroundMode="filled"
+                                android:clickable="false"
+                                android:enabled="false"
+                                app:boxBackgroundColor="@color/white"
+                                app:hintTextColor="@color/black"
+                                tools:ignore="HardcodedText">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/cancel_qty_for_update_payment"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:ems="10"
+                                    android:clickable="false"
+                                    android:enabled="false"
+                                    android:textSize="12sp"
+                                    android:text=""
+                                    android:fontFamily="@font/open_sans"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/black"
+                                    android:inputType="textMultiLine" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:hint="Return:"
+                                android:layout_weight="1"
+                                android:layout_marginStart="2.5dp"
+                                android:layout_marginEnd="5dp"
+                                android:layout_marginTop="5dp"
+                                app:boxStrokeColor="@color/back_color"
+                                app:boxStrokeWidth="0dp"
+                                app:boxStrokeWidthFocused="1dp"
+                                app:boxCornerRadiusTopStart="5dp"
+                                app:boxCornerRadiusTopEnd="5dp"
+                                app:boxCornerRadiusBottomEnd="5dp"
+                                app:boxCornerRadiusBottomStart="5dp"
+                                app:boxBackgroundMode="filled"
+                                android:clickable="false"
+                                android:enabled="false"
+                                app:boxBackgroundColor="@color/white"
+                                app:hintTextColor="@color/black"
+                                tools:ignore="HardcodedText">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/return_qty_for_update_payment"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:ems="10"
+                                    android:clickable="false"
+                                    android:enabled="false"
+                                    android:textSize="12sp"
+                                    android:text=""
+                                    android:fontFamily="@font/open_sans"
+                                    android:textStyle="bold"
+                                    android:textColor="@color/black"
+                                    android:inputType="textMultiLine" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                        </LinearLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Available Quantity:"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginEnd="5dp"
+                            android:layout_marginTop="5dp"
+                            app:boxStrokeColor="#f0932b"
+                            app:boxStrokeWidth="0dp"
+                            app:boxStrokeWidthFocused="1dp"
+                            app:boxCornerRadiusTopStart="5dp"
+                            app:boxCornerRadiusTopEnd="5dp"
+                            app:boxCornerRadiusBottomEnd="5dp"
+                            app:boxCornerRadiusBottomStart="5dp"
+                            app:boxBackgroundMode="filled"
+                            android:clickable="false"
+                            android:enabled="false"
+                            app:boxBackgroundColor="@color/white"
+                            app:hintTextColor="@color/black"
+                            tools:ignore="HardcodedText">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/available_qty_for_update_payment"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:ems="10"
+                                android:clickable="false"
+                                android:enabled="false"
+                                android:textSize="12sp"
+                                android:text=""
+                                android:fontFamily="@font/open_sans"
+                                android:textStyle="bold"
+                                android:textColor="@color/black"
+                                android:inputType="textMultiLine" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </ScrollView>
+
+            <LinearLayout
+                android:id="@+id/service_modify_for_update_payment_button_Layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="10"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true">
+
+                <Button
+                    android:id="@+id/service_update_for_update_payment_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="5"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="10dp"
+                    android:background="@drawable/custom_button"
+                    android:fontFamily="@font/poppins_bold"
+                    android:text="Update"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_14sdp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@null"
+                    tools:ignore="ButtonStyle,HardcodedText" />
+
+                <Button
+                    android:id="@+id/service_add_for_update_payment_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="5"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="10dp"
+                    android:background="@drawable/custom_button"
+                    android:fontFamily="@font/poppins_bold"
+                    android:text="Add"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_14sdp"
+                    android:textStyle="bold"
+                    app:backgroundTint="@null"
+                    tools:ignore="ButtonStyle,HardcodedText" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progress_indicator_service_modify_for_update_payment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:indeterminate="true"
+        android:layout_gravity="center"/>
+
+</RelativeLayout>

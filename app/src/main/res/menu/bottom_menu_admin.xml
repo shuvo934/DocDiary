@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/dashboard_dummy_admin"
+        android:icon="@drawable/home_24"
+        android:title="Home"
+        android:visible="false"/>
+    <item
+        android:id="@+id/admin_profile_menu"
+        android:icon="@drawable/person_24"
+        android:title="Profile"
+        android:visible="false"
+        android:enabled="true"/>
+    <item
+        android:id="@+id/admin_payment_menu"
+        android:icon="@drawable/payment_24"
+        android:title="Payment"
+        android:enabled="true"/>
+    <item
+        android:id="@+id/admin_appointment_schedule_menu"
+        android:icon="@drawable/access_time_filled_24"
+        android:title="Appointment"
+        android:enabled="true"/>
+    <item
+        android:id="@+id/admin_patient_search_menu"
+        android:icon="@drawable/patient_icon"
+        android:title="Patient"
+        android:enabled="true"/>
+</menu>

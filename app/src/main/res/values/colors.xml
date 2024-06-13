@@ -13,4 +13,5 @@
     <color name="default_disabled_color">#F5F5F5</color>
     <color name="blue_end">#fda000</color>
     <color name="blue_start">#879af2</color>
+    <color name="red_dark">#c23616</color>
 </resources>

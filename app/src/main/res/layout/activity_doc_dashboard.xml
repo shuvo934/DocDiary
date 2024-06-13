@@ -183,6 +183,7 @@
                         tools:ignore="HardcodedText" />
 
                     <androidx.cardview.widget.CardView
+                        android:id="@+id/next_meeting_progressbar_details_card_view"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/_8sdp"
@@ -437,7 +438,7 @@
                                 <androidx.cardview.widget.CardView
                                     android:layout_width="0dp"
                                     android:layout_weight="5"
-                                    android:layout_height="wrap_content"
+                                    android:layout_height="match_parent"
                                     app:cardBackgroundColor="@color/white"
                                     app:cardElevation="3dp"
                                     android:layout_margin="5dp"
@@ -479,7 +480,7 @@
                                 <androidx.cardview.widget.CardView
                                     android:layout_width="0dp"
                                     android:layout_weight="5"
-                                    android:layout_height="wrap_content"
+                                    android:layout_height="match_parent"
                                     app:cardBackgroundColor="@color/disabled"
                                     app:cardElevation="3dp"
                                     android:layout_margin="5dp"
@@ -710,6 +711,9 @@
 
                         </LinearLayout>
 
+                        <include
+                            layout="@layout/doc_dashboard_extra_layout"/>
+
                         <com.google.android.material.progressindicator.CircularProgressIndicator
                             android:id="@+id/progress_indicator_doc_dashboard_tab_layout"
                             android:layout_width="wrap_content"
@@ -731,6 +735,9 @@
                             tools:ignore="ContentDescription" />
 
                     </RelativeLayout>
+
+                    <include
+                        layout="@layout/doc_dashboard_extra_layout_1"/>
 
                 </LinearLayout>
 

@@ -1,6 +1,8 @@
 package ttit.com.shuvo.docdiary.login.dialogue;
 
+import static ttit.com.shuvo.docdiary.login.DocLogin.center_admin_user_id;
 import static ttit.com.shuvo.docdiary.login.DocLogin.center_doc_code;
+import static ttit.com.shuvo.docdiary.login.DocLogin.user_or_admin_flag;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -20,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 import ttit.com.shuvo.docdiary.R;
+import ttit.com.shuvo.docdiary.login.AdminIDCallbackListener;
 import ttit.com.shuvo.docdiary.login.CloseCallBack;
 import ttit.com.shuvo.docdiary.login.IDCallbackListener;
 import ttit.com.shuvo.docdiary.login.adapters.MultipleUserAdapter;
@@ -49,6 +52,7 @@ public class SelectUserIdDialogue extends AppCompatDialogFragment implements Mul
 
     private IDCallbackListener idCallbackListener;
     private CloseCallBack closeCallBack;
+    private AdminIDCallbackListener adminIDCallbackListener;
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -59,6 +63,9 @@ public class SelectUserIdDialogue extends AppCompatDialogFragment implements Mul
 
         if (getActivity() instanceof CloseCallBack)
             closeCallBack = (CloseCallBack) getActivity();
+
+        if (getActivity() instanceof AdminIDCallbackListener)
+            adminIDCallbackListener = (AdminIDCallbackListener) getActivity();
 
         View view = inflater.inflate(R.layout.user_id_selectable_view, null);
 
@@ -92,12 +99,29 @@ public class SelectUserIdDialogue extends AppCompatDialogFragment implements Mul
     @Override
     public void onCategoryClicked(int CategoryPosition) {
 
-        d_code = multipleUserLists.get(CategoryPosition).getDoc_code();
-        center_doc_code = d_code;
+        String user_admin_flag = multipleUserLists.get(CategoryPosition).getUser_admin_flag();
+        if (user_admin_flag.equals("1")) {
+            d_code = multipleUserLists.get(CategoryPosition).getDoc_code();
+            center_doc_code = d_code;
+            user_or_admin_flag = user_admin_flag;
+            center_admin_user_id = multipleUserLists.get(CategoryPosition).getAdmin_user_id();
 
-        if(idCallbackListener != null)
-            idCallbackListener.onIdDismiss();
+            if(idCallbackListener != null)
+                idCallbackListener.onIdDismiss();
 
-        dialog.dismiss();
+            dialog.dismiss();
+        }
+        else {
+            d_code = multipleUserLists.get(CategoryPosition).getDoc_code();
+            center_doc_code = d_code;
+            user_or_admin_flag = user_admin_flag;
+            center_admin_user_id = multipleUserLists.get(CategoryPosition).getAdmin_user_id();
+
+            if (adminIDCallbackListener != null)
+                adminIDCallbackListener.onAdminIdSelection();
+
+            dialog.dismiss();
+        }
+
     }
 }

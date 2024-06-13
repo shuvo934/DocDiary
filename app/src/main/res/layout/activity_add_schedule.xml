@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".appointment_admin.add_schedule.AddSchedule">
+
+    <LinearLayout
+        android:id="@+id/add_schedule_modify_full_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:id="@+id/add_schedule_modify_app_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/clouds"
+            android:padding="@dimen/_12sdp">
+
+            <ImageView
+                android:layout_width="@dimen/_21sdp"
+                android:layout_height="@dimen/_21sdp"
+                android:id="@+id/close_logo_of_add_schedule_modify"
+                android:layout_centerVertical="true"
+                android:src="@drawable/close_24"
+                app:tint="@color/black"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/add_schedule_modify_app_bar_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"
+                android:layout_toEndOf="@+id/close_logo_of_add_schedule_modify"
+                android:fontFamily="@font/poppins_bold"
+                android:text="Add Schedule"
+                android:paddingTop="2dp"
+                android:paddingBottom="0dp"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_14sdp"
+                tools:ignore="HardcodedText" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/design_bar"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/green_sea"
+            android:orientation="vertical"/>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_above="@+id/add_schedule_modify_button"
+                android:layout_margin="@dimen/_4sdp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_8sdp"
+                        android:layout_marginStart="@dimen/_4sdp"
+                        android:layout_marginEnd="@dimen/_4sdp"
+                        android:layout_marginBottom="@dimen/_4sdp"
+                        app:cardCornerRadius="10dp"
+                        app:cardElevation="2dp"
+                        app:cardBackgroundColor="@color/light_green">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/appointment_date_selection_layout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="1dp"
+                            app:boxCornerRadiusTopStart="@dimen/_8sdp"
+                            app:boxCornerRadiusTopEnd="@dimen/_8sdp"
+                            app:boxCornerRadiusBottomEnd="@dimen/_8sdp"
+                            app:boxCornerRadiusBottomStart="@dimen/_8sdp"
+                            app:boxBackgroundColor="@color/white"
+                            app:boxBackgroundMode="filled"
+                            android:clickable="true"
+                            android:focusable="false"
+                            android:enabled="false"
+                            app:boxStrokeWidth="0dp"
+                            tools:ignore="HardcodedText"
+                            android:hint="Appointment Date"
+                            app:startIconDrawable="@drawable/calendar_icon"
+                            app:startIconTint="@color/blue_end">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/appointment_date_selection"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text=""
+                                android:clickable="true"
+                                android:focusable="false"
+                                android:fontFamily="@font/archivo_bold"
+                                android:textSize="@dimen/_11sdp"
+                                android:inputType="date"
+                                android:imeOptions="actionDone"
+                                android:textColor="@color/black"/>
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <TextView
+                        android:id="@+id/appointment_date_for_patient_missing_msg"
+                        android:layout_marginStart="@dimen/_7sdp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="@dimen/_7sdp"
+                        android:layout_marginEnd="@dimen/_7sdp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Please Select Appointment Date"
+                        android:textColor="@android:color/holo_red_light"
+                        android:textStyle="bold"
+                        android:visibility="visible"
+                        tools:ignore="HardcodedText" />
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_8sdp"
+                        android:layout_marginStart="@dimen/_4sdp"
+                        android:layout_marginEnd="@dimen/_4sdp"
+                        android:layout_marginBottom="@dimen/_4sdp"
+                        app:cardCornerRadius="10dp"
+                        app:cardElevation="2dp"
+                        app:cardBackgroundColor="@color/light_green">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/spinner_layout_appointment_time_selection_for_add_appointment"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="1dp"
+                            app:boxCornerRadiusTopStart="10dp"
+                            app:boxCornerRadiusTopEnd="10dp"
+                            app:boxCornerRadiusBottomEnd="10dp"
+                            app:boxCornerRadiusBottomStart="10dp"
+                            app:boxBackgroundColor="@color/white"
+                            app:boxBackgroundMode="filled"
+                            app:endIconMode="dropdown_menu"
+                            app:boxStrokeWidth="0dp"
+                            android:enabled="false"
+                            android:hint="Appointment Time"
+                            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                            tools:ignore="HardcodedText">
+
+                            <com.rosemaryapp.amazingspinner.AmazingSpinner
+                                android:id="@+id/appointment_time_selection_for_add_appointment_spinner"
+                                style="@style/Widget.MaterialComponents.AutoCompleteTextView.FilledBox"
+                                android:layout_width="match_parent"
+                                android:text=""
+                                android:textSize="@dimen/_11sdp"
+                                android:fontFamily="@font/archivo_bold"
+                                android:textColor="@color/black"
+                                android:layout_height="wrap_content" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <TextView
+                        android:id="@+id/appointment_time_for_patient_missing_msg"
+                        android:layout_marginStart="@dimen/_7sdp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="@dimen/_7sdp"
+                        android:layout_marginEnd="@dimen/_7sdp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Please Select Appointment Time"
+                        android:textColor="@android:color/holo_red_light"
+                        android:textStyle="bold"
+                        android:visibility="visible"
+                        tools:ignore="HardcodedText" />
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/taken_schedule_layout_card"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:visibility="visible"
+                        android:layout_marginTop="@dimen/_8sdp"
+                        android:layout_marginStart="@dimen/_4sdp"
+                        android:layout_marginEnd="@dimen/_4sdp"
+                        android:layout_marginBottom="@dimen/_4sdp"
+                        app:cardCornerRadius="10dp"
+                        app:cardElevation="2dp"
+                        app:cardBackgroundColor="@color/clouds">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Taken Schedule:"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/green_sea"
+                                android:layout_margin="@dimen/_4sdp"
+                                android:paddingTop="@dimen/_3sdp"
+                                android:paddingBottom="@dimen/_1sdp"
+                                android:textSize="@dimen/_11sdp"
+                                android:textStyle="bold"/>
+
+                            <RelativeLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/_4sdp"
+                                android:layout_marginEnd="@dimen/_4sdp">
+                                <androidx.recyclerview.widget.RecyclerView
+                                    android:id="@+id/taken_appointment_time_recyclerview_for_patient"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"/>
+                            </RelativeLayout>
+
+
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                </LinearLayout>
+
+            </ScrollView>
+
+            <Button
+                android:id="@+id/add_schedule_modify_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="20dp"
+                android:layout_gravity="center"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/custom_button"
+                android:fontFamily="@font/poppins_bold"
+                android:text="ADD"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_14sdp"
+                android:textStyle="bold"
+                app:backgroundTint="@null"
+                tools:ignore="HardcodedText"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"/>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progress_indicator_add_schedule_modify"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:indeterminate="true"
+        android:layout_gravity="center"/>
+
+</RelativeLayout>

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:weightSum="10"
+    android:baselineAligned="false">
+
+    <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="8.2">
+
+        <LinearLayout
+            android:id="@+id/updated_service_button_view_lay"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:orientation="horizontal"
+            android:weightSum="8.2">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="4.2"
+                android:orientation="vertical"
+                android:padding="4dp"
+                android:layout_marginEnd="2dp"
+                android:background="@color/clouds">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/_2sdp"
+                    android:weightSum="10"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="Service:  "
+                        android:layout_weight="4"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_8sdp"/>
+
+                    <TextView
+                        android:id="@+id/updated_service_name"
+                        android:layout_width="0dp"
+                        android:layout_weight="6"
+                        android:layout_height="wrap_content"
+                        android:text="Physiotherapy Service Charge"
+                        android:fontFamily="@font/open_sans_bold"
+                        android:textColor="@color/default_text_color"
+                        android:textSize="@dimen/_8sdp"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:weightSum="10"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:text="Unit:  "
+                        android:fontFamily="@font/poppins_bold"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_8sdp"/>
+                    <TextView
+                        android:id="@+id/updated_unit_name"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="6"
+                        android:text="Assessment"
+                        android:fontFamily="@font/open_sans_bold"
+                        android:textColor="@color/default_text_color"
+                        android:textSize="@dimen/_8sdp"/>
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/updated_service_qty"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.2"
+                android:background="@color/clouds"
+                android:text="10"
+                android:fontFamily="@font/open_sans_bold"
+                android:textColor="@color/default_text_color"
+                android:padding="4dp"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                android:gravity="center"
+                android:textSize="@dimen/_9sdp"/>
+
+            <TextView
+                android:id="@+id/updated_service_rate"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.2"
+                android:background="@color/clouds"
+                android:text=""
+                android:fontFamily="@font/open_sans_bold"
+                android:textColor="@color/default_text_color"
+                android:padding="4dp"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                android:gravity="center"
+                android:textSize="@dimen/_9sdp"/>
+
+            <TextView
+                android:id="@+id/updated_service_amount"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.6"
+                android:background="@color/clouds"
+                android:text="amount"
+                android:fontFamily="@font/open_sans_bold"
+                android:textColor="@color/default_text_color"
+                android:padding="4dp"
+                android:layout_marginStart="2dp"
+                android:layout_marginEnd="2dp"
+                android:gravity="center"
+                android:textSize="@dimen/_9sdp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignBottom="@+id/updated_service_button_view_lay"/>
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/updated_service_avail_qty"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:background="@color/clouds"
+        android:layout_marginStart="2dp"
+        android:gravity="center"
+        android:padding="4dp"
+        android:fontFamily="@font/open_sans_bold"
+        android:textColor="@color/default_text_color"
+        android:textSize="@dimen/_9sdp"
+        android:layout_weight="1.8">
+
+    </TextView>
+
+</LinearLayout>

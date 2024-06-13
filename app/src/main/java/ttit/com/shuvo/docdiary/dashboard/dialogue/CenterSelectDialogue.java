@@ -23,6 +23,7 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 
 import ttit.com.shuvo.docdiary.R;
+import ttit.com.shuvo.docdiary.login.AdminCallBackListener;
 import ttit.com.shuvo.docdiary.login.CallBackListener;
 import ttit.com.shuvo.docdiary.login.CloseCallBack;
 import ttit.com.shuvo.docdiary.login.adapters.CenterAdapter;
@@ -40,6 +41,8 @@ public class CenterSelectDialogue extends AppCompatDialogFragment implements Cen
 
     String centerAPI = "";
     String d_code = "";
+    String admin_id= "";
+    String admin_user_flag = "";
 
     ArrayList<CenterList> centerLists;
     Context mContext;
@@ -50,6 +53,7 @@ public class CenterSelectDialogue extends AppCompatDialogFragment implements Cen
     }
 
     private CallBackListener callBackListener;
+    private AdminCallBackListener adminCallBackListener;
 
     SharedPreferences sharedpreferences;
     public static final String LOGIN_ACTIVITY_FILE = "LOGIN_ACTIVITY_FILE_DOCDIARY";
@@ -58,6 +62,8 @@ public class CenterSelectDialogue extends AppCompatDialogFragment implements Cen
     public static final String DOC_USER_PASSWORD = "DOC_USER_PASSWORD";
     public static final String DOC_DATA_API = "DOC_DATA_API";
     public static final String DOC_ALL_ID = "DOC_ALL_ID";
+    public static final String ADMIN_OR_USER_FLAG = "ADMIN_OR_USER_FLAG";
+    public static final String ADMIN_USR_ID = "ADMIN_USR_ID";
 
     @NonNull
     @Override
@@ -66,6 +72,9 @@ public class CenterSelectDialogue extends AppCompatDialogFragment implements Cen
         LayoutInflater inflater = requireActivity().getLayoutInflater();
         if (getActivity() instanceof CallBackListener)
             callBackListener = (CallBackListener) getActivity();
+
+        if (getActivity() instanceof AdminCallBackListener)
+            adminCallBackListener = (AdminCallBackListener) getActivity();
 
         View view = inflater.inflate(R.layout.center_selectable_view, null);
 
@@ -102,6 +111,8 @@ public class CenterSelectDialogue extends AppCompatDialogFragment implements Cen
         if (multipleUserLists.size() == 0) {
 
             d_code = centerLists.get(CategoryPosition).getDoc_code();
+            admin_id = centerLists.get(CategoryPosition).getAdmin_user_id();
+            admin_user_flag = centerLists.get(CategoryPosition).getUser_admin_flag();
 
             Gson gson = new Gson();
             String json;
@@ -115,19 +126,32 @@ public class CenterSelectDialogue extends AppCompatDialogFragment implements Cen
             editor1.remove(DOC_DATA_API);
             editor1.remove(DOC_ALL_ID);
             editor1.remove(LOGIN_TF);
+            editor1.remove(ADMIN_OR_USER_FLAG);
+            editor1.remove(ADMIN_USR_ID);
 
             editor1.putString(DOC_USER_CODE, d_code);
             editor1.putString(DOC_USER_PASSWORD, pass);
             editor1.putString(DOC_DATA_API, centerAPI);
             editor1.putString(DOC_ALL_ID, json);
             editor1.putBoolean(LOGIN_TF, true);
+            editor1.putString(ADMIN_USR_ID,admin_id);
+            editor1.putString(ADMIN_OR_USER_FLAG,admin_user_flag);
             editor1.apply();
             editor1.commit();
 
-            if(callBackListener != null)
-                callBackListener.onDismiss();
+            if (admin_user_flag.equals("1")) {
+                if(callBackListener != null)
+                    callBackListener.onDismiss();
 
-            dialog.dismiss();
+                dialog.dismiss();
+            }
+            else {
+                if(adminCallBackListener != null)
+                    adminCallBackListener.onAdminCenterSelection();
+
+                dialog.dismiss();
+            }
+
         }
         else {
             System.out.println("USERs Found : "+multipleUserLists.size());
