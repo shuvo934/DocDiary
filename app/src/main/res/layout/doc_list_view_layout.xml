@@ -49,6 +49,18 @@
                 android:layout_marginEnd="@dimen/_8sdp"
                 android:textSize="@dimen/_8sdp"
                 android:textStyle="bold" />
+            <TextView
+                android:id="@+id/doc_blank_count_unit_wise"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_bold"
+                android:text="Total Blank Schedule: "
+                android:layout_below="@id/doc_app_count_unit_wise"
+                android:layout_centerHorizontal="true"
+                android:layout_marginStart="@dimen/_8sdp"
+                android:layout_marginEnd="@dimen/_8sdp"
+                android:textSize="@dimen/_8sdp"
+                android:textStyle="bold" />
         </RelativeLayout>
 
         <androidx.appcompat.widget.AppCompatTextView

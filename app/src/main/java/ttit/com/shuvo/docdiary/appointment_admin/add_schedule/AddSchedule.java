@@ -188,10 +188,10 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
             timeSelection.setText(selected_time);
             dateSelectionLay.setEnabled(false);
 
-            addApp.setText("Update Appointment");
+            addApp.setText("Update Schedule");
         }
         else {
-            addApp.setText("Add Appointment");
+            addApp.setText("Add Schedule");
         }
 
         dateSelection.setOnClickListener(v -> {
@@ -596,6 +596,8 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
                     dateMissing.setText("No Appointment Date Found. Please Reselect Doctor");
                     dateMissing.setVisibility(View.VISIBLE);
                     dateSelectionLay.setEnabled(false);
+                    fullLayout.setVisibility(View.VISIBLE);
+                    circularProgressIndicator.setVisibility(View.GONE);
                 }
                 else {
                     dateMissing.setVisibility(View.GONE);
@@ -606,6 +608,21 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
                         getTimeData();
                     }
                     else {
+                        for (int i = 0; i < appointmentDateTimeLists.size(); i++) {
+                            String date = appointmentDateTimeLists.get(i).getAdm_date();
+                            int index = 0;
+                            boolean f = false;
+                            for (int j = 0; j < dateLists.size(); j++) {
+                                if (date.equals(dateLists.get(j).getP_adm_date())) {
+                                    f = true;
+                                    index = j;
+                                    break;
+                                }
+                            }
+                            if (f) {
+                                dateLists.remove(index);
+                            }
+                        }
                         fullLayout.setVisibility(View.VISIBLE);
                         circularProgressIndicator.setVisibility(View.GONE);
                     }
@@ -876,6 +893,7 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
                         takenScheduleLay.setVisibility(View.GONE);
                     }
                     else {
+                        timeSelectionLay.setEnabled(false);
                         takenScheduleLay.setVisibility(View.VISIBLE);
                     }
 

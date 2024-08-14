@@ -6,6 +6,7 @@ import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.userInfoLists;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
+import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,6 +18,8 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.Spanned;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -86,8 +89,8 @@ public class AllAppointment extends AppCompatActivity {
     AppCompatAutoCompleteTextView docSelect;
     ArrayList<ChoiceDoctorList> choiceDoctorLists;
 
-    TextView deptdSchCount;
-    TextView unitSchCount;
+//    TextView deptdSchCount;
+//    TextView unitSchCount;
     TextView unitDocCount;
 
     RecyclerView docListView;
@@ -111,6 +114,14 @@ public class AllAppointment extends AppCompatActivity {
     String select_unit_msg = "Select Unit to View Doctor/Therapist Schedule";
     ImageView backButton;
     WaitProgress waitProgress = new WaitProgress();
+
+    int deptd_sch_count = 0;
+    int deptd_blank_count = 0;
+    int unit_sch_count = 0;
+    int unit_blank_count = 0;
+
+    CardView deptCard;
+    CardView deptsCard;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,8 +158,10 @@ public class AllAppointment extends AppCompatActivity {
         docSelectLay.setEnabled(false);
         choiceDoctorLists = new ArrayList<>();
 
-        deptdSchCount = findViewById(R.id.department_app_count_all_app);
-        unitSchCount = findViewById(R.id.unit_app_count_all_app);
+//        deptdSchCount = findViewById(R.id.department_app_count_all_app);
+//        unitSchCount = findViewById(R.id.unit_app_count_all_app);
+        deptCard = findViewById(R.id.department_total_blank_count_card_view);
+        deptsCard = findViewById(R.id.unit_total_blank_count_card_view);
         unitDocCount = findViewById(R.id.unit_docs_count_all_app);
 
         docListView.setHasFixedSize(true);
@@ -419,6 +432,32 @@ public class AllAppointment extends AppCompatActivity {
             filter(selected_doc_id);
         });
 
+        deptCard.setOnClickListener(view -> {
+            String text = departmentSelect.getText().toString();
+            Spanned spanned = Html.fromHtml("Total Appointment:   <font color='black'><b>"+deptd_sch_count+"</b></font><br>"+
+                    "Total Blank Schedule:   <font color='black'><b>"+deptd_blank_count+"</b></font><br>");
+
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(AllAppointment.this);
+            builder.setTitle(text)
+                    .setMessage(spanned)
+                    .setPositiveButton("Close", (dialogInterface, i) -> dialogInterface.dismiss());
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+        });
+
+        deptsCard.setOnClickListener(view -> {
+            String text = unitSelect.getText().toString();
+            Spanned spanned = Html.fromHtml("Total Appointment:   <font color='black'><b>"+unit_sch_count+"</b></font><br>"+
+                    "Total Blank Schedule:   <font color='black'><b>"+unit_blank_count+"</b></font><br>");
+
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(AllAppointment.this);
+            builder.setTitle(text)
+                    .setMessage(spanned)
+                    .setPositiveButton("Close", (dialogInterface, i) -> dialogInterface.dismiss());
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+        });
+
         getDepartments();
     }
 
@@ -563,9 +602,13 @@ public class AllAppointment extends AppCompatActivity {
                         noDocsMess.setVisibility(View.GONE);
                     }
 
-                    deptdSchCount.setText("  0");
+//                    deptdSchCount.setText("  0");
                     unitDocCount.setText("  0");
-                    unitSchCount.setText("  0");
+//                    unitSchCount.setText("  0");
+                    deptd_sch_count = 0;
+                    deptd_blank_count = 0;
+                    unit_sch_count = 0;
+                    unit_blank_count = 0;
 
                     loading = false;
                 }
@@ -641,6 +684,10 @@ public class AllAppointment extends AppCompatActivity {
 
         choiceUnitLists = new ArrayList<>();
         deptd_count = "0";
+        deptd_sch_count = 0;
+        deptd_blank_count = 0;
+        unit_sch_count = 0;
+        unit_blank_count = 0;
 
         String url = pre_url_api+"doctors_app_schedule/getUnitList?deptd_id="+selected_deptd_id+"";
         String deptdSchCountUrl = pre_url_api+"all_appointment/getDeptdSchCount?deptd_id="+selected_deptd_id+"&pdate="+selected_date;
@@ -659,6 +706,13 @@ public class AllAppointment extends AppCompatActivity {
 
                         deptd_count = apptDataInfo.getString("deptd_sch_count")
                                 .equals("null") ? "0" :apptDataInfo.getString("deptd_sch_count");
+                        String deptd_tot_count = apptDataInfo.getString("deptd_tot_count")
+                                .equals("null") ? "0" :apptDataInfo.getString("deptd_tot_count");
+                        String deptd_busy_count = apptDataInfo.getString("deptd_busy_count")
+                                .equals("null") ? "0" :apptDataInfo.getString("deptd_busy_count");
+
+                        deptd_sch_count = Integer.parseInt(deptd_count);
+                        deptd_blank_count = Integer.parseInt(deptd_tot_count) - (deptd_sch_count + Integer.parseInt(deptd_busy_count));
                     }
                 }
                 connected = true;
@@ -746,8 +800,8 @@ public class AllAppointment extends AppCompatActivity {
                 doctorsListAdapter = new DoctorsListAdapter(unitDoctorsLists,AllAppointment.this);
                 docListView.setAdapter(doctorsListAdapter);
 
-                String tt = "  " + deptd_count;
-                deptdSchCount.setText(tt);
+//                String tt = "  " + deptd_count;
+//                deptdSchCount.setText(tt);
 
                 if (selected_depts_id.isEmpty()) {
                     try {
@@ -765,7 +819,9 @@ public class AllAppointment extends AppCompatActivity {
                         noDocsMess.setVisibility(View.GONE);
                     }
                     unitDocCount.setText("  0");
-                    unitSchCount.setText("  0");
+//                    unitSchCount.setText("  0");
+                    unit_sch_count = 0;
+                    unit_blank_count = 0;
 
                     loading = false;
                 }
@@ -836,6 +892,10 @@ public class AllAppointment extends AppCompatActivity {
         conn = false;
         connected = false;
         deptd_count = "0";
+        deptd_sch_count = 0;
+        deptd_blank_count = 0;
+        unit_sch_count = 0;
+        unit_blank_count = 0;
 
         String deptdSchCountUrl = pre_url_api+"all_appointment/getDeptdSchCount?deptd_id="+selected_deptd_id+"&pdate="+selected_date;
 
@@ -854,6 +914,13 @@ public class AllAppointment extends AppCompatActivity {
 
                         deptd_count = apptDataInfo.getString("deptd_sch_count")
                                 .equals("null") ? "0" :apptDataInfo.getString("deptd_sch_count");
+                        String deptd_tot_count = apptDataInfo.getString("deptd_tot_count")
+                                .equals("null") ? "0" :apptDataInfo.getString("deptd_tot_count");
+                        String deptd_busy_count = apptDataInfo.getString("deptd_busy_count")
+                                .equals("null") ? "0" :apptDataInfo.getString("deptd_busy_count");
+
+                        deptd_sch_count = Integer.parseInt(deptd_count);
+                        deptd_blank_count = Integer.parseInt(deptd_tot_count) - (deptd_sch_count + Integer.parseInt(deptd_busy_count));
                     }
                 }
                 connected = true;
@@ -890,8 +957,8 @@ public class AllAppointment extends AppCompatActivity {
                 conn = false;
                 connected = false;
 
-                String tt = "  " + deptd_count;
-                deptdSchCount.setText(tt);
+//                String tt = "  " + deptd_count;
+//                deptdSchCount.setText(tt);
 
             }
             else {
@@ -962,7 +1029,7 @@ public class AllAppointment extends AppCompatActivity {
         choiceDoctorLists = new ArrayList<>();
 
         String deptdSchCountUrl = pre_url_api+"all_appointment/getDeptdSchCount?deptd_id="+selected_deptd_id+"&pdate="+selected_date;
-        String url = pre_url_api+"doctors_app_schedule/getDocWithSchedule?pdate="+selected_date+"&depts_id="+id+"";
+        String url = pre_url_api+"doctors_app_schedule/getDocWithSchedule?pdate="+selected_date+"&depts_id="+id+"&deptd_id="+selected_deptd_id;
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest apptDataReq = new StringRequest(Request.Method.GET, url, response -> {
@@ -988,6 +1055,13 @@ public class AllAppointment extends AppCompatActivity {
                                 .equals("null") ? "" :apptDataInfo.getString("doc_code");
                         String app_count = apptDataInfo.getString("app_count")
                                 .equals("null") ? "" :apptDataInfo.getString("app_count");
+                        String tot_count = apptDataInfo.getString("tot_count")
+                                .equals("null") ? "0" :apptDataInfo.getString("tot_count");
+                        String busy_count = apptDataInfo.getString("busy_count")
+                                .equals("null") ? "0" :apptDataInfo.getString("busy_count");
+
+                        int bc = Integer.parseInt(tot_count) - (Integer.parseInt(app_count) + Integer.parseInt(busy_count));
+                        String blank_count = String.valueOf(bc);
 
                         String app_list = apptDataInfo.getString("app_list");
                         JSONArray array1 = new JSONArray(app_list);
@@ -1042,7 +1116,7 @@ public class AllAppointment extends AppCompatActivity {
                         }
 
                         doc_name = doc_name +" ("+doc_code+")";
-                        unitDoctorsLists.add(new UnitDoctorsList(doc_id,doc_name,doc_code,app_count,doctorAppSchLists));
+                        unitDoctorsLists.add(new UnitDoctorsList(doc_id,doc_name,doc_code,app_count,blank_count,doctorAppSchLists));
                         choiceDoctorLists.add(new ChoiceDoctorList(doc_id,doc_name));
                     }
                 }
@@ -1083,6 +1157,13 @@ public class AllAppointment extends AppCompatActivity {
 
                         deptd_count = apptDataInfo.getString("deptd_sch_count")
                                 .equals("null") ? "0" :apptDataInfo.getString("deptd_sch_count");
+                        String deptd_tot_count = apptDataInfo.getString("deptd_tot_count")
+                                .equals("null") ? "0" :apptDataInfo.getString("deptd_tot_count");
+                        String deptd_busy_count = apptDataInfo.getString("deptd_busy_count")
+                                .equals("null") ? "0" :apptDataInfo.getString("deptd_busy_count");
+
+                        deptd_sch_count = Integer.parseInt(deptd_count);
+                        deptd_blank_count = Integer.parseInt(deptd_tot_count) - (deptd_sch_count + Integer.parseInt(deptd_busy_count));
                     }
                 }
                 requestQueue.add(apptDataReq);
@@ -1135,10 +1216,10 @@ public class AllAppointment extends AppCompatActivity {
                 conn = false;
                 connected = false;
 
-                if (fromCalendar) {
-                    String tt = "  " + deptd_count;
-                    deptdSchCount.setText(tt);
-                }
+//                if (fromCalendar) {
+//                    String tt = "  " + deptd_count;
+//                    deptdSchCount.setText(tt);
+//                }
 
                 fromCalendar = false;
 
@@ -1156,18 +1237,22 @@ public class AllAppointment extends AppCompatActivity {
                     noDocsMess.setText(no_doc_msg);
                     noDocsMess.setVisibility(View.VISIBLE);
                     unitDocCount.setText("  0");
-                    unitSchCount.setText("  0");
+//                    unitSchCount.setText("  0");
+                    unit_sch_count = 0;
+                    unit_blank_count = 0;
                 }
                 else {
                     noDocsMess.setVisibility(View.GONE);
                     String udc = "  " + unitDoctorsLists.size();
                     unitDocCount.setText(udc);
-                    int cc = 0;
+                    unit_sch_count = 0;
+                    unit_blank_count = 0;
                     for (int i = 0; i < unitDoctorsLists.size(); i++) {
-                        cc = cc + Integer.parseInt(unitDoctorsLists.get(i).getApp_count());
+                        unit_sch_count = unit_sch_count + Integer.parseInt(unitDoctorsLists.get(i).getApp_count());
+                        unit_blank_count = unit_blank_count + Integer.parseInt(unitDoctorsLists.get(i).getBlank_count());
                     }
-                    String usc = "  "+ cc;
-                    unitSchCount.setText(usc);
+//                    String usc = "  "+ cc;
+//                    unitSchCount.setText(usc);
                 }
                 doctorsListAdapter = new DoctorsListAdapter(unitDoctorsLists,AllAppointment.this);
                 docListView.setAdapter(doctorsListAdapter);

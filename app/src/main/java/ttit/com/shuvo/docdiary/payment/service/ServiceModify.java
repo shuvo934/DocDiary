@@ -465,7 +465,7 @@ public class ServiceModify extends AppCompatActivity {
             if (!pfn_id.isEmpty()) {
                 if (!depts_id.isEmpty()) {
                     if (!service_rate.isEmpty()) {
-                        if (!service_rate.equals("0")) {
+//                        if (!service_rate.equals("0")) {
                             if (!service_qty.isEmpty()) {
                                 if (!service_qty.startsWith("0")) {
                                     if (!service_amount.isEmpty()) {
@@ -534,11 +534,11 @@ public class ServiceModify extends AppCompatActivity {
                                 serviceQtyMissing.setText("Please Provide Quantity");
                                 serviceQtyMissing.setVisibility(View.VISIBLE);
                             }
-                        }
-                        else {
-                            serviceRateMissing.setText("Invalid Rate. Select Unit Again");
-                            serviceRateMissing.setVisibility(View.VISIBLE);
-                        }
+//                        }
+//                        else {
+//                            serviceRateMissing.setText("Invalid Rate. Select Unit Again");
+//                            serviceRateMissing.setVisibility(View.VISIBLE);
+//                        }
                     }
                     else {
                         serviceRateMissing.setVisibility(View.VISIBLE);
@@ -562,7 +562,7 @@ public class ServiceModify extends AppCompatActivity {
             if (!pfn_id.isEmpty()) {
                 if (!depts_id.isEmpty()) {
                     if (!service_rate.isEmpty()) {
-                        if (!service_rate.equals("0")) {
+//                        if (!service_rate.equals("0")) {
                             if (!service_qty.isEmpty()) {
                                 if (!service_qty.startsWith("0")) {
                                     if (!service_amount.isEmpty()) {
@@ -624,11 +624,11 @@ public class ServiceModify extends AppCompatActivity {
                                 serviceQtyMissing.setText("Please Provide Quantity");
                                 serviceQtyMissing.setVisibility(View.VISIBLE);
                             }
-                        }
-                        else {
-                            serviceRateMissing.setText("Invalid Rate. Select Unit Again");
-                            serviceRateMissing.setVisibility(View.VISIBLE);
-                        }
+//                        }
+//                        else {
+//                            serviceRateMissing.setText("Invalid Rate. Select Unit Again");
+//                            serviceRateMissing.setVisibility(View.VISIBLE);
+//                        }
                     }
                     else {
                         serviceRateMissing.setVisibility(View.VISIBLE);
@@ -1148,13 +1148,14 @@ public class ServiceModify extends AppCompatActivity {
                 connected = false;
 
                 serviceRate.setText(service_rate);
-                if (service_rate.equals("0")) {
-                    serviceRateMissing.setText("Invalid Rate. Select Unit Again");
-                    serviceRateMissing.setVisibility(View.VISIBLE);
-                }
-                else {
-                    serviceRateMissing.setVisibility(View.GONE);
-                }
+//                if (service_rate.equals("0")) {
+//                    serviceRateMissing.setText("Invalid Rate. Select Unit Again");
+//                    serviceRateMissing.setVisibility(View.VISIBLE);
+//                }
+//                else {
+//                    serviceRateMissing.setVisibility(View.GONE);
+//                }
+                serviceRateMissing.setVisibility(View.GONE);
 
                 if (!service_qty.isEmpty() && isNumeric(service_qty)) {
                     int qty = Integer.parseInt(service_qty);

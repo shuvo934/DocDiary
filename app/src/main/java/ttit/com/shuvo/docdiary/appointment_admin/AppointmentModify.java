@@ -1714,7 +1714,7 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
                 else {
                     MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AppointmentModify.this);
                     alertDialogBuilder.setTitle("Success!")
-                            .setMessage("Appointment added successfully.")
+                            .setMessage("Appointment saved successfully.")
                             .setPositiveButton("Ok", (dialog, which) -> {
                                 dialog.dismiss();
                                 addScheduleButton.setVisibility(View.VISIBLE);

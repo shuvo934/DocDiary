@@ -13,4 +13,5 @@
     <string name="add_payment">Payment</string>
     <string name="pat_search_admin">Patient Search</string>
     <string name="appointment_modify_bar_name">Appointment</string>
+    <string name="report_mang_bar_name">Report Manager</string>
 </resources>

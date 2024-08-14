@@ -167,20 +167,64 @@
                         android:layout_marginBottom="@dimen/_4sdp"
                         tools:ignore="HardcodedText" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/all_doctor_appointment_button"
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="end"
-                        android:text="All Appointment"
-                        android:fontFamily="@font/open_sans_bold"
-                        app:cornerRadius="@dimen/_15sdp"
-                        android:textSize="@dimen/_8sdp"
-                        android:elevation="5dp"
-                        android:layout_marginTop="@dimen/_6sdp"
-                        android:layout_marginEnd="@dimen/_4sdp"
-                        android:layout_marginBottom="@dimen/_4sdp"
-                        tools:ignore="HardcodedText" />
+                        android:orientation="horizontal"
+                        android:weightSum="10"
+                        android:baselineAligned="false">
+
+                        <RelativeLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/doctor_report_manager_button"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:layout_centerVertical="true"
+                                android:layout_alignParentStart="true"
+                                android:text="Report Manager"
+                                android:fontFamily="@font/open_sans_bold"
+                                app:cornerRadius="@dimen/_15sdp"
+                                android:textSize="@dimen/_8sdp"
+                                android:elevation="5dp"
+                                android:layout_marginStart="@dimen/_3sdp"
+                                android:layout_marginTop="@dimen/_6sdp"
+                                android:layout_marginEnd="@dimen/_4sdp"
+                                android:layout_marginBottom="@dimen/_4sdp"
+                                tools:ignore="HardcodedText" />
+
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="5">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/all_doctor_appointment_button"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:layout_centerVertical="true"
+                                android:layout_alignParentEnd="true"
+                                android:text="All Appointment"
+                                android:fontFamily="@font/open_sans_bold"
+                                app:cornerRadius="@dimen/_15sdp"
+                                android:textSize="@dimen/_8sdp"
+                                android:elevation="5dp"
+                                android:layout_marginStart="@dimen/_3sdp"
+                                android:layout_marginTop="@dimen/_6sdp"
+                                android:layout_marginEnd="@dimen/_4sdp"
+                                android:layout_marginBottom="@dimen/_4sdp"
+                                tools:ignore="HardcodedText" />
+
+                        </RelativeLayout>
+
+                    </LinearLayout>
 
                     <androidx.cardview.widget.CardView
                         android:id="@+id/next_meeting_progressbar_details_card_view"

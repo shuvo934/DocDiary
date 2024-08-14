@@ -101,6 +101,7 @@ import ttit.com.shuvo.docdiary.login.arraylists.CenterList;
 import ttit.com.shuvo.docdiary.login.arraylists.MultipleUserList;
 import ttit.com.shuvo.docdiary.patient_search.PatientSearch;
 import ttit.com.shuvo.docdiary.profile.DocProfile;
+import ttit.com.shuvo.docdiary.report_manager.ReportManager;
 import ttit.com.shuvo.docdiary.unit_app_schedule.UnitWiseAppointment;
 
 public class DocDashboard extends AppCompatActivity implements CallBackListener, IDCallbackListener, AdminIDCallbackListener, AdminCallBackListener {
@@ -203,6 +204,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     ImageView docImage;
     MaterialButton unitDoctor;
     MaterialButton allDoctorAppointment;
+    MaterialButton doctorReports;
     ImageView switchUser;
     private boolean user_switch = false;
     ArrayList<CenterList> centerLists;
@@ -225,6 +227,9 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     TextView monthSelectionPayment;
     LinearLayout yearSelectionLayPayment;
     TextView yearSelectionPayment;
+    LinearLayout graphPaymentTotalLay;
+    TextView totalPaymentRcvGraph;
+    TextView totalPaymentRtnGraph;
     String paymentChartFirstDate = "";
     String paymentChartLastDate = "";
     CircularProgressIndicator paymentChartCircularProgressIndicator;
@@ -237,6 +242,9 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     TextView monthSelectionAppoint;
     LinearLayout yearSelectionLayAppoint;
     TextView yearSelectionAppoint;
+    LinearLayout graphAppointmentTotalLay;
+    TextView totalAppointmentGraph;
+    TextView totalCancelAppointmentGraph;
     String appointChartFirstDate = "";
     String appointChartLastDate = "";
     CircularProgressIndicator appointChartCircularProgressIndicator;
@@ -270,6 +278,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
         unitDoctor = findViewById(R.id.unit_wise_doctor_button);
         allDoctorAppointment = findViewById(R.id.all_doctor_appointment_button);
+        doctorReports = findViewById(R.id.doctor_report_manager_button);
 
         meetingTime = findViewById(R.id.next_meeting_time_dashboard);
 
@@ -307,6 +316,10 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         yearSelectionLayPayment = findViewById(R.id.year_selection_layout_for_payment_graph);
         yearSelectionPayment = findViewById(R.id.select_year_for_payment_graph);
         yearSelectionLayPayment.setVisibility(View.GONE);
+        graphPaymentTotalLay = findViewById(R.id.total_graph_payment_lay);
+        graphPaymentTotalLay.setVisibility(View.GONE);
+        totalPaymentRcvGraph = findViewById(R.id.total_payment_rcv_from_payment_graph);
+        totalPaymentRtnGraph = findViewById(R.id.total_payment_rtn_from_payment_graph);
         paymentChart = findViewById(R.id.payment_rcv_rtn_overview_linechart);
         paymentChartCircularProgressIndicator = findViewById(R.id.progress_indicator_for_payment_chart_loading);
         paymentChartCircularProgressIndicator.setVisibility(View.GONE);
@@ -318,6 +331,10 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         yearSelectionLayAppoint = findViewById(R.id.year_selection_layout_for_appointment_graph);
         yearSelectionAppoint = findViewById(R.id.select_year_for_appointment_graph);
         yearSelectionLayAppoint.setVisibility(View.GONE);
+        graphAppointmentTotalLay = findViewById(R.id.total_graph_appointment_lay);
+        graphAppointmentTotalLay.setVisibility(View.GONE);
+        totalAppointmentGraph = findViewById(R.id.total_appointment_from_appointment_graph);
+        totalCancelAppointmentGraph = findViewById(R.id.total_cancel_appointment_from_appointment_graph);
         appointmentChart = findViewById(R.id.appointment_active_cancel_overview_linechart);
         appointChartCircularProgressIndicator = findViewById(R.id.progress_indicator_for_appointment_chart_loading);
         appointChartCircularProgressIndicator.setVisibility(View.GONE);
@@ -609,35 +626,51 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             getChartData();
         });
 
-        Calendar today = Calendar.getInstance();
-        Date c = Calendar.getInstance().getTime();
-        SimpleDateFormat df = new SimpleDateFormat("yyyy", Locale.ENGLISH);
+        yearSelectionPayment.setOnClickListener(v -> {
+            Calendar today = Calendar.getInstance();
+            Date c = Calendar.getInstance().getTime();
+            Date d = Calendar.getInstance().getTime();
+            SimpleDateFormat df = new SimpleDateFormat("yyyy", Locale.ENGLISH);
 
-        MonthPickerDialog.Builder builder = new MonthPickerDialog.Builder(DocDashboard.this, (selectedMonth, selectedYear) -> {
-            System.out.println("Selected Year: "+selectedYear);
-            String ms = "YEAR: " + selectedYear;
-            yearSelectionPayment.setText(ms);
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy",Locale.ENGLISH);
+            if (!paymentChartFirstDate.isEmpty()) {
+                Date date = null;
+                try {
+                    date = simpleDateFormat.parse(paymentChartFirstDate);
+                }
+                catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                if (date != null) {
+                    d = date;
+                }
+            }
 
-            String short_year = String.valueOf(selectedYear).substring(String.valueOf(selectedYear).length()-2);
-            paymentChartFirstDate = "01-JAN-"+short_year;
-            paymentChartLastDate = "31-DEC-"+short_year;
+            MonthPickerDialog.Builder builder = new MonthPickerDialog.Builder(DocDashboard.this, (selectedMonth, selectedYear) -> {
+                System.out.println("Selected Year: "+selectedYear);
+                String ms = "YEAR: " + selectedYear;
+                yearSelectionPayment.setText(ms);
 
-            chartTabPosition = 1;
-            getPaymentChart();
+                String short_year = String.valueOf(selectedYear).substring(String.valueOf(selectedYear).length()-2);
+                paymentChartFirstDate = "01-JAN-"+short_year;
+                paymentChartLastDate = "31-DEC-"+short_year;
 
-        },today.get(Calendar.YEAR),today.get(Calendar.MONTH));
+                chartTabPosition = 1;
+                getPaymentChart();
 
-        builder.setActivatedYear(Integer.parseInt(df.format(c)))
-                .setMinYear(Integer.parseInt(df.format(c))-10)
-                .setMaxYear(Integer.parseInt(df.format(c)))
-                .showYearOnly()
-                .setTitle("Selected Year")
-                .setOnYearChangedListener(year1 -> {
-                });
+            },today.get(Calendar.YEAR),today.get(Calendar.MONTH));
 
-        yearDialogPayment = builder.build();
+            builder.setActivatedYear(Integer.parseInt(df.format(d)))
+                    .setMinYear(Integer.parseInt(df.format(c))-10)
+                    .setMaxYear(Integer.parseInt(df.format(c)))
+                    .showYearOnly()
+                    .setTitle("Selected Year")
+                    .setOnYearChangedListener(year1 -> {
+                    });
 
-        yearSelectionPayment.setOnClickListener(v -> yearDialogPayment.show());
+            yearDialogPayment = builder.build();
+            yearDialogPayment.show();
+        });
 
         paymentChartRefresh.setOnClickListener(v -> {
             getPaymentChart();
@@ -690,6 +723,20 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             String customTitle = "Select Month";
 
             Calendar calendar = Calendar.getInstance();
+            if (!paymentChartFirstDate.isEmpty()) {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
+                Date date = null;
+                try {
+                    date = simpleDateFormat.parse(paymentChartFirstDate);
+                }
+                catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+                if (date != null) {
+                    calendar.setTime(date);
+                }
+            }
             yearSelected = calendar.get(Calendar.YEAR);
             monthSelected = calendar.get(Calendar.MONTH);
             calendar.clear();
@@ -760,7 +807,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 String ms = "MONTH: " + mon+"-"+yearName;
                 monthSelectionPayment.setText(ms);
 
-                SimpleDateFormat sss = new SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH);
+                SimpleDateFormat sss = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
 
                 Date today11 = null;
                 try {
@@ -789,31 +836,51 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
         });
 
-        MonthPickerDialog.Builder appBuilder = new MonthPickerDialog.Builder(DocDashboard.this, (selectedMonth, selectedYear) -> {
-            System.out.println("Selected Year: "+selectedYear);
-            String ms = "YEAR: " + selectedYear;
-            yearSelectionAppoint.setText(ms);
+        yearSelectionAppoint.setOnClickListener(v -> {
+            Calendar today = Calendar.getInstance();
+            Date c = Calendar.getInstance().getTime();
+            Date d = Calendar.getInstance().getTime();
+            SimpleDateFormat df = new SimpleDateFormat("yyyy", Locale.ENGLISH);
 
-            String short_year = String.valueOf(selectedYear).substring(String.valueOf(selectedYear).length()-2);
-            appointChartFirstDate = "01-JAN-"+short_year;
-            appointChartLastDate = "31-DEC-"+short_year;
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy",Locale.ENGLISH);
+            if (!appointChartFirstDate.isEmpty()) {
+                Date date = null;
+                try {
+                    date = simpleDateFormat.parse(appointChartFirstDate);
+                }
+                catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                if (date != null) {
+                    d = date;
+                }
+            }
 
-            chartTabPosition = 1;
-            getAppointmentChart();
+            MonthPickerDialog.Builder appBuilder = new MonthPickerDialog.Builder(DocDashboard.this, (selectedMonth, selectedYear) -> {
+                System.out.println("Selected Year: "+selectedYear);
+                String ms = "YEAR: " + selectedYear;
+                yearSelectionAppoint.setText(ms);
 
-        },today.get(Calendar.YEAR),today.get(Calendar.MONTH));
+                String short_year = String.valueOf(selectedYear).substring(String.valueOf(selectedYear).length()-2);
+                appointChartFirstDate = "01-JAN-"+short_year;
+                appointChartLastDate = "31-DEC-"+short_year;
 
-        appBuilder.setActivatedYear(Integer.parseInt(df.format(c)))
-                .setMinYear(Integer.parseInt(df.format(c))-10)
-                .setMaxYear(Integer.parseInt(df.format(c)))
-                .showYearOnly()
-                .setTitle("Selected Year")
-                .setOnYearChangedListener(year1 -> {
-                });
+                chartTabPosition = 1;
+                getAppointmentChart();
 
-        yearDialogAppoint = appBuilder.build();
+            },today.get(Calendar.YEAR),today.get(Calendar.MONTH));
 
-        yearSelectionAppoint.setOnClickListener(v -> yearDialogAppoint.show());
+            appBuilder.setActivatedYear(Integer.parseInt(df.format(d)))
+                    .setMinYear(Integer.parseInt(df.format(c))-10)
+                    .setMaxYear(Integer.parseInt(df.format(c)))
+                    .showYearOnly()
+                    .setTitle("Selected Year")
+                    .setOnYearChangedListener(year1 -> {
+                    });
+
+            yearDialogAppoint = appBuilder.build();
+            yearDialogAppoint.show();
+        });
 
         appointChartRefresh.setOnClickListener(v -> {
             getAppointmentChart();
@@ -868,6 +935,20 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             String customTitle = "Select Month";
 
             Calendar calendar = Calendar.getInstance();
+            if (!appointChartFirstDate.isEmpty()) {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
+                Date date = null;
+                try {
+                    date = simpleDateFormat.parse(appointChartFirstDate);
+                }
+                catch (ParseException e) {
+                    e.printStackTrace();
+                }
+
+                if (date != null) {
+                    calendar.setTime(date);
+                }
+            }
             yearSelected = calendar.get(Calendar.YEAR);
             monthSelected = calendar.get(Calendar.MONTH);
             calendar.clear();
@@ -938,7 +1019,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 String ms = "MONTH: " + mon+"-"+yearName;
                 monthSelectionAppoint.setText(ms);
 
-                SimpleDateFormat sss = new SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH);
+                SimpleDateFormat sss = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
 
                 Date today11 = null;
                 try {
@@ -997,6 +1078,10 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 Intent intent = new Intent(DocDashboard.this, AppointmentModify.class);
                 startActivity(intent);
             }
+            else if (item.getItemId() == R.id.admin_report_menu) {
+                Intent intent = new Intent(DocDashboard.this, ReportManager.class);
+                startActivity(intent);
+            }
             return true;
         });
 
@@ -1043,6 +1128,11 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         allDoctorAppointment.setOnClickListener(v -> {
             Intent intent = new Intent(DocDashboard.this, AllAppointment.class);
             intent.putExtra("ADMIN_USER_FLAG",admin_user_flag);
+            startActivity(intent);
+        });
+
+        doctorReports.setOnClickListener(v -> {
+            Intent intent = new Intent(DocDashboard.this, ReportManager.class);
             startActivity(intent);
         });
 
@@ -1614,14 +1704,15 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             }
         };
 
-        if (user_switch) {
-            requestQueue.add(flagUpdateReq);
-            System.out.println("USER SWITCHED");
-        }
-        else {
-            requestQueue.add(docDataReq);
-            System.out.println("USER NOT SWITCHED");
-        }
+//        if (user_switch) {
+//            requestQueue.add(flagUpdateReq);
+//            System.out.println("USER SWITCHED");
+//        }
+//        else {
+//            requestQueue.add(docDataReq);
+//            System.out.println("USER NOT SWITCHED");
+//        }
+        requestQueue.add(docDataReq);
     }
 
     public void loginLogInsert() {
@@ -2110,10 +2201,12 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                             }
                             if (doc_manager_flag.equals("1")) {
                                 allDoctorAppointment.setVisibility(View.VISIBLE);
+                                doctorReports.setVisibility(View.VISIBLE);
                                 unitDoctor.setVisibility(View.GONE);
                             }
                             else {
                                 allDoctorAppointment.setVisibility(View.GONE);
+                                doctorReports.setVisibility(View.GONE);
                                 if (doc_head_flag.equals("1")) {
                                     unitDoctor.setVisibility(View.VISIBLE);
                                 }
@@ -3099,14 +3192,15 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             }
         };
 
-        if (user_switch) {
-            requestQueue.add(adminFlagUpdateReq);
-            System.out.println("USER SWITCHED");
-        }
-        else {
-            requestQueue.add(adminDataReq);
-            System.out.println("USER NOT SWITCHED");
-        }
+//        if (user_switch) {
+//            requestQueue.add(adminFlagUpdateReq);
+//            System.out.println("USER SWITCHED");
+//        }
+//        else {
+//            requestQueue.add(adminDataReq);
+//            System.out.println("USER NOT SWITCHED");
+//        }
+        requestQueue.add(adminDataReq);
     }
 
     public void adminLoginLogInsert() {
@@ -3193,6 +3287,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         total_payment_amount = "";
 
         paymentChartLists = new ArrayList<>();
+        graphPaymentTotalLay.setVisibility(View.GONE);
         ArrayList<ILineDataSet> dataSets = new ArrayList<>();
         LineData data1 = new LineData(dataSets);
         paymentChart.setData(data1);
@@ -3204,6 +3299,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         paymentChart.fitScreen();
 
         appointmentChartLists = new ArrayList<>();
+        graphAppointmentTotalLay.setVisibility(View.GONE);
         ArrayList<ILineDataSet> dataSetsApp = new ArrayList<>();
         LineData data = new LineData(dataSetsApp);
         appointmentChart.setData(data);
@@ -3500,6 +3596,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                             unitDoctor.setVisibility(View.GONE);
                             allDoctorAppointment.setVisibility(View.GONE);
+                            doctorReports.setVisibility(View.GONE);
 
                             conn = false;
                             connected = false;
@@ -3586,6 +3683,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM-yy",Locale.getDefault());
                             monthSelectionLayPayment.setVisibility(View.VISIBLE);
                             yearSelectionLayPayment.setVisibility(View.GONE);
+                            graphPaymentTotalLay.setVisibility(View.VISIBLE);
                             Date dd = Calendar.getInstance().getTime();
                             String mo_name = simpleDateFormat.format(dd);
                             mo_name = mo_name.toUpperCase(Locale.ENGLISH);
@@ -3601,11 +3699,26 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                             ArrayList<Entry> returnValue = new ArrayList<>();
                             ArrayList<String> monthName = new ArrayList<>();
 
+                            double payment_rcv = 0.0;
+                            double payment_rtn = 0.0;
+
                             for (int i = 0; i < paymentChartLists.size(); i++) {
                                 amountValue.add(new Entry(i,Float.parseFloat(paymentChartLists.get(i).getPaymentAmount()), paymentChartLists.get(i).getId()));
                                 returnValue.add(new Entry(i,Float.parseFloat(paymentChartLists.get(i).getPatymentReturn()),paymentChartLists.get(i).getId()));
                                 monthName.add(paymentChartLists.get(i).getDateMonth());
+                                if (!paymentChartLists.get(i).getPaymentAmount().isEmpty()) {
+                                    payment_rcv = payment_rcv + Double.parseDouble(paymentChartLists.get(i).getPaymentAmount());
+                                }
+                                if (!paymentChartLists.get(i).getPatymentReturn().isEmpty()) {
+                                    payment_rtn = payment_rtn + Double.parseDouble(paymentChartLists.get(i).getPatymentReturn());
+                                }
                             }
+                            String prcv = formatter.format(payment_rcv);
+                            String prtn = formatter.format(payment_rtn);
+                            prcv = "৳ " + prcv ;
+                            prtn = "৳ " + prtn ;
+                            totalPaymentRcvGraph.setText(prcv);
+                            totalPaymentRtnGraph.setText(prtn);
 
                             paymentChart.animateXY(1000,1000);
 
@@ -3651,6 +3764,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                             monthSelectionLayAppoint.setVisibility(View.VISIBLE);
                             yearSelectionLayAppoint.setVisibility(View.GONE);
+                            graphAppointmentTotalLay.setVisibility(View.VISIBLE);
                             monthSelectionAppoint.setText(ms);
 
                             // Apointment Chart
@@ -3662,11 +3776,21 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                             ArrayList<Entry> cancelAppValue = new ArrayList<>();
                             ArrayList<String> dateMonthName = new ArrayList<>();
 
+                            int totapp = 0;
+                            int totcanapp = 0;
                             for (int i = 0; i < appointmentChartLists.size(); i++) {
                                 totalAppValue.add(new Entry(i,Float.parseFloat(appointmentChartLists.get(i).getTotal_app()), appointmentChartLists.get(i).getId()));
                                 cancelAppValue.add(new Entry(i,Float.parseFloat(appointmentChartLists.get(i).getCancel_app()),appointmentChartLists.get(i).getId()));
                                 dateMonthName.add(appointmentChartLists.get(i).getDateMonth());
+                                if (!appointmentChartLists.get(i).getTotal_app().isEmpty()) {
+                                    totapp = totapp + Integer.parseInt(appointmentChartLists.get(i).getTotal_app());
+                                }
+                                if (!appointmentChartLists.get(i).getCancel_app().isEmpty()) {
+                                    totcanapp = totcanapp + Integer.parseInt(appointmentChartLists.get(i).getCancel_app());
+                                }
                             }
+                            totalAppointmentGraph.setText(String.valueOf(totapp));
+                            totalCancelAppointmentGraph.setText(String.valueOf(totcanapp));
 
                             appointmentChart.animateXY(1000,1000);
 
@@ -3881,6 +4005,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                 unitDoctor.setVisibility(View.GONE);
                 allDoctorAppointment.setVisibility(View.GONE);
+                doctorReports.setVisibility(View.GONE);
 
                 conn = false;
                 connected = false;
@@ -3932,6 +4057,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM-yy",Locale.getDefault());
                 monthSelectionLayPayment.setVisibility(View.VISIBLE);
                 yearSelectionLayPayment.setVisibility(View.GONE);
+                graphPaymentTotalLay.setVisibility(View.VISIBLE);
                 Date dd = Calendar.getInstance().getTime();
                 String mo_name = simpleDateFormat.format(dd);
                 mo_name = mo_name.toUpperCase(Locale.ENGLISH);
@@ -3947,11 +4073,26 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 ArrayList<Entry> returnValue = new ArrayList<>();
                 ArrayList<String> monthName = new ArrayList<>();
 
+                double payment_rcv = 0.0;
+                double payment_rtn = 0.0;
+
                 for (int i = 0; i < paymentChartLists.size(); i++) {
                     amountValue.add(new Entry(i,Float.parseFloat(paymentChartLists.get(i).getPaymentAmount()), paymentChartLists.get(i).getId()));
                     returnValue.add(new Entry(i,Float.parseFloat(paymentChartLists.get(i).getPatymentReturn()),paymentChartLists.get(i).getId()));
                     monthName.add(paymentChartLists.get(i).getDateMonth());
+                    if (!paymentChartLists.get(i).getPaymentAmount().isEmpty()) {
+                        payment_rcv = payment_rcv + Double.parseDouble(paymentChartLists.get(i).getPaymentAmount());
+                    }
+                    if (!paymentChartLists.get(i).getPatymentReturn().isEmpty()) {
+                        payment_rtn = payment_rtn + Double.parseDouble(paymentChartLists.get(i).getPatymentReturn());
+                    }
                 }
+                String prcv = formatter.format(payment_rcv);
+                String prtn = formatter.format(payment_rtn);
+                prcv = "৳ " + prcv ;
+                prtn = "৳ " + prtn ;
+                totalPaymentRcvGraph.setText(prcv);
+                totalPaymentRtnGraph.setText(prtn);
 
                 paymentChart.animateXY(1000,1000);
 
@@ -4005,6 +4146,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                 monthSelectionLayAppoint.setVisibility(View.VISIBLE);
                 yearSelectionLayAppoint.setVisibility(View.GONE);
+                graphAppointmentTotalLay.setVisibility(View.VISIBLE);
                 monthSelectionAppoint.setText(ms);
 
                 // Apointment Chart
@@ -4016,11 +4158,21 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 ArrayList<Entry> cancelAppValue = new ArrayList<>();
                 ArrayList<String> dateMonthName = new ArrayList<>();
 
+                int totapp = 0;
+                int totcanapp = 0;
                 for (int i = 0; i < appointmentChartLists.size(); i++) {
                     totalAppValue.add(new Entry(i,Float.parseFloat(appointmentChartLists.get(i).getTotal_app()), appointmentChartLists.get(i).getId()));
                     cancelAppValue.add(new Entry(i,Float.parseFloat(appointmentChartLists.get(i).getCancel_app()),appointmentChartLists.get(i).getId()));
                     dateMonthName.add(appointmentChartLists.get(i).getDateMonth());
+                    if (!appointmentChartLists.get(i).getTotal_app().isEmpty()) {
+                        totapp = totapp + Integer.parseInt(appointmentChartLists.get(i).getTotal_app());
+                    }
+                    if (!appointmentChartLists.get(i).getCancel_app().isEmpty()) {
+                        totcanapp = totcanapp + Integer.parseInt(appointmentChartLists.get(i).getCancel_app());
+                    }
                 }
+                totalAppointmentGraph.setText(String.valueOf(totapp));
+                totalCancelAppointmentGraph.setText(String.valueOf(totcanapp));
 
                 appointmentChart.animateXY(1000,1000);
 
@@ -4264,6 +4416,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         loading = true;
 
         paymentChartLists = new ArrayList<>();
+        graphPaymentTotalLay.setVisibility(View.GONE);
         ArrayList<ILineDataSet> dataSets = new ArrayList<>();
         LineData data1 = new LineData(dataSets);
         paymentChart.setData(data1);
@@ -4275,6 +4428,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         paymentChart.fitScreen();
 
         appointmentChartLists = new ArrayList<>();
+        graphAppointmentTotalLay.setVisibility(View.GONE);
         ArrayList<ILineDataSet> dataSetsApp = new ArrayList<>();
         LineData data = new LineData(dataSetsApp);
         appointmentChart.setData(data);
@@ -4473,6 +4627,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 paymentChartRefresh.setVisibility(View.GONE);
                 appointChartCircularProgressIndicator.setVisibility(View.GONE);
                 appointChartRefresh.setVisibility(View.GONE);
+                graphPaymentTotalLay.setVisibility(View.VISIBLE);
+                graphAppointmentTotalLay.setVisibility(View.VISIBLE);
                 conn = false;
                 connected = false;
 
@@ -4484,11 +4640,27 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 ArrayList<Entry> returnValue = new ArrayList<>();
                 ArrayList<String> monthName = new ArrayList<>();
 
+                DecimalFormat formatter = new DecimalFormat("###,##,##,###");
+                double payment_rcv = 0.0;
+                double payment_rtn = 0.0;
+
                 for (int i = 0; i < paymentChartLists.size(); i++) {
                     amountValue.add(new Entry(i,Float.parseFloat(paymentChartLists.get(i).getPaymentAmount()), paymentChartLists.get(i).getId()));
                     returnValue.add(new Entry(i,Float.parseFloat(paymentChartLists.get(i).getPatymentReturn()),paymentChartLists.get(i).getId()));
                     monthName.add(paymentChartLists.get(i).getDateMonth());
+                    if (!paymentChartLists.get(i).getPaymentAmount().isEmpty()) {
+                        payment_rcv = payment_rcv + Double.parseDouble(paymentChartLists.get(i).getPaymentAmount());
+                    }
+                    if (!paymentChartLists.get(i).getPatymentReturn().isEmpty()) {
+                        payment_rtn = payment_rtn + Double.parseDouble(paymentChartLists.get(i).getPatymentReturn());
+                    }
                 }
+                String prcv = formatter.format(payment_rcv);
+                String prtn = formatter.format(payment_rtn);
+                prcv = "৳ " + prcv ;
+                prtn = "৳ " + prtn ;
+                totalPaymentRcvGraph.setText(prcv);
+                totalPaymentRtnGraph.setText(prtn);
 
                 paymentChart.animateXY(1000,1000);
 
@@ -4547,11 +4719,21 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 ArrayList<Entry> cancelAppValue = new ArrayList<>();
                 ArrayList<String> dateMonthName = new ArrayList<>();
 
+                int totapp = 0;
+                int totcanapp = 0;
                 for (int i = 0; i < appointmentChartLists.size(); i++) {
                     totalAppValue.add(new Entry(i,Float.parseFloat(appointmentChartLists.get(i).getTotal_app()), appointmentChartLists.get(i).getId()));
                     cancelAppValue.add(new Entry(i,Float.parseFloat(appointmentChartLists.get(i).getCancel_app()),appointmentChartLists.get(i).getId()));
                     dateMonthName.add(appointmentChartLists.get(i).getDateMonth());
+                    if (!appointmentChartLists.get(i).getTotal_app().isEmpty()) {
+                        totapp = totapp + Integer.parseInt(appointmentChartLists.get(i).getTotal_app());
+                    }
+                    if (!appointmentChartLists.get(i).getCancel_app().isEmpty()) {
+                        totcanapp = totcanapp + Integer.parseInt(appointmentChartLists.get(i).getCancel_app());
+                    }
                 }
+                totalAppointmentGraph.setText(String.valueOf(totapp));
+                totalCancelAppointmentGraph.setText(String.valueOf(totcanapp));
 
                 appointmentChart.animateXY(1000,1000);
 
@@ -4659,6 +4841,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         loading = true;
 
         paymentChartLists = new ArrayList<>();
+        graphPaymentTotalLay.setVisibility(View.GONE);
         ArrayList<ILineDataSet> dataSets = new ArrayList<>();
         LineData data1 = new LineData(dataSets);
         paymentChart.setData(data1);
@@ -4778,6 +4961,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                 paymentChartCircularProgressIndicator.setVisibility(View.GONE);
                 paymentChartRefresh.setVisibility(View.GONE);
+                graphPaymentTotalLay.setVisibility(View.VISIBLE);
 
                 conn = false;
                 connected = false;
@@ -4790,11 +4974,27 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 ArrayList<Entry> returnValue = new ArrayList<>();
                 ArrayList<String> monthName = new ArrayList<>();
 
+                DecimalFormat formatter = new DecimalFormat("###,##,##,###");
+                double payment_rcv = 0.0;
+                double payment_rtn = 0.0;
+
                 for (int i = 0; i < paymentChartLists.size(); i++) {
                     amountValue.add(new Entry(i,Float.parseFloat(paymentChartLists.get(i).getPaymentAmount()), paymentChartLists.get(i).getId()));
                     returnValue.add(new Entry(i,Float.parseFloat(paymentChartLists.get(i).getPatymentReturn()),paymentChartLists.get(i).getId()));
                     monthName.add(paymentChartLists.get(i).getDateMonth());
+                    if (!paymentChartLists.get(i).getPaymentAmount().isEmpty()) {
+                        payment_rcv = payment_rcv + Double.parseDouble(paymentChartLists.get(i).getPaymentAmount());
+                    }
+                    if (!paymentChartLists.get(i).getPatymentReturn().isEmpty()) {
+                        payment_rtn = payment_rtn + Double.parseDouble(paymentChartLists.get(i).getPatymentReturn());
+                    }
                 }
+                String prcv = formatter.format(payment_rcv);
+                String prtn = formatter.format(payment_rtn);
+                prcv = "৳ " + prcv ;
+                prtn = "৳ " + prtn ;
+                totalPaymentRcvGraph.setText(prcv);
+                totalPaymentRtnGraph.setText(prtn);
 
                 paymentChart.animateXY(1000,1000);
 
@@ -4907,6 +5107,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         loading = true;
 
         appointmentChartLists = new ArrayList<>();
+        graphAppointmentTotalLay.setVisibility(View.GONE);
         ArrayList<ILineDataSet> dataSetsApp = new ArrayList<>();
         LineData data = new LineData(dataSetsApp);
         appointmentChart.setData(data);
@@ -5028,6 +5229,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                 appointChartCircularProgressIndicator.setVisibility(View.GONE);
                 appointChartRefresh.setVisibility(View.GONE);
+                graphAppointmentTotalLay.setVisibility(View.VISIBLE);
 
                 conn = false;
                 connected = false;
@@ -5040,11 +5242,21 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 ArrayList<Entry> cancelAppValue = new ArrayList<>();
                 ArrayList<String> dateMonthName = new ArrayList<>();
 
+                int totapp = 0;
+                int totcanapp = 0;
                 for (int i = 0; i < appointmentChartLists.size(); i++) {
                     totalAppValue.add(new Entry(i,Float.parseFloat(appointmentChartLists.get(i).getTotal_app()), appointmentChartLists.get(i).getId()));
                     cancelAppValue.add(new Entry(i,Float.parseFloat(appointmentChartLists.get(i).getCancel_app()),appointmentChartLists.get(i).getId()));
                     dateMonthName.add(appointmentChartLists.get(i).getDateMonth());
+                    if (!appointmentChartLists.get(i).getTotal_app().isEmpty()) {
+                        totapp = totapp + Integer.parseInt(appointmentChartLists.get(i).getTotal_app());
+                    }
+                    if (!appointmentChartLists.get(i).getCancel_app().isEmpty()) {
+                        totcanapp = totcanapp + Integer.parseInt(appointmentChartLists.get(i).getCancel_app());
+                    }
                 }
+                totalAppointmentGraph.setText(String.valueOf(totapp));
+                totalCancelAppointmentGraph.setText(String.valueOf(totcanapp));
 
                 appointmentChart.animateXY(1000,1000);
 

@@ -7,13 +7,15 @@ public class UnitDoctorsList {
     private String doc_name;
     private String doc_code;
     private String app_count;
+    private String blank_count;
     private ArrayList<DoctorAppSchList> doctorAppSchLists;
 
-    public UnitDoctorsList(String doc_id, String doc_name, String doc_code, String app_count, ArrayList<DoctorAppSchList> doctorAppSchLists) {
+    public UnitDoctorsList(String doc_id, String doc_name, String doc_code, String app_count, String blank_count, ArrayList<DoctorAppSchList> doctorAppSchLists) {
         this.doc_id = doc_id;
         this.doc_name = doc_name;
         this.doc_code = doc_code;
         this.app_count = app_count;
+        this.blank_count = blank_count;
         this.doctorAppSchLists = doctorAppSchLists;
     }
 
@@ -55,5 +57,13 @@ public class UnitDoctorsList {
 
     public void setApp_count(String app_count) {
         this.app_count = app_count;
+    }
+
+    public String getBlank_count() {
+        return blank_count;
+    }
+
+    public void setBlank_count(String blank_count) {
+        this.blank_count = blank_count;
     }
 }

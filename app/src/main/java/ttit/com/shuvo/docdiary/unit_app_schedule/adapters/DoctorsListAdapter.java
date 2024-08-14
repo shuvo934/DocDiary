@@ -39,6 +39,8 @@ public class DoctorsListAdapter extends RecyclerView.Adapter<DoctorsListAdapter.
         holder.docName.setText(unitDoctorsList.getDoc_name());
         String app_text = "Total Appointment:  " + unitDoctorsList.getApp_count();
         holder.appCount.setText(app_text);
+        String bl_text = "Total Blank Schedule:  " + unitDoctorsList.getBlank_count();
+        holder.blankCount.setText(bl_text);
 
         ArrayList<DoctorAppSchList> doctorAppSchLists = unitDoctorsList.getDoctorAppSchLists();
 
@@ -79,12 +81,14 @@ public class DoctorsListAdapter extends RecyclerView.Adapter<DoctorsListAdapter.
     public static class DLHolder extends RecyclerView.ViewHolder {
         TextView docName;
         TextView appCount;
+        TextView blankCount;
         TextView noSchFound;
         RecyclerView recyclerView;
         public DLHolder(@NonNull View itemView) {
             super(itemView);
             docName = itemView.findViewById(R.id.doc_name_unit_wise);
             appCount = itemView.findViewById(R.id.doc_app_count_unit_wise);
+            blankCount = itemView.findViewById(R.id.doc_blank_count_unit_wise);
             noSchFound = itemView.findViewById(R.id.no_schedule_found_message_for_unit_wise_doctors);
             recyclerView = itemView.findViewById(R.id.doc_app_schedule_list_view);
         }

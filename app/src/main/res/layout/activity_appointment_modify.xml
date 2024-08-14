@@ -184,7 +184,7 @@
                             android:layout_weight="5"
                             android:background="@drawable/custom_button"
                             android:fontFamily="@font/poppins_bold"
-                            android:text="ADD APPOINTMENT"
+                            android:text="SAVE APPOINTMENT"
                             android:textColor="@color/white"
                             android:textSize="@dimen/_13sdp"
                             android:textStyle="bold"

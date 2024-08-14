@@ -4,14 +4,14 @@ plugins {
 
 android {
     namespace 'ttit.com.shuvo.docdiary'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "ttit.com.shuvo.docdiary"
         minSdk 23
-        targetSdk 33
-        versionCode 10
-        versionName "1.2.7"
+        targetSdk 34
+        versionCode 11
+        versionName "1.2.8"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -33,6 +33,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.5.0'
     implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.activity:activity:1.9.1'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
@@ -80,4 +81,8 @@ dependencies {
 
     // Date Picker
     implementation 'com.wdullaer:materialdatetimepicker:4.2.3'
+
+    // PDF Viewer
+    implementation 'com.github.barteksc:android-pdf-viewer:2.8.2'
+    implementation(platform("org.jetbrains.kotlin:kotlin-bom:1.8.0"))
 }
