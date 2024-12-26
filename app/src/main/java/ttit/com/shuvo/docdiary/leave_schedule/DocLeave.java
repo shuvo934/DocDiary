@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.StrictMode;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -24,7 +23,6 @@ import com.android.volley.toolbox.Volley;
 import com.applandeo.materialcalendarview.CalendarDay;
 import com.applandeo.materialcalendarview.CalendarView;
 import com.applandeo.materialcalendarview.CalendarWeekDay;
-import com.applandeo.materialcalendarview.EventDay;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.jakewharton.processphoenix.ProcessPhoenix;
@@ -40,6 +38,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.leave_schedule.adapters.TimeSchAdapter;
@@ -71,6 +71,7 @@ public class DocLeave extends AppCompatActivity {
 
     Calendar startDates;
     Calendar endDates;
+    Logger logger = Logger.getLogger(DocLeave.class.getName());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +88,7 @@ public class DocLeave extends AppCompatActivity {
             restart("Could Not Get Doctor Data. Please Restart the App.");
         }
         else {
-            if (userInfoLists.size() == 0) {
+            if (userInfoLists.isEmpty()) {
                 restart("Could Not Get Doctor Data. Please Restart the App.");
             }
             else {
@@ -270,7 +271,7 @@ public class DocLeave extends AppCompatActivity {
 //        leaveDays = new ArrayList<>();
         leaveCalenderValues = new ArrayList<>();
 
-        String timeUrl = pre_url_api+"leave_schedule/getTimeSchedule?doc_id="+doc_id+"&FIRST_MONTH="+first_month+"&LAST_MONTH="+last_month+"";
+        String timeUrl = pre_url_api+"leave_schedule/getTimeSchedule?doc_id="+doc_id+"&FIRST_MONTH="+first_month+"&LAST_MONTH="+last_month;
 //        String dayUrl = pre_url_api+"leave_schedule/getLeaveDays?doc_id="+doc_id+"&FIRST_MONTH="+first_month+"&LAST_MONTH="+last_month+"";
 
         RequestQueue requestQueue = Volley.newRequestQueue(DocLeave.this);
@@ -303,14 +304,14 @@ public class DocLeave extends AppCompatActivity {
 //            }
 //            catch (JSONException e) {
 //                connected = false;
-//                e.printStackTrace();
+//                logger.log(Level.WARNING,e.getMessage(),e);
 //                parsing_message = e.getLocalizedMessage();
 //                updateInterface();
 //            }
 //        }, error -> {
 //            conn = false;
 //            connected = false;
-//            error.printStackTrace();
+//            logger.log(Level.WARNING,error.getMessage(),error);
 //            parsing_message = error.getLocalizedMessage();
 //            updateInterface();
 //        });
@@ -356,14 +357,14 @@ public class DocLeave extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -414,7 +415,7 @@ public class DocLeave extends AppCompatActivity {
 //                        }
 //                    }
 
-                    if (leaveTimeSchedules.size() != 0) {
+                    if (!leaveTimeSchedules.isEmpty()) {
                         int z = 0;
                         Date insertedDate = null;
                         for (int i = 0; i < leaveTimeSchedules.size(); i++) {
@@ -422,7 +423,7 @@ public class DocLeave extends AppCompatActivity {
                                 z = 1;
                             }
                             String lad_date = leaveTimeSchedules.get(i).getLad_date();
-                            Date date = null;
+                            Date date;
                             try {
                                 date = dateFormat.parse(lad_date);
                             } catch (ParseException e) {
@@ -454,7 +455,7 @@ public class DocLeave extends AppCompatActivity {
 
                             for (int i = 0; i < leaveTimeSchedules.size(); i++) {
                                 String lad_date = leaveTimeSchedules.get(i).getLad_date();
-                                Date date = null;
+                                Date date;
                                 try {
                                     date = dateFormat.parse(lad_date);
                                 } catch (ParseException e) {
@@ -504,7 +505,7 @@ public class DocLeave extends AppCompatActivity {
 
                     SimpleDateFormat dayNameFormat3 = new SimpleDateFormat("EEE", Locale.ENGLISH);
                     do {
-                        String text = "";
+                        String text;
                         Calendar ddc = Calendar.getInstance();
                         if (testStartdates.getTime().equals(startDates.getTime())) {
                             text = dayNameFormat3.format(testStartdates.getTime());

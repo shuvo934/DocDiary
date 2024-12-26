@@ -2,7 +2,6 @@ package ttit.com.shuvo.docdiary.appt_schedule.prescription.adapters;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,17 +16,16 @@ import java.util.ArrayList;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.RefServiceModify;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.ReferralUnitModify;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.arraylists.PatReferralList;
 
 public class PatReferralUnitAdapter extends RecyclerView.Adapter<PatReferralUnitAdapter.PRUHolder> {
-    private ArrayList<PatReferralList> mCategory;
-    private Context mContext;
-    private Boolean conn = false;
-    private Boolean connected = false;
-
-    String parsing_message = "";
+    private final ArrayList<PatReferralList> mCategory;
+    private final Context mContext;
+//    private Boolean conn = false;
+//    private Boolean connected = false;
+//
+//    String parsing_message = "";
     private final ClickedItem2 myClickedItem2;
 
     public PatReferralUnitAdapter(ArrayList<PatReferralList> mCategory, Context mContext,ClickedItem2 cli) {

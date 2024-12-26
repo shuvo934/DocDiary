@@ -2,6 +2,7 @@ package ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo;
 
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
@@ -27,7 +28,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -45,11 +45,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.arraylists.ListOfComplains;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.arraylists.ClinicalFindingsList;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.arraylists.DrugNameList;
 
 public class ClinicalFindingsModify extends AppCompatActivity {
 
@@ -81,6 +81,9 @@ public class ClinicalFindingsModify extends AppCompatActivity {
     boolean selectedFromItems = false;
 
     String cf_id = "";
+
+    Logger logger = Logger.getLogger(ClinicalFindingsModify.class.getName());
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -181,22 +184,18 @@ public class ClinicalFindingsModify extends AppCompatActivity {
 
                         if (ss.isEmpty()) {
                             clFindingsMissing.setVisibility(View.VISIBLE);
-                            clFindingsMissing.setText("Please Select Clinical Findings");
+                            String cfmt = "Please Select Clinical Findings";
+                            clFindingsMissing.setText(cfmt);
                         }
                         else {
                             clFindingsMissing.setVisibility(View.VISIBLE);
-                            clFindingsMissing.setText("Invalid Clinical Findings");
+                            String cfmt = "Invalid Clinical Findings";
+                            clFindingsMissing.setText(cfmt);
                         }
                     }
-                    System.out.println(selectedFromItems);
-                    System.out.println("cfm_id: " + cfm_id);
-                    System.out.println("cfm_name: "+ cfm_name);
                 }
                 else {
                     selectedFromItems = false;
-                    System.out.println(selectedFromItems);
-                    System.out.println("cfm_id: " + cfm_id);
-                    System.out.println("cfm_name: "+ cfm_name);
                 }
             }
         });
@@ -233,7 +232,7 @@ public class ClinicalFindingsModify extends AppCompatActivity {
             return false;
         });
 
-        close.setOnClickListener(v -> onBackPressed());
+        close.setOnClickListener(v -> finish());
 
         modify.setOnClickListener(v -> {
             cf_details = Objects.requireNonNull(details.getText()).toString();
@@ -246,9 +245,7 @@ public class ClinicalFindingsModify extends AppCompatActivity {
                                 dialog.dismiss();
                                 addClinicalFindings();
                             })
-                            .setNegativeButton("No",(dialog, which) -> {
-                                dialog.dismiss();
-                            });
+                            .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
 
                     AlertDialog alert = alertDialogBuilder.create();
                     alert.show();
@@ -260,9 +257,7 @@ public class ClinicalFindingsModify extends AppCompatActivity {
                                 dialog.dismiss();
                                 updateClinicalFindings();
                             })
-                            .setNegativeButton("No",(dialog, which) -> {
-                                dialog.dismiss();
-                            });
+                            .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
 
                     AlertDialog alert = alertDialogBuilder.create();
                     alert.show();
@@ -271,6 +266,18 @@ public class ClinicalFindingsModify extends AppCompatActivity {
             else {
                 Toast.makeText(getApplicationContext(),"Please Provide Clinical Findings",Toast.LENGTH_SHORT).show();
                 clFindingsMissing.setVisibility(View.VISIBLE);
+            }
+        });
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (loading) {
+                    Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    finish();
+                }
             }
         });
 
@@ -283,15 +290,10 @@ public class ClinicalFindingsModify extends AppCompatActivity {
         return super.onTouchEvent(event);
     }
 
-    @Override
-    public void onBackPressed() {
-        if (loading) {
-            Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
-        }
-        else {
-            super.onBackPressed();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//
+//    }
 
     private void closeKeyBoard() {
         View view = getCurrentFocus();
@@ -311,7 +313,7 @@ public class ClinicalFindingsModify extends AppCompatActivity {
 
         clinicalFindingsLists = new ArrayList<>();
 
-        String clFindingsUrl = pre_url_api+"prescription/getClinicalFindings?pmm_id="+pmm_id+"";
+        String clFindingsUrl = pre_url_api+"prescription/getClinicalFindings?pmm_id="+pmm_id;
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest clFindingsReq = new StringRequest(Request.Method.GET, clFindingsUrl, response -> {
@@ -344,14 +346,14 @@ public class ClinicalFindingsModify extends AppCompatActivity {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -368,8 +370,9 @@ public class ClinicalFindingsModify extends AppCompatActivity {
                 conn = false;
                 connected = false;
 
-                if (clinicalFindingsLists.size() == 0) {
-                    clFindingsMissing.setText("No Clinical Findings Found");
+                if (clinicalFindingsLists.isEmpty()) {
+                    String cfmt = "No Clinical Findings Found";
+                    clFindingsMissing.setText(cfmt);
                     clFindingsMissing.setVisibility(View.VISIBLE);
                 }
                 else {
@@ -381,7 +384,7 @@ public class ClinicalFindingsModify extends AppCompatActivity {
                     type.add(clinicalFindingsLists.get(i).getCfm_name());
                 }
 
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(ClinicalFindingsModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(ClinicalFindingsModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
                 clFindings.setAdapter(arrayAdapter);
 
             }
@@ -451,19 +454,19 @@ public class ClinicalFindingsModify extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterAdd();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterAdd();
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_PMM_ID",pmm_id);
                 headers.put("P_CFM_ID",cfm_id);
@@ -522,9 +525,7 @@ public class ClinicalFindingsModify extends AppCompatActivity {
                     addClinicalFindings();
                     dialog.dismiss();
                 })
-                .setNegativeButton("Cancel",(dialog, which) -> {
-                    dialog.dismiss();
-                });
+                .setNegativeButton("Cancel",(dialog, which) -> dialog.dismiss());
 
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
@@ -560,19 +561,19 @@ public class ClinicalFindingsModify extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterUpdate();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterUpdate();
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_PMM_ID",pmm_id);
                 headers.put("P_CFM_ID",cfm_id);
@@ -620,9 +621,7 @@ public class ClinicalFindingsModify extends AppCompatActivity {
                     updateClinicalFindings();
                     dialog.dismiss();
                 })
-                .setNegativeButton("Cancel",(dialog, which) -> {
-                    dialog.dismiss();
-                });
+                .setNegativeButton("Cancel",(dialog, which) -> dialog.dismiss());
 
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);

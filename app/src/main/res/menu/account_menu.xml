@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="@string/cva_bar_name"
+        android:id="@+id/credit_voucher_approved"
+        android:icon="@drawable/credit_approved"/>
+    <item android:title="@string/dva_bar_name"
+        android:id="@+id/debit_voucher_approved"
+        android:icon="@drawable/debit_voucher_approved"/>
+    <item android:title="@string/jva_bar_name"
+        android:id="@+id/journal_voucher_approved"
+        android:icon="@drawable/journal_voucher_approved"/>
+    <item android:title="@string/vou_trans_bar_name"
+        android:id="@+id/voucher_transaction_acc_menu"
+        android:icon="@drawable/voucher_trans"/>
+    <item android:title="@string/inc_exp_bar_name"
+        android:id="@+id/income_expense_acc_menu"
+        android:icon="@drawable/income_expense"/>
+    <item android:title="@string/daily_state_bar_name"
+        android:id="@+id/daily_statement_acc_menu"
+        android:icon="@drawable/daily_statement"/>
+    <item android:title="@string/acc_ledger"
+        android:id="@+id/accnt_ledger_acc_menu"
+        android:icon="@drawable/account_ledger"/>
+</menu>

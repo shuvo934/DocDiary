@@ -2,6 +2,7 @@ package ttit.com.shuvo.docdiary.patient_search;
 
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -42,6 +43,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.patient_search.adapters.PatientSearchAdapter;
@@ -73,6 +76,8 @@ public class PatientSearch extends AppCompatActivity {
     private Boolean loading = false;
     String parsing_message = "";
 
+    Logger logger = Logger.getLogger(PatientSearch.class.getName());
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,7 +105,7 @@ public class PatientSearch extends AppCompatActivity {
         patientSearchLists = new ArrayList<>();
         filteredList = new ArrayList<>();
 
-        backButton.setOnClickListener(v -> onBackPressed());
+        backButton.setOnClickListener(v -> finish());
 
         Calendar today = Calendar.getInstance();
         today.get(Calendar.YEAR);
@@ -172,6 +177,18 @@ public class PatientSearch extends AppCompatActivity {
             return false;
         });
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (loading) {
+                    Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    finish();
+                }
+            }
+        });
+
         getData();
     }
 
@@ -184,7 +201,7 @@ public class PatientSearch extends AppCompatActivity {
                 }
             }
 
-            if (filteredList.size() == 0) {
+            if (filteredList.isEmpty()) {
                 noPatientFound.setVisibility(View.VISIBLE);
             }
             else {
@@ -226,15 +243,10 @@ public class PatientSearch extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        if (loading) {
-            Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
-        }
-        else {
-            super.onBackPressed();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//
+//    }
 
     public void getData() {
         fullLayout.setVisibility(View.GONE);
@@ -245,7 +257,7 @@ public class PatientSearch extends AppCompatActivity {
 
         patientSearchLists = new ArrayList<>();
 
-        String url = pre_url_api+"patient_search/getPatientList?p_year="+selected_year+"";
+        String url = pre_url_api+"patient_search/getPatientList?p_year="+selected_year;
 
         RequestQueue requestQueue = Volley.newRequestQueue(PatientSearch.this);
 
@@ -271,7 +283,8 @@ public class PatientSearch extends AppCompatActivity {
                     String pph_progress = docInfo.getString("pph_progress")
                             .equals("null") ? "0" : docInfo.getString("pph_progress");
 
-                    patientSearchLists.add(new PatientSearchList(pat_id,pat_name,dd_thana_name,ph_id,sub_code,pph_progress,""));
+                    patientSearchLists.add(new PatientSearchList(pat_id,pat_name,dd_thana_name,ph_id,sub_code,
+                            pph_progress,"","","1"));
                 }
 
                 connected = true;
@@ -279,14 +292,14 @@ public class PatientSearch extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -308,7 +321,7 @@ public class PatientSearch extends AppCompatActivity {
                 conn = false;
                 connected = false;
 
-                if (patientSearchLists.size() == 0) {
+                if (patientSearchLists.isEmpty()) {
                     noPatientFound.setVisibility(View.VISIBLE);
                 }
                 else {

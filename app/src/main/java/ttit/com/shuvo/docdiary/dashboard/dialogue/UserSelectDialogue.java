@@ -23,9 +23,8 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.login.AdminIDCallbackListener;
-import ttit.com.shuvo.docdiary.login.CloseCallBack;
-import ttit.com.shuvo.docdiary.login.IDCallbackListener;
+import ttit.com.shuvo.docdiary.login.interfaces.AdminIDCallbackListener;
+import ttit.com.shuvo.docdiary.login.interfaces.IDCallbackListener;
 import ttit.com.shuvo.docdiary.login.adapters.MultipleUserAdapter;
 import ttit.com.shuvo.docdiary.login.arraylists.CenterList;
 import ttit.com.shuvo.docdiary.login.arraylists.MultipleUserList;
@@ -97,6 +96,7 @@ public class UserSelectDialogue extends AppCompatDialogFragment implements Multi
 
         dialog.setCancelable(false);
         dialog.setCanceledOnTouchOutside(false);
+        setCancelable(false);
 
         centerName.setText(c_name);
         userIdView.setHasFixedSize(true);
@@ -106,9 +106,7 @@ public class UserSelectDialogue extends AppCompatDialogFragment implements Multi
         multipleUserAdapter = new MultipleUserAdapter(multipleUserLists,mContext,this);
         userIdView.setAdapter(multipleUserAdapter);
 
-        close.setOnClickListener(v -> {
-            dialog.dismiss();
-        });
+        close.setOnClickListener(v -> dialog.dismiss());
         return dialog;
     }
 

@@ -3,6 +3,7 @@ package ttit.com.shuvo.docdiary.payment.service;
 import static ttit.com.shuvo.docdiary.payment.AddPayment.addedServiceLists;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
@@ -46,6 +47,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.payment.arraylists.AddedServiceList;
@@ -100,6 +103,8 @@ public class ServiceModify extends AppCompatActivity {
     boolean loading = false;
     String parsing_message = "";
     boolean selectedFromItems = false;
+
+    Logger logger = Logger.getLogger(ServiceModify.class.getName());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -255,11 +260,13 @@ public class ServiceModify extends AppCompatActivity {
                     if (pfn_id.isEmpty()) {
                         if (ss.isEmpty()) {
                             serviceMissing.setVisibility(View.VISIBLE);
-                            serviceMissing.setText("Please Select Service");
+                            String smt = "Please Select Service";
+                            serviceMissing.setText(smt);
                         }
                         else {
                             serviceMissing.setVisibility(View.VISIBLE);
-                            serviceMissing.setText("Invalid Service");
+                            String smt = "Invalid Service";
+                            serviceMissing.setText(smt);
                         }
                     }
                     else{
@@ -355,11 +362,13 @@ public class ServiceModify extends AppCompatActivity {
                     if (depts_id.isEmpty()) {
                         if (ss.isEmpty()) {
                             serviceUnitMissing.setVisibility(View.VISIBLE);
-                            serviceUnitMissing.setText("Please Select Unit");
+                            String sut = "Please Select Unit";
+                            serviceUnitMissing.setText(sut);
                         }
                         else {
                             serviceUnitMissing.setVisibility(View.VISIBLE);
-                            serviceUnitMissing.setText("Invalid Unit");
+                            String sut = "Invalid Unit";
+                            serviceUnitMissing.setText(sut);
                         }
                     }
                     else{
@@ -404,7 +413,7 @@ public class ServiceModify extends AppCompatActivity {
                 if (!s.toString().isEmpty()) {
                     serviceQtyMissing.setVisibility(View.GONE);
                     if (isNumeric(s.toString())) {
-                        if (!s.toString().startsWith("0")) {
+                        if (!s.toString().startsWith("0") && !s.toString().contains(".")) {
                             service_qty = s.toString();
                             if (!service_rate.isEmpty() && isNumeric(service_rate)) {
                                 int qty = Integer.parseInt(service_qty);
@@ -419,21 +428,24 @@ public class ServiceModify extends AppCompatActivity {
                             }
                         }
                         else {
-                            serviceQtyMissing.setText("Invalid Quantity");
+                            String sqt = "Invalid Quantity";
+                            serviceQtyMissing.setText(sqt);
                             serviceQtyMissing.setVisibility(View.VISIBLE);
                             service_amount = "";
                             serviceAmount.setText(service_amount);
                         }
                     }
                     else {
-                        serviceQtyMissing.setText("Invalid Quantity");
+                        String sqt = "Invalid Quantity";
+                        serviceQtyMissing.setText(sqt);
                         serviceQtyMissing.setVisibility(View.VISIBLE);
                         service_amount = "";
                         serviceAmount.setText(service_amount);
                     }
                 }
                 else {
-                    serviceQtyMissing.setText("Please Provide Quantity");
+                    String sqt = "Please Provide Quantity";
+                    serviceQtyMissing.setText(sqt);
                     serviceQtyMissing.setVisibility(View.VISIBLE);
                     service_amount = "";
                     serviceAmount.setText(service_amount);
@@ -457,7 +469,7 @@ public class ServiceModify extends AppCompatActivity {
             return false;
         });
 
-        close.setOnClickListener(v -> onBackPressed());
+        close.setOnClickListener(v -> finish());
 
         serviceAdd.setOnClickListener(v -> {
             service_qty = Objects.requireNonNull(serviceQty.getText()).toString();
@@ -469,7 +481,7 @@ public class ServiceModify extends AppCompatActivity {
                             if (!service_qty.isEmpty()) {
                                 if (!service_qty.startsWith("0")) {
                                     if (!service_amount.isEmpty()) {
-                                        if (addedServiceLists.size() == 0) {
+                                        if (addedServiceLists.isEmpty()) {
                                             MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(ServiceModify.this);
                                             alertDialogBuilder.setTitle("Add Service!")
                                                     .setMessage("Do you want to Add Service for patient?")
@@ -526,12 +538,14 @@ public class ServiceModify extends AppCompatActivity {
                                     }
                                 }
                                 else {
-                                    serviceQtyMissing.setText("Invalid Quantity");
+                                    String sqt = "Invalid Quantity";
+                                    serviceQtyMissing.setText(sqt);
                                     serviceQtyMissing.setVisibility(View.VISIBLE);
                                 }
                             }
                             else {
-                                serviceQtyMissing.setText("Please Provide Quantity");
+                                String sqt = "Please Provide Quantity";
+                                serviceQtyMissing.setText(sqt);
                                 serviceQtyMissing.setVisibility(View.VISIBLE);
                             }
 //                        }
@@ -542,17 +556,20 @@ public class ServiceModify extends AppCompatActivity {
                     }
                     else {
                         serviceRateMissing.setVisibility(View.VISIBLE);
-                        serviceRateMissing.setText("Invalid Rate. Select Unit Again");
+                        String srt = "Invalid Rate. Select Unit Again";
+                        serviceRateMissing.setText(srt);
                     }
                 }
                 else {
                     serviceUnitMissing.setVisibility(View.VISIBLE);
-                    serviceUnitMissing.setText("Please Select Unit");
+                    String sut = "Please Select Unit";
+                    serviceUnitMissing.setText(sut);
                 }
             }
             else {
                 serviceMissing.setVisibility(View.VISIBLE);
-                serviceMissing.setText("Please Select Service");
+                String st = "Please Select Service";
+                serviceMissing.setText(st);
             }
         });
 
@@ -616,12 +633,14 @@ public class ServiceModify extends AppCompatActivity {
                                     }
                                 }
                                 else {
-                                    serviceQtyMissing.setText("Invalid Quantity");
+                                    String sqt = "Invalid Quantity";
+                                    serviceQtyMissing.setText(sqt);
                                     serviceQtyMissing.setVisibility(View.VISIBLE);
                                 }
                             }
                             else {
-                                serviceQtyMissing.setText("Please Provide Quantity");
+                                String sqt = "Please Provide Quantity";
+                                serviceQtyMissing.setText(sqt);
                                 serviceQtyMissing.setVisibility(View.VISIBLE);
                             }
 //                        }
@@ -632,17 +651,32 @@ public class ServiceModify extends AppCompatActivity {
                     }
                     else {
                         serviceRateMissing.setVisibility(View.VISIBLE);
-                        serviceRateMissing.setText("Invalid Rate. Select Unit Again");
+                        String srt = "Invalid Rate. Select Unit Again";
+                        serviceRateMissing.setText(srt);
                     }
                 }
                 else {
                     serviceUnitMissing.setVisibility(View.VISIBLE);
-                    serviceUnitMissing.setText("Please Select Unit");
+                    String sut = "Please Select Unit";
+                    serviceUnitMissing.setText(sut);
                 }
             }
             else {
                 serviceMissing.setVisibility(View.VISIBLE);
-                serviceMissing.setText("Please Select Service");
+                String st = "Please Select Service";
+                serviceMissing.setText(st);
+            }
+        });
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (loading) {
+                    Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    finish();
+                }
             }
         });
 
@@ -661,15 +695,10 @@ public class ServiceModify extends AppCompatActivity {
         return super.onTouchEvent(event);
     }
 
-    @Override
-    public void onBackPressed() {
-        if (loading) {
-            Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
-        }
-        else {
-            super.onBackPressed();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//
+//    }
 
     private void closeKeyBoard() {
         View view = getCurrentFocus();
@@ -721,14 +750,14 @@ public class ServiceModify extends AppCompatActivity {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -745,8 +774,9 @@ public class ServiceModify extends AppCompatActivity {
                 conn = false;
                 connected = false;
 
-                if (serviceLists.size() == 0) {
-                    serviceMissing.setText("No Service List Found");
+                if (serviceLists.isEmpty()) {
+                    String st = "No Service List Found";
+                    serviceMissing.setText(st);
                     serviceMissing.setVisibility(View.VISIBLE);
                 }
                 else {
@@ -758,7 +788,7 @@ public class ServiceModify extends AppCompatActivity {
                     type.add(serviceLists.get(i).getPfn_fee_name());
                 }
 
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(ServiceModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(ServiceModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
                 service.setAdapter(arrayAdapter);
 
             }
@@ -841,14 +871,14 @@ public class ServiceModify extends AppCompatActivity {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateUI();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateUI();
         });
@@ -880,14 +910,14 @@ public class ServiceModify extends AppCompatActivity {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateUI();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateUI();
         });
@@ -904,8 +934,9 @@ public class ServiceModify extends AppCompatActivity {
                 conn = false;
                 connected = false;
 
-                if (serviceLists.size() == 0) {
-                    serviceMissing.setText("No Service List Found");
+                if (serviceLists.isEmpty()) {
+                    String st = "No Service List Found";
+                    serviceMissing.setText(st);
                     serviceMissing.setVisibility(View.VISIBLE);
                 }
                 else {
@@ -922,8 +953,9 @@ public class ServiceModify extends AppCompatActivity {
 
                 serviceUnitLay.setEnabled(true);
 
-                if (serviceUnitLists.size() == 0) {
-                    serviceUnitMissing.setText("No Unit List Found");
+                if (serviceUnitLists.isEmpty()) {
+                    String sut = "No Unit List Found";
+                    serviceUnitMissing.setText(sut);
                     serviceUnitMissing.setVisibility(View.VISIBLE);
                 }
                 else {
@@ -1015,14 +1047,14 @@ public class ServiceModify extends AppCompatActivity {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateLayout();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateLayout();
         });
@@ -1041,8 +1073,9 @@ public class ServiceModify extends AppCompatActivity {
 
                 serviceUnitLay.setEnabled(true);
 
-                if (serviceUnitLists.size() == 0) {
-                    serviceUnitMissing.setText("No Unit List Found");
+                if (serviceUnitLists.isEmpty()) {
+                    String sut = "No Unit List Found";
+                    serviceUnitMissing.setText(sut);
                     serviceUnitMissing.setVisibility(View.VISIBLE);
                 }
                 else {
@@ -1123,14 +1156,14 @@ public class ServiceModify extends AppCompatActivity {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateRateValue();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateRateValue();
         });

@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.patient_search.arraylists.PatientSearchList;
 import ttit.com.shuvo.docdiary.unit_app_schedule.arraylists.DoctorAppSchList;
 import ttit.com.shuvo.docdiary.unit_app_schedule.arraylists.UnitDoctorsList;
 
@@ -44,7 +43,7 @@ public class DoctorsListAdapter extends RecyclerView.Adapter<DoctorsListAdapter.
 
         ArrayList<DoctorAppSchList> doctorAppSchLists = unitDoctorsList.getDoctorAppSchLists();
 
-        if (doctorAppSchLists.size() == 0) {
+        if (doctorAppSchLists.isEmpty()) {
             holder.noSchFound.setVisibility(View.VISIBLE);
             RecyclerView.LayoutManager layoutManager =
                     new LinearLayoutManager(myContext, LinearLayoutManager.HORIZONTAL,false);

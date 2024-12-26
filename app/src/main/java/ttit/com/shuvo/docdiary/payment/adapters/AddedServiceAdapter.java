@@ -28,8 +28,8 @@ import ttit.com.shuvo.docdiary.payment.arraylists.AddedServiceList;
 import ttit.com.shuvo.docdiary.payment.service.ServiceModify;
 
 public class AddedServiceAdapter extends RecyclerView.Adapter<AddedServiceAdapter.ADSHOlder> {
-    private ArrayList<AddedServiceList> addedServiceLists;
-    private Context mContext;
+    private final ArrayList<AddedServiceList> addedServiceLists;
+    private final Context mContext;
 
     public AddedServiceAdapter(ArrayList<AddedServiceList> addedServiceLists, Context mContext) {
         this.addedServiceLists = addedServiceLists;
@@ -83,7 +83,7 @@ public class AddedServiceAdapter extends RecyclerView.Adapter<AddedServiceAdapte
                         .setPositiveButton("Yes", (dialogInterface, i) -> {
                             addedServiceLists.remove(getAdapterPosition());
                             Toast.makeText(mContext,"Service Deleted Successfully",Toast.LENGTH_SHORT).show();
-                            if (addedServiceLists.size() == 0) {
+                            if (addedServiceLists.isEmpty()) {
                                 totalAmountLay.setVisibility(View.GONE);
                                 total_amount = "";
                                 totalAmount.setText(total_amount);

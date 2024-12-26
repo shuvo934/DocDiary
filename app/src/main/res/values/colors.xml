@@ -14,4 +14,14 @@
     <color name="blue_end">#fda000</color>
     <color name="blue_start">#879af2</color>
     <color name="red_dark">#c23616</color>
+    <color name="naval_blue">#0097e6</color>
+    <color name="deep_rose">#c44569</color>
+    <color name="light_rose">#cf6a87</color>
+    <color name="pencil_lead">#596275</color>
+    <color name="absent_color">#C000FF</color>
+    <color name="present_color">#00C080</color>
+    <color name="leave_color">#8F8F8F</color>
+    <color name="pres_on_leave">#4080C0</color>
+    <color name="pres_on_off">#E0C080</color>
+    <color name="off_day">#80E0FF</color>
 </resources>

@@ -2,6 +2,7 @@ package ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo;
 
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
@@ -27,7 +28,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -44,11 +44,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.arraylists.DoseList;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.arraylists.MedTakeTimeList;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.arraylists.MedicineList;
 
 public class ManagementModify extends AppCompatActivity {
 
@@ -75,6 +74,7 @@ public class ManagementModify extends AppCompatActivity {
     String pmap_id = "";
     String pmap_details = "";
 
+    Logger logger = Logger.getLogger(ManagementModify.class.getName());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -170,7 +170,7 @@ public class ManagementModify extends AppCompatActivity {
             return false;
         });
 
-        close.setOnClickListener(v -> onBackPressed());
+        close.setOnClickListener(v -> finish());
 
         modify.setOnClickListener(v -> {
             pmap_details = Objects.requireNonNull(management.getText()).toString();
@@ -183,9 +183,7 @@ public class ManagementModify extends AppCompatActivity {
                                 dialog.dismiss();
                                 addManagement();
                             })
-                            .setNegativeButton("No",(dialog, which) -> {
-                                dialog.dismiss();
-                            });
+                            .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
 
                     AlertDialog alert = alertDialogBuilder.create();
                     alert.show();
@@ -197,9 +195,7 @@ public class ManagementModify extends AppCompatActivity {
                                 dialog.dismiss();
                                 updateManagement();
                             })
-                            .setNegativeButton("No",(dialog, which) -> {
-                                dialog.dismiss();
-                            });
+                            .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
 
                     AlertDialog alert = alertDialogBuilder.create();
                     alert.show();
@@ -208,6 +204,18 @@ public class ManagementModify extends AppCompatActivity {
             else {
                 Toast.makeText(getApplicationContext(),"Please Write Management",Toast.LENGTH_SHORT).show();
                 managementMissing.setVisibility(View.VISIBLE);
+            }
+        });
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (loading) {
+                    Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    finish();
+                }
             }
         });
 
@@ -220,15 +228,10 @@ public class ManagementModify extends AppCompatActivity {
         return super.onTouchEvent(event);
     }
 
-    @Override
-    public void onBackPressed() {
-        if (loading) {
-            Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
-        }
-        else {
-            super.onBackPressed();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//
+//    }
 
     private void closeKeyBoard() {
         View view = getCurrentFocus();
@@ -274,14 +277,14 @@ public class ManagementModify extends AppCompatActivity {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -298,7 +301,7 @@ public class ManagementModify extends AppCompatActivity {
                 conn = false;
                 connected = false;
 
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(ManagementModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,managementLists);
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(ManagementModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,managementLists);
                 management.setAdapter(arrayAdapter);
 
             }
@@ -368,19 +371,19 @@ public class ManagementModify extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterAdd();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterAdd();
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_PMM_ID",pmm_id);
                 headers.put("P_DETAILS",pmap_details);
@@ -426,9 +429,7 @@ public class ManagementModify extends AppCompatActivity {
                     addManagement();
                     dialog.dismiss();
                 })
-                .setNegativeButton("Cancel",(dialog, which) -> {
-                    dialog.dismiss();
-                });
+                .setNegativeButton("Cancel",(dialog, which) -> dialog.dismiss());
 
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
@@ -464,19 +465,19 @@ public class ManagementModify extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterUpdate();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterUpdate();
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_PMM_ID",pmm_id);
                 headers.put("P_PMAP_ID",pmap_id);
@@ -523,9 +524,7 @@ public class ManagementModify extends AppCompatActivity {
                     updateManagement();
                     dialog.dismiss();
                 })
-                .setNegativeButton("Cancel",(dialog, which) -> {
-                    dialog.dismiss();
-                });
+                .setNegativeButton("Cancel",(dialog, which) -> dialog.dismiss());
 
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);

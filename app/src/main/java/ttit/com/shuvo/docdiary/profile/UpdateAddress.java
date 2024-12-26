@@ -3,6 +3,7 @@ package ttit.com.shuvo.docdiary.profile;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.userInfoLists;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
@@ -10,11 +11,9 @@ import androidx.core.content.ContextCompat;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -28,12 +27,10 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.bumptech.glide.Glide;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
@@ -48,9 +45,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.ComplainModify;
 import ttit.com.shuvo.docdiary.profile.arraylists.ThanaList;
 
 public class UpdateAddress extends AppCompatActivity {
@@ -83,6 +81,9 @@ public class UpdateAddress extends AppCompatActivity {
 
     ArrayList<ThanaList> thanaLists;
     boolean selectedFromItems = false;
+
+    Logger logger = Logger.getLogger(UpdateAddress.class.getName());
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,7 +113,7 @@ public class UpdateAddress extends AppCompatActivity {
             restart("Could Not Get Doctor Data. Please Restart the App.");
         }
         else {
-            if (userInfoLists.size() == 0) {
+            if (userInfoLists.isEmpty()) {
                 restart("Could Not Get Doctor Data. Please Restart the App.");
             }
             else {
@@ -133,7 +134,7 @@ public class UpdateAddress extends AppCompatActivity {
         thanaSpinner.setText(thana_name);
         district.setText(district_name);
 
-        close.setOnClickListener(v -> onBackPressed());
+        close.setOnClickListener(v -> finish());
 
         streetAddress.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH ||
@@ -341,9 +342,7 @@ public class UpdateAddress extends AppCompatActivity {
                                     dialog.dismiss();
                                     updateAddress();
                                 })
-                                .setNegativeButton("No",(dialog, which) -> {
-                                    dialog.dismiss();
-                                });
+                                .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
 
                         AlertDialog alert = alertDialogBuilder.create();
                         try {
@@ -369,6 +368,18 @@ public class UpdateAddress extends AppCompatActivity {
             }
         });
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (loading) {
+                    Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    finish();
+                }
+            }
+        });
+
         getThanas();
     }
 
@@ -381,15 +392,10 @@ public class UpdateAddress extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        if (loading) {
-            Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
-        }
-        else {
-            super.onBackPressed();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//
+//    }
 
     public void getThanas() {
         fullLayout.setVisibility(View.GONE);
@@ -436,14 +442,14 @@ public class UpdateAddress extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -460,7 +466,7 @@ public class UpdateAddress extends AppCompatActivity {
                 conn = false;
                 connected = false;
 
-                if (thanaLists.size() == 0) {
+                if (thanaLists.isEmpty()) {
                     thanaLay.setHelperText("No Thana/Upazila Found");
                 }
                 else {
@@ -472,7 +478,7 @@ public class UpdateAddress extends AppCompatActivity {
                     type.add(thanaLists.get(i).getDd_thana_name());
                 }
 
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(UpdateAddress.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(UpdateAddress.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
                 thanaSpinner.setAdapter(arrayAdapter);
 
             }
@@ -547,19 +553,19 @@ public class UpdateAddress extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterUpdate();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterUpdate();
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_S_ADDRESS",street_address);
                 headers.put("P_POST_OFFICE",post_office);
@@ -626,9 +632,7 @@ public class UpdateAddress extends AppCompatActivity {
                     updateAddress();
                     dialog.dismiss();
                 })
-                .setNegativeButton("Cancel",(dialog, which) -> {
-                    dialog.dismiss();
-                });
+                .setNegativeButton("Cancel",(dialog, which) -> dialog.dismiss());
 
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);

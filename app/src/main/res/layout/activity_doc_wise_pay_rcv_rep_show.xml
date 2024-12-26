@@ -320,99 +320,112 @@
                     android:layout_height="1dp"
                     android:background="@android:color/black"/>
 
-                <RelativeLayout
+                <ScrollView
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="wrap_content">
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/doc_wise_pay_receive_app_made_report_show_recyclerview"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:scrollbars="vertical" />
+                        android:orientation="vertical">
 
-                </RelativeLayout>
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:weightSum="10">
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/doc_wise_pay_receive_app_made_report_show_recyclerview"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:scrollbars="vertical" />
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2.5"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_4sdp"
-                        android:layout_marginEnd="@dimen/_4sdp"
-                        android:gravity="start"
-                        android:text="Grand Total"
-                        android:fontFamily="@font/poppins_bold"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/_11sdp"
-                        android:textStyle="bold" />
+                        </RelativeLayout>
 
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="match_parent"
-                        android:background="@android:color/black"/>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:weightSum="10">
 
-                    <TextView
-                        android:id="@+id/total_date_reg_amount_val_in_doc_wise_pay"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2.5"
-                        android:text="Value"
-                        android:layout_marginStart="@dimen/_4sdp"
-                        android:layout_marginEnd="@dimen/_4sdp"
-                        android:layout_gravity="center"
-                        android:textColor="@color/black"
-                        android:fontFamily="@font/poppins_bold"
-                        android:gravity="center"
-                        android:textStyle="bold"
-                        android:textSize="@dimen/_11sdp"/>
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="2.5"
+                                android:layout_gravity="center"
+                                android:layout_marginStart="@dimen/_4sdp"
+                                android:layout_marginEnd="@dimen/_4sdp"
+                                android:gravity="start"
+                                android:text="Grand Total"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/_11sdp"
+                                android:textStyle="bold" />
 
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="match_parent"
-                        android:background="@android:color/black"/>
+                            <View
+                                android:layout_width="1dp"
+                                android:layout_height="match_parent"
+                                android:background="@android:color/black"/>
 
-                    <TextView
-                        android:id="@+id/total_date_ets_amount_val_in_doc_wise_pay"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2.5"
-                        android:text="Value"
-                        android:layout_marginStart="@dimen/_4sdp"
-                        android:layout_marginEnd="@dimen/_4sdp"
-                        android:layout_gravity="center"
-                        android:textColor="@color/black"
-                        android:fontFamily="@font/poppins_bold"
-                        android:gravity="center"
-                        android:textStyle="bold"
-                        android:textSize="@dimen/_11sdp"/>
+                            <TextView
+                                android:id="@+id/total_date_reg_amount_val_in_doc_wise_pay"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="2.5"
+                                android:text="Value"
+                                android:layout_marginStart="@dimen/_4sdp"
+                                android:layout_marginEnd="@dimen/_4sdp"
+                                android:layout_gravity="center"
+                                android:textColor="@color/black"
+                                android:fontFamily="@font/poppins_bold"
+                                android:gravity="center"
+                                android:textStyle="bold"
+                                android:textSize="@dimen/_11sdp"/>
 
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="match_parent"
-                        android:background="@android:color/black"/>
+                            <View
+                                android:layout_width="1dp"
+                                android:layout_height="match_parent"
+                                android:background="@android:color/black"/>
 
-                    <TextView
-                        android:id="@+id/total_date_amount_val_in_doc_wise_pay"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="2.5"
-                        android:text="Value"
-                        android:layout_marginStart="@dimen/_4sdp"
-                        android:layout_marginEnd="@dimen/_4sdp"
-                        android:layout_gravity="center"
-                        android:textColor="@color/black"
-                        android:fontFamily="@font/poppins_bold"
-                        android:gravity="center"
-                        android:textStyle="bold"
-                        android:textSize="@dimen/_11sdp"/>
+                            <TextView
+                                android:id="@+id/total_date_ets_amount_val_in_doc_wise_pay"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="2.5"
+                                android:text="Value"
+                                android:layout_marginStart="@dimen/_4sdp"
+                                android:layout_marginEnd="@dimen/_4sdp"
+                                android:layout_gravity="center"
+                                android:textColor="@color/black"
+                                android:fontFamily="@font/poppins_bold"
+                                android:gravity="center"
+                                android:textStyle="bold"
+                                android:textSize="@dimen/_11sdp"/>
 
-                </LinearLayout>
+                            <View
+                                android:layout_width="1dp"
+                                android:layout_height="match_parent"
+                                android:background="@android:color/black"/>
+
+                            <TextView
+                                android:id="@+id/total_date_amount_val_in_doc_wise_pay"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="2.5"
+                                android:text="Value"
+                                android:layout_marginStart="@dimen/_4sdp"
+                                android:layout_marginEnd="@dimen/_4sdp"
+                                android:layout_gravity="center"
+                                android:textColor="@color/black"
+                                android:fontFamily="@font/poppins_bold"
+                                android:gravity="center"
+                                android:textStyle="bold"
+                                android:textSize="@dimen/_11sdp"/>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </ScrollView>
 
             </LinearLayout>
 

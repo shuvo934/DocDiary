@@ -54,11 +54,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Locale;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.payment.PatCodeCallBackListener;
+import ttit.com.shuvo.docdiary.payment.interfaces.PatCodeCallBackListener;
 import ttit.com.shuvo.docdiary.payment.adapters.SearchPrescriptionAdapter;
 import ttit.com.shuvo.docdiary.payment.arraylists.PrescriptionCodeList;
 
@@ -98,6 +99,8 @@ public class SearchPrescriptionDialog extends AppCompatDialogFragment implements
         this.mContext = context;
         this.p_year = p_year;
     }
+
+    Logger logger = Logger.getLogger("SearchPrescriptionDialog");
 
     private PatCodeCallBackListener patCodeCallBackListener;
 
@@ -143,6 +146,7 @@ public class SearchPrescriptionDialog extends AppCompatDialogFragment implements
 
         alertDialog.setCancelable(false);
         alertDialog.setCanceledOnTouchOutside(false);
+        setCancelable(false);
 
         search.addTextChangedListener(new TextWatcher() {
             @Override
@@ -251,7 +255,7 @@ public class SearchPrescriptionDialog extends AppCompatDialogFragment implements
             search.setText("");
 
             latestPatListText.setVisibility(View.VISIBLE);
-            if (fiftyPatLists.size() == 0) {
+            if (fiftyPatLists.isEmpty()) {
                 noPatientFound.setVisibility(View.VISIBLE);
 
             }
@@ -380,14 +384,14 @@ public class SearchPrescriptionDialog extends AppCompatDialogFragment implements
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateLayout();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateLayout();
         });
@@ -415,7 +419,7 @@ public class SearchPrescriptionDialog extends AppCompatDialogFragment implements
                 search.setText("");
 
                 latestPatListText.setVisibility(View.VISIBLE);
-                if (fiftyPatLists.size() == 0) {
+                if (fiftyPatLists.isEmpty()) {
                     noPatientFound.setVisibility(View.VISIBLE);
 
                 }
@@ -504,14 +508,14 @@ public class SearchPrescriptionDialog extends AppCompatDialogFragment implements
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -536,7 +540,7 @@ public class SearchPrescriptionDialog extends AppCompatDialogFragment implements
                 latestPatListText.setVisibility(View.GONE);
                 clearButton.setVisibility(View.VISIBLE);
 
-                if (prescriptionCodeLists.size() == 0) {
+                if (prescriptionCodeLists.isEmpty()) {
                     noPatientFound.setVisibility(View.VISIBLE);
                 }
                 else {
@@ -576,18 +580,18 @@ public class SearchPrescriptionDialog extends AppCompatDialogFragment implements
 
     @Override
     public void onItemClicked(int Position) {
-        String ph_id = "";
-        String pat_name = "";
-        String ph_sub_code = "";
-        String pat_code = "";
-        String pat_age = "";
-        String pat_material = "";
-        String pat_gender = "";
-        String pat_blood = "";
-        String pat_category = "";
-        String pat_status = "";
-        String pat_address = "";
-        String pat_cat_id = "";
+        String ph_id;
+        String pat_name;
+        String ph_sub_code;
+        String pat_code;
+        String pat_age;
+        String pat_material;
+        String pat_gender;
+        String pat_blood;
+        String pat_category;
+        String pat_status;
+        String pat_address;
+        String pat_cat_id;
 
         if (firstGetter) {
             ph_id = fiftyPatLists.get(Position).getPh_id();

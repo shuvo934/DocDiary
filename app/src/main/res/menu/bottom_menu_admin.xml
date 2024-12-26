@@ -22,8 +22,8 @@
         android:title="Patient"
         android:enabled="true"/>
     <item
-        android:id="@+id/admin_report_menu"
-        android:icon="@drawable/report"
-        android:title="Report"
+        android:id="@+id/admin_hr_account_menu"
+        android:icon="@drawable/hr_accounting_new"
+        android:title="HR &amp; Acounts"
         android:enabled="true"/>
 </menu>

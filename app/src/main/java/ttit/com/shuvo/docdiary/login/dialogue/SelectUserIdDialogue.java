@@ -22,9 +22,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.login.AdminIDCallbackListener;
-import ttit.com.shuvo.docdiary.login.CloseCallBack;
-import ttit.com.shuvo.docdiary.login.IDCallbackListener;
+import ttit.com.shuvo.docdiary.login.interfaces.AdminIDCallbackListener;
+import ttit.com.shuvo.docdiary.login.interfaces.CloseCallBack;
+import ttit.com.shuvo.docdiary.login.interfaces.IDCallbackListener;
 import ttit.com.shuvo.docdiary.login.adapters.MultipleUserAdapter;
 import ttit.com.shuvo.docdiary.login.arraylists.MultipleUserList;
 
@@ -56,8 +56,8 @@ public class SelectUserIdDialogue extends AppCompatDialogFragment implements Mul
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
         if (getActivity() instanceof IDCallbackListener)
             idCallbackListener = (IDCallbackListener) getActivity();
 
@@ -79,6 +79,7 @@ public class SelectUserIdDialogue extends AppCompatDialogFragment implements Mul
 
         dialog.setCancelable(false);
         dialog.setCanceledOnTouchOutside(false);
+        setCancelable(false);
 
         centerName.setText(c_name);
         userIdView.setHasFixedSize(true);

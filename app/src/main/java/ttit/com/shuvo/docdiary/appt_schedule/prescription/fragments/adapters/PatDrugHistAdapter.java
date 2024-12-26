@@ -16,7 +16,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -29,18 +28,19 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.DrugHistory;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.DrugHistoryModify;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.MedHistoryModify;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.arraylists.PatDrugHistList;
 
 public class PatDrugHistAdapter extends RecyclerView.Adapter<PatDrugHistAdapter.PDHHolder> {
 
-    private ArrayList<PatDrugHistList> mCategory;
-    private Context mContext;
+    private final ArrayList<PatDrugHistList> mCategory;
+    private final Context mContext;
     private Boolean conn = false;
     private Boolean connected = false;
     String parsing_message = "";
@@ -49,6 +49,8 @@ public class PatDrugHistAdapter extends RecyclerView.Adapter<PatDrugHistAdapter.
         this.mCategory = mCategory;
         this.mContext = mContext;
     }
+
+    Logger logger = Logger.getLogger("PatDrugHistAdapter");
 
     @NonNull
     @Override
@@ -143,19 +145,19 @@ public class PatDrugHistAdapter extends RecyclerView.Adapter<PatDrugHistAdapter.
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterDeleteDH(pdh_id,index);
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterDeleteDH(pdh_id,index);
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_PDH_ID",pdh_id);
                 return headers;
@@ -173,7 +175,7 @@ public class PatDrugHistAdapter extends RecyclerView.Adapter<PatDrugHistAdapter.
                 Toast.makeText(mContext,"Drug History Deleted Successfully",Toast.LENGTH_SHORT).show();
                 mCategory.remove(pos);
                 notifyDataSetChanged();
-                if (mCategory.size() == 0) {
+                if (mCategory.isEmpty()) {
                     DrugHistory.noPatDrugHistMsg.setVisibility(View.VISIBLE);
                 }
                 else {

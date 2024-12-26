@@ -3,6 +3,7 @@ package ttit.com.shuvo.docdiary.appt_schedule.prescription;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.userInfoLists;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -18,7 +19,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -38,6 +38,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.adapters.ComplainAdapter;
@@ -47,7 +49,7 @@ import ttit.com.shuvo.docdiary.appt_schedule.prescription.adapters.PatReferralUn
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.ComplainModify;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.RefServiceModify;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.ReferralUnitModify;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.arraylists.DiagnosisModify;
+import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.DiagnosisModify;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.arraylists.ComplainLists;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.arraylists.PatDiagnosisList;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.arraylists.PatRefServiceList;
@@ -139,6 +141,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
 
     CheckBox patAdmission;
 
+    Logger logger = Logger.getLogger(PrescriptionSetup.class.getName());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -207,7 +210,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
             restart("Could Not Get Doctor Data. Please Restart the App.");
         }
         else {
-            if (userInfoLists.size() == 0) {
+            if (userInfoLists.isEmpty()) {
                 restart("Could Not Get Doctor Data. Please Restart the App.");
             }
             else {
@@ -244,7 +247,14 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
         DividerItemDecoration dividerItemDecorationRS = new DividerItemDecoration(refServiceView.getContext(),DividerItemDecoration.VERTICAL);
         refServiceView.addItemDecoration(dividerItemDecorationRS);
 
-        close.setOnClickListener(v -> onBackPressed());
+        close.setOnClickListener(v -> {
+            if (prescriptionLoading || historyLoading || medicationLoading) {
+                Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+            }
+            else {
+                finish();
+            }
+        });
 
         create_prescription.setOnClickListener(v -> {
             MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(PrescriptionSetup.this);
@@ -254,9 +264,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
                         dialog.dismiss();
                         createPrescription();
                     })
-                    .setNegativeButton("No",(dialog, which) -> {
-                        dialog.dismiss();
-                    });
+                    .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
 
             AlertDialog alert = alertDialogBuilder.create();
             try {
@@ -369,6 +377,18 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
 
         });
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (prescriptionLoading || historyLoading || medicationLoading) {
+                    Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    finish();
+                }
+            }
+        });
+
     }
 
     @Override
@@ -379,18 +399,13 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
         }
     }
 
-    @Override
-    public void onBackPressed() {
-//        System.out.println(historyLoading);
-//        System.out.println(prescriptionLoading);
-//        System.out.println(medicationLoading);
-        if (prescriptionLoading || historyLoading || medicationLoading) {
-            Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
-        }
-        else {
-            super.onBackPressed();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+////        System.out.println(historyLoading);
+////        System.out.println(prescriptionLoading);
+////        System.out.println(medicationLoading);
+//
+//    }
 
     public void getPrescriptionData() {
         fullLayout.setVisibility(View.GONE);
@@ -413,8 +428,8 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
         pat_cat_id = "";
         pmm_admission_flag = "0";
 
-        String newPresUrl = pre_url_api+"prescription/getNewPatData?p_ph_id="+ph_id+"";
-        String oldPresUrl = pre_url_api+"prescription/getOldPatData?p_ph_id="+ph_id+"";
+        String newPresUrl = pre_url_api+"prescription/getNewPatData?p_ph_id="+ph_id;
+        String oldPresUrl = pre_url_api+"prescription/getOldPatData?p_ph_id="+ph_id;
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest newPresReq = new StringRequest(Request.Method.GET, newPresUrl, response -> {
@@ -454,14 +469,14 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -510,14 +525,14 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -544,8 +559,8 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
         }
 
 
-        String complainUrl = pre_url_api+"prescription/getComplainData?pmm_id="+pmm_id+"";
-        String patDiagUrl = pre_url_api+"prescription/getPatDiagnosis?pmm_id="+pmm_id+"";
+        String complainUrl = pre_url_api+"prescription/getComplainData?pmm_id="+pmm_id;
+        String patDiagUrl = pre_url_api+"prescription/getPatDiagnosis?pmm_id="+pmm_id;
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest patDiagReq = new StringRequest(Request.Method.GET, patDiagUrl, response -> {
@@ -588,14 +603,14 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -634,14 +649,14 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -650,7 +665,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
     }
 
     public void getReferralUnit(String pdi_id) {
-        String patRefUrl = pre_url_api+"prescription/getPatReferral?pdi_id="+pdi_id+"";
+        String patRefUrl = pre_url_api+"prescription/getPatReferral?pdi_id="+pdi_id;
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest patRefReq = new StringRequest(Request.Method.GET, patRefUrl, response -> {
@@ -698,14 +713,14 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -714,7 +729,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
     }
 
     public void getRefService(String drd_id, int choice) {
-        String patRefServUrl = pre_url_api+"prescription/getPatRefService?drd_id="+drd_id+"";
+        String patRefServUrl = pre_url_api+"prescription/getPatRefService?drd_id="+drd_id;
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest patRefServReq = new StringRequest(Request.Method.GET, patRefServUrl, response -> {
@@ -755,7 +770,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 if (choice == 1) {
                     updateInterface();
@@ -767,7 +782,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             if (choice == 1) {
                 updateInterface();
@@ -810,7 +825,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
                 patAddress.setText(pat_address);
                 patAdmission.setChecked(pmm_admission_flag.equals("1"));
 
-                if (complainLists.size() == 0) {
+                if (complainLists.isEmpty()) {
                     noComplainFoundMsg.setVisibility(View.VISIBLE);
                 }
                 else {
@@ -839,7 +854,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
                 }
 
                 //------
-                if (patDiagnosisLists.size() == 0) {
+                if (patDiagnosisLists.isEmpty()) {
                     noDiagnosisFoundMsg.setVisibility(View.VISIBLE);
                     referralUnitLay.setVisibility(View.GONE);
                     refServiceUnitLay.setVisibility(View.GONE);
@@ -853,7 +868,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
                 diagnosisView.setAdapter(patDiagnosisAdapter);
 
                 //------
-                if (patReferralLists.size() == 0) {
+                if (patReferralLists.isEmpty()) {
                     noReferralFoundMsg.setVisibility(View.VISIBLE);
                     refServiceUnitLay.setVisibility(View.GONE);
                 }
@@ -865,7 +880,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
                 referralView.setAdapter(patReferralUnitAdapter);
 
                 //------
-                if (patRefServiceLists.size() == 0) {
+                if (patRefServiceLists.isEmpty()) {
                     noRefServiceFoundMsg.setVisibility(View.VISIBLE);
                 }
                 else {
@@ -965,7 +980,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
 //        referralView.setAdapter(patReferralUnitAdapter);
 
         //------
-        if (patRefServiceLists.size() == 0) {
+        if (patRefServiceLists.isEmpty()) {
             noRefServiceFoundMsg.setVisibility(View.VISIBLE);
         }
         else {
@@ -1016,19 +1031,19 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 prescriptionCreatedInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             prescriptionCreatedInterface();
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_PH_ID",ph_id);
                 headers.put("P_CAT_ID",pat_cat_id);
@@ -1114,7 +1129,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
         selected_drd_id = "";
         selected_depts_id = "";
 
-        String patRefUrl = pre_url_api+"prescription/getPatReferral?pdi_id="+selected_pdi_id+"";
+        String patRefUrl = pre_url_api+"prescription/getPatReferral?pdi_id="+selected_pdi_id;
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest patRefReq = new StringRequest(Request.Method.GET, patRefUrl, response -> {
@@ -1162,14 +1177,14 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateReferralData();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateReferralData();
         });
@@ -1186,7 +1201,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
                 fullLayout.setVisibility(View.VISIBLE);
                 circularProgressIndicator.setVisibility(View.GONE);
 
-                if (patReferralLists.size() == 0) {
+                if (patReferralLists.isEmpty()) {
                     noReferralFoundMsg.setVisibility(View.VISIBLE);
                     refServiceUnitLay.setVisibility(View.GONE);
                 }
@@ -1197,7 +1212,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
                 patReferralUnitAdapter = new PatReferralUnitAdapter(patReferralLists,PrescriptionSetup.this,PrescriptionSetup.this);
                 referralView.setAdapter(patReferralUnitAdapter);
 
-                if (patRefServiceLists.size() == 0) {
+                if (patRefServiceLists.isEmpty()) {
                     noRefServiceFoundMsg.setVisibility(View.VISIBLE);
                 }
                 else {
@@ -1273,7 +1288,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
         connected = false;
         patRefServiceLists = new ArrayList<>();
 
-        String patRefServUrl = pre_url_api+"prescription/getPatRefService?drd_id="+selected_drd_id+"";
+        String patRefServUrl = pre_url_api+"prescription/getPatRefService?drd_id="+selected_drd_id;
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest patRefServReq = new StringRequest(Request.Method.GET, patRefServUrl, response -> {
@@ -1308,14 +1323,14 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateRefServiceData();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateRefServiceData();
         });
@@ -1333,7 +1348,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
                 fullLayout.setVisibility(View.VISIBLE);
                 circularProgressIndicator.setVisibility(View.GONE);
 
-                if (patRefServiceLists.size() == 0) {
+                if (patRefServiceLists.isEmpty()) {
                     noRefServiceFoundMsg.setVisibility(View.VISIBLE);
                 }
                 else {
@@ -1414,19 +1429,19 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterUpdatePAF(flag);
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterUpdatePAF(flag);
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_FLAG",flag);
                 headers.put("P_PMM_ID",pmm_id);

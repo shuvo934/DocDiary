@@ -47,9 +47,11 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.appointment_admin.PatAppSelectCallBackListener;
+import ttit.com.shuvo.docdiary.appointment_admin.interfaces.PatAppSelectCallBackListener;
 import ttit.com.shuvo.docdiary.appointment_admin.adapters.SearchPatientForAppAdapter;
 import ttit.com.shuvo.docdiary.appointment_admin.arraylists.PatientForAppointList;
 
@@ -89,6 +91,7 @@ public class SearchPatientAppDialog extends AppCompatDialogFragment implements S
     }
 
     private PatAppSelectCallBackListener patAppSelectCallBackListener;
+    Logger logger = Logger.getLogger("SearchPatientAppDialog");
 
     @NonNull
     @Override
@@ -138,6 +141,7 @@ public class SearchPatientAppDialog extends AppCompatDialogFragment implements S
 
         alertDialog.setCancelable(false);
         alertDialog.setCanceledOnTouchOutside(false);
+        setCancelable(false);
 
         search.addTextChangedListener(new TextWatcher() {
             @Override
@@ -246,7 +250,7 @@ public class SearchPatientAppDialog extends AppCompatDialogFragment implements S
             search.setText("");
 
             latestPatListText.setVisibility(View.VISIBLE);
-            if (fiftyPatLists.size() == 0) {
+            if (fiftyPatLists.isEmpty()) {
                 noPatientFound.setVisibility(View.VISIBLE);
 
             }
@@ -265,10 +269,10 @@ public class SearchPatientAppDialog extends AppCompatDialogFragment implements S
 
     @Override
     public void onItemClicked(int Position) {
-        String ph_id = "";
-        String pat_name = "";
-        String pat_id = "";
-        String pat_cat_id = "";
+        String ph_id;
+        String pat_name;
+        String pat_id;
+        String pat_cat_id;
         if (firstGetter) {
             ph_id = fiftyPatLists.get(Position).getPh_id();
             pat_name = fiftyPatLists.get(Position).getPat_name();
@@ -366,14 +370,14 @@ public class SearchPatientAppDialog extends AppCompatDialogFragment implements S
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateLayout();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateLayout();
         });
@@ -401,7 +405,7 @@ public class SearchPatientAppDialog extends AppCompatDialogFragment implements S
                 search.setText("");
 
                 latestPatListText.setVisibility(View.VISIBLE);
-                if (fiftyPatLists.size() == 0) {
+                if (fiftyPatLists.isEmpty()) {
                     noPatientFound.setVisibility(View.VISIBLE);
 
                 }
@@ -477,14 +481,14 @@ public class SearchPatientAppDialog extends AppCompatDialogFragment implements S
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -509,7 +513,7 @@ public class SearchPatientAppDialog extends AppCompatDialogFragment implements S
                 latestPatListText.setVisibility(View.GONE);
                 clearButton.setVisibility(View.VISIBLE);
 
-                if (patientForAppointLists.size() == 0) {
+                if (patientForAppointLists.isEmpty()) {
                     noPatientFound.setVisibility(View.VISIBLE);
                 }
                 else {

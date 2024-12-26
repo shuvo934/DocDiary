@@ -2,6 +2,7 @@ package ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo;
 
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
@@ -27,7 +28,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -44,6 +44,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 
@@ -71,6 +73,7 @@ public class AdviceModify extends AppCompatActivity {
     String pmm_id = "";
     String pa_id = "";
     String pa_name = "";
+    Logger logger = Logger.getLogger(AdviceModify.class.getName());
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -163,7 +166,7 @@ public class AdviceModify extends AppCompatActivity {
             return false;
         });
 
-        close.setOnClickListener(v -> onBackPressed());
+        close.setOnClickListener(v -> finish());
 
         modify.setOnClickListener(v -> {
             pa_name = Objects.requireNonNull(advice.getText()).toString();
@@ -176,9 +179,7 @@ public class AdviceModify extends AppCompatActivity {
                                 dialog.dismiss();
                                 addAdvice();
                             })
-                            .setNegativeButton("No",(dialog, which) -> {
-                                dialog.dismiss();
-                            });
+                            .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
 
                     AlertDialog alert = alertDialogBuilder.create();
                     alert.show();
@@ -190,9 +191,7 @@ public class AdviceModify extends AppCompatActivity {
                                 dialog.dismiss();
                                 updateAdvice();
                             })
-                            .setNegativeButton("No",(dialog, which) -> {
-                                dialog.dismiss();
-                            });
+                            .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
 
                     AlertDialog alert = alertDialogBuilder.create();
                     alert.show();
@@ -201,6 +200,18 @@ public class AdviceModify extends AppCompatActivity {
             else {
                 Toast.makeText(getApplicationContext(),"Please Write Advice",Toast.LENGTH_SHORT).show();
                 adviceMissing.setVisibility(View.VISIBLE);
+            }
+        });
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (loading) {
+                    Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    finish();
+                }
             }
         });
 
@@ -213,15 +224,10 @@ public class AdviceModify extends AppCompatActivity {
         return super.onTouchEvent(event);
     }
 
-    @Override
-    public void onBackPressed() {
-        if (loading) {
-            Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
-        }
-        else {
-            super.onBackPressed();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//
+//    }
 
     private void closeKeyBoard() {
         View view = getCurrentFocus();
@@ -267,14 +273,14 @@ public class AdviceModify extends AppCompatActivity {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -291,7 +297,7 @@ public class AdviceModify extends AppCompatActivity {
                 conn = false;
                 connected = false;
 
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(AdviceModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,adviceLists);
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(AdviceModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,adviceLists);
                 advice.setAdapter(arrayAdapter);
 
             }
@@ -361,19 +367,19 @@ public class AdviceModify extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterAdd();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterAdd();
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_PMM_ID",pmm_id);
                 headers.put("P_PA_NAME",pa_name);
@@ -419,9 +425,7 @@ public class AdviceModify extends AppCompatActivity {
                     addAdvice();
                     dialog.dismiss();
                 })
-                .setNegativeButton("Cancel",(dialog, which) -> {
-                    dialog.dismiss();
-                });
+                .setNegativeButton("Cancel",(dialog, which) -> dialog.dismiss());
 
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
@@ -457,19 +461,19 @@ public class AdviceModify extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterUpdate();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterUpdate();
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_PMM_ID",pmm_id);
                 headers.put("P_PA_ID",pa_id);
@@ -516,9 +520,7 @@ public class AdviceModify extends AppCompatActivity {
                     updateAdvice();
                     dialog.dismiss();
                 })
-                .setNegativeButton("Cancel",(dialog, which) -> {
-                    dialog.dismiss();
-                });
+                .setNegativeButton("Cancel",(dialog, which) -> dialog.dismiss());
 
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);

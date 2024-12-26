@@ -44,10 +44,28 @@
                     android:layout_centerVertical="true"
                     android:fontFamily="@font/poppins_bold"
                     android:textColor="@color/black"
-                    android:layout_toStartOf="@+id/patient_area_layout_in_pat_search"
+                    android:layout_toStartOf="@+id/phone_call_from_pat_search"
                     android:textSize="@dimen/_11sdp"
                     android:layout_marginEnd="@dimen/_7sdp"
                     android:text="Nahar Akter  Akter Akter Akter Akter Akter Akter Akter"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/phone_call_from_pat_search"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:minWidth="0dp"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    app:icon="@drawable/phone_24"
+                    app:iconPadding="0dp"
+                    app:iconTint="@color/green_sea"
+                    app:iconSize="15dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/_8sdp"
+                    android:layout_marginEnd="@dimen/_8sdp"
+                    android:layout_toStartOf="@+id/patient_area_layout_in_pat_search"
+                    app:backgroundTint="@color/white"
+                    app:strokeColor="@color/green_sea"
+                    app:cornerRadius="@dimen/_8sdp"/>
 
                 <LinearLayout
                     android:id="@+id/patient_area_layout_in_pat_search"

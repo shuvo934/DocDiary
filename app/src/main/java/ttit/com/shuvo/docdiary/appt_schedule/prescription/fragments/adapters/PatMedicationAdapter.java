@@ -16,7 +16,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -29,6 +28,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
@@ -37,8 +38,8 @@ import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.Medi
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.arraylists.PatMedicationList;
 
 public class PatMedicationAdapter extends RecyclerView.Adapter<PatMedicationAdapter.PMAHolder> {
-    private ArrayList<PatMedicationList> mCategory;
-    private Context mContext;
+    private final ArrayList<PatMedicationList> mCategory;
+    private final Context mContext;
     private Boolean conn = false;
     private Boolean connected = false;
     String parsing_message = "";
@@ -47,6 +48,7 @@ public class PatMedicationAdapter extends RecyclerView.Adapter<PatMedicationAdap
         this.mCategory = mCategory;
         this.mContext = mContext;
     }
+    Logger logger = Logger.getLogger("PatMedicationAdapter");
 
     @NonNull
     @Override
@@ -155,19 +157,19 @@ public class PatMedicationAdapter extends RecyclerView.Adapter<PatMedicationAdap
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterDeleteMed(pmp_id,index);
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterDeleteMed(pmp_id,index);
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_PMP_ID",pmp_id);
                 return headers;
@@ -185,7 +187,7 @@ public class PatMedicationAdapter extends RecyclerView.Adapter<PatMedicationAdap
                 Toast.makeText(mContext,"Medicine Deleted Successfully",Toast.LENGTH_SHORT).show();
                 mCategory.remove(pos);
                 notifyDataSetChanged();
-                if (mCategory.size() == 0) {
+                if (mCategory.isEmpty()) {
                     Medication.noPatMedMsg.setVisibility(View.VISIBLE);
                 }
                 else {

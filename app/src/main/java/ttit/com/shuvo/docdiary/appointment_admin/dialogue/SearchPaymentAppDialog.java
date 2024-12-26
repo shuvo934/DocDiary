@@ -33,12 +33,8 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.appointment_admin.AppointmentModify;
-import ttit.com.shuvo.docdiary.appointment_admin.PatAppDoctorSelectionListener;
-import ttit.com.shuvo.docdiary.appointment_admin.PatAppPaymentSelectionListener;
-import ttit.com.shuvo.docdiary.appointment_admin.adapters.SearchDoctorForAppAdapter;
+import ttit.com.shuvo.docdiary.appointment_admin.interfaces.PatAppPaymentSelectionListener;
 import ttit.com.shuvo.docdiary.appointment_admin.adapters.SearchPaymentForAppAdapter;
-import ttit.com.shuvo.docdiary.appointment_admin.arraylists.DoctorForAppList;
 import ttit.com.shuvo.docdiary.appointment_admin.arraylists.PaymentForAppList;
 
 public class SearchPaymentAppDialog extends AppCompatDialogFragment implements SearchPaymentForAppAdapter.ClickedItem {
@@ -94,6 +90,7 @@ public class SearchPaymentAppDialog extends AppCompatDialogFragment implements S
 
         alertDialog.setCancelable(false);
         alertDialog.setCanceledOnTouchOutside(false);
+        setCancelable(false);
 
         search.addTextChangedListener(new TextWatcher() {
             @Override
@@ -168,7 +165,7 @@ public class SearchPaymentAppDialog extends AppCompatDialogFragment implements S
                 isFiltered = true;
             }
         }
-        if (filteredLists.size() == 0) {
+        if (filteredLists.isEmpty()) {
             noPaymentMsg.setVisibility(View.VISIBLE);
         }
         else {
@@ -199,8 +196,8 @@ public class SearchPaymentAppDialog extends AppCompatDialogFragment implements S
 
     @Override
     public void onItemClicked(int Position) {
-        String prm_id = "";
-        String prm_code = "";
+        String prm_id;
+        String prm_code;
         if (isFiltered) {
             prm_id = filteredLists.get(Position).getPrm_id();
             prm_code = filteredLists.get(Position).getPrm_code();

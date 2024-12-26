@@ -2,6 +2,7 @@ package ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo;
 
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
@@ -27,7 +28,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -45,11 +45,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.ComplainModify;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.arraylists.ListOfComplains;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.arraylists.ListOfInjuries;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.arraylists.MedicalHistoryList;
 
 public class MedHistoryModify extends AppCompatActivity {
@@ -65,7 +64,6 @@ public class MedHistoryModify extends AppCompatActivity {
     TextView medHistoryMissing;
     ArrayList<MedicalHistoryList> medicalHistoryLists;
 
-    TextInputLayout detailsLay;
     TextInputEditText details;
 
     Button modify;
@@ -83,6 +81,8 @@ public class MedHistoryModify extends AppCompatActivity {
     boolean selectedFromItems = false;
 
     String pmh_id = "";
+
+    Logger logger = Logger.getLogger(MedHistoryModify.class.getName());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -186,22 +186,18 @@ public class MedHistoryModify extends AppCompatActivity {
 
                         if (ss.isEmpty()) {
                             medHistoryMissing.setVisibility(View.VISIBLE);
-                            medHistoryMissing.setText("Please Select Medical History");
+                            String mhmt = "Please Select Medical History";
+                            medHistoryMissing.setText(mhmt);
                         }
                         else {
                             medHistoryMissing.setVisibility(View.VISIBLE);
-                            medHistoryMissing.setText("Invalid Medical History");
+                            String mhmt = "Invalid Medical History";
+                            medHistoryMissing.setText(mhmt);
                         }
                     }
-                    System.out.println(selectedFromItems);
-                    System.out.println("mhm_name: " + mhm_name);
-                    System.out.println("mhm_id: "+ mhm_id);
                 }
                 else {
                     selectedFromItems = false;
-                    System.out.println(selectedFromItems);
-                    System.out.println("mhm_name: " + mhm_name);
-                    System.out.println("mhm_id: "+ mhm_id);
                 }
             }
         });
@@ -238,7 +234,7 @@ public class MedHistoryModify extends AppCompatActivity {
             return false;
         });
 
-        close.setOnClickListener(v -> onBackPressed());
+        close.setOnClickListener(v -> finish());
 
         modify.setOnClickListener(v -> {
             mhm_details = Objects.requireNonNull(details.getText()).toString();
@@ -251,9 +247,7 @@ public class MedHistoryModify extends AppCompatActivity {
                                 dialog.dismiss();
                                 addMedicalHistory();
                             })
-                            .setNegativeButton("No",(dialog, which) -> {
-                                dialog.dismiss();
-                            });
+                            .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
 
                     AlertDialog alert = alertDialogBuilder.create();
                     alert.show();
@@ -265,9 +259,7 @@ public class MedHistoryModify extends AppCompatActivity {
                                 dialog.dismiss();
                                 updateMedicalHistory();
                             })
-                            .setNegativeButton("No",(dialog, which) -> {
-                                dialog.dismiss();
-                            });
+                            .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
 
                     AlertDialog alert = alertDialogBuilder.create();
                     alert.show();
@@ -276,6 +268,18 @@ public class MedHistoryModify extends AppCompatActivity {
             else {
                 Toast.makeText(getApplicationContext(),"Please Provide Medical History",Toast.LENGTH_SHORT).show();
                 medHistoryMissing.setVisibility(View.VISIBLE);
+            }
+        });
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (loading) {
+                    Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    finish();
+                }
             }
         });
 
@@ -288,15 +292,10 @@ public class MedHistoryModify extends AppCompatActivity {
         return super.onTouchEvent(event);
     }
 
-    @Override
-    public void onBackPressed() {
-        if (loading) {
-            Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
-        }
-        else {
-            super.onBackPressed();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//
+//    }
 
     private void closeKeyBoard() {
         View view = getCurrentFocus();
@@ -316,7 +315,7 @@ public class MedHistoryModify extends AppCompatActivity {
 
         medicalHistoryLists = new ArrayList<>();
 
-        String medicalHistoryUrl = pre_url_api+"prescription/getMedHistory?pmm_id="+pmm_id+"";
+        String medicalHistoryUrl = pre_url_api+"prescription/getMedHistory?pmm_id="+pmm_id;
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest medicalHistoryReq = new StringRequest(Request.Method.GET, medicalHistoryUrl, response -> {
@@ -349,14 +348,14 @@ public class MedHistoryModify extends AppCompatActivity {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -373,8 +372,9 @@ public class MedHistoryModify extends AppCompatActivity {
                 conn = false;
                 connected = false;
 
-                if (medicalHistoryLists.size() == 0) {
-                    medHistoryMissing.setText("No Medical History Found");
+                if (medicalHistoryLists.isEmpty()) {
+                    String mhmt = "No Medical History Found";
+                    medHistoryMissing.setText(mhmt);
                     medHistoryMissing.setVisibility(View.VISIBLE);
                 }
                 else {
@@ -386,7 +386,7 @@ public class MedHistoryModify extends AppCompatActivity {
                     type.add(medicalHistoryLists.get(i).getMhm_name());
                 }
 
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(MedHistoryModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MedHistoryModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
                 medHistory.setAdapter(arrayAdapter);
 
             }
@@ -456,19 +456,19 @@ public class MedHistoryModify extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterAdd();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterAdd();
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_PMM_ID",pmm_id);
                 headers.put("P_MHM_ID",mhm_id);
@@ -527,9 +527,7 @@ public class MedHistoryModify extends AppCompatActivity {
                     addMedicalHistory();
                     dialog.dismiss();
                 })
-                .setNegativeButton("Cancel",(dialog, which) -> {
-                    dialog.dismiss();
-                });
+                .setNegativeButton("Cancel",(dialog, which) -> dialog.dismiss());
 
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
@@ -565,19 +563,19 @@ public class MedHistoryModify extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterUpdate();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterUpdate();
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_PMM_ID",pmm_id);
                 headers.put("P_PMH_ID",pmh_id);
@@ -625,9 +623,7 @@ public class MedHistoryModify extends AppCompatActivity {
                     updateMedicalHistory();
                     dialog.dismiss();
                 })
-                .setNegativeButton("Cancel",(dialog, which) -> {
-                    dialog.dismiss();
-                });
+                .setNegativeButton("Cancel",(dialog, which) -> dialog.dismiss());
 
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);

@@ -32,15 +32,14 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.adapters.PatAdviceAdapter;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.adapters.PatManagementAdapter;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.AdviceModify;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.ManagementModify;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.arraylists.PatAdviceList;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.arraylists.PatManagementList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -49,12 +48,10 @@ import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.arraylists.P
  */
 public class PatAdvice extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
     private String pmm_Id;
     private String mParam2;
 
@@ -84,6 +81,8 @@ public class PatAdvice extends Fragment {
         mContext=context;
     }
 
+    Logger logger = Logger.getLogger(PatAdvice.class.getName());
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -92,7 +91,6 @@ public class PatAdvice extends Fragment {
      * @param param2 Parameter 2.
      * @return A new instance of fragment PatAdvice.
      */
-    // TODO: Rename and change types and number of parameters
     public static PatAdvice newInstance(String param1, String param2) {
         PatAdvice fragment = new PatAdvice();
         Bundle args = new Bundle();
@@ -143,9 +141,7 @@ public class PatAdvice extends Fragment {
             startActivity(intent1);
         });
 
-        refresh.setOnClickListener(v -> {
-            getPatAdvice();
-        });
+        refresh.setOnClickListener(v -> getPatAdvice());
 
         getPatAdvice();
 
@@ -169,7 +165,7 @@ public class PatAdvice extends Fragment {
         }
 
         patAdviceLists = new ArrayList<>();
-        String advUrl = pre_url_api+"prescription/getPatAdvice?pmm_id="+pmm_Id+"";
+        String advUrl = pre_url_api+"prescription/getPatAdvice?pmm_id="+pmm_Id;
         RequestQueue requestQueue = Volley.newRequestQueue(mContext);
 
         StringRequest manageReq = new StringRequest(Request.Method.GET, advUrl, response -> {
@@ -199,14 +195,14 @@ public class PatAdvice extends Fragment {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -229,7 +225,7 @@ public class PatAdvice extends Fragment {
                 conn = false;
                 connected = false;
 
-                if (patAdviceLists.size() == 0) {
+                if (patAdviceLists.isEmpty()) {
                     noAdviceMsg.setVisibility(View.VISIBLE);
                 }
                 else {

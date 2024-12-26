@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".report_manager.report_view.reports.web_view.ReportWebView">
+
+    <RelativeLayout
+        android:id="@+id/web_report_show_app_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:background="@color/clouds"
+        android:padding="@dimen/_12sdp">
+
+        <ImageView
+            android:layout_width="@dimen/_21sdp"
+            android:layout_height="@dimen/_21sdp"
+            android:id="@+id/close_logo_of_web_report_show"
+            android:layout_centerVertical="true"
+            android:src="@drawable/close_24"
+            app:tint="@color/black"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/web_report_show_app_bar_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="@dimen/_12sdp"
+            android:layout_toEndOf="@+id/close_logo_of_web_report_show"
+            android:layout_toStartOf="@+id/download_web_report"
+            android:layout_marginEnd="@dimen/_4sdp"
+            android:fontFamily="@font/poppins_bold"
+            android:text="Report View"
+            android:paddingTop="2dp"
+            android:paddingBottom="0dp"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_11sdp"
+            tools:ignore="HardcodedText" />
+
+        <ImageView
+            android:id="@+id/download_web_report"
+            android:layout_width="@dimen/_18sdp"
+            android:layout_height="@dimen/_18sdp"
+            android:src="@drawable/file_download_24"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/_4sdp"
+            app:tint="@color/green_sea"
+            tools:ignore="ContentDescription" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/design_bar_web_report_show"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/web_report_show_app_bar"
+        android:background="@color/green_sea"
+        android:orientation="vertical"/>
+
+    <WebView
+        android:id="@+id/all_report_web_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/design_bar_web_report_show"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"/>
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progress_indicator_web_report_show"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:indeterminate="true"
+        android:layout_gravity="center"/>
+
+</RelativeLayout>

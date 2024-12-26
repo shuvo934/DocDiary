@@ -8,8 +8,11 @@ public class PatientSearchList {
     private String sub_code;
     private String pph_progress;
     private String pat_year;
+    private String pat_cell;
+    private String calling_permission;
 
-    public PatientSearchList(String pat_id, String pat_name, String dd_thana_name, String ph_id, String sub_code, String pph_progress, String pat_year) {
+    public PatientSearchList(String pat_id, String pat_name, String dd_thana_name, String ph_id,
+                             String sub_code, String pph_progress, String pat_year, String pat_cell, String calling_permission) {
         this.pat_id = pat_id;
         this.pat_name = pat_name;
         this.dd_thana_name = dd_thana_name;
@@ -17,6 +20,8 @@ public class PatientSearchList {
         this.sub_code = sub_code;
         this.pph_progress = pph_progress;
         this.pat_year = pat_year;
+        this.pat_cell = pat_cell;
+        this.calling_permission = calling_permission;
     }
 
     public String getPat_id() {
@@ -73,5 +78,21 @@ public class PatientSearchList {
 
     public void setPat_year(String pat_year) {
         this.pat_year = pat_year;
+    }
+
+    public String getPat_cell() {
+        return pat_cell;
+    }
+
+    public void setPat_cell(String pat_cell) {
+        this.pat_cell = pat_cell;
+    }
+
+    public String getCalling_permission() {
+        return calling_permission;
+    }
+
+    public void setCalling_permission(String calling_permission) {
+        this.calling_permission = calling_permission;
     }
 }

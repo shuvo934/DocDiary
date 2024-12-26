@@ -16,7 +16,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -29,17 +28,18 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.PatAdvice;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.AdviceModify;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.ManagementModify;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.arraylists.PatAdviceList;
 
 public class PatAdviceAdapter extends RecyclerView.Adapter<PatAdviceAdapter.PAAHolder> {
-    private ArrayList<PatAdviceList> mCategory;
-    private Context mContext;
+    private final ArrayList<PatAdviceList> mCategory;
+    private final Context mContext;
     private Boolean conn = false;
     private Boolean connected = false;
     String parsing_message = "";
@@ -48,6 +48,8 @@ public class PatAdviceAdapter extends RecyclerView.Adapter<PatAdviceAdapter.PAAH
         this.mCategory = mCategory;
         this.mContext = mContext;
     }
+
+    Logger logger = Logger.getLogger("PatAdviceAdapter");
 
     @NonNull
     @Override
@@ -132,19 +134,19 @@ public class PatAdviceAdapter extends RecyclerView.Adapter<PatAdviceAdapter.PAAH
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterDeleteAdv(pa_id,index);
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterDeleteAdv(pa_id,index);
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_PA_ID",pa_id);
                 return headers;
@@ -162,7 +164,7 @@ public class PatAdviceAdapter extends RecyclerView.Adapter<PatAdviceAdapter.PAAH
                 Toast.makeText(mContext,"Advice Deleted Successfully",Toast.LENGTH_SHORT).show();
                 mCategory.remove(pos);
                 notifyDataSetChanged();
-                if (mCategory.size() == 0) {
+                if (mCategory.isEmpty()) {
                     PatAdvice.noAdviceMsg.setVisibility(View.VISIBLE);
                 }
                 else {

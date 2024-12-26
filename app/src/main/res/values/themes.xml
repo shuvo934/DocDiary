@@ -71,4 +71,9 @@
         <item name="fontFamily">@font/patua_one</item>
         <item name="android:textStyle">bold</item>
     </style>
+    <style name="CustomMenuTextFont" parent="TextAppearance.AppCompat">
+        <item name="android:fontFamily">@font/poppins_semibold</item>
+        <item name="android:paddingTop">@dimen/_2sdp</item>
+        <item name="android:textSize">@dimen/_10sdp</item>
+    </style>
 </resources>

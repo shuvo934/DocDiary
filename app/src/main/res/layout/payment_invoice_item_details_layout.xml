@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_4sdp"
+        android:layout_marginStart="@dimen/_8sdp"
+        android:layout_marginEnd="@dimen/_4sdp"
+        android:background="@drawable/border_design_2"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SL. No"
+            android:layout_gravity="center"
+            android:textColor="@color/black"
+            android:fontFamily="@font/poppins_semibold"
+            android:textSize="@dimen/_9sdp"
+            tools:ignore="HardcodedText"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" :   "
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:textColor="@color/default_text_color"
+            android:fontFamily="@font/poppins_semibold"
+            android:textSize="@dimen/_8sdp"
+            tools:ignore="HardcodedText"/>
+
+        <TextView
+            android:id="@+id/sl_no_of_pay_inv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:gravity="start"
+            android:layout_gravity="center"
+            android:textColor="@color/green_sea"
+            android:fontFamily="@font/poppins_bold"
+            android:textSize="@dimen/_11sdp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_4sdp"
+        android:layout_marginStart="@dimen/_8sdp"
+        android:layout_marginEnd="@dimen/_8sdp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Payment Service Name : "
+            android:textColor="@color/default_text_color"
+            android:fontFamily="@font/poppins_semibold"
+            android:textSize="@dimen/_8sdp"
+            tools:ignore="HardcodedText"/>
+
+        <TextView
+            android:id="@+id/payment_name_in_pay_inv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:gravity="start"
+            android:textColor="@color/black"
+            android:fontFamily="@font/poppins_bold"
+            android:textSize="@dimen/_9sdp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:weightSum="10"
+        android:layout_marginTop="@dimen/_4sdp"
+        android:layout_marginStart="@dimen/_8sdp"
+        android:layout_marginEnd="@dimen/_8sdp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:layout_gravity="center"
+            android:layout_marginEnd="@dimen/_2sdp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Unit Name :"
+                android:textColor="@color/default_text_color"
+                android:fontFamily="@font/poppins_semibold"
+                android:textSize="@dimen/_8sdp"
+                tools:ignore="HardcodedText"/>
+
+            <TextView
+                android:id="@+id/unit_name_in_pay_inv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:gravity="start"
+                android:textColor="@color/black"
+                android:fontFamily="@font/poppins_bold"
+                android:textSize="@dimen/_9sdp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:layout_marginStart="@dimen/_2sdp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Quantity :"
+                android:textColor="@color/default_text_color"
+                android:fontFamily="@font/poppins_semibold"
+                android:layout_marginEnd="@dimen/_6sdp"
+                android:gravity="end"
+                android:textSize="@dimen/_8sdp"
+                tools:ignore="HardcodedText"/>
+
+            <TextView
+                android:id="@+id/service_quantity_in_pay_inv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:gravity="end"
+                android:layout_marginEnd="@dimen/_8sdp"
+                android:textColor="@color/black"
+                android:fontFamily="@font/poppins_bold"
+                android:textSize="@dimen/_9sdp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:weightSum="10"
+        android:layout_marginTop="@dimen/_4sdp"
+        android:layout_marginStart="@dimen/_8sdp"
+        android:layout_marginEnd="@dimen/_8sdp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:id="@+id/month_for_school_lay_in_pay_inv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:visibility="visible"
+            android:layout_marginEnd="@dimen/_2sdp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Month For :"
+                android:textColor="@color/default_text_color"
+                android:fontFamily="@font/poppins_semibold"
+                android:textSize="@dimen/_8sdp"
+                tools:ignore="HardcodedText"/>
+
+            <TextView
+                android:id="@+id/month_for_school_in_pay_inv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:gravity="start"
+                android:textColor="@color/black"
+                android:fontFamily="@font/poppins_bold"
+                android:textSize="@dimen/_9sdp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:visibility="visible"
+            android:layout_marginStart="@dimen/_2sdp"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Rate :"
+                android:textColor="@color/default_text_color"
+                android:fontFamily="@font/poppins_semibold"
+                android:layout_marginEnd="@dimen/_6sdp"
+                android:textSize="@dimen/_8sdp"
+                android:gravity="end"
+                tools:ignore="HardcodedText"/>
+
+            <TextView
+                android:id="@+id/service_rate_in_pay_inv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:gravity="end"
+                android:layout_marginEnd="@dimen/_8sdp"
+                android:textColor="@color/black"
+                android:fontFamily="@font/poppins_bold"
+                android:textSize="@dimen/_9sdp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="10"
+        android:gravity="center"
+        android:layout_marginTop="@dimen/_4sdp"
+        android:layout_marginStart="@dimen/_8sdp"
+        android:layout_marginEnd="@dimen/_8sdp"
+        android:background="@drawable/border_design_1"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:text="Total Amount"
+            android:layout_gravity="center"
+            android:textColor="@color/black"
+            android:fontFamily="@font/poppins_semibold"
+            android:textSize="@dimen/_8sdp"
+            tools:ignore="HardcodedText"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text=":"
+            android:gravity="center"
+            android:textColor="@color/default_text_color"
+            android:fontFamily="@font/poppins_semibold"
+            android:textSize="@dimen/_8sdp"
+            tools:ignore="HardcodedText"/>
+
+        <TextView
+            android:id="@+id/total_amount_in_pay_inv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="6"
+            android:text=""
+            android:gravity="end"
+            android:layout_marginEnd="@dimen/_4sdp"
+            android:textColor="@color/black"
+            android:fontFamily="@font/poppins_bold"
+            android:textSize="@dimen/_9sdp"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="--------------------------------------------------------"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/_8sdp"
+        tools:ignore="HardcodedText" />
+
+</LinearLayout>

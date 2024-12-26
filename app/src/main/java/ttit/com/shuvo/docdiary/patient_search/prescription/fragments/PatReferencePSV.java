@@ -30,6 +30,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.arraylists.PatReferenceList;
@@ -43,12 +45,10 @@ import ttit.com.shuvo.docdiary.patient_search.prescription.fragments.adapters.Pa
  */
 public class PatReferencePSV extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
     private String pmm_Id;
     private String mParam2;
 
@@ -77,6 +77,8 @@ public class PatReferencePSV extends Fragment {
         mContext=context;
     }
 
+    Logger logger = Logger.getLogger(PatReferencePSV.class.getName());
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -85,7 +87,6 @@ public class PatReferencePSV extends Fragment {
      * @param param2 Parameter 2.
      * @return A new instance of fragment PatReferencePSV.
      */
-    // TODO: Rename and change types and number of parameters
     public static PatReferencePSV newInstance(String param1, String param2) {
         PatReferencePSV fragment = new PatReferencePSV();
         Bundle args = new Bundle();
@@ -128,9 +129,7 @@ public class PatReferencePSV extends Fragment {
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(refView.getContext(),DividerItemDecoration.VERTICAL);
         refView.addItemDecoration(dividerItemDecoration);
 
-        refresh.setOnClickListener(v -> {
-            getPatRef();
-        });
+        refresh.setOnClickListener(v -> getPatRef());
 
         getPatRef();
 
@@ -153,7 +152,7 @@ public class PatReferencePSV extends Fragment {
         }
 
         patReferenceLists = new ArrayList<>();
-        String refUrl = pre_url_api+"prescription/getPatReference?pmm_id="+pmm_Id+"";
+        String refUrl = pre_url_api+"prescription/getPatReference?pmm_id="+pmm_Id;
         RequestQueue requestQueue = Volley.newRequestQueue(mContext);
 
         StringRequest manageReq = new StringRequest(Request.Method.GET, refUrl, response -> {
@@ -183,14 +182,14 @@ public class PatReferencePSV extends Fragment {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -211,7 +210,7 @@ public class PatReferencePSV extends Fragment {
                 conn = false;
                 connected = false;
 
-                if (patReferenceLists.size() == 0) {
+                if (patReferenceLists.isEmpty()) {
                     noRefMsg.setVisibility(View.VISIBLE);
                 }
                 else {

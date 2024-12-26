@@ -23,9 +23,8 @@ import com.google.gson.Gson;
 import java.util.ArrayList;
 
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.login.AdminCallBackListener;
-import ttit.com.shuvo.docdiary.login.CallBackListener;
-import ttit.com.shuvo.docdiary.login.CloseCallBack;
+import ttit.com.shuvo.docdiary.login.interfaces.AdminCallBackListener;
+import ttit.com.shuvo.docdiary.login.interfaces.CallBackListener;
 import ttit.com.shuvo.docdiary.login.adapters.CenterAdapter;
 import ttit.com.shuvo.docdiary.login.arraylists.CenterList;
 import ttit.com.shuvo.docdiary.login.arraylists.MultipleUserList;
@@ -89,6 +88,7 @@ public class CenterSelectDialogue extends AppCompatDialogFragment implements Cen
 
         dialog.setCancelable(false);
         dialog.setCanceledOnTouchOutside(false);
+        setCancelable(false);
 
         centerView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getContext());
@@ -96,9 +96,7 @@ public class CenterSelectDialogue extends AppCompatDialogFragment implements Cen
 
         centerAdapter = new CenterAdapter(centerLists,mContext,this);
         centerView.setAdapter(centerAdapter);
-        close.setOnClickListener(v -> {
-            dialog.dismiss();
-        });
+        close.setOnClickListener(v -> dialog.dismiss());
 
         return dialog;
     }
@@ -108,7 +106,7 @@ public class CenterSelectDialogue extends AppCompatDialogFragment implements Cen
         ArrayList<MultipleUserList> multipleUserLists = centerLists.get(CategoryPosition).getMultipleUserLists();
         centerAPI = centerLists.get(CategoryPosition).getCenter_api();
 
-        if (multipleUserLists.size() == 0) {
+        if (multipleUserLists.isEmpty()) {
 
             d_code = centerLists.get(CategoryPosition).getDoc_code();
             admin_id = centerLists.get(CategoryPosition).getAdmin_user_id();

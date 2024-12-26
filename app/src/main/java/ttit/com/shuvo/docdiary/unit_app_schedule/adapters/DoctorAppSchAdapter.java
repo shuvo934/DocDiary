@@ -1,13 +1,20 @@
 package ttit.com.shuvo.docdiary.unit_app_schedule.adapters;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.card.MaterialCardView;
@@ -48,7 +55,7 @@ public class DoctorAppSchAdapter extends RecyclerView.Adapter<DoctorAppSchAdapte
         String appt_date = schedule.getAdm_date();
         appt_date = appt_date + " " + schedule.getSchedule_time();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy hh:mm a", Locale.ENGLISH);
-        Date appDate = null;
+        Date appDate;
         try {
             appDate = simpleDateFormat.parse(appt_date);
         } catch (ParseException e) {
@@ -60,6 +67,7 @@ public class DoctorAppSchAdapter extends RecyclerView.Adapter<DoctorAppSchAdapte
             holder.pat_code.setVisibility(View.VISIBLE);
             holder.serviceName.setVisibility(View.VISIBLE);
             holder.messageText.setVisibility(View.VISIBLE);
+            holder.calling.setVisibility(View.GONE);
 
             holder.pat_code.setText("");
             holder.serviceName.setText("");
@@ -106,6 +114,20 @@ public class DoctorAppSchAdapter extends RecyclerView.Adapter<DoctorAppSchAdapte
             holder.serviceName.setText(schedule.getPfn_fee_name());
             String text = schedule.getPat_name();
             holder.pat_name.setText(text);
+            if (schedule.getCalling_permission().equals("1")) {
+                holder.calling.setVisibility(View.GONE);
+            }
+            else if (schedule.getCalling_permission().equals("2")) {
+                if (!schedule.getPat_cell().isEmpty()) {
+                    holder.calling.setVisibility(View.VISIBLE);
+                }
+                else {
+                    holder.calling.setVisibility(View.GONE);
+                }
+            }
+            else {
+                holder.calling.setVisibility(View.GONE);
+            }
             System.out.println(p_code);
 
             if (appDate != null) {
@@ -117,6 +139,7 @@ public class DoctorAppSchAdapter extends RecyclerView.Adapter<DoctorAppSchAdapte
 //                    holder.border.setVisibility(View.GONE);
 
                     holder.pat_name.setTextColor(myContext.getColor(R.color.white));
+                    holder.calling.setColorFilter(myContext.getColor(R.color.white));
                     holder.pat_code.setTextColor(myContext.getColor(R.color.white));
                     holder.serviceName.setTextColor(myContext.getColor(R.color.white));
                     holder.timeOfAppt.setTextColor(myContext.getColor(R.color.white));
@@ -129,6 +152,7 @@ public class DoctorAppSchAdapter extends RecyclerView.Adapter<DoctorAppSchAdapte
 //                    holder.border.setVisibility(View.VISIBLE);
 
                     holder.pat_name.setTextColor(myContext.getColor(R.color.black));
+                    holder.calling.setColorFilter(myContext.getColor(R.color.green_sea));
                     holder.pat_code.setTextColor(myContext.getColor(R.color.default_text_color));
                     holder.serviceName.setTextColor(myContext.getColor(R.color.default_text_color));
                     holder.timeOfAppt.setTextColor(myContext.getColor(R.color.black));
@@ -140,6 +164,7 @@ public class DoctorAppSchAdapter extends RecyclerView.Adapter<DoctorAppSchAdapte
 //                holder.border.setVisibility(View.VISIBLE);
 
                 holder.pat_name.setTextColor(myContext.getColor(R.color.default_text_color));
+                holder.calling.setVisibility(View.GONE);
                 holder.pat_code.setTextColor(myContext.getColor(R.color.default_text_color));
                 holder.serviceName.setTextColor(myContext.getColor(R.color.default_text_color));
                 holder.timeOfAppt.setTextColor(myContext.getColor(R.color.black));
@@ -150,6 +175,7 @@ public class DoctorAppSchAdapter extends RecyclerView.Adapter<DoctorAppSchAdapte
             holder.pat_code.setVisibility(View.VISIBLE);
             holder.serviceName.setVisibility(View.VISIBLE);
             holder.messageText.setVisibility(View.VISIBLE);
+            holder.calling.setVisibility(View.GONE);
 
             holder.pat_code.setText("");
             holder.serviceName.setText("");
@@ -186,7 +212,7 @@ public class DoctorAppSchAdapter extends RecyclerView.Adapter<DoctorAppSchAdapte
         return mCategoryItem.size();
     }
 
-    public static class DASHolder extends RecyclerView.ViewHolder {
+    public class DASHolder extends RecyclerView.ViewHolder {
 
         TextView timeOfAppt;
         TextView pat_name;
@@ -195,6 +221,7 @@ public class DoctorAppSchAdapter extends RecyclerView.Adapter<DoctorAppSchAdapte
         TextView serviceName;
         RelativeLayout border;
         TextView messageText;
+        AppCompatImageView calling;
 
         public DASHolder(@NonNull View itemView) {
             super(itemView);
@@ -205,6 +232,32 @@ public class DoctorAppSchAdapter extends RecyclerView.Adapter<DoctorAppSchAdapte
             materialCardView = itemView.findViewById(R.id.car_view_of_doc_app_sch_view);
             border = itemView.findViewById(R.id.border_layout_unit_wise_doctor);
             messageText = itemView.findViewById(R.id.message_for_docs_unit_wise);
+            calling = itemView.findViewById(R.id.phone_call_from_all_appointment);
+
+            calling.setOnClickListener(view -> {
+                String number = mCategoryItem.get(getAdapterPosition()).getPat_cell();
+                String name = mCategoryItem.get(getAdapterPosition()).getPat_name();
+                if (!number.isEmpty()) {
+                    AppCompatActivity activity = (AppCompatActivity) view.getContext();
+                    AlertDialog dialog = new AlertDialog.Builder(activity)
+                            .setMessage("Do you want to make a call to "+name+" ?")
+                            .setPositiveButton("Yes", null)
+                            .setNegativeButton("No",null)
+                            .show();
+                    dialog.setCancelable(false);
+                    dialog.setCanceledOnTouchOutside(false);
+                    Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                    positive.setOnClickListener(v1 -> {
+                        dialog.dismiss();
+                        Intent callIntent = new Intent(Intent.ACTION_DIAL);
+                        callIntent.setData(Uri.parse("tel:"+number));
+                        activity.startActivity(callIntent);
+
+                    });
+                    Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+                    negative.setOnClickListener(v12 -> dialog.dismiss());
+                }
+            });
         }
     }
 }

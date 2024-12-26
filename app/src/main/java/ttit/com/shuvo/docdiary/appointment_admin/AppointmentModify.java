@@ -3,6 +3,7 @@ package ttit.com.shuvo.docdiary.appointment_admin;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.adminInfoLists;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
@@ -46,6 +47,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.all_appointment.AllAppointment;
@@ -63,6 +66,11 @@ import ttit.com.shuvo.docdiary.appointment_admin.dialogue.SearchDoctorCancelAppD
 import ttit.com.shuvo.docdiary.appointment_admin.dialogue.SearchPatientAppDialog;
 import ttit.com.shuvo.docdiary.appointment_admin.dialogue.SearchPatientCancelAppDialog;
 import ttit.com.shuvo.docdiary.appointment_admin.dialogue.SearchPaymentAppDialog;
+import ttit.com.shuvo.docdiary.appointment_admin.interfaces.AppCancelDoctorSelectListener;
+import ttit.com.shuvo.docdiary.appointment_admin.interfaces.PatAppCancelCallBackListener;
+import ttit.com.shuvo.docdiary.appointment_admin.interfaces.PatAppDoctorSelectionListener;
+import ttit.com.shuvo.docdiary.appointment_admin.interfaces.PatAppPaymentSelectionListener;
+import ttit.com.shuvo.docdiary.appointment_admin.interfaces.PatAppSelectCallBackListener;
 
 public class AppointmentModify extends AppCompatActivity implements PatAppSelectCallBackListener,
         PatAppDoctorSelectionListener, PatAppPaymentSelectionListener, PatAppCancelCallBackListener, AppCancelDoctorSelectListener {
@@ -143,7 +151,9 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
 
     public static ArrayList<SavedAppointmentDateTimeList> appointmentDateTimeLists;
     int previousTabPosition = 0;
-
+    
+    Logger logger = Logger.getLogger(AppointmentModify.class.getName());
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -271,7 +281,7 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
             public void onTabSelected(TabLayout.Tab tab) {
                 if (previousTabPosition != tab.getPosition()) {
                     if (tab.getPosition() == 1) {
-                        if (appointmentDateTimeLists.size() != 0) {
+                        if (!appointmentDateTimeLists.isEmpty()) {
                             MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AppointmentModify.this);
                             alertDialogBuilder
                                     .setMessage("You have Data Stored in this section. Do you want to switch to Cancel Appointment section?")
@@ -370,7 +380,7 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
             startActivity(intent);
         });
 
-        backButton.setOnClickListener(v -> onBackPressed());
+        backButton.setOnClickListener(v -> finish());
 
         searchPatient.setOnClickListener(v -> {
             SearchPatientAppDialog searchPatientAppDialog = new SearchPatientAppDialog(AppointmentModify.this);
@@ -629,7 +639,7 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
             if (adm_date_position.isEmpty()) {
                 adm_date_position = String.valueOf(position);
                 appTimeLists = new ArrayList<>();
-                ArrayList<AppointTimeCancelList> timeCancelLists = new ArrayList<>();
+                ArrayList<AppointTimeCancelList> timeCancelLists;
 //                for (int i = 0; i <appointDateTimeCancelLists.size(); i++) {
 //                    if (name.equals(appointDateTimeCancelLists.get(i).getApp_date())) {
 //
@@ -664,7 +674,7 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
                 if (position != Integer.parseInt(adm_date_position)) {
                     adm_date_position = String.valueOf(position);
                     appTimeLists = new ArrayList<>();
-                    ArrayList<AppointTimeCancelList> timeCancelLists = new ArrayList<>();
+                    ArrayList<AppointTimeCancelList> timeCancelLists;
 //                    for (int i = 0; i <appointDateTimeCancelLists.size(); i++) {
 //                        if (name.equals(appointDateTimeCancelLists.get(i).getApp_date())) {
 //                            selected_ad_id = appointDateTimeCancelLists.get(i).getAd_id();
@@ -727,7 +737,7 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
                 if (!selected_doc_id.isEmpty()) {
                     if (!selected_prm_id.isEmpty()) {
                         if (!selected_pfn_id.isEmpty()) {
-                            if (appointmentDateTimeLists.size() != 0) {
+                            if (!appointmentDateTimeLists.isEmpty()) {
                                 insertAppointment();
                             }
                             else {
@@ -767,7 +777,7 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
                 if (!selected_doc_id.isEmpty()) {
                     if (!selected_pfn_id.isEmpty()) {
                         if (!selected_ad_id.isEmpty()) {
-                            if (appTimeLists.size() != 0) {
+                            if (!appTimeLists.isEmpty()) {
                                 updateAppointmentToCancel();
                             }
                             else {
@@ -798,6 +808,18 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
             else {
                 patSelectCancErrorMsg.setVisibility(View.VISIBLE);
                 Toast.makeText(this, "Please Select Patient", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (loading) {
+                    Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    finish();
+                }
             }
         });
     }
@@ -918,15 +940,10 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        if (loading) {
-            Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
-        }
-        else {
-            super.onBackPressed();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//
+//    }
 
     @Override
     public void onPatientSelection() {
@@ -1106,7 +1123,7 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
 
         doctorForAppLists = new ArrayList<>();
 
-        String doctorUrl = pre_url_api+"appointmentModify/getDoctorList?ph_id="+selected_pat_ph_id+"";
+        String doctorUrl = pre_url_api+"appointmentModify/getDoctorList?ph_id="+selected_pat_ph_id;
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
@@ -1152,14 +1169,14 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -1188,7 +1205,7 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
                 paymentSelectErrMsg.setVisibility(View.GONE);
                 serviceSelectErrMsg.setVisibility(View.GONE);
 
-                if (doctorForAppLists.size() == 0) {
+                if (doctorForAppLists.isEmpty()) {
                     fullLayout.setVisibility(View.VISIBLE);
                     circularProgressIndicator.setVisibility(View.GONE);
 
@@ -1306,14 +1323,14 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updatePaySpinner();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updatePaySpinner();
         });
@@ -1347,7 +1364,7 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
                 paymentSelectErrMsg.setVisibility(View.GONE);
                 serviceSelectErrMsg.setVisibility(View.GONE);
 
-                if (paymentForAppLists.size() == 0) {
+                if (paymentForAppLists.isEmpty()) {
                     fullLayout.setVisibility(View.VISIBLE);
                     circularProgressIndicator.setVisibility(View.GONE);
 
@@ -1460,14 +1477,14 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateServiceSpinner();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateServiceSpinner();
         });
@@ -1498,7 +1515,7 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
 
                 serviceSelectErrMsg.setVisibility(View.GONE);
 
-                if (serviceForAppLists.size() == 0) {
+                if (serviceForAppLists.isEmpty()) {
                     selectServiceLay.setEnabled(false);
                     String sem = "No Service List found for this Patient";
                     serviceSelectErrMsg.setText(sem);
@@ -1630,13 +1647,13 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
                 }
 
             } catch (JSONException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 connected = false;
                 updateAfterAppInsert();
             }
         }, error -> {
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             conn = false;
             connected = false;
@@ -1771,7 +1788,7 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
 
         doctorForAppLists = new ArrayList<>();
 
-        String doctorUrl = pre_url_api+"appointmentModify/getDoctorListForCancel?ph_id="+selected_pat_ph_id+"";
+        String doctorUrl = pre_url_api+"appointmentModify/getDoctorListForCancel?ph_id="+selected_pat_ph_id;
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
@@ -1817,14 +1834,14 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateDocCancelInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateDocCancelInterface();
         });
@@ -1855,7 +1872,7 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
 
                 appTimeCardViewLay.setVisibility(View.GONE);
 
-                if (doctorForAppLists.size() == 0) {
+                if (doctorForAppLists.isEmpty()) {
                     fullLayout.setVisibility(View.VISIBLE);
                     circularProgressIndicator.setVisibility(View.GONE);
 
@@ -1970,14 +1987,14 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateServiceCancSpinner();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateServiceCancSpinner();
         });
@@ -2007,7 +2024,7 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
 
                 appTimeCardViewLay.setVisibility(View.GONE);
 
-                if (serviceForAppLists.size() == 0) {
+                if (serviceForAppLists.isEmpty()) {
                     fullLayout.setVisibility(View.VISIBLE);
                     circularProgressIndicator.setVisibility(View.GONE);
 
@@ -2146,14 +2163,14 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateDateCancSpinner();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateDateCancSpinner();
         });
@@ -2184,7 +2201,7 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
 
                 appTimeCardViewLay.setVisibility(View.GONE);
 
-                if (appointDateTimeCancelLists.size() == 0) {
+                if (appointDateTimeCancelLists.isEmpty()) {
                     selectAppDateCancLay.setEnabled(false);
                     String adem = "No Appointment Date found for this Patient";
                     appDateSelectCancErrMsg.setText(adem);
@@ -2287,13 +2304,13 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
 
             }
             catch (JSONException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 connected = false;
                 updateAfterAppCancel();
             }
         }, error -> {
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             conn = false;
             connected = false;

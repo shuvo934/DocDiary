@@ -1,5 +1,7 @@
 package ttit.com.shuvo.docdiary.dashboard;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
@@ -11,9 +13,11 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -27,7 +31,6 @@ import android.widget.Toast;
 
 import com.androchef.happytimer.countdowntimer.HappyTimer;
 import com.androchef.happytimer.countdowntimer.NormalCountDownView;
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -35,6 +38,7 @@ import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.github.dewinjm.monthyearpicker.MonthFormat;
 import com.github.dewinjm.monthyearpicker.MonthYearPickerDialogFragment;
+import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Legend;
@@ -60,6 +64,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -76,6 +82,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appointment_admin.AppointmentModify;
@@ -84,8 +92,9 @@ import ttit.com.shuvo.docdiary.dashboard.arraylists.AppointmentChartList;
 import ttit.com.shuvo.docdiary.dashboard.arraylists.PaymentChartList;
 import ttit.com.shuvo.docdiary.dashboard.extra.AppointMarkerView;
 import ttit.com.shuvo.docdiary.dashboard.extra.MyMarkerView;
-import ttit.com.shuvo.docdiary.login.AdminCallBackListener;
-import ttit.com.shuvo.docdiary.login.AdminIDCallbackListener;
+import ttit.com.shuvo.docdiary.hr_accounts.HRAccounts;
+import ttit.com.shuvo.docdiary.login.interfaces.AdminCallBackListener;
+import ttit.com.shuvo.docdiary.login.interfaces.AdminIDCallbackListener;
 import ttit.com.shuvo.docdiary.patient_search.PatientSearchAdmin;
 import ttit.com.shuvo.docdiary.payment.AddPayment;
 import ttit.com.shuvo.docdiary.all_appointment.AllAppointment;
@@ -94,9 +103,9 @@ import ttit.com.shuvo.docdiary.dashboard.arraylists.UserInfoList;
 import ttit.com.shuvo.docdiary.dashboard.dialogue.CenterSelectDialogue;
 import ttit.com.shuvo.docdiary.dashboard.dialogue.UserSelectDialogue;
 import ttit.com.shuvo.docdiary.leave_schedule.DocLeave;
-import ttit.com.shuvo.docdiary.login.CallBackListener;
+import ttit.com.shuvo.docdiary.login.interfaces.CallBackListener;
 import ttit.com.shuvo.docdiary.login.DocLogin;
-import ttit.com.shuvo.docdiary.login.IDCallbackListener;
+import ttit.com.shuvo.docdiary.login.interfaces.IDCallbackListener;
 import ttit.com.shuvo.docdiary.login.arraylists.CenterList;
 import ttit.com.shuvo.docdiary.login.arraylists.MultipleUserList;
 import ttit.com.shuvo.docdiary.patient_search.PatientSearch;
@@ -206,7 +215,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     MaterialButton allDoctorAppointment;
     MaterialButton doctorReports;
     ImageView switchUser;
-    private boolean user_switch = false;
     ArrayList<CenterList> centerLists;
     boolean tabUpdateNeeded = false;
 
@@ -250,6 +258,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     CircularProgressIndicator appointChartCircularProgressIndicator;
     ImageView appointChartRefresh;
     AlertDialog yearDialogAppoint;
+    Logger logger = Logger.getLogger(DocDashboard.class.getName());
+    Bitmap selectedBitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -358,8 +368,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                         if (progress_track < 0) {
                             progress_track = 0;
                         }
-                        int mm = (int) i1 / 60;
-                        int hh = (int) mm / 60;
+                        int mm = i1 / 60;
+                        int hh = mm / 60;
 
                         normalCountDownView.setShowHour(hh != 0);
 
@@ -622,9 +632,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
         });
 
-        chartTabRefresh.setOnClickListener(v -> {
-            getChartData();
-        });
+        chartTabRefresh.setOnClickListener(v -> getChartData());
 
         yearSelectionPayment.setOnClickListener(v -> {
             Calendar today = Calendar.getInstance();
@@ -639,7 +647,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     date = simpleDateFormat.parse(paymentChartFirstDate);
                 }
                 catch (ParseException e) {
-                    e.printStackTrace();
+                    logger.log(Level.WARNING,e.getMessage(),e);
                 }
                 if (date != null) {
                     d = date;
@@ -672,18 +680,16 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             yearDialogPayment.show();
         });
 
-        paymentChartRefresh.setOnClickListener(v -> {
-            getPaymentChart();
-        });
+        paymentChartRefresh.setOnClickListener(v -> getPaymentChart());
 
         monthSelectionPayment.setOnClickListener(v -> {
 
             Date c1 = Calendar.getInstance().getTime();
 
-            String formattedYear = "";
-            String monthValue = "";
-            String lastformattedYear = "";
-            String lastdateView = "";
+            String formattedYear;
+            String monthValue;
+            String lastformattedYear;
+            String lastdateView;
 
             SimpleDateFormat df1 = new SimpleDateFormat("yyyy", Locale.ENGLISH);
             SimpleDateFormat sdf = new SimpleDateFormat("MM",Locale.ENGLISH);
@@ -730,7 +736,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     date = simpleDateFormat.parse(paymentChartFirstDate);
                 }
                 catch (ParseException e) {
-                    e.printStackTrace();
+                    logger.log(Level.WARNING,e.getMessage(),e);
                 }
 
                 if (date != null) {
@@ -757,45 +763,32 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 System.out.println(monthOfYear);
 
                 int month = monthOfYear + 1;
-                String monthName = "";
                 String mon = "";
-                String yearName = "";
+                String yearName;
 
                 if (month == 1) {
-                    monthName = "JANUARY";
                     mon = "JAN";
                 } else if (month == 2) {
-                    monthName = "FEBRUARY";
                     mon = "FEB";
                 } else if (month == 3) {
-                    monthName = "MARCH";
                     mon = "MAR";
                 } else if (month == 4) {
-                    monthName = "APRIL";
                     mon = "APR";
                 } else if (month == 5) {
-                    monthName = "MAY";
                     mon = "MAY";
                 } else if (month == 6) {
-                    monthName = "JUNE";
                     mon = "JUN";
                 } else if (month == 7) {
-                    monthName = "JULY";
                     mon = "JUL";
                 } else if (month == 8) {
-                    monthName = "AUGUST";
                     mon = "AUG";
                 } else if (month == 9) {
-                    monthName = "SEPTEMBER";
                     mon = "SEP";
                 } else if (month == 10) {
-                    monthName = "OCTOBER";
                     mon = "OCT";
                 } else if (month == 11) {
-                    monthName = "NOVEMBER";
                     mon = "NOV";
                 } else if (month == 12) {
-                    monthName = "DECEMBER";
                     mon = "DEC";
                 }
 
@@ -813,7 +806,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 try {
                     today11 = sss.parse(paymentChartFirstDate);
                 } catch (ParseException e) {
-                    e.printStackTrace();
+                    logger.log(Level.WARNING,e.getMessage(),e);
                 }
 
                 Calendar calendar11 = Calendar.getInstance();
@@ -849,7 +842,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     date = simpleDateFormat.parse(appointChartFirstDate);
                 }
                 catch (ParseException e) {
-                    e.printStackTrace();
+                    logger.log(Level.WARNING,e.getMessage(),e);
                 }
                 if (date != null) {
                     d = date;
@@ -882,9 +875,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             yearDialogAppoint.show();
         });
 
-        appointChartRefresh.setOnClickListener(v -> {
-            getAppointmentChart();
-        });
+        appointChartRefresh.setOnClickListener(v -> getAppointmentChart());
 
         monthSelectionAppoint.setOnClickListener(v -> {
 
@@ -892,10 +883,10 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             mc.add(Calendar.MONTH, 2);
             Date c1 = mc.getTime();
 
-            String formattedYear = "";
-            String monthValue = "";
-            String lastformattedYear = "";
-            String lastdateView = "";
+            String formattedYear;
+            String monthValue;
+            String lastformattedYear;
+            String lastdateView;
 
             SimpleDateFormat df1 = new SimpleDateFormat("yyyy", Locale.ENGLISH);
             SimpleDateFormat sdf = new SimpleDateFormat("MM",Locale.ENGLISH);
@@ -942,7 +933,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     date = simpleDateFormat.parse(appointChartFirstDate);
                 }
                 catch (ParseException e) {
-                    e.printStackTrace();
+                    logger.log(Level.WARNING,e.getMessage(),e);
                 }
 
                 if (date != null) {
@@ -969,45 +960,32 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 System.out.println(monthOfYear);
 
                 int month = monthOfYear + 1;
-                String monthName = "";
                 String mon = "";
-                String yearName = "";
+                String yearName;
 
                 if (month == 1) {
-                    monthName = "JANUARY";
                     mon = "JAN";
                 } else if (month == 2) {
-                    monthName = "FEBRUARY";
                     mon = "FEB";
                 } else if (month == 3) {
-                    monthName = "MARCH";
                     mon = "MAR";
                 } else if (month == 4) {
-                    monthName = "APRIL";
                     mon = "APR";
                 } else if (month == 5) {
-                    monthName = "MAY";
                     mon = "MAY";
                 } else if (month == 6) {
-                    monthName = "JUNE";
                     mon = "JUN";
                 } else if (month == 7) {
-                    monthName = "JULY";
                     mon = "JUL";
                 } else if (month == 8) {
-                    monthName = "AUGUST";
                     mon = "AUG";
                 } else if (month == 9) {
-                    monthName = "SEPTEMBER";
                     mon = "SEP";
                 } else if (month == 10) {
-                    monthName = "OCTOBER";
                     mon = "OCT";
                 } else if (month == 11) {
-                    monthName = "NOVEMBER";
                     mon = "NOV";
                 } else if (month == 12) {
-                    monthName = "DECEMBER";
                     mon = "DEC";
                 }
 
@@ -1025,7 +1003,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 try {
                     today11 = sss.parse(appointChartFirstDate);
                 } catch (ParseException e) {
-                    e.printStackTrace();
+                    logger.log(Level.WARNING,e.getMessage(),e);
                 }
 
                 Calendar calendar11 = Calendar.getInstance();
@@ -1078,9 +1056,21 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 Intent intent = new Intent(DocDashboard.this, AppointmentModify.class);
                 startActivity(intent);
             }
-            else if (item.getItemId() == R.id.admin_report_menu) {
-                Intent intent = new Intent(DocDashboard.this, ReportManager.class);
-                startActivity(intent);
+            else if (item.getItemId() == R.id.admin_hr_account_menu) {
+                if (pre_url_api.contains("cstar")) {
+                    if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) > 0) {
+                        Intent intent = new Intent(DocDashboard.this, HRAccounts.class);
+                        startActivity(intent);
+                    }
+                    else {
+                        Intent intent = new Intent(DocDashboard.this, ReportManager.class);
+                        startActivity(intent);
+                    }
+                }
+                else {
+                    Intent intent = new Intent(DocDashboard.this, ReportManager.class);
+                    startActivity(intent);
+                }
             }
             return true;
         });
@@ -1107,9 +1097,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                         finish();
                         dialog.dismiss();
                     })
-                    .setNegativeButton("No",(dialog, which) -> {
-                        dialog.dismiss();
-                    });
+                    .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
 
             AlertDialog alert = alertDialogBuilder.create();
             try {
@@ -1137,7 +1125,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         });
 
         switchUser.setOnClickListener(v -> {
-            if (centerLists != null && centerLists.size() != 0) {
+            if (centerLists != null && !centerLists.isEmpty()) {
                 if (centerLists.size() == 1) {
                     ArrayList<MultipleUserList> multipleUserLists = centerLists.get(0).getMultipleUserLists();
                     String cn = centerLists.get(0).getCenter_name();
@@ -1162,6 +1150,39 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             }
         });
 
+        docImage.setOnClickListener(view -> {
+            if (admin_user_flag.equals("2")) {
+                ImagePicker.with(this)
+                        .crop()
+                        .compress(1024)
+                        .maxResultSize(1080,1080)
+                        .start(1114);
+            }
+        });
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
+                alertDialogBuilder.setTitle("Exit!")
+                        .setIcon(R.drawable.doc_diary_default)
+                        .setMessage("Do you want to exit?")
+                        .setPositiveButton("Yes", (dialog, which) -> {
+                            dialog.dismiss();
+                            finish();
+                        })
+                        .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
+
+                AlertDialog alert = alertDialogBuilder.create();
+                try {
+                    alert.show();
+                }
+                catch (Exception e) {
+                    restart("App is paused for a long time. Please Start the app again.");
+                }
+            }
+        });
+
         initData();
     }
 
@@ -1180,7 +1201,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 //        int multi_index = -1;
 //        int multi_center_index = -1;
         if (centerLists != null) {
-            if (centerLists.size() == 0) {
+            if (centerLists.isEmpty()) {
                 System.out.println("NO USER");
                 switchUser.setVisibility(View.GONE);
             }
@@ -1254,7 +1275,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             try {
                 fieldValue = field.getInt(new Object());
             } catch (IllegalArgumentException | IllegalAccessException | NullPointerException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
             }
 
             if (fieldValue == Build.VERSION.SDK_INT) {
@@ -1368,18 +1389,44 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 }
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            Log.e("Error: ", ex.toString());
         } // for now eat exceptions
         return "";
     }
 
     public static String getHostName(String defValue) {
         try {
-            @SuppressLint("DiscouragedPrivateApi") Method getString = Build.class.getDeclaredMethod("getString", String.class);
+            String tt = "getString";
+            @SuppressLint("DiscouragedPrivateApi") Method getString = Build.class.getDeclaredMethod(tt, String.class);
             getString.setAccessible(true);
             return getString.invoke(null, "net.hostname").toString();
         } catch (Exception ex) {
             return defValue;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1114) {
+            if (resultCode == AppCompatActivity.RESULT_OK) {
+                if (data != null) {
+                    Uri resultUri = data.getData();
+                    try {
+                        selectedBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri);
+                        System.out.println("UPLOADED PIC");
+
+                        updateAdminPic();
+
+                    } catch (IOException e) {
+                        logger.log(Level.WARNING,e.getMessage(),e);
+                        Toast.makeText(getApplicationContext(),"Failed to upload image",Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+            else {
+                Toast.makeText(getApplicationContext(),"Failed to get image",Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -1446,28 +1493,10 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         normalCountDownView.stopTimer();
     }
 
-    @Override
-    public void onBackPressed() {
-        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
-        alertDialogBuilder.setTitle("Exit!")
-                .setIcon(R.drawable.doc_diary_default)
-                .setMessage("Do you want to exit?")
-                .setPositiveButton("Yes", (dialog, which) -> {
-                    dialog.dismiss();
-                    finish();
-                })
-                .setNegativeButton("No",(dialog, which) -> {
-                    dialog.dismiss();
-                });
-
-        AlertDialog alert = alertDialogBuilder.create();
-        try {
-            alert.show();
-        }
-        catch (Exception e) {
-            restart("App is paused for a long time. Please Start the app again.");
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//
+//    }
 
 
     /// ---------------- DOCTOR DETAILS -------------------
@@ -1505,9 +1534,9 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             expiry_date = dateFormat.format(mmm);
         }
 
-        String docDataUrl = pre_url_api+"doc_dashboard/getDocData?doc_code="+doc_code+"";
+        String docDataUrl = pre_url_api+"doc_dashboard/getDocData?doc_code="+doc_code;
         String expiryDateUrl = pre_url_api+"doc_dashboard/updateDocExpDate";
-        String flagUpdateUrl = pre_url_api+"login/updateFLFlag";
+//        String flagUpdateUrl = pre_url_api+"login/updateFLFlag";
 
         RequestQueue requestQueue = Volley.newRequestQueue(DocDashboard.this);
 
@@ -1527,20 +1556,20 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 }
             }
             catch (JSONException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 connected = false;
                 updateInterface();
             }
         }, error -> {
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             conn = false;
             connected = false;
             updateInterface();
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_DATE",expiry_date);
                 headers.put("P_DOC_CODE",doc_code);
@@ -1656,53 +1685,53 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
 
-        StringRequest flagUpdateReq = new StringRequest(Request.Method.POST, flagUpdateUrl, response -> {
-            conn = true;
-            try {
-                JSONObject jsonObject = new JSONObject(response);
-                String string_out = jsonObject.getString("string_out");
-                if (string_out.equals("Successfully Created")) {
-                    requestQueue.add(docDataReq);
-                }
-                else {
-                    System.out.println(string_out);
-                    parsing_message = string_out;
-                    connected = false;
-                    updateInterface();
-                }
-            }
-            catch (JSONException e) {
-                e.printStackTrace();
-                connected = false;
-                parsing_message = e.getLocalizedMessage();
-                updateInterface();
-            }
-        }, error -> {
-            error.printStackTrace();
-            conn = false;
-            connected = false;
-            parsing_message = error.getLocalizedMessage();
-            updateInterface();
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> headers = new HashMap<>();
-                headers.put("P_DOC_CODE", doc_code);
-                return headers;
-            }
-        };
+//        StringRequest flagUpdateReq = new StringRequest(Request.Method.POST, flagUpdateUrl, response -> {
+//            conn = true;
+//            try {
+//                JSONObject jsonObject = new JSONObject(response);
+//                String string_out = jsonObject.getString("string_out");
+//                if (string_out.equals("Successfully Created")) {
+//                    requestQueue.add(docDataReq);
+//                }
+//                else {
+//                    System.out.println(string_out);
+//                    parsing_message = string_out;
+//                    connected = false;
+//                    updateInterface();
+//                }
+//            }
+//            catch (JSONException e) {
+//                logger.log(Level.WARNING,e.getMessage(),e);
+//                connected = false;
+//                parsing_message = e.getLocalizedMessage();
+//                updateInterface();
+//            }
+//        }, error -> {
+//            logger.log(Level.WARNING,error.getMessage(),error);
+//            conn = false;
+//            connected = false;
+//            parsing_message = error.getLocalizedMessage();
+//            updateInterface();
+//        }) {
+//            @Override
+//            public Map<String, String> getHeaders() {
+//                Map<String, String> headers = new HashMap<>();
+//                headers.put("P_DOC_CODE", doc_code);
+//                return headers;
+//            }
+//        };
 
 //        if (user_switch) {
 //            requestQueue.add(flagUpdateReq);
@@ -1736,20 +1765,20 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 }
 
             } catch (JSONException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 connected = false;
                 updateInterface();
             }
         }, error -> {
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             conn = false;
             connected = false;
             updateInterface();
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 String userName = userInfoLists.get(0).getDoc_code();
                 String userId = userInfoLists.get(0).getDoc_id();
@@ -1790,9 +1819,9 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 restart("Could Not Get Doctor Data. Please Restart the App.");
             }
         }
-        String docDataUrl = pre_url_api+"doc_dashboard/getMeetingSchedule?doc_id="+doc_id+"&time_now="+time_now+"";
-        String docMeetingUrl = pre_url_api+"doc_dashboard/getMeetingCount?doc_id="+doc_id+"&first_date="+date_now+"&end_date="+date_now+"";
-        String docScheduleUrl = pre_url_api+"doc_dashboard/getScheduleCount?doc_id="+doc_id+"&first_date="+date_now+"&end_date="+date_now+"";
+        String docDataUrl = pre_url_api+"doc_dashboard/getMeetingSchedule?doc_id="+doc_id+"&time_now="+time_now;
+        String docMeetingUrl = pre_url_api+"doc_dashboard/getMeetingCount?doc_id="+doc_id+"&first_date="+date_now+"&end_date="+date_now;
+        String docScheduleUrl = pre_url_api+"doc_dashboard/getScheduleCount?doc_id="+doc_id+"&first_date="+date_now+"&end_date="+date_now;
         String docPicUrl = pre_url_api+"doc_dashboard/getDocPic?doc_id="+doc_id;
 
         last_schedule = "";
@@ -1819,7 +1848,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                         String doc_profile_pic = docInfo.optString("doc_profile_pic");
 
-                        if (doc_profile_pic.equals("null") || doc_profile_pic.equals("") ) {
+                        if (doc_profile_pic.equals("null") || doc_profile_pic.isEmpty()) {
                             System.out.println("NULL IMAGE");
                             imageFound = false;
                         }
@@ -1850,7 +1879,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 if (first_flag == 0) {
                     updateInterface();
@@ -1862,7 +1891,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             if (first_flag == 0) {
                 updateInterface();
@@ -1899,7 +1928,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 if (first_flag == 0) {
                     updateInterface();
@@ -1911,7 +1940,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             if (first_flag == 0) {
                 updateInterface();
@@ -1938,7 +1967,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                         Date nt = Calendar.getInstance().getTime();
                         if (!schedule_time.isEmpty()) {
                             schedule_time = date_now +" "+schedule_time;
-                            Date time = null;
+                            Date time;
                             try {
                                 time = timeFormat.parse(schedule_time);
                             } catch (ParseException e) {
@@ -1964,7 +1993,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 if (first_flag == 0) {
                     updateInterface();
@@ -1976,7 +2005,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             if (first_flag == 0) {
                 updateInterface();
@@ -2013,7 +2042,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 if (first_flag == 0) {
                     updateInterface();
@@ -2025,7 +2054,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             if (first_flag == 0) {
                 updateInterface();
@@ -2089,7 +2118,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     }
                     else {
                         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
-                        Date exp_date = null;
+                        Date exp_date;
                         Date now_date = Calendar.getInstance().getTime();
                         String nnn_date = dateFormat.format(now_date);
                         try {
@@ -2161,7 +2190,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                             conn = false;
                             connected = false;
                             userAvailable = false;
-                            user_switch = false;
 
                             progress_track_flag_value = 0;
                             String doc_center = "";
@@ -2169,7 +2197,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                 restart("Could Not Get Doctor Data. Please Restart the App.");
                             }
                             else {
-                                if (userInfoLists.size() == 0) {
+                                if (userInfoLists.isEmpty()) {
                                     restart("Could Not Get Doctor Data. Please Restart the App.");
                                 }
                                 else {
@@ -2223,12 +2251,13 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
 
                             if (!last_schedule.isEmpty() && !next_schedule.isEmpty()) {
-                                nextMeetingText.setText("Next Meeting");
+                                String nt = "Next Meeting";
+                                nextMeetingText.setText(nt);
                                 meetingTime.setVisibility(View.VISIBLE);
                                 patientName.setVisibility(View.VISIBLE);
                                 timerIcon.setVisibility(View.VISIBLE);
                                 normalCountDownView.setVisibility(View.VISIBLE);
-                                Date prv_meeting_date = null;
+                                Date prv_meeting_date;
                                 try {
                                     prv_meeting_date = sdf.parse(last_schedule);
                                 } catch (ParseException e) {
@@ -2237,7 +2266,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                                 Date to_Date = Calendar.getInstance().getTime();
 
-                                Date next_meeting_date = null;
+                                Date next_meeting_date;
                                 try {
                                     next_meeting_date = sdf.parse(next_schedule);
                                 } catch (ParseException e) {
@@ -2255,7 +2284,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                                 System.out.println("remaining_seconds: "+remaining_seconds);
 
-                                progress_track = (int) (100 * remaining_seconds) / total_seconds;
+                                progress_track = (100 * remaining_seconds) / total_seconds;
 
                                 if (progress_track < 0) {
                                     progress_track = 0;
@@ -2274,7 +2303,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                         time = time.substring(1);
                                     }
 
-                                    meetingTime.setText("At  "+time);
+                                    String at = "At  "+time;
+                                    meetingTime.setText(at);
                                 }
                                 else {
                                     String  tt = "At  " + time +"\nIn  "+ full_date;
@@ -2284,8 +2314,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                 horizontalProgressView.setProgressCompat(progress_track,true);
                                 normalCountDownView.stopTimer();
 
-                                int mm = (int) remaining_seconds / 60;
-                                int hh = (int) mm / 60;
+                                int mm = remaining_seconds / 60;
+                                int hh = mm / 60;
                                 normalCountDownView.setShowHour(hh != 0);
 
                                 normalCountDownView.setShowMinutes(mm != 0);
@@ -2303,7 +2333,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                 }
                             }
                             else if (last_schedule.isEmpty() && !next_schedule.isEmpty()) {
-                                nextMeetingText.setText("Next Meeting");
+                                String nt = "Next Meeting";
+                                nextMeetingText.setText(nt);
                                 meetingTime.setVisibility(View.VISIBLE);
                                 patientName.setVisibility(View.VISIBLE);
                                 timerIcon.setVisibility(View.VISIBLE);
@@ -2311,7 +2342,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                                 Date to_Date = Calendar.getInstance().getTime();
 
-                                Date next_meeting_date = null;
+                                Date next_meeting_date;
                                 try {
                                     next_meeting_date = sdf.parse(next_schedule);
                                 } catch (ParseException e) {
@@ -2329,7 +2360,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                                 System.out.println("remaining_seconds: "+remaining_seconds);
 
-                                progress_track = (int) (100 * remaining_seconds) / total_seconds;
+                                progress_track = (100 * remaining_seconds) / total_seconds;
 
                                 if (progress_track < 0) {
                                     progress_track = 0;
@@ -2343,7 +2374,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                 String full_date = full_date_format.format(next_meeting_date);
 
                                 if (date.equals(n_date)) {
-                                    meetingTime.setText("At "+time);
+                                    String mt = "At "+time;
+                                    meetingTime.setText(mt);
                                 }
                                 else {
                                     String  tt = "At " + time +"\nIn "+ full_date;
@@ -2353,8 +2385,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                 horizontalProgressView.setProgressCompat(progress_track,true);
                                 normalCountDownView.stopTimer();
 
-                                int mm = (int) remaining_seconds / 60;
-                                int hh = (int) mm / 60;
+                                int mm = remaining_seconds / 60;
+                                int hh = mm / 60;
                                 normalCountDownView.setShowHour(hh != 0);
 
                                 normalCountDownView.setShowMinutes(mm != 0);
@@ -2372,7 +2404,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                 }
                             }
                             else  {
-                                nextMeetingText.setText("No Upcoming Meeting Available");
+                                String nt = "No Upcoming Meeting Available";
+                                nextMeetingText.setText(nt);
                                 meetingTime.setVisibility(View.GONE);
                                 patientName.setVisibility(View.GONE);
                                 timerIcon.setVisibility(View.GONE);
@@ -2468,7 +2501,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     }
                 }
                 loading = false;
-                user_switch = false;
             }
             else {
                 alertMessage();
@@ -2553,12 +2585,13 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
 
                 if (!last_schedule.isEmpty() && !next_schedule.isEmpty()) {
-                    nextMeetingText.setText("Next Meeting");
+                    String nt = "Next Meeting";
+                    nextMeetingText.setText(nt);
                     meetingTime.setVisibility(View.VISIBLE);
                     patientName.setVisibility(View.VISIBLE);
                     timerIcon.setVisibility(View.VISIBLE);
                     normalCountDownView.setVisibility(View.VISIBLE);
-                    Date prv_meeting_date = null;
+                    Date prv_meeting_date;
                     try {
                         prv_meeting_date = sdf.parse(last_schedule);
                     } catch (ParseException e) {
@@ -2567,7 +2600,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                     Date to_Date = Calendar.getInstance().getTime();
 
-                    Date next_meeting_date = null;
+                    Date next_meeting_date;
                     try {
                         next_meeting_date = sdf.parse(next_schedule);
                     } catch (ParseException e) {
@@ -2585,7 +2618,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                     System.out.println("remaining_seconds: "+remaining_seconds);
 
-                    progress_track = (int) (100 * remaining_seconds) / total_seconds;
+                    progress_track = (100 * remaining_seconds) / total_seconds;
 
                     if (progress_track < 0) {
                         progress_track = 0;
@@ -2604,7 +2637,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                             time = time.substring(1);
                         }
 
-                        meetingTime.setText("At  "+time);
+                        String mt = "At  "+time;
+                        meetingTime.setText(mt);
                     }
                     else {
                         String  tt = "At  " + time +"\nIn  "+ full_date;
@@ -2614,8 +2648,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     horizontalProgressView.setProgressCompat(progress_track,true);
                     normalCountDownView.stopTimer();
 
-                    int mm = (int) remaining_seconds / 60;
-                    int hh = (int) mm / 60;
+                    int mm = remaining_seconds / 60;
+                    int hh = mm / 60;
                     normalCountDownView.setShowHour(hh != 0);
 
                     normalCountDownView.setShowMinutes(mm != 0);
@@ -2633,7 +2667,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     }
                 }
                 else if (last_schedule.isEmpty() && !next_schedule.isEmpty()) {
-                    nextMeetingText.setText("Next Meeting");
+                    String nt = "Next Meeting";
+                    nextMeetingText.setText(nt);
                     meetingTime.setVisibility(View.VISIBLE);
                     patientName.setVisibility(View.VISIBLE);
                     timerIcon.setVisibility(View.VISIBLE);
@@ -2641,7 +2676,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                     Date to_Date = Calendar.getInstance().getTime();
 
-                    Date next_meeting_date = null;
+                    Date next_meeting_date;
                     try {
                         next_meeting_date = sdf.parse(next_schedule);
                     } catch (ParseException e) {
@@ -2659,7 +2694,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                     System.out.println("remaining_seconds: "+remaining_seconds);
 
-                    progress_track = (int) (100 * remaining_seconds) / total_seconds;
+                    progress_track = (100 * remaining_seconds) / total_seconds;
 
                     if (progress_track < 0) {
                         progress_track = 0;
@@ -2673,7 +2708,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     String full_date = full_date_format.format(next_meeting_date);
 
                     if (date.equals(n_date)) {
-                        meetingTime.setText("At "+time);
+                        String mt = "At "+time;
+                        meetingTime.setText(mt);
                     }
                     else {
                         String  tt = "At " + time +"\nIn "+ full_date;
@@ -2683,8 +2719,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     horizontalProgressView.setProgressCompat(progress_track,true);
                     normalCountDownView.stopTimer();
 
-                    int mm = (int) remaining_seconds / 60;
-                    int hh = (int) mm / 60;
+                    int mm = remaining_seconds / 60;
+                    int hh = mm / 60;
                     normalCountDownView.setShowHour(hh != 0);
 
                     normalCountDownView.setShowMinutes(mm != 0);
@@ -2702,7 +2738,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     }
                 }
                 else  {
-                    nextMeetingText.setText("No Upcoming Meeting Available");
+                    String nt = "No Upcoming Meeting Available";
+                    nextMeetingText.setText(nt);
                     meetingTime.setVisibility(View.GONE);
                     patientName.setVisibility(View.GONE);
                     timerIcon.setVisibility(View.GONE);
@@ -2828,12 +2865,12 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         System.out.println("HAI HAI");
 
 //        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm a", Locale.ENGLISH);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
+//        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
         SimpleDateFormat timeFormat = new SimpleDateFormat("dd-MMM-yy hh:mm a", Locale.ENGLISH);
 //        String time_now = simpleDateFormat.format(Calendar.getInstance().getTime());
-        String date_now = dateFormat.format(Calendar.getInstance().getTime());
-        String docMeetingUrl = pre_url_api+"doc_dashboard/getMeetingCount?doc_id="+doc_id+"&first_date="+tabFirstDate+"&end_date="+tabEndDate+"";
-        String docScheduleUrl = pre_url_api+"doc_dashboard/getScheduleCount?doc_id="+doc_id+"&first_date="+tabFirstDate+"&end_date="+tabEndDate+"";
+//        String date_now = dateFormat.format(Calendar.getInstance().getTime());
+        String docMeetingUrl = pre_url_api+"doc_dashboard/getMeetingCount?doc_id="+doc_id+"&first_date="+tabFirstDate+"&end_date="+tabEndDate;
+        String docScheduleUrl = pre_url_api+"doc_dashboard/getScheduleCount?doc_id="+doc_id+"&first_date="+tabFirstDate+"&end_date="+tabEndDate;
 
         total_meeting = 0;
         completed_meeting = 0;
@@ -2871,14 +2908,14 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateTabLayout();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateTabLayout();
         });
@@ -2903,7 +2940,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                         Date nt = Calendar.getInstance().getTime();
                         if (!schedule_time.isEmpty()) {
                             schedule_time = appointment_date +" "+schedule_time;
-                            Date time = null;
+                            Date time;
                             try {
                                 time = timeFormat.parse(schedule_time);
                             } catch (ParseException e) {
@@ -2929,14 +2966,14 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateTabLayout();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateTabLayout();
         });
@@ -3020,7 +3057,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     public void onDismiss() {
         normalCountDownView.stopTimer();
         loading = false;
-        user_switch = true;
         initData();
         getDocData();
     }
@@ -3029,14 +3065,13 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     public void onIdDismiss() {
         normalCountDownView.stopTimer();
         loading = false;
-        user_switch = true;
         initData();
         getDocData();
     }
 
     public void getGreetingText() {
         int currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-        String wt = "";
+        String wt;
         if (currentHour >= 4 && currentHour <= 11) {
             wt = "Good Morning,";
         }
@@ -3074,8 +3109,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         mob_app_access_flag = "0";
         adminAvailable = false;
 
-        String adminDataUrl = pre_url_api+"doc_dashboard/getAdminData?p_usr_id="+admin_usr_id+"";
-        String flagUpdateUrl = pre_url_api+"login/updateAdminFLFlag";
+        String adminDataUrl = pre_url_api+"doc_dashboard/getAdminData?p_usr_id="+admin_usr_id;
+//        String flagUpdateUrl = pre_url_api+"login/updateAdminFLFlag";
 
         RequestQueue requestQueue = Volley.newRequestQueue(DocDashboard.this);
 
@@ -3102,17 +3137,25 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                 .equals("null") ? "" :adminInfo.getString("usr_contact");
                         mob_app_access_flag = adminInfo.getString("usr_mob_app_access")
                                 .equals("null") ? "0" :adminInfo.getString("usr_mob_app_access");
-                        String usr_mob_app_analytic_access = adminInfo.getString("usr_mob_app_analytic_access")
-                                .equals("null") ? "0" :adminInfo.getString("usr_mob_app_analytic_access");
+//                        String usr_mob_app_analytic_access = adminInfo.getString("usr_mob_app_analytic_access")
+//                                .equals("null") ? "0" :adminInfo.getString("usr_mob_app_analytic_access");
                         admin_fl_flag = adminInfo.getString("usr_mob_forced_log_out_flag")
                                 .equals("null") ? "0" :adminInfo.getString("usr_mob_forced_log_out_flag");
                         String admin_center_name = adminInfo.getString("admin_center_name")
                                 .equals("null") ? "" :adminInfo.getString("admin_center_name");
                         String all_access_flag = adminInfo.getString("all_access_flag")
                                 .equals("null") ? "0" :adminInfo.getString("all_access_flag");
+                        String hr_payment_active = adminInfo.getString("hr_payment_active")
+                                .equals("null") ? "0" :adminInfo.getString("hr_payment_active");
+                        String hr_appointment_active = adminInfo.getString("hr_appointment_active")
+                                .equals("null") ? "0" :adminInfo.getString("hr_appointment_active");
+                        String acc_payment_active = adminInfo.getString("acc_payment_active")
+                                .equals("null") ? "0" :adminInfo.getString("acc_payment_active");
+                        String acc_appointment_active = adminInfo.getString("acc_appointment_active")
+                                .equals("null") ? "0" :adminInfo.getString("acc_appointment_active");
 
                         adminInfoLists.add(new AdminInfoList(admin_usr_id, usr_name,usr_fname,usr_lname,
-                                usr_email,usr_contact,all_access_flag, admin_center_name));
+                                usr_email,usr_contact,all_access_flag, admin_center_name, hr_payment_active, hr_appointment_active,acc_payment_active,acc_appointment_active));
 
                         if (Integer.parseInt(all_access_flag) > 0) {
                             admin_usr_name = "";
@@ -3144,53 +3187,53 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAdminInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAdminInterface();
         });
 
-        StringRequest adminFlagUpdateReq = new StringRequest(Request.Method.POST, flagUpdateUrl, response -> {
-            conn = true;
-            try {
-                JSONObject jsonObject = new JSONObject(response);
-                String string_out = jsonObject.getString("string_out");
-                if (string_out.equals("Successfully Created")) {
-                    requestQueue.add(adminDataReq);
-                }
-                else {
-                    System.out.println(string_out);
-                    parsing_message = string_out;
-                    connected = false;
-                    updateAdminInterface();
-                }
-            }
-            catch (JSONException e) {
-                e.printStackTrace();
-                connected = false;
-                parsing_message = e.getLocalizedMessage();
-                updateAdminInterface();
-            }
-        }, error -> {
-            error.printStackTrace();
-            conn = false;
-            connected = false;
-            parsing_message = error.getLocalizedMessage();
-            updateAdminInterface();
-        }) {
-            @Override
-            public Map<String, String> getHeaders() {
-                Map<String, String> headers = new HashMap<>();
-                headers.put("P_USR_ID", admin_usr_id);
-                return headers;
-            }
-        };
+//        StringRequest adminFlagUpdateReq = new StringRequest(Request.Method.POST, flagUpdateUrl, response -> {
+//            conn = true;
+//            try {
+//                JSONObject jsonObject = new JSONObject(response);
+//                String string_out = jsonObject.getString("string_out");
+//                if (string_out.equals("Successfully Created")) {
+//                    requestQueue.add(adminDataReq);
+//                }
+//                else {
+//                    System.out.println(string_out);
+//                    parsing_message = string_out;
+//                    connected = false;
+//                    updateAdminInterface();
+//                }
+//            }
+//            catch (JSONException e) {
+//                logger.log(Level.WARNING,e.getMessage(),e);
+//                connected = false;
+//                parsing_message = e.getLocalizedMessage();
+//                updateAdminInterface();
+//            }
+//        }, error -> {
+//            logger.log(Level.WARNING,error.getMessage(),error);
+//            conn = false;
+//            connected = false;
+//            parsing_message = error.getLocalizedMessage();
+//            updateAdminInterface();
+//        }) {
+//            @Override
+//            public Map<String, String> getHeaders() {
+//                Map<String, String> headers = new HashMap<>();
+//                headers.put("P_USR_ID", admin_usr_id);
+//                return headers;
+//            }
+//        };
 
 //        if (user_switch) {
 //            requestQueue.add(adminFlagUpdateReq);
@@ -3224,13 +3267,13 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 }
 
             } catch (JSONException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 connected = false;
                 updateAdminInterface();
             }
         }, error -> {
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             conn = false;
             connected = false;
@@ -3333,7 +3376,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                         String usr_profile_pic = docInfo.optString("usr_profile_pic");
 
-                        if (usr_profile_pic.equals("null") || usr_profile_pic.equals("") ) {
+                        if (usr_profile_pic.equals("null") || usr_profile_pic.isEmpty()) {
                             System.out.println("NULL IMAGE");
                             imageFound = false;
                         }
@@ -3363,7 +3406,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 if (first_flag == 0) {
                     updateAdminInterface();
@@ -3375,7 +3418,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             if (first_flag == 0) {
                 updateAdminInterface();
@@ -3412,7 +3455,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 if (first_flag == 0) {
                     updateAdminInterface();
@@ -3424,7 +3467,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             if (first_flag == 0) {
                 updateAdminInterface();
@@ -3461,7 +3504,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 if (first_flag == 0) {
                     updateAdminInterface();
@@ -3473,7 +3516,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             if (first_flag == 0) {
                 updateAdminInterface();
@@ -3500,7 +3543,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 if (first_flag == 0) {
                     updateAdminInterface();
@@ -3512,7 +3555,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             if (first_flag == 0) {
                 updateAdminInterface();
@@ -3601,7 +3644,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                             conn = false;
                             connected = false;
                             adminAvailable = false;
-                            user_switch = false;
 
                             chartTabPosition = 0;
 
@@ -3612,11 +3654,11 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                 restart("Could Not Get Doctor Data. Please Restart the App.");
                             }
                             else {
-                                if (adminInfoLists.size() == 0) {
+                                if (adminInfoLists.isEmpty()) {
                                     restart("Could Not Get Doctor Data. Please Restart the App.");
                                 }
                                 else {
-                                    if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) > 0) {
+                                    if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) == 1) {
                                         admin_usr_name = "";
                                     }
                                     else {
@@ -3628,6 +3670,27 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                     docName.setText(dd);
 
                                     doc_center = adminInfoLists.get(0).getAdmin_center_name();
+
+                                    if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) == 2) {
+                                        bottomNavigationView.getMenu().findItem(R.id.admin_payment_menu).setVisible(adminInfoLists.get(0).getHr_payment_active().equals("1"));
+                                        bottomNavigationView.getMenu().findItem(R.id.admin_appointment_schedule_menu).setVisible(adminInfoLists.get(0).getHr_appointment_active().equals("1"));
+                                        bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("HR & Reports");
+                                    }
+                                    else if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) == 3) {
+                                        bottomNavigationView.getMenu().findItem(R.id.admin_payment_menu).setVisible(adminInfoLists.get(0).getAcc_payment_active().equals("1"));
+                                        bottomNavigationView.getMenu().findItem(R.id.admin_appointment_schedule_menu).setVisible(adminInfoLists.get(0).getAcc_appointment_active().equals("1"));
+                                        bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("Accounts & Reports");
+                                    }
+                                    else if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) == 1) {
+                                        bottomNavigationView.getMenu().findItem(R.id.admin_payment_menu).setVisible(true);
+                                        bottomNavigationView.getMenu().findItem(R.id.admin_appointment_schedule_menu).setVisible(true);
+                                        bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("HR & Accounts");
+                                    }
+                                    else {
+                                        bottomNavigationView.getMenu().findItem(R.id.admin_payment_menu).setVisible(true);
+                                        bottomNavigationView.getMenu().findItem(R.id.admin_appointment_schedule_menu).setVisible(true);
+                                        bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("Reports");
+                                    }
                                 }
                             }
 
@@ -3922,7 +3985,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     }
                 }
                 loading = false;
-                user_switch = false;
             }
             else {
                 adminAlertMessage();
@@ -4332,14 +4394,14 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateTabLayoutAdmin();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateTabLayoutAdmin();
         });
@@ -4382,7 +4444,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     }
 
     public static class MyAxisValueFormatter extends ValueFormatter {
-        private ArrayList<String> mvalues = new ArrayList<>();
+        private final ArrayList<String> mvalues;
         public MyAxisValueFormatter(ArrayList<String> mvalues) {
             this.mvalues = mvalues;
         }
@@ -4476,14 +4538,14 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 }
                 catch (JSONException e) {
                     connected = false;
-                    e.printStackTrace();
+                    logger.log(Level.WARNING,e.getMessage(),e);
                     parsing_message = e.getLocalizedMessage();
                     updateChartTabLayout();
                 }
             }, error -> {
                 conn = false;
                 connected = false;
-                error.printStackTrace();
+                logger.log(Level.WARNING,error.getMessage(),error);
                 parsing_message = error.getLocalizedMessage();
                 updateChartTabLayout();
             });
@@ -4515,14 +4577,14 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 }
                 catch (JSONException e) {
                     connected = false;
-                    e.printStackTrace();
+                    logger.log(Level.WARNING,e.getMessage(),e);
                     parsing_message = e.getLocalizedMessage();
                     updateChartTabLayout();
                 }
             }, error -> {
                 conn = false;
                 connected = false;
-                error.printStackTrace();
+                logger.log(Level.WARNING,error.getMessage(),error);
                 parsing_message = error.getLocalizedMessage();
                 updateChartTabLayout();
             });
@@ -4561,14 +4623,14 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 }
                 catch (JSONException e) {
                     connected = false;
-                    e.printStackTrace();
+                    logger.log(Level.WARNING,e.getMessage(),e);
                     parsing_message = e.getLocalizedMessage();
                     updateChartTabLayout();
                 }
             }, error -> {
                 conn = false;
                 connected = false;
-                error.printStackTrace();
+                logger.log(Level.WARNING,error.getMessage(),error);
                 parsing_message = error.getLocalizedMessage();
                 updateChartTabLayout();
             });
@@ -4600,14 +4662,14 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 }
                 catch (JSONException e) {
                     connected = false;
-                    e.printStackTrace();
+                    logger.log(Level.WARNING,e.getMessage(),e);
                     parsing_message = e.getLocalizedMessage();
                     updateChartTabLayout();
                 }
             }, error -> {
                 conn = false;
                 connected = false;
-                error.printStackTrace();
+                logger.log(Level.WARNING,error.getMessage(),error);
                 parsing_message = error.getLocalizedMessage();
                 updateChartTabLayout();
             });
@@ -4887,14 +4949,14 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 }
                 catch (JSONException e) {
                     connected = false;
-                    e.printStackTrace();
+                    logger.log(Level.WARNING,e.getMessage(),e);
                     parsing_message = e.getLocalizedMessage();
                     updatePaymentChartLayout();
                 }
             }, error -> {
                 conn = false;
                 connected = false;
-                error.printStackTrace();
+                logger.log(Level.WARNING,error.getMessage(),error);
                 parsing_message = error.getLocalizedMessage();
                 updatePaymentChartLayout();
             });
@@ -4931,14 +4993,14 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 }
                 catch (JSONException e) {
                     connected = false;
-                    e.printStackTrace();
+                    logger.log(Level.WARNING,e.getMessage(),e);
                     parsing_message = e.getLocalizedMessage();
                     updatePaymentChartLayout();
                 }
             }, error -> {
                 conn = false;
                 connected = false;
-                error.printStackTrace();
+                logger.log(Level.WARNING,error.getMessage(),error);
                 parsing_message = error.getLocalizedMessage();
                 updatePaymentChartLayout();
             });
@@ -5154,14 +5216,14 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 }
                 catch (JSONException e) {
                     connected = false;
-                    e.printStackTrace();
+                    logger.log(Level.WARNING,e.getMessage(),e);
                     parsing_message = e.getLocalizedMessage();
                     updateAppointChartLayout();
                 }
             }, error -> {
                 conn = false;
                 connected = false;
-                error.printStackTrace();
+                logger.log(Level.WARNING,error.getMessage(),error);
                 parsing_message = error.getLocalizedMessage();
                 updateAppointChartLayout();
             });
@@ -5199,14 +5261,14 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 }
                 catch (JSONException e) {
                     connected = false;
-                    e.printStackTrace();
+                    logger.log(Level.WARNING,e.getMessage(),e);
                     parsing_message = e.getLocalizedMessage();
                     updateAppointChartLayout();
                 }
             }, error -> {
                 conn = false;
                 connected = false;
-                error.printStackTrace();
+                logger.log(Level.WARNING,error.getMessage(),error);
                 parsing_message = error.getLocalizedMessage();
                 updateAppointChartLayout();
             });
@@ -5356,11 +5418,211 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         }
     }
 
+    public void updateAdminPic() {
+        String url = pre_url_api+"doc_dashboard/updateAdminPic";
+        conn = false;
+        connected = false;
+        loading = true;
+        circularProgressIndicator.setVisibility(View.VISIBLE);
+        fullLayout.setVisibility(View.GONE);
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+        int quality = 30;
+        selectedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, bos);
+        byte[] bArray = bos.toByteArray();
+        long lengthbmp1 = bArray.length;
+        lengthbmp1 = (lengthbmp1/1024);
+
+        if (lengthbmp1 > 100) {
+            quality = quality - 10;
+            ByteArrayOutputStream bos1 = new ByteArrayOutputStream();
+            selectedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, bos1);
+            bArray = bos1.toByteArray();
+            lengthbmp1 = bArray.length;
+            lengthbmp1 = (lengthbmp1/1024);
+            System.out.println(lengthbmp1);
+            if (lengthbmp1 > 100) {
+                quality = quality - 10;
+                ByteArrayOutputStream bos2 = new ByteArrayOutputStream();
+                selectedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, bos2);
+                bArray = bos2.toByteArray();
+                lengthbmp1 = bArray.length;
+                lengthbmp1 = (lengthbmp1/1024);
+                System.out.println(lengthbmp1);
+                if (lengthbmp1 > 100) {
+                    quality = quality - 5;
+                    ByteArrayOutputStream bos3 = new ByteArrayOutputStream();
+                    selectedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, bos3);
+                    bArray = bos3.toByteArray();
+                    lengthbmp1 = bArray.length;
+                    lengthbmp1 = (lengthbmp1/1024);
+                    System.out.println(lengthbmp1);
+                    if (lengthbmp1 > 100) {
+                        quality = quality - 3;
+                        ByteArrayOutputStream bos4 = new ByteArrayOutputStream();
+                        selectedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, bos4);
+                        bArray = bos4.toByteArray();
+                        lengthbmp1 = bArray.length;
+                        lengthbmp1 = (lengthbmp1/1024);
+                        System.out.println(lengthbmp1);
+                    }
+                }
+            }
+        }
+
+        byte[] finalBArray = bArray;
+
+        RequestQueue requestQueue = Volley.newRequestQueue(DocDashboard.this);
+
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url, response ->  {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String string_out = jsonObject.getString("string_out");
+                if (string_out.equals("Successfully Created")) {
+                    System.out.println(string_out);
+                    connected = true;
+                }
+                else {
+                    parsing_message = string_out;
+                    System.out.println(string_out);
+                    connected = false;
+                }
+                updateAdminImageLayout();
+            }
+            catch (JSONException e) {
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                connected = false;
+                updateAdminImageLayout();
+            }
+        }, error ->  {
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            conn = false;
+            connected = false;
+            updateAdminImageLayout();
+        })
+        {
+            @Override
+            public byte[] getBody() {
+                return finalBArray;
+            }
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> params = new HashMap<>();
+                params.put("p_user_id",admin_usr_id);
+                return params;
+            }
+
+            @Override
+            public String getBodyContentType() {
+                return "application/binary";
+            }
+        };
+
+        requestQueue.add(stringRequest);
+
+    }
+
+    private void updateAdminImageLayout() {
+        if(conn) {
+            if (connected) {
+                fullLayout.setVisibility(View.VISIBLE);
+                circularProgressIndicator.setVisibility(View.GONE);
+                conn = false;
+                connected = false;
+
+                Toast.makeText(getApplicationContext(), "Picture Uploaded", Toast.LENGTH_SHORT).show();
+
+                try {
+                    Glide.with(getApplicationContext())
+                            .load(selectedBitmap)
+                            .fitCenter()
+                            .into(docImage);
+                }
+                catch (Exception e) {
+                    restart("App is paused for a long time. Please Start the app again.");
+                }
+
+                loading = false;
+            }
+            else {
+                fullLayout.setVisibility(View.VISIBLE);
+                circularProgressIndicator.setVisibility(View.GONE);
+                if (parsing_message != null) {
+                    if (parsing_message.isEmpty() || parsing_message.equals("null")) {
+                        parsing_message = "Server problem or Internet not connected";
+                    }
+                }
+                else {
+                    parsing_message = "Server problem or Internet not connected";
+                }
+                MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
+                alertDialogBuilder.setTitle("Error!")
+                        .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
+                        .setPositiveButton("Retry", (dialog, which) -> {
+                            loading = false;
+                            updateAdminPic();
+                            dialog.dismiss();
+                        })
+                        .setNegativeButton("Cancel",(dialog, which) -> {
+                            loading = false;
+                            dialog.dismiss();
+                        });
+
+                AlertDialog alert = alertDialogBuilder.create();
+                alert.setCancelable(false);
+                alert.setCanceledOnTouchOutside(false);
+                try {
+                    alert.show();
+                }
+                catch (Exception e) {
+                    restart("App is paused for a long time. Please Start the app again.");
+                }
+            }
+        }
+        else {
+            fullLayout.setVisibility(View.VISIBLE);
+            circularProgressIndicator.setVisibility(View.GONE);
+            if (parsing_message != null) {
+                if (parsing_message.isEmpty() || parsing_message.equals("null")) {
+                    parsing_message = "Server problem or Internet not connected";
+                }
+            }
+            else {
+                parsing_message = "Server problem or Internet not connected";
+            }
+            MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
+            alertDialogBuilder.setTitle("Error!")
+                    .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
+                    .setPositiveButton("Retry", (dialog, which) -> {
+                        loading = false;
+                        updateAdminPic();
+                        dialog.dismiss();
+                    })
+                    .setNegativeButton("Cancel",(dialog, which) -> {
+                        loading = false;
+                        dialog.dismiss();
+                    });
+
+            AlertDialog alert = alertDialogBuilder.create();
+            alert.setCancelable(false);
+            alert.setCanceledOnTouchOutside(false);
+            try {
+                alert.show();
+            }
+            catch (Exception e) {
+                restart("App is paused for a long time. Please Start the app again.");
+            }
+        }
+    }
+
     @Override
     public void onAdminIdSelection() {
         normalCountDownView.stopTimer();
         loading = false;
-        user_switch = true;
         initData();
         getAdminData();
     }
@@ -5369,7 +5631,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     public void onAdminCenterSelection() {
         normalCountDownView.stopTimer();
         loading = false;
-        user_switch = true;
         initData();
         getAdminData();
     }

@@ -2,6 +2,7 @@ package ttit.com.shuvo.docdiary.report_manager.report_view;
 
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -39,6 +40,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.report_manager.report_view.arraylists.ParameterList;
@@ -110,6 +113,8 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
     String rep_path = "";
     String cid_id = "";
 
+    Logger logger = Logger.getLogger(ReportView.class.getName());
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -198,6 +203,18 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
                 serviceSelectLay.setEnabled(false);
                 break;
             }
+            case "5": {
+                String tt = "Payment Receive Register Report";
+                appbarName.setText(tt);
+                report_name = "PAYMENT_RECEIVED_REGISTER.rep";
+                doctorSelectLay.setVisibility(View.GONE);
+                doctorSelectLay.setEnabled(false);
+                departSelectLay.setEnabled(true);
+                unitSelectLay.setEnabled(true);
+                serviceSelectLay.setVisibility(View.VISIBLE);
+                serviceSelectLay.setEnabled(true);
+                break;
+            }
         }
 
         allDepList = new ArrayList<>();
@@ -208,7 +225,22 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
         modifiedServiceList = new ArrayList<>();
         modifiedDoctorList = new ArrayList<>();
 
-        close.setOnClickListener(v -> onBackPressed());
+        close.setOnClickListener(v -> {
+            if (loading) {
+                Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+            }
+            else {
+                selected_dept_name = "";
+                selected_dept_id = "";
+                selected_unit_name = "";
+                selected_unit_id = "";
+                selected_doctor_name = "";
+                selected_doctor_id = "";
+                selected_service_name = "";
+                selected_service_id = "";
+                finish();
+            }
+        });
 
         // Getting date
         Date c = Calendar.getInstance().getTime();
@@ -228,7 +260,7 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
             try {
                 fdate = df.parse(firstDate);
             } catch (ParseException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
             }
             if (fdate != null) {
                 c1.setTime(fdate);
@@ -241,8 +273,8 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
                 DatePickerDialog datePickerDialog = new DatePickerDialog(ReportView.this, (view, year, month, dayOfMonth) -> {
 
                     String monthName = "";
-                    String dayOfMonthName = "";
-                    String yearName = "";
+                    String dayOfMonthName;
+                    String yearName;
                     month = month + 1;
                     if (month == 1) {
                         monthName = "JAN";
@@ -296,7 +328,7 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
                             eDate = sdf.parse(lastDate);
                         }
                         catch (ParseException e) {
-                            e.printStackTrace();
+                            logger.log(Level.WARNING,e.getMessage(),e);
                         }
 
                         if (bDate != null && eDate != null) {
@@ -322,7 +354,7 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
             try {
                 ldate = df.parse(lastDate);
             } catch (ParseException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
             }
             if (ldate != null) {
                 c12.setTime(ldate);
@@ -335,8 +367,8 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
                 DatePickerDialog datePickerDialog = new DatePickerDialog(ReportView.this, (view, year, month, dayOfMonth) -> {
 
                     String monthName = "";
-                    String dayOfMonthName = "";
-                    String yearName = "";
+                    String dayOfMonthName;
+                    String yearName;
                     month = month + 1;
                     if (month == 1) {
                         monthName = "JAN";
@@ -390,7 +422,7 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
                             bDate = sdf.parse(firstDate);
                             eDate = sdf.parse(lastDate);
                         } catch (ParseException e) {
-                            e.printStackTrace();
+                            logger.log(Level.WARNING,e.getMessage(),e);
                         }
 
                         if (bDate != null && eDate != null) {
@@ -537,7 +569,7 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
                 switch (r_type) {
                     case "3":
                         if (!selected_doctor_id.isEmpty()) {
-                            String url = "http://" + server_port + "/reports/rwservlet?" + hrs_link + "+report=" + rep_path + "" + report_name + "+BEGIN_DATE=" + firstDate + "+END_DATE=" + lastDate + "+UNIT=" + selected_unit_id + "+DOC=" + selected_doctor_id + "+PFN=" + selected_service_id;
+                            String url = "http://" + server_port + "/reports/rwservlet?" + hrs_link + "+report=" + rep_path + report_name + "+BEGIN_DATE=" + firstDate + "+END_DATE=" + lastDate + "+UNIT=" + selected_unit_id + "+DOC=" + selected_doctor_id + "+PFN=" + selected_service_id;
                             Intent intent = new Intent(ReportView.this, DocWisePayRcvRepShow.class);
                             intent.putExtra("REPORT_URL", url);
                             intent.putExtra("FIRST_DATE", firstDate);
@@ -554,7 +586,7 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
                         }
                         break;
                     case "4": {
-                        String url = "http://" + server_port + "/reports/rwservlet?" + hrs_link + "+report=" + rep_path + "" + report_name + "+BEGIN_DATE=" + firstDate + "+END_DATE=" + lastDate + /*"+UNIT=" + selected_unit_id +*/ "+DOC=" + selected_doctor_id;
+                        String url = "http://" + server_port + "/reports/rwservlet?" + hrs_link + "+report=" + rep_path + report_name + "+BEGIN_DATE=" + firstDate + "+END_DATE=" + lastDate + /*"+UNIT=" + selected_unit_id +*/ "+DOC=" + selected_doctor_id;
                         Intent intent = new Intent(ReportView.this, DocWiseAppRepShow.class);
                         intent.putExtra("REPORT_URL", url);
                         intent.putExtra("FIRST_DATE", firstDate);
@@ -567,7 +599,7 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
                         break;
                     }
                     case "1": {
-                        String url = "http://" + server_port + "/reports/rwservlet?" + hrs_link + "+report=" + rep_path + "" + report_name + "+BEGIN_DATE=" + firstDate + "+END_DATE=" + lastDate + "+DEPTD=" + selected_dept_id + "+DEPTS=" + selected_unit_id + "+PFN=" + selected_service_id + "+CIDID=" + cid_id;
+                        String url = "http://" + server_port + "/reports/rwservlet?" + hrs_link + "+report=" + rep_path + report_name + "+BEGIN_DATE=" + firstDate + "+END_DATE=" + lastDate + "+DEPTD=" + selected_dept_id + "+DEPTS=" + selected_unit_id + "+PFN=" + selected_service_id + "+CIDID=" + cid_id;
                         Intent intent = new Intent(ReportView.this, PaymentRcvReportShow.class);
                         intent.putExtra("REPORT_URL", url);
                         intent.putExtra("FIRST_DATE", firstDate);
@@ -580,7 +612,7 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
                         break;
                     }
                     case "2": {
-                        String url = "http://" + server_port + "/reports/rwservlet?" + hrs_link + "+report=" + rep_path + "" + report_name + "+BEGIN_DATE=" + firstDate + "+END_DATE=" + lastDate + "+DEPTD=" + selected_dept_id + "+DEPTS=" + selected_unit_id + "+PFN=" + selected_service_id + "+CIDID=" + cid_id;
+                        String url = "http://" + server_port + "/reports/rwservlet?" + hrs_link + "+report=" + rep_path + report_name + "+BEGIN_DATE=" + firstDate + "+END_DATE=" + lastDate + "+DEPTD=" + selected_dept_id + "+DEPTS=" + selected_unit_id + "+PFN=" + selected_service_id + "+CIDID=" + cid_id;
                         Intent intent = new Intent(ReportView.this, PaymentRcvSumRepShow.class);
                         intent.putExtra("REPORT_URL", url);
                         intent.putExtra("FIRST_DATE", firstDate);
@@ -591,6 +623,25 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
                         startActivity(intent);
                         break;
                     }
+                    case "5": {
+                        String url = "http://" + server_port + "/reports/rwservlet?" + hrs_link + "+report=" + rep_path + report_name + "+BEGIN_DATE=" + firstDate + "+END_DATE=" + lastDate + "+DEPTD=" + selected_dept_id + "+DEPTS=" + selected_unit_id + "+PFN=" + selected_service_id + "+CIDID=" + cid_id;
+//                        Intent intent = new Intent(ReportView.this, PaymentRcvReportShow.class);
+//                        intent.putExtra("REPORT_URL", url);
+//                        intent.putExtra("FIRST_DATE", firstDate);
+//                        intent.putExtra("LAST_DATE", lastDate);
+//                        intent.putExtra("DEPTD_ID", selected_dept_id);
+//                        intent.putExtra("DEPTS_ID",selected_unit_id);
+//                        intent.putExtra("PFN_ID", selected_service_id);
+//                        intent.putExtra("APP_BAR_NAME", appbarName.getText().toString());
+//                        startActivity(intent);
+                        Intent intent1 = new Intent(ReportView.this, ReportShow.class);
+                        intent1.putExtra("REPORT_URL", url);
+                        intent1.putExtra("FIRST_DATE", firstDate);
+                        intent1.putExtra("LAST_DATE", lastDate);
+                        intent1.putExtra("APP_BAR_NAME", appbarName.getText().toString());
+                        startActivity(intent1);
+                        break;
+                    }
                 }
             }
             else {
@@ -598,26 +649,33 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
             }
         });
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (loading) {
+                    Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    selected_dept_name = "";
+                    selected_dept_id = "";
+                    selected_unit_name = "";
+                    selected_unit_id = "";
+                    selected_doctor_name = "";
+                    selected_doctor_id = "";
+                    selected_service_name = "";
+                    selected_service_id = "";
+                    finish();
+                }
+            }
+        });
+
         getAllParameterData();
     }
 
-    @Override
-    public void onBackPressed() {
-        if (loading) {
-            Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
-        }
-        else {
-            selected_dept_name = "";
-            selected_dept_id = "";
-            selected_unit_name = "";
-            selected_unit_id = "";
-            selected_doctor_name = "";
-            selected_doctor_id = "";
-            selected_service_name = "";
-            selected_service_id = "";
-            super.onBackPressed();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//
+//    }
 
     @Override
     public void onDeptSelect() {
@@ -631,6 +689,7 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
         switch (r_type) {
             case "1":
             case "2":
+            case "5":
                 departSelect.setText(selected_dept_name);
 
                 unitSelectLay.setHint("Select Unit");
@@ -676,6 +735,7 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
 
         switch (r_type) {
             case "1":
+            case "5":
                 unitSelect.setText(selected_unit_name);
 
                 serviceSelectLay.setHint("Select Service");
@@ -779,14 +839,14 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateLayout();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateLayout();
         });
@@ -815,14 +875,14 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateLayout();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateLayout();
         });
@@ -851,14 +911,14 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateLayout();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateLayout();
         });
@@ -887,14 +947,14 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateLayout();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateLayout();
         });
@@ -987,14 +1047,14 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateUnitLayout();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateUnitLayout();
         });
@@ -1090,14 +1150,14 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateServLayout();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateServLayout();
         });
@@ -1188,14 +1248,14 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateDocLayout();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateDocLayout();
         });

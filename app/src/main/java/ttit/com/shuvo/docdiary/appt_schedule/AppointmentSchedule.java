@@ -40,6 +40,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import devs.mulham.horizontalcalendar.HorizontalCalendar;
 import devs.mulham.horizontalcalendar.utils.HorizontalCalendarListener;
@@ -75,7 +77,7 @@ public class AppointmentSchedule extends AppCompatActivity {
     TextView noSchMess;
     ImageView backButton;
 
-
+    Logger logger = Logger.getLogger(AppointmentSchedule.class.getName());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,7 +108,7 @@ public class AppointmentSchedule extends AppCompatActivity {
             restart("Could Not Get Doctor Data. Please Restart the App.");
         }
         else {
-            if (userInfoLists.size() == 0) {
+            if (userInfoLists.isEmpty()) {
                 restart("Could Not Get Doctor Data. Please Restart the App.");
             }
             else {
@@ -207,87 +209,76 @@ public class AppointmentSchedule extends AppCompatActivity {
 
         });
 
-        preMonthButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (month_i > 0) {
-                    month_i = month_i - 1;
-                    Animation animation = AnimationUtils.loadAnimation(AppointmentSchedule.this,R.anim.translate_p);
-                    animation.reset();
-                    monthYearName = monthSelectionLists.get(month_i).getMonthName();
-                    selectedMonthName.setText("");
-                    selectedMonthName.setText(monthYearName);
-                    selectedMonthName.clearAnimation();
-                    selectedMonthName.startAnimation(animation);
-                    Calendar cal = horizontalCalendar.getSelectedDate();
-                    System.out.println(cal.getTime());
-                    cal.add(Calendar.MONTH,-1);
-                    if (horizontalCalendar.contains(cal)) {
-                        horizontalCalendar.selectDate(cal,false);
-                    }
-                    else {
-                        horizontalCalendar.selectDate(startDates,false);
-                    }
+        preMonthButton.setOnClickListener(v -> {
+            if (month_i > 0) {
+                month_i = month_i - 1;
+                Animation animation = AnimationUtils.loadAnimation(AppointmentSchedule.this,R.anim.translate_p);
+                animation.reset();
+                monthYearName = monthSelectionLists.get(month_i).getMonthName();
+                selectedMonthName.setText("");
+                selectedMonthName.setText(monthYearName);
+                selectedMonthName.clearAnimation();
+                selectedMonthName.startAnimation(animation);
+                Calendar cal = horizontalCalendar.getSelectedDate();
+                System.out.println(cal.getTime());
+                cal.add(Calendar.MONTH,-1);
+                if (horizontalCalendar.contains(cal)) {
+                    horizontalCalendar.selectDate(cal,false);
+                }
+                else {
+                    horizontalCalendar.selectDate(startDates,false);
+                }
 
-                    Calendar selectedCalender = horizontalCalendar.getSelectedDate();
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy",Locale.ENGLISH);
-                    selected_date = simpleDateFormat.format(selectedCalender.getTime());
-                    selected_date = selected_date.toUpperCase();
+                Calendar selectedCalender = horizontalCalendar.getSelectedDate();
+                SimpleDateFormat simpleDateFormat1 = new SimpleDateFormat("dd-MMM-yy",Locale.ENGLISH);
+                selected_date = simpleDateFormat1.format(selectedCalender.getTime());
+                selected_date = selected_date.toUpperCase();
 
-                    if (month_i == 0) {
-                        preMonthButton.setBackgroundColor(Color.parseColor("#b2bec3"));
-                        nextMonthButton.setBackgroundColor(getColor(R.color.light_green));
-                    }
-                    else if (month_i < monthSelectionLists.size() - 1){
-                        nextMonthButton.setBackgroundColor(getColor(R.color.light_green));
-                    }
+                if (month_i == 0) {
+                    preMonthButton.setBackgroundColor(Color.parseColor("#b2bec3"));
+                    nextMonthButton.setBackgroundColor(getColor(R.color.light_green));
+                }
+                else if (month_i < monthSelectionLists.size() - 1){
+                    nextMonthButton.setBackgroundColor(getColor(R.color.light_green));
                 }
             }
         });
 
-        nextMonthButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (month_i < monthSelectionLists.size() - 1) {
-                    month_i = month_i + 1;
-                    Animation animation = AnimationUtils.loadAnimation(AppointmentSchedule.this,R.anim.translate_n);
-                    animation.reset();
-                    monthYearName = monthSelectionLists.get(month_i).getMonthName();
-                    selectedMonthName.setText("");
-                    selectedMonthName.setText(monthYearName);
-                    selectedMonthName.clearAnimation();
-                    selectedMonthName.startAnimation(animation);
-                    Calendar cal = horizontalCalendar.getSelectedDate();
-                    cal.add(Calendar.MONTH,1);
-                    if (horizontalCalendar.contains(cal)) {
-                        horizontalCalendar.selectDate(cal,false);
-                    }
-                    else {
-                        horizontalCalendar.selectDate(endDates,false);
-                    }
+        nextMonthButton.setOnClickListener(v -> {
+            if (month_i < monthSelectionLists.size() - 1) {
+                month_i = month_i + 1;
+                Animation animation = AnimationUtils.loadAnimation(AppointmentSchedule.this,R.anim.translate_n);
+                animation.reset();
+                monthYearName = monthSelectionLists.get(month_i).getMonthName();
+                selectedMonthName.setText("");
+                selectedMonthName.setText(monthYearName);
+                selectedMonthName.clearAnimation();
+                selectedMonthName.startAnimation(animation);
+                Calendar cal = horizontalCalendar.getSelectedDate();
+                cal.add(Calendar.MONTH,1);
+                if (horizontalCalendar.contains(cal)) {
+                    horizontalCalendar.selectDate(cal,false);
+                }
+                else {
+                    horizontalCalendar.selectDate(endDates,false);
+                }
 
-                    Calendar selectedCalender = horizontalCalendar.getSelectedDate();
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy",Locale.ENGLISH);
-                    selected_date = simpleDateFormat.format(selectedCalender.getTime());
-                    selected_date = selected_date.toUpperCase();
+                Calendar selectedCalender = horizontalCalendar.getSelectedDate();
+                SimpleDateFormat simpleDateFormat12 = new SimpleDateFormat("dd-MMM-yy",Locale.ENGLISH);
+                selected_date = simpleDateFormat12.format(selectedCalender.getTime());
+                selected_date = selected_date.toUpperCase();
 
-                    if (month_i == monthSelectionLists.size() - 1) {
-                        nextMonthButton.setBackgroundColor(Color.parseColor("#b2bec3"));
-                        preMonthButton.setBackgroundColor(getColor(R.color.light_green));
-                    }
-                    else if (month_i > 0) {
-                        preMonthButton.setBackgroundColor(getColor(R.color.light_green));
-                    }
+                if (month_i == monthSelectionLists.size() - 1) {
+                    nextMonthButton.setBackgroundColor(Color.parseColor("#b2bec3"));
+                    preMonthButton.setBackgroundColor(getColor(R.color.light_green));
+                }
+                else if (month_i > 0) {
+                    preMonthButton.setBackgroundColor(getColor(R.color.light_green));
                 }
             }
         });
 
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
+        backButton.setOnClickListener(v -> finish());
 
 
 
@@ -344,7 +335,7 @@ public class AppointmentSchedule extends AppCompatActivity {
 
         apptScheduleInfoLists = new ArrayList<>();
 
-        String url = pre_url_api+"appointment_schedule/getAppointmentData?doc_id="+doc_id+"&pdate="+selected_date+"";
+        String url = pre_url_api+"appointment_schedule/getAppointmentData?doc_id="+doc_id+"&pdate="+selected_date;
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest apptDataReq = new StringRequest(Request.Method.GET, url, response -> {
@@ -409,14 +400,14 @@ public class AppointmentSchedule extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface(waitProgress);
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface(waitProgress);
         });
@@ -436,7 +427,7 @@ public class AppointmentSchedule extends AppCompatActivity {
 
                 conn = false;
                 connected = false;
-                if (apptScheduleInfoLists.size() == 0) {
+                if (apptScheduleInfoLists.isEmpty()) {
                     noSchMess.setVisibility(View.VISIBLE);
                 }
                 else {

@@ -117,6 +117,7 @@ public class ParameterSelectionDialogue extends AppCompatDialogFragment implemen
 
         alertDialog.setCancelable(false);
         alertDialog.setCanceledOnTouchOutside(false);
+        setCancelable(false);
 
         switch (pmType) {
             case "DEPT": {

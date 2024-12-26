@@ -30,6 +30,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.arraylists.PatDrugHistList;
@@ -43,12 +45,10 @@ import ttit.com.shuvo.docdiary.patient_search.prescription.fragments.adapters.Pa
  */
 public class DrugHistPSV extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
     private String pmm_Id;
     private String mParam2;
 
@@ -77,6 +77,8 @@ public class DrugHistPSV extends Fragment {
         mContext=context;
     }
 
+    Logger logger = Logger.getLogger(DrugHistPSV.class.getName());
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -85,7 +87,6 @@ public class DrugHistPSV extends Fragment {
      * @param param2 Parameter 2.
      * @return A new instance of fragment DrugHistPSV.
      */
-    // TODO: Rename and change types and number of parameters
     public static DrugHistPSV newInstance(String param1, String param2) {
         DrugHistPSV fragment = new DrugHistPSV();
         Bundle args = new Bundle();
@@ -127,9 +128,7 @@ public class DrugHistPSV extends Fragment {
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(drugHistoryView.getContext(),DividerItemDecoration.VERTICAL);
         drugHistoryView.addItemDecoration(dividerItemDecoration);
 
-        refresh.setOnClickListener(v -> {
-            getDrugHistory();
-        });
+        refresh.setOnClickListener(v -> getDrugHistory());
 
         getDrugHistory();
 
@@ -153,7 +152,7 @@ public class DrugHistPSV extends Fragment {
         }
 
         patDrugHistLists = new ArrayList<>();
-        String dHistUrl = pre_url_api+"prescription/getPatDrugHist?pmm_id="+pmm_Id+"";
+        String dHistUrl = pre_url_api+"prescription/getPatDrugHist?pmm_id="+pmm_Id;
         RequestQueue requestQueue = Volley.newRequestQueue(mContext);
 
         StringRequest dHistReq = new StringRequest(Request.Method.GET, dHistUrl, response -> {
@@ -187,14 +186,14 @@ public class DrugHistPSV extends Fragment {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -215,7 +214,7 @@ public class DrugHistPSV extends Fragment {
                 conn = false;
                 connected = false;
 
-                if (patDrugHistLists.size() == 0) {
+                if (patDrugHistLists.isEmpty()) {
                     noPatDrugHistMsg.setVisibility(View.VISIBLE);
                 }
                 else {

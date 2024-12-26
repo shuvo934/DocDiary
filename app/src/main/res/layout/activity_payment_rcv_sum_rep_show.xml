@@ -161,57 +161,70 @@
                     android:layout_height="1dp"
                     android:background="@android:color/black"/>
 
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                <ScrollView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/payment_receive_sum_app_made_report_show_recyclerview"
-                        android:layout_width="match_parent"
+                    <LinearLayout
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:scrollbars="vertical" />
+                        android:orientation="vertical">
 
-                </RelativeLayout>
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_gravity="center"
-                    android:weightSum="10"
-                    android:gravity="center">
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/payment_receive_sum_app_made_report_show_recyclerview"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:scrollbars="vertical" />
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="7"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="@dimen/_4sdp"
-                        android:layout_marginEnd="@dimen/_4sdp"
-                        android:gravity="start"
-                        android:text="Total Amount"
-                        android:fontFamily="@font/poppins_bold"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/_12sdp"
-                        android:textStyle="bold" />
+                        </RelativeLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_gravity="center"
+                            android:weightSum="10"
+                            android:gravity="center">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="7"
+                                android:layout_gravity="center"
+                                android:layout_marginStart="@dimen/_4sdp"
+                                android:layout_marginEnd="@dimen/_4sdp"
+                                android:gravity="start"
+                                android:text="Total Amount"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/_12sdp"
+                                android:textStyle="bold" />
 
 
-                    <TextView
-                        android:id="@+id/total_amount_val_in_payment_receive_sum"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="3"
-                        android:text="Value"
-                        android:layout_marginStart="@dimen/_4sdp"
-                        android:layout_marginEnd="@dimen/_4sdp"
-                        android:layout_gravity="center"
-                        android:textColor="@color/black"
-                        android:fontFamily="@font/poppins_bold"
-                        android:gravity="center"
-                        android:textStyle="bold"
-                        android:textSize="@dimen/_12sdp"/>
+                            <TextView
+                                android:id="@+id/total_amount_val_in_payment_receive_sum"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="3"
+                                android:text="Value"
+                                android:layout_marginStart="@dimen/_4sdp"
+                                android:layout_marginEnd="@dimen/_4sdp"
+                                android:layout_gravity="center"
+                                android:textColor="@color/black"
+                                android:fontFamily="@font/poppins_bold"
+                                android:gravity="center"
+                                android:textStyle="bold"
+                                android:textSize="@dimen/_12sdp"/>
 
-                </LinearLayout>
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </ScrollView>
 
             </LinearLayout>
 

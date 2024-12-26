@@ -2,6 +2,7 @@ package ttit.com.shuvo.docdiary.patient_search.prescription;
 
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -33,6 +34,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.arraylists.ComplainLists;
@@ -130,6 +133,9 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
     ScrollView scrollview;
     TextView noPresFound;
     Boolean patPrescription = false;
+
+    Logger logger = Logger.getLogger(PatPrescriptionV.class.getName());
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -219,7 +225,14 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
         DividerItemDecoration dividerItemDecorationRS = new DividerItemDecoration(refServiceView.getContext(),DividerItemDecoration.VERTICAL);
         refServiceView.addItemDecoration(dividerItemDecorationRS);
 
-        close.setOnClickListener(v -> onBackPressed());
+        close.setOnClickListener(v -> {
+            if (prescriptionLoadingPatPSV || historyLoadingPatPSV || medicationLoadingPatPSV) {
+                Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+            }
+            else {
+                finish();
+            }
+        });
 
         historytabLayoutPatPSV.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -282,19 +295,26 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
             }
         });
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (prescriptionLoadingPatPSV || historyLoadingPatPSV || medicationLoadingPatPSV) {
+                    Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    finish();
+                }
+            }
+        });
+
         getPrescriptionData();
     }
 
-    @Override
-    public void onBackPressed() {
-
-        if (prescriptionLoadingPatPSV || historyLoadingPatPSV || medicationLoadingPatPSV) {
-            Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
-        }
-        else {
-            super.onBackPressed();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//
+//
+//    }
 
     public void getPrescriptionData() {
         fullLayoutPatPSV.setVisibility(View.GONE);
@@ -319,7 +339,7 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
         pmm_admission_flag = "0";
         patPrescription = false;
 
-        String presUrl = pre_url_api+"patient_search/getPatData?p_ph_id="+ph_id+"";
+        String presUrl = pre_url_api+"patient_search/getPatData?p_ph_id="+ph_id;
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
@@ -374,14 +394,14 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -403,8 +423,8 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
         }
 
 
-        String complainUrl = pre_url_api+"prescription/getComplainData?pmm_id="+pmm_id+"";
-        String patDiagUrl = pre_url_api+"prescription/getPatDiagnosis?pmm_id="+pmm_id+"";
+        String complainUrl = pre_url_api+"prescription/getComplainData?pmm_id="+pmm_id;
+        String patDiagUrl = pre_url_api+"prescription/getPatDiagnosis?pmm_id="+pmm_id;
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest patDiagReq = new StringRequest(Request.Method.GET, patDiagUrl, response -> {
@@ -447,14 +467,14 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -493,14 +513,14 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -509,7 +529,7 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
     }
 
     public void getReferralUnit(String pdi_id) {
-        String patRefUrl = pre_url_api+"prescription/getPatReferral?pdi_id="+pdi_id+"";
+        String patRefUrl = pre_url_api+"prescription/getPatReferral?pdi_id="+pdi_id;
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest patRefReq = new StringRequest(Request.Method.GET, patRefUrl, response -> {
@@ -557,14 +577,14 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -573,7 +593,7 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
     }
 
     public void getRefService(String drd_id, int choice) {
-        String patRefServUrl = pre_url_api+"prescription/getPatRefService?drd_id="+drd_id+"";
+        String patRefServUrl = pre_url_api+"prescription/getPatRefService?drd_id="+drd_id;
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest patRefServReq = new StringRequest(Request.Method.GET, patRefServUrl, response -> {
@@ -614,7 +634,7 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 if (choice == 1) {
                     updateInterface();
@@ -626,7 +646,7 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             if (choice == 1) {
                 updateInterface();
@@ -663,7 +683,7 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
                     patAddress.setText(pat_address);
                     patAdmission.setChecked(pmm_admission_flag.equals("1"));
 
-                    if (complainLists.size() == 0) {
+                    if (complainLists.isEmpty()) {
                         noComplainFoundMsgPatPSV.setVisibility(View.VISIBLE);
                     }
                     else {
@@ -692,7 +712,7 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
                     }
 
                     //------
-                    if (patDiagnosisLists.size() == 0) {
+                    if (patDiagnosisLists.isEmpty()) {
                         noDiagnosisFoundMsg.setVisibility(View.VISIBLE);
                         referralUnitLay.setVisibility(View.GONE);
                         refUnitDivider.setVisibility(View.GONE);
@@ -710,7 +730,7 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
                     diagnosisView.setAdapter(patDiagnosisPSVAdapter);
 
                     //------
-                    if (patReferralListsPatPSV.size() == 0) {
+                    if (patReferralListsPatPSV.isEmpty()) {
                         noReferralFoundMsg.setVisibility(View.VISIBLE);
                         refServiceUnitLay.setVisibility(View.GONE);
                         refServiceDivider.setVisibility(View.GONE);
@@ -724,7 +744,7 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
                     referralView.setAdapter(patReferralUniPSVAdapter);
 
                     //------
-                    if (patRefServiceListsPatPSV.size() == 0) {
+                    if (patRefServiceListsPatPSV.isEmpty()) {
                         noRefServiceFoundMsgPatPSV.setVisibility(View.VISIBLE);
                     }
                     else {
@@ -832,7 +852,7 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
         selected_drd_id = "";
         selected_depts_id = "";
 
-        String patRefUrl = pre_url_api+"prescription/getPatReferral?pdi_id="+selected_pdi_id+"";
+        String patRefUrl = pre_url_api+"prescription/getPatReferral?pdi_id="+selected_pdi_id;
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest patRefReq = new StringRequest(Request.Method.GET, patRefUrl, response -> {
@@ -880,14 +900,14 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateReferralData();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateReferralData();
         });
@@ -904,7 +924,7 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
                 fullLayoutPatPSV.setVisibility(View.VISIBLE);
                 circularProgressIndicatorPatPSV.setVisibility(View.GONE);
 
-                if (patReferralListsPatPSV.size() == 0) {
+                if (patReferralListsPatPSV.isEmpty()) {
                     noReferralFoundMsg.setVisibility(View.VISIBLE);
                     refServiceUnitLay.setVisibility(View.GONE);
                     refServiceDivider.setVisibility(View.GONE);
@@ -918,7 +938,7 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
                 patReferralUniPSVAdapter = new PatReferralUniPSVAdapter(patReferralListsPatPSV, PatPrescriptionV.this,PatPrescriptionV.this);
                 referralView.setAdapter(patReferralUniPSVAdapter);
 
-                if (patRefServiceListsPatPSV.size() == 0) {
+                if (patRefServiceListsPatPSV.isEmpty()) {
                     noRefServiceFoundMsgPatPSV.setVisibility(View.VISIBLE);
                 }
                 else {
@@ -993,7 +1013,7 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
         connected = false;
         patRefServiceListsPatPSV = new ArrayList<>();
 
-        String patRefServUrl = pre_url_api+"prescription/getPatRefService?drd_id="+selected_drd_id+"";
+        String patRefServUrl = pre_url_api+"prescription/getPatRefService?drd_id="+selected_drd_id;
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest patRefServReq = new StringRequest(Request.Method.GET, patRefServUrl, response -> {
@@ -1028,14 +1048,14 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateRefServiceData();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateRefServiceData();
         });
@@ -1053,7 +1073,7 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
                 fullLayoutPatPSV.setVisibility(View.VISIBLE);
                 circularProgressIndicatorPatPSV.setVisibility(View.GONE);
 
-                if (patRefServiceListsPatPSV.size() == 0) {
+                if (patRefServiceListsPatPSV.isEmpty()) {
                     noRefServiceFoundMsgPatPSV.setVisibility(View.VISIBLE);
                 }
                 else {

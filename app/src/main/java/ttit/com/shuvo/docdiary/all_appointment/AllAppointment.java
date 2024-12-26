@@ -1,5 +1,6 @@
 package ttit.com.shuvo.docdiary.all_appointment;
 
+import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.adminInfoLists;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.userInfoLists;
 
@@ -52,6 +53,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import devs.mulham.horizontalcalendar.HorizontalCalendar;
 import devs.mulham.horizontalcalendar.utils.HorizontalCalendarListener;
@@ -77,7 +80,6 @@ public class AllAppointment extends AppCompatActivity {
     ArrayList<MonthSelectionList> monthSelectionLists;
     int month_i = 0;
 
-    TextInputLayout departmentSelectLay;
     AppCompatAutoCompleteTextView departmentSelect;
     ArrayList<ChoiceDepartmentList> choiceDepartmentLists;
 
@@ -122,6 +124,8 @@ public class AllAppointment extends AppCompatActivity {
 
     CardView deptCard;
     CardView deptsCard;
+    Logger logger = Logger.getLogger(AllAppointment.class.getName());
+    String flag = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -173,14 +177,14 @@ public class AllAppointment extends AppCompatActivity {
         filteredList = new ArrayList<>();
 
         Intent intent = getIntent();
-        String flag = intent.getStringExtra("ADMIN_USER_FLAG");
+        flag = intent.getStringExtra("ADMIN_USER_FLAG");
         assert flag != null;
         if (flag.equals("1")) {
             if (userInfoLists == null) {
                 restart("Could Not Get Doctor Data. Please Restart the App.");
             }
             else {
-                if (userInfoLists.size() == 0) {
+                if (userInfoLists.isEmpty()) {
                     restart("Could Not Get Doctor Data. Please Restart the App.");
                 }
                 else {
@@ -475,7 +479,7 @@ public class AllAppointment extends AppCompatActivity {
 
         }
 
-        if (filteredList.size() == 0) {
+        if (filteredList.isEmpty()) {
             noDocsMess.setVisibility(View.VISIBLE);
         }
         else {
@@ -545,14 +549,14 @@ public class AllAppointment extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateLayout();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateLayout();
         });
@@ -593,7 +597,7 @@ public class AllAppointment extends AppCompatActivity {
                         restart("App is paused for a long time. Please Start the app again.");
                     }
 
-                    if (unitDoctorsLists.size() == 0) {
+                    if (unitDoctorsLists.isEmpty()) {
                         noDocsMess.setText(select_unit_msg);
                         noDocsMess.setVisibility(View.VISIBLE);
 
@@ -689,7 +693,7 @@ public class AllAppointment extends AppCompatActivity {
         unit_sch_count = 0;
         unit_blank_count = 0;
 
-        String url = pre_url_api+"doctors_app_schedule/getUnitList?deptd_id="+selected_deptd_id+"";
+        String url = pre_url_api+"doctors_app_schedule/getUnitList?deptd_id="+selected_deptd_id;
         String deptdSchCountUrl = pre_url_api+"all_appointment/getDeptdSchCount?deptd_id="+selected_deptd_id+"&pdate="+selected_date;
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
@@ -713,6 +717,9 @@ public class AllAppointment extends AppCompatActivity {
 
                         deptd_sch_count = Integer.parseInt(deptd_count);
                         deptd_blank_count = Integer.parseInt(deptd_tot_count) - (deptd_sch_count + Integer.parseInt(deptd_busy_count));
+                        if (Integer.parseInt(deptd_tot_count) == 0) {
+                            deptd_blank_count = 0;
+                        }
                     }
                 }
                 connected = true;
@@ -720,14 +727,14 @@ public class AllAppointment extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -755,14 +762,14 @@ public class AllAppointment extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -811,7 +818,7 @@ public class AllAppointment extends AppCompatActivity {
                         restart("App is paused for a long time. Please Start the app again.");
                     }
 
-                    if (unitDoctorsLists.size() == 0) {
+                    if (unitDoctorsLists.isEmpty()) {
                         noDocsMess.setText(select_unit_msg);
                         noDocsMess.setVisibility(View.VISIBLE);
                     }
@@ -921,6 +928,9 @@ public class AllAppointment extends AppCompatActivity {
 
                         deptd_sch_count = Integer.parseInt(deptd_count);
                         deptd_blank_count = Integer.parseInt(deptd_tot_count) - (deptd_sch_count + Integer.parseInt(deptd_busy_count));
+                        if (Integer.parseInt(deptd_tot_count) == 0) {
+                            deptd_blank_count = 0;
+                        }
                     }
                 }
                 connected = true;
@@ -928,14 +938,14 @@ public class AllAppointment extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateDeptdCount();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateDeptdCount();
         });
@@ -1062,6 +1072,9 @@ public class AllAppointment extends AppCompatActivity {
 
                         int bc = Integer.parseInt(tot_count) - (Integer.parseInt(app_count) + Integer.parseInt(busy_count));
                         String blank_count = String.valueOf(bc);
+                        if (Integer.parseInt(tot_count) == 0) {
+                            blank_count = "0";
+                        }
 
                         String app_list = apptDataInfo.getString("app_list");
                         JSONArray array1 = new JSONArray(app_list);
@@ -1082,6 +1095,8 @@ public class AllAppointment extends AppCompatActivity {
                                     .equals("null") ? "" :info.getString("pat_name");
                             String pat_code = info.getString("pat_code")
                                     .equals("null") ? "" :info.getString("pat_code");
+                            String pat_cell = info.getString("pat_cell")
+                                    .equals("null") ? "" :info.getString("pat_cell");
                             String pfn_fee_name = info.getString("pfn_fee_name")
                                     .equals("null") ? "" :info.getString("pfn_fee_name");
 
@@ -1109,9 +1124,29 @@ public class AllAppointment extends AppCompatActivity {
                                 }
                             }
 
+                            String perm = flag;
+                            if (flag.equals("2")) {
+                                if (adminInfoLists == null) {
+                                    restart("Could Not Get Doctor Data. Please Restart the App.");
+                                }
+                                else {
+                                    if (adminInfoLists.isEmpty()) {
+                                        restart("Could Not Get Doctor Data. Please Restart the App.");
+                                    }
+                                    else {
+                                        if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) == 1) {
+                                            perm = "2";
+                                        }
+                                        else {
+                                            perm = "1";
+                                        }
+                                    }
+                                }
+                            }
+
 
                             doctorAppSchLists.add(new DoctorAppSchList(adm_date,schedule_time,patient_data,pat_name,
-                                    pat_code,pfn_fee_name,pos));
+                                    pat_code,pat_cell,pfn_fee_name,pos,perm));
 
                         }
 
@@ -1126,14 +1161,14 @@ public class AllAppointment extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateFrontView();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateFrontView();
         });
@@ -1164,20 +1199,23 @@ public class AllAppointment extends AppCompatActivity {
 
                         deptd_sch_count = Integer.parseInt(deptd_count);
                         deptd_blank_count = Integer.parseInt(deptd_tot_count) - (deptd_sch_count + Integer.parseInt(deptd_busy_count));
+                        if (Integer.parseInt(deptd_tot_count) == 0) {
+                            deptd_blank_count = 0;
+                        }
                     }
                 }
                 requestQueue.add(apptDataReq);
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateFrontView();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateFrontView();
         });
@@ -1233,7 +1271,7 @@ public class AllAppointment extends AppCompatActivity {
                 ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(AllAppointment.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
                 docSelect.setAdapter(arrayAdapter);
 
-                if (unitDoctorsLists.size() == 0) {
+                if (unitDoctorsLists.isEmpty()) {
                     noDocsMess.setText(no_doc_msg);
                     noDocsMess.setVisibility(View.VISIBLE);
                     unitDocCount.setText("  0");

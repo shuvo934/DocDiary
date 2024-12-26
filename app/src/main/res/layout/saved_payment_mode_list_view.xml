@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:weightSum="10"
+    android:layout_marginBottom="@dimen/_4sdp"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/no_of_payment_method"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="1"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:textSize="@dimen/_9sdp"
+        android:textColor="@color/black"
+        android:fontFamily="@font/poppins_bold"/>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="5.25"
+        android:layout_gravity="center"
+        android:layout_marginStart="@dimen/_4sdp"
+        android:layout_marginEnd="@dimen/_4sdp"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/payment_method_name_selected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cash Payment (1)"
+            android:textSize="@dimen/_9sdp"
+            android:textColor="@color/black"
+            android:fontFamily="@font/poppins_bold"/>
+        <TextView
+            android:id="@+id/account_name_selected"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Jamuna Bank Ltd, C/A: No-00030210014033, Mowluvi Bazar. (0103010000004)"
+            android:textSize="@dimen/_8sdp"
+            android:textColor="@color/default_text_color"
+            android:fontFamily="@font/poppins_bold"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/amount_of_payment_method_selected"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2.5"
+        android:layout_marginEnd="@dimen/_4sdp"
+        android:text="2000"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:textSize="@dimen/_9sdp"
+        android:textColor="@color/black"
+        android:fontFamily="@font/poppins_bold"/>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center"
+        android:layout_weight="1.25">
+
+        <ImageView
+            android:id="@+id/delete_payment_method"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/cancel_24"
+            android:layout_gravity="center"/>
+
+    </LinearLayout>
+
+</LinearLayout>

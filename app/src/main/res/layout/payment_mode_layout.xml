@@ -1,0 +1,526 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <RelativeLayout
+        android:id="@+id/confirm_payment_full_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true">
+
+        <RelativeLayout
+            android:id="@+id/confirm_payment_app_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:background="@color/clouds"
+            android:padding="@dimen/_12sdp">
+
+            <ImageView
+                android:layout_width="@dimen/_21sdp"
+                android:layout_height="@dimen/_21sdp"
+                android:id="@+id/close_logo_of_confirm_payment"
+                android:layout_centerVertical="true"
+                android:src="@drawable/close_24"
+                app:tint="@color/black"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:id="@+id/confirm_payment_app_bar_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="@dimen/_12sdp"
+                android:layout_toEndOf="@+id/close_logo_of_confirm_payment"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="@dimen/_4sdp"
+                android:fontFamily="@font/poppins_bold"
+                android:text="Payment Confirmation"
+                android:paddingTop="2dp"
+                android:paddingBottom="0dp"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_12sdp"
+                tools:ignore="HardcodedText" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/design_bar_of_confirm_payment"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/confirm_payment_app_bar"
+            android:background="@color/green_sea"
+            android:orientation="vertical"/>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/design_bar_of_confirm_payment"
+            android:layout_above="@+id/confirm_cancel_payment_button_layout">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="10"
+                    android:layout_marginTop="@dimen/_8sdp"
+                    android:layout_marginStart="@dimen/_8sdp"
+                    android:layout_marginEnd="@dimen/_8sdp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:text="Total Amount : "
+                        android:fontFamily="@font/poppins_medium"
+                        android:textSize="@dimen/_11sdp"
+                        android:textStyle="bold"
+                        android:textColor="@color/default_text_color"/>
+
+                    <TextView
+                        android:id="@+id/service_total_amount"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="6"
+                        android:text="4000"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textSize="@dimen/_11sdp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="10"
+                    android:layout_marginTop="@dimen/_8sdp"
+                    android:layout_marginStart="@dimen/_8sdp"
+                    android:layout_marginEnd="@dimen/_8sdp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:text="Service Charge : "
+                        android:fontFamily="@font/poppins_medium"
+                        android:textSize="@dimen/_11sdp"
+                        android:textStyle="bold"
+                        android:textColor="@color/default_text_color"/>
+
+                    <TextView
+                        android:id="@+id/payment_service_charge"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="6"
+                        android:text="4000"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textSize="@dimen/_11sdp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="10"
+                    android:layout_marginTop="@dimen/_8sdp"
+                    android:layout_marginStart="@dimen/_8sdp"
+                    android:layout_marginEnd="@dimen/_8sdp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:text="Grand Total : "
+                        android:fontFamily="@font/poppins_medium"
+                        android:textSize="@dimen/_11sdp"
+                        android:textStyle="bold"
+                        android:textColor="@color/default_text_color"/>
+
+                    <TextView
+                        android:id="@+id/payment_grand_total"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="6"
+                        android:text="4000"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textSize="@dimen/_11sdp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="10"
+                    android:layout_marginTop="@dimen/_8sdp"
+                    android:layout_marginStart="@dimen/_8sdp"
+                    android:layout_marginEnd="@dimen/_8sdp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:text="Need To Pay : "
+                        android:fontFamily="@font/poppins_medium"
+                        android:textSize="@dimen/_11sdp"
+                        android:textStyle="bold"
+                        android:textColor="@color/default_text_color"/>
+
+                    <TextView
+                        android:id="@+id/payment_need_to_pay"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="6"
+                        android:text="4000"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textSize="@dimen/_11sdp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="10"
+                    android:layout_marginTop="@dimen/_8sdp"
+                    android:layout_marginStart="@dimen/_8sdp"
+                    android:layout_marginEnd="@dimen/_8sdp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="4"
+                        android:text="Paid Amount : "
+                        android:fontFamily="@font/poppins_medium"
+                        android:textSize="@dimen/_11sdp"
+                        android:textStyle="bold"
+                        android:textColor="@color/default_text_color"/>
+
+                    <TextView
+                        android:id="@+id/payment_paid_amount"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="6"
+                        android:text="4000"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textSize="@dimen/_11sdp"
+                        android:textStyle="bold"
+                        android:textColor="@color/black"/>
+
+                </LinearLayout>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_8sdp"
+                    android:layout_marginStart="@dimen/_8sdp"
+                    android:layout_marginEnd="@dimen/_8sdp"
+                    android:layout_marginBottom="@dimen/_8sdp"
+                    app:cardElevation="@dimen/_2sdp"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="@dimen/_8sdp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:background="@color/light_green">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:paddingTop="@dimen/_2sdp"
+                                android:paddingBottom="@dimen/_1sdp"
+                                android:gravity="center"
+                                android:text="Payment Method"
+                                android:textColor="@color/white"
+                                android:textSize="@dimen/_11sdp"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/_8sdp"
+                            android:layout_marginStart="@dimen/_8sdp"
+                            android:layout_marginEnd="@dimen/_8sdp"
+                            android:layout_marginBottom="@dimen/_4sdp"
+                            app:cardCornerRadius="10dp"
+                            app:cardElevation="2dp"
+                            app:cardBackgroundColor="@color/light_green">
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/spinner_layout_payment_mode_type"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="1dp"
+                                app:boxCornerRadiusTopStart="10dp"
+                                app:boxCornerRadiusTopEnd="10dp"
+                                app:boxCornerRadiusBottomEnd="10dp"
+                                app:boxCornerRadiusBottomStart="10dp"
+                                app:boxBackgroundColor="@color/white"
+                                app:boxBackgroundMode="filled"
+                                app:endIconMode="dropdown_menu"
+                                app:boxStrokeWidth="0dp"
+                                android:clickable="true"
+                                android:focusable="false"
+                                android:hint="Select Payment Method"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox">
+
+                                <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                                    android:id="@+id/spinner_payment_mode_type"
+                                    style="@style/Widget.MaterialComponents.AutoCompleteTextView.FilledBox"
+                                    android:layout_width="match_parent"
+                                    android:text=""
+                                    android:inputType="text"
+                                    android:importantForAutofill="no"
+                                    android:ellipsize="none"
+                                    android:maxLines="100"
+                                    android:clickable="true"
+                                    android:focusable="false"
+                                    android:textSize="@dimen/_9sdp"
+                                    android:textColor="@color/black"
+                                    android:fontFamily="@font/poppins_medium"
+                                    android:scrollHorizontally="false"
+                                    android:layout_height="wrap_content"
+                                    android:imeOptions="actionDone" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                        </androidx.cardview.widget.CardView>
+
+                        <androidx.cardview.widget.CardView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/_4sdp"
+                            android:layout_marginStart="@dimen/_8sdp"
+                            android:layout_marginEnd="@dimen/_8sdp"
+                            android:layout_marginBottom="@dimen/_4sdp"
+                            app:cardCornerRadius="10dp"
+                            app:cardElevation="2dp"
+                            app:cardBackgroundColor="@color/light_green">
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                android:id="@+id/amount_in_payment_mode_layout"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="1dp"
+                                app:boxCornerRadiusTopStart="10dp"
+                                app:boxCornerRadiusTopEnd="10dp"
+                                app:boxCornerRadiusBottomEnd="10dp"
+                                app:boxCornerRadiusBottomStart="10dp"
+                                app:boxStrokeWidthFocused="1dp"
+                                app:boxBackgroundColor="@color/white"
+                                app:boxBackgroundMode="filled"
+                                app:boxStrokeWidth="0dp"
+                                app:helperTextEnabled="true"
+                                android:enabled="false"
+                                android:hint="Amount"
+                                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/amount_in_payment_mode"
+                                    android:layout_width="match_parent"
+                                    android:text=""
+                                    android:ems="10"
+                                    android:inputType="numberDecimal"
+                                    android:importantForAutofill="no"
+                                    android:ellipsize="none"
+                                    android:maxLines="100"
+                                    android:textSize="@dimen/_9sdp"
+                                    android:textColor="@color/black"
+                                    android:fontFamily="@font/poppins_medium"
+                                    android:scrollHorizontally="false"
+                                    android:layout_height="wrap_content"
+                                    android:imeOptions="actionDone" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                        </androidx.cardview.widget.CardView>
+
+                        <TextView
+                            android:id="@+id/payment_mode_amount_missing_msg"
+                            android:layout_marginStart="@dimen/_10sdp"
+                            android:layout_marginTop="2dp"
+                            android:layout_marginBottom="@dimen/_7sdp"
+                            android:layout_marginEnd="@dimen/_10sdp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Please Provide Amount"
+                            android:textColor="@android:color/holo_red_light"
+                            android:textStyle="bold"
+                            android:visibility="visible"
+                            tools:ignore="HardcodedText" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/save_payment_mode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="ADD"
+                            android:textSize="@dimen/_11sdp"
+                            android:fontFamily="@font/poppins_bold"
+                            app:cornerRadius="@dimen/_10sdp"
+                            android:layout_marginEnd="@dimen/_8sdp"
+                            android:layout_marginStart="@dimen/_8sdp"
+                            android:layout_marginTop="@dimen/_4sdp"
+                            android:layout_gravity="end"/>
+
+                        <TextView
+                            android:layout_marginStart="@dimen/_8sdp"
+                            android:layout_marginTop="2dp"
+                            android:layout_marginBottom="@dimen/_4sdp"
+                            android:layout_marginEnd="@dimen/_8sdp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Selected Payment Method"
+                            android:textSize="@dimen/_11sdp"
+                            android:fontFamily="@font/poppins_bold"
+                            android:textColor="@color/green_sea"
+                            android:textStyle="bold"
+                            tools:ignore="HardcodedText" />
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="@dimen/_8sdp"
+                            android:layout_marginEnd="@dimen/_8sdp"
+                            android:layout_marginBottom="@dimen/_8sdp">
+
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/saved_payment_mode_list"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:scrollbars="vertical" />
+
+                        </RelativeLayout>
+
+                        <TextView
+                            android:id="@+id/no_payment_method_selected_msg"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="No Payment Method Selected"
+                            android:fontFamily="@font/poppins_bold"
+                            android:layout_marginTop="@dimen/_4sdp"
+                            android:layout_marginStart="@dimen/_4sdp"
+                            android:layout_marginEnd="@dimen/_4sdp"
+                            android:layout_marginBottom="@dimen/_8sdp"
+                            android:textSize="@dimen/_10sdp"/>
+
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
+
+        </ScrollView>
+
+        <RelativeLayout
+            android:id="@+id/confirm_cancel_payment_button_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:layout_marginBottom="@dimen/_8sdp"
+            android:layout_marginEnd="@dimen/_8sdp"
+            android:layout_marginStart="@dimen/_8sdp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/confirm_payment_button"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/_40sdp"
+                android:text="Confirm Payment"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:paddingTop="3dp"
+                android:paddingBottom="1dp"
+                android:textSize="@dimen/_11sdp"
+                android:fontFamily="@font/poppins_bold"
+                android:textColor="@color/white"
+                app:backgroundTint="@color/green_sea"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                app:strokeColor="@color/light_green"
+                app:cornerRadius="@dimen/_8sdp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/cancel_payment_button"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/_40sdp"
+                android:text="Cancel"
+                android:layout_toStartOf="@+id/confirm_payment_button"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:layout_centerVertical="true"
+                android:paddingTop="3dp"
+                android:paddingBottom="1dp"
+                android:textSize="@dimen/_11sdp"
+                android:fontFamily="@font/poppins_bold"
+                android:textColor="@color/green_sea"
+                app:backgroundTint="@android:color/transparent"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                app:strokeColor="@color/white"
+                app:cornerRadius="@dimen/_8sdp"/>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progress_indicator_confirm_payment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:indeterminate="true"
+        android:layout_gravity="center"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/reload_page_button_confirm_payment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:text="Retry"
+        android:layout_marginTop="@dimen/_8sdp"
+        app:cornerRadius="@dimen/_10sdp"
+        android:fontFamily="@font/patua_one"
+        android:layout_centerHorizontal="true"
+        tools:ignore="HardcodedText" />
+
+</RelativeLayout>

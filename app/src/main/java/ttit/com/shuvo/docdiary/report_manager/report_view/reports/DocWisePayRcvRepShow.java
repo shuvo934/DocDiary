@@ -12,6 +12,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -34,11 +35,11 @@ import org.json.JSONObject;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.report_manager.report_view.reports.adapters.DocWiseAppointDataAdapter;
 import ttit.com.shuvo.docdiary.report_manager.report_view.reports.adapters.DocWisePayDataAdapter;
-import ttit.com.shuvo.docdiary.report_manager.report_view.reports.arraylists.DocWiseAppointDataList;
 import ttit.com.shuvo.docdiary.report_manager.report_view.reports.arraylists.DocWisePayDataList;
 
 public class DocWisePayRcvRepShow extends AppCompatActivity {
@@ -78,6 +79,8 @@ public class DocWisePayRcvRepShow extends AppCompatActivity {
     String end_date = "";
 
     String url = "";
+
+    Logger logger = Logger.getLogger(DocWisePayRcvRepShow.class.getName());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,7 +138,7 @@ public class DocWisePayRcvRepShow extends AppCompatActivity {
         docName.setText(doc_name);
         docDepartment.setText(dep_name);
 
-        close.setOnClickListener(v -> onBackPressed());
+        close.setOnClickListener(v -> finish());
 
         pdfShow.setOnClickListener(v -> {
             Intent intent1 = new Intent(DocWisePayRcvRepShow.this, ReportShow.class);
@@ -146,18 +149,25 @@ public class DocWisePayRcvRepShow extends AppCompatActivity {
             startActivity(intent1);
         });
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (loading) {
+                    Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    finish();
+                }
+            }
+        });
+
         getReportData();
     }
 
-    @Override
-    public void onBackPressed() {
-        if (loading) {
-            Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
-        }
-        else {
-            super.onBackPressed();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//
+//    }
 
     public void getReportData() {
         fullLayout.setVisibility(View.GONE);
@@ -208,14 +218,14 @@ public class DocWisePayRcvRepShow extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });

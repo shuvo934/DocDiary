@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".appt_schedule.prescription.addInformation.arraylists.DiagnosisModify">
+    tools:context=".appt_schedule.prescription.addInformation.DiagnosisModify">
 
     <LinearLayout
         android:id="@+id/pat_diagnosis_modify_full_layout"

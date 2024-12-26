@@ -17,13 +17,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.github.vipulasri.timelineview.TimelineView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
-import com.google.android.material.divider.MaterialDivider;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -63,17 +61,19 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
         String status = schedule.getApptStatus();
         String pmm = schedule.getPmm_for_prescription();
         if (pmm.equals("1")) {
-            holder.prescription.setText("Prescription");
+            String pt = "Prescription";
+            holder.prescription.setText(pt);
         }
         else {
-            holder.prescription.setText("Create Prescription");
+            String pt = "Create Prescription";
+            holder.prescription.setText(pt);
         }
 
         String appt_date = schedule.getAppointment_date();
         appt_date = appt_date + " " + schedule.getTime();
         System.out.println("APP DATE: "+ appt_date);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy hh:mm a", Locale.ENGLISH);
-        Date appDate = null;
+        Date appDate;
         try {
             appDate = simpleDateFormat.parse(appt_date);
         } catch (ParseException e) {
@@ -164,24 +164,29 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
 
                     if (nnn.equals(adm_date)) {
                         if (pph_prog.equals("0")) {
-                            holder.addProgress.setText("ADD PROGRESS");
+                            String apt = "ADD PROGRESS";
+                            holder.addProgress.setText(apt);
                         }
                         else {
                             if (hpAdded.equals("0")) {
-                                holder.addProgress.setText("ADD PROGRESS");
+                                String apt = "ADD PROGRESS";
+                                holder.addProgress.setText(apt);
                             }
                             else {
-                                holder.addProgress.setText("VIEW PROGRESS");
+                                String vpt = "VIEW PROGRESS";
+                                holder.addProgress.setText(vpt);
                             }
                         }
                     }
                     else {
                         if (pph_prog.equals("0")) {
-                            holder.addProgress.setText("ADD PROGRESS");
+                            String apt = "ADD PROGRESS";
+                            holder.addProgress.setText(apt);
                             holder.addProgress.setVisibility(View.GONE);
                         }
                         else {
-                            holder.addProgress.setText("VIEW PROGRESS");
+                            String vpt = "VIEW PROGRESS";
+                            holder.addProgress.setText(vpt);
                             holder.addProgress.setVisibility(View.VISIBLE);
                         }
                     }
@@ -224,7 +229,8 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
                 }
                 else {
                     String pph_prog = schedule.getPph_progress();
-                    holder.addProgress.setText("VIEW PROGRESS");
+                    String vpt = "VIEW PROGRESS";
+                    holder.addProgress.setText(vpt);
 
                     if (pph_prog.equals("0")) {
                         holder.hpLayout.setVisibility(View.GONE);
@@ -284,7 +290,8 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
             }
             else {
                 String pph_prog = schedule.getPph_progress();
-                holder.addProgress.setText("VIEW PROGRESS");
+                String vpt = "VIEW PROGRESS";
+                holder.addProgress.setText(vpt);
 
                 if (pph_prog.equals("0")) {
                     holder.hpLayout.setVisibility(View.GONE);

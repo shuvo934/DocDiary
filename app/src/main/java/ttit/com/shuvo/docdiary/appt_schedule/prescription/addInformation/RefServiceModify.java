@@ -2,6 +2,7 @@ package ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation;
 
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
@@ -27,7 +28,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -45,12 +45,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.arraylists.RefServiceList;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.ClinicalFindingsModify;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.arraylists.ClinicalFindingsList;
 
 public class RefServiceModify extends AppCompatActivity {
     LinearLayout fullLayout;
@@ -81,6 +81,9 @@ public class RefServiceModify extends AppCompatActivity {
     boolean selectedFromItems = false;
 
     String drs_id = "";
+
+    Logger logger = Logger.getLogger(RefServiceModify.class.getName());
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -182,22 +185,18 @@ public class RefServiceModify extends AppCompatActivity {
 
                         if (ss.isEmpty()) {
                             refServiceMissing.setVisibility(View.VISIBLE);
-                            refServiceMissing.setText("Please Select Service Name");
+                            String rsmt = "Please Select Service Name";
+                            refServiceMissing.setText(rsmt);
                         }
                         else {
                             refServiceMissing.setVisibility(View.VISIBLE);
-                            refServiceMissing.setText("Invalid Service Name");
+                            String rsmt = "Invalid Service Name";
+                            refServiceMissing.setText(rsmt);
                         }
                     }
-                    System.out.println(selectedFromItems);
-                    System.out.println("pfn_id: " + pfn_id);
-                    System.out.println("pfn_fee_name: "+ pfn_fee_name);
                 }
                 else {
                     selectedFromItems = false;
-                    System.out.println(selectedFromItems);
-                    System.out.println("pfn_id: " + pfn_id);
-                    System.out.println("pfn_fee_name: "+ pfn_fee_name);
                 }
             }
         });
@@ -234,7 +233,7 @@ public class RefServiceModify extends AppCompatActivity {
             return false;
         });
 
-        close.setOnClickListener(v -> onBackPressed());
+        close.setOnClickListener(v -> finish());
 
         modify.setOnClickListener(v -> {
             service_qty = Objects.requireNonNull(serviceQty.getText()).toString();
@@ -247,9 +246,7 @@ public class RefServiceModify extends AppCompatActivity {
                                 dialog.dismiss();
                                 addRefServices();
                             })
-                            .setNegativeButton("No",(dialog, which) -> {
-                                dialog.dismiss();
-                            });
+                            .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
 
                     AlertDialog alert = alertDialogBuilder.create();
                     alert.show();
@@ -261,9 +258,7 @@ public class RefServiceModify extends AppCompatActivity {
                                 dialog.dismiss();
                                 updateRefService();
                             })
-                            .setNegativeButton("No",(dialog, which) -> {
-                                dialog.dismiss();
-                            });
+                            .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
 
                     AlertDialog alert = alertDialogBuilder.create();
                     alert.show();
@@ -277,6 +272,18 @@ public class RefServiceModify extends AppCompatActivity {
 
         PrescriptionSetup.previousDataSelected = true;
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (loading) {
+                    Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    finish();
+                }
+            }
+        });
+
         getData();
     }
 
@@ -286,15 +293,10 @@ public class RefServiceModify extends AppCompatActivity {
         return super.onTouchEvent(event);
     }
 
-    @Override
-    public void onBackPressed() {
-        if (loading) {
-            Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
-        }
-        else {
-            super.onBackPressed();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//
+//    }
 
     private void closeKeyBoard() {
         View view = getCurrentFocus();
@@ -314,7 +316,7 @@ public class RefServiceModify extends AppCompatActivity {
 
         refServiceLists = new ArrayList<>();
 
-        String refServUrl = pre_url_api+"prescription/getServices?drd_id="+drd_id+"&depts_id="+depts_id+"";
+        String refServUrl = pre_url_api+"prescription/getServices?drd_id="+drd_id+"&depts_id="+depts_id;
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest refServReq = new StringRequest(Request.Method.GET, refServUrl, response -> {
@@ -345,14 +347,14 @@ public class RefServiceModify extends AppCompatActivity {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -369,8 +371,9 @@ public class RefServiceModify extends AppCompatActivity {
                 conn = false;
                 connected = false;
 
-                if (refServiceLists.size() == 0) {
-                    refServiceMissing.setText("No Service Found");
+                if (refServiceLists.isEmpty()) {
+                    String rst = "No Service Found";
+                    refServiceMissing.setText(rst);
                     refServiceMissing.setVisibility(View.VISIBLE);
                 }
                 else {
@@ -381,7 +384,7 @@ public class RefServiceModify extends AppCompatActivity {
                     type.add(refServiceLists.get(i).getPfn_fee_name());
                 }
 
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(RefServiceModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(RefServiceModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
                 refService.setAdapter(arrayAdapter);
 
             }
@@ -451,19 +454,19 @@ public class RefServiceModify extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterAdd();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterAdd();
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_DRD_ID",drd_id);
                 headers.put("P_PFN_ID",pfn_id);
@@ -522,9 +525,7 @@ public class RefServiceModify extends AppCompatActivity {
                     addRefServices();
                     dialog.dismiss();
                 })
-                .setNegativeButton("Cancel",(dialog, which) -> {
-                    dialog.dismiss();
-                });
+                .setNegativeButton("Cancel",(dialog, which) -> dialog.dismiss());
 
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
@@ -560,19 +561,19 @@ public class RefServiceModify extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterUpdate();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterUpdate();
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_PFN_ID",pfn_id);
                 headers.put("P_QTY",service_qty);
@@ -620,9 +621,7 @@ public class RefServiceModify extends AppCompatActivity {
                     updateRefService();
                     dialog.dismiss();
                 })
-                .setNegativeButton("Cancel",(dialog, which) -> {
-                    dialog.dismiss();
-                });
+                .setNegativeButton("Cancel",(dialog, which) -> dialog.dismiss());
 
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);

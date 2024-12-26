@@ -1,7 +1,9 @@
 package ttit.com.shuvo.docdiary.patient_search;
 
+import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.adminInfoLists;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -44,6 +46,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.patient_search.adapters.PatientSearchAdapter;
@@ -81,6 +85,11 @@ public class PatientSearchAdmin extends AppCompatActivity {
     TextView latestPatMsg;
     MaterialButton clearButton;
     public static boolean needToUpdatePatList = true;
+
+    String perm = "1";
+
+    Logger logger = Logger.getLogger(PatientSearchAdmin.class.getName());
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -118,7 +127,24 @@ public class PatientSearchAdmin extends AppCompatActivity {
         hundredPatLists = new ArrayList<>();
         needToUpdatePatList = true;
 
-        backButton.setOnClickListener(v -> onBackPressed());
+        if (adminInfoLists == null) {
+            restart("Could Not Get Doctor Data. Please Restart the App.");
+        }
+        else {
+            if (adminInfoLists.isEmpty()) {
+                restart("Could Not Get Doctor Data. Please Restart the App.");
+            }
+            else {
+                if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) == 1) {
+                    perm = "2";
+                }
+                else {
+                    perm = "1";
+                }
+            }
+        }
+
+        backButton.setOnClickListener(v -> finish());
 
         Calendar today = Calendar.getInstance();
         today.get(Calendar.YEAR);
@@ -228,7 +254,7 @@ public class PatientSearchAdmin extends AppCompatActivity {
             searchPatientError.setVisibility(View.GONE);
             searchPatient.setText("");
 
-            if (hundredPatLists.size() == 0) {
+            if (hundredPatLists.isEmpty()) {
                 noPatientFound.setVisibility(View.VISIBLE);
                 latestPatMsg.setVisibility(View.GONE);
             }
@@ -239,6 +265,19 @@ public class PatientSearchAdmin extends AppCompatActivity {
             patientSearchAdapter = new PatientSearchAdapter(hundredPatLists, PatientSearchAdmin.this);
             patientView.setAdapter(patientSearchAdapter);
         });
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (loading) {
+                    Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    finish();
+                }
+            }
+        });
+
     }
 
     @Override
@@ -268,15 +307,10 @@ public class PatientSearchAdmin extends AppCompatActivity {
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        if (loading) {
-            Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
-        }
-        else {
-            super.onBackPressed();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//
+//    }
 
     public void getData() {
         fullLayout.setVisibility(View.GONE);
@@ -312,10 +346,13 @@ public class PatientSearchAdmin extends AppCompatActivity {
                             .equals("null") ? "" : docInfo.getString("sub_code");
                     String pph_progress = docInfo.getString("pph_progress")
                             .equals("null") ? "0" : docInfo.getString("pph_progress");
+                    String pat_cell = docInfo.getString("pat_cell")
+                            .equals("null") ? "" :docInfo.getString("pat_cell");
                     String pyear = docInfo.getString("pyear")
                             .equals("null") ? "" : docInfo.getString("pyear");
 
-                    hundredPatLists.add(new PatientSearchList(pat_id,pat_name,dd_thana_name,ph_id,sub_code,pph_progress,pyear));
+                    hundredPatLists.add(new PatientSearchList(pat_id,pat_name,dd_thana_name,ph_id,
+                            sub_code,pph_progress,pyear,pat_cell,perm));
                 }
 
                 connected = true;
@@ -323,14 +360,14 @@ public class PatientSearchAdmin extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateLayout();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateLayout();
         });
@@ -357,7 +394,7 @@ public class PatientSearchAdmin extends AppCompatActivity {
                 searchPatientError.setVisibility(View.GONE);
                 searchPatient.setText("");
 
-                if (hundredPatLists.size() == 0) {
+                if (hundredPatLists.isEmpty()) {
                     noPatientFound.setVisibility(View.VISIBLE);
                     latestPatMsg.setVisibility(View.GONE);
                 }
@@ -449,8 +486,11 @@ public class PatientSearchAdmin extends AppCompatActivity {
                             .equals("null") ? "" : docInfo.getString("sub_code");
                     String pph_progress = docInfo.getString("pph_progress")
                             .equals("null") ? "0" : docInfo.getString("pph_progress");
+                    String pat_cell = docInfo.getString("pat_cell")
+                            .equals("null") ? "" :docInfo.getString("pat_cell");
 
-                    patientSearchLists.add(new PatientSearchList(pat_id,pat_name,dd_thana_name,ph_id,sub_code,pph_progress,""));
+                    patientSearchLists.add(new PatientSearchList(pat_id,pat_name,dd_thana_name,ph_id,
+                            sub_code,pph_progress,"",pat_cell,perm));
                 }
 
                 connected = true;
@@ -458,14 +498,14 @@ public class PatientSearchAdmin extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -490,7 +530,7 @@ public class PatientSearchAdmin extends AppCompatActivity {
                 latestPatMsg.setVisibility(View.GONE);
                 clearButton.setVisibility(View.VISIBLE);
 
-                if (patientSearchLists.size() == 0) {
+                if (patientSearchLists.isEmpty()) {
                     noPatientFound.setVisibility(View.VISIBLE);
                 }
                 else {

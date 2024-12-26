@@ -2,6 +2,7 @@ package ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation;
 
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
@@ -28,7 +29,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -47,6 +47,8 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.arraylists.ListOfComplains;
@@ -94,6 +96,7 @@ public class ComplainModify extends AppCompatActivity {
 
     String pci_id = "";
 
+    Logger logger = Logger.getLogger(ComplainModify.class.getName());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -205,22 +208,19 @@ public class ComplainModify extends AppCompatActivity {
 
                         if (ss.isEmpty()) {
                             complainMissing.setVisibility(View.VISIBLE);
-                            complainMissing.setText("Please Write Complain");
+                            String cmt = "Please Write Complain";
+                            complainMissing.setText(cmt);
                         }
                         else {
                             complainMissing.setVisibility(View.VISIBLE);
-                            complainMissing.setText("Invalid Complain");
+                            String cmt = "Invalid Complain";
+                            complainMissing.setText(cmt);
                         }
                     }
-                    System.out.println(selectedFromItems);
-                    System.out.println("CM_NAME: " + cm_name);
-                    System.out.println("CM_ID: "+ cm_id);
+
                 }
                 else {
                     selectedFromItems = false;
-                    System.out.println(selectedFromItems);
-                    System.out.println("CM_NAME: " + cm_name);
-                    System.out.println("CM_ID: "+ cm_id);
                 }
             }
         });
@@ -291,11 +291,13 @@ public class ComplainModify extends AppCompatActivity {
 
                         if (ss.isEmpty()) {
                             injuryMissing.setVisibility(View.VISIBLE);
-                            injuryMissing.setText("Please Write Cause of Injury");
+                            String imt = "Please Write Cause of Injury";
+                            injuryMissing.setText(imt);
                         }
                         else {
                             injuryMissing.setVisibility(View.VISIBLE);
-                            injuryMissing.setText("Invalid Cause of Injury");
+                            String imt = "Invalid Cause of Injury";
+                            injuryMissing.setText(imt);
                         }
                     }
                 }
@@ -331,8 +333,8 @@ public class ComplainModify extends AppCompatActivity {
                 DatePickerDialog datePickerDialog = new DatePickerDialog(ComplainModify.this, (view1, year, month, dayOfMonth) -> {
 
                     String monthName = "";
-                    String dayOfMonthName = "";
-                    String yearName = "";
+                    String dayOfMonthName;
+                    String yearName;
                     month = month + 1;
                     if (month == 1) {
                         monthName = "JAN";
@@ -361,7 +363,7 @@ public class ComplainModify extends AppCompatActivity {
                     }
 
                     if (dayOfMonth <= 9) {
-                        dayOfMonthName = "0" + String.valueOf(dayOfMonth);
+                        dayOfMonthName = "0" + dayOfMonth;
                     } else {
                         dayOfMonthName = String.valueOf(dayOfMonth);
                     }
@@ -380,38 +382,33 @@ public class ComplainModify extends AppCompatActivity {
             }
         });
 
-        close.setOnClickListener(v -> onBackPressed());
+        close.setOnClickListener(v -> finish());
 
         modify.setOnClickListener(v -> {
             if (!cm_id.isEmpty()) {
                 if (!injury_id.isEmpty()) {
                     if (!injury_date.isEmpty()) {
+                        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(ComplainModify.this);
                         if (type.equals("ADD")) {
-                            MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(ComplainModify.this);
                             alertDialogBuilder.setTitle("Add Complain!")
                                     .setMessage("Do you want to add patient's new complain?")
                                     .setPositiveButton("Yes", (dialog, which) -> {
                                         dialog.dismiss();
                                         addComplain();
                                     })
-                                    .setNegativeButton("No",(dialog, which) -> {
-                                        dialog.dismiss();
-                                    });
+                                    .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
 
                             AlertDialog alert = alertDialogBuilder.create();
                             alert.show();
                         }
                         else {
-                            MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(ComplainModify.this);
                             alertDialogBuilder.setTitle("Update Complain!")
                                     .setMessage("Do you want to update this complain?")
                                     .setPositiveButton("Yes", (dialog, which) -> {
                                         dialog.dismiss();
                                         updateComplain();
                                     })
-                                    .setNegativeButton("No",(dialog, which) -> {
-                                        dialog.dismiss();
-                                    });
+                                    .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
 
                             AlertDialog alert = alertDialogBuilder.create();
                             alert.show();
@@ -434,6 +431,18 @@ public class ComplainModify extends AppCompatActivity {
             }
         });
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (loading) {
+                    Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    finish();
+                }
+            }
+        });
+
         getData();
     }
 
@@ -443,15 +452,10 @@ public class ComplainModify extends AppCompatActivity {
         return super.onTouchEvent(event);
     }
 
-    @Override
-    public void onBackPressed() {
-        if (loading) {
-            Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
-        }
-        else {
-            super.onBackPressed();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//
+//    }
 
     private void closeKeyBoard() {
         View view = getCurrentFocus();
@@ -472,8 +476,8 @@ public class ComplainModify extends AppCompatActivity {
         listOfComplains = new ArrayList<>();
         listOfInjuries = new ArrayList<>();
 
-        String complainUrl = pre_url_api+"prescription/getComplain?pmm_id="+pmm_id+"";
-        String injuryUrl = pre_url_api+"prescription/getInjury?pmm_id="+pmm_id+"";
+        String complainUrl = pre_url_api+"prescription/getComplain?pmm_id="+pmm_id;
+        String injuryUrl = pre_url_api+"prescription/getInjury?pmm_id="+pmm_id;
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest injuryReq = new StringRequest(Request.Method.GET, injuryUrl, response -> {
@@ -506,14 +510,14 @@ public class ComplainModify extends AppCompatActivity {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -547,14 +551,14 @@ public class ComplainModify extends AppCompatActivity {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -571,16 +575,18 @@ public class ComplainModify extends AppCompatActivity {
                 conn = false;
                 connected = false;
 
-                if (listOfComplains.size() == 0) {
-                    complainMissing.setText("No Complain List Found");
+                if (listOfComplains.isEmpty()) {
+                    String cmt = "No Complain List Found";
+                    complainMissing.setText(cmt);
                     complainMissing.setVisibility(View.VISIBLE);
                 }
                 else {
                     complainMissing.setVisibility(View.GONE);
                 }
 
-                if (listOfInjuries.size() == 0) {
-                    injuryMissing.setText("No Cause of Injury List Found");
+                if (listOfInjuries.isEmpty()) {
+                    String imt = "No Cause of Injury List Found";
+                    injuryMissing.setText(imt);
                     injuryMissing.setVisibility(View.VISIBLE);
                 }
                 else {
@@ -592,7 +598,7 @@ public class ComplainModify extends AppCompatActivity {
                     type.add(listOfComplains.get(i).getCm_name());
                 }
 
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(ComplainModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(ComplainModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
                 complain.setAdapter(arrayAdapter);
 
                 ArrayList<String> type1 = new ArrayList<>();
@@ -600,7 +606,7 @@ public class ComplainModify extends AppCompatActivity {
                     type1.add(listOfInjuries.get(i).getInjury_name());
                 }
 
-                ArrayAdapter<String> arrayAdapter1 = new ArrayAdapter<String>(ComplainModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type1);
+                ArrayAdapter<String> arrayAdapter1 = new ArrayAdapter<>(ComplainModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type1);
                 injury.setAdapter(arrayAdapter1);
 
             }
@@ -670,19 +676,19 @@ public class ComplainModify extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterAdd();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterAdd();
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_PMM_ID",pmm_id);
                 headers.put("P_CM_ID",cm_id);
@@ -742,9 +748,7 @@ public class ComplainModify extends AppCompatActivity {
                     addComplain();
                     dialog.dismiss();
                 })
-                .setNegativeButton("Cancel",(dialog, which) -> {
-                    dialog.dismiss();
-                });
+                .setNegativeButton("Cancel",(dialog, which) -> dialog.dismiss());
 
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
@@ -780,19 +784,19 @@ public class ComplainModify extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterUpdate();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterUpdate();
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_PMM_ID",pmm_id);
                 headers.put("P_CM_ID",cm_id);
@@ -841,9 +845,7 @@ public class ComplainModify extends AppCompatActivity {
                     updateComplain();
                     dialog.dismiss();
                 })
-                .setNegativeButton("Cancel",(dialog, which) -> {
-                    dialog.dismiss();
-                });
+                .setNegativeButton("Cancel",(dialog, which) -> dialog.dismiss());
 
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);

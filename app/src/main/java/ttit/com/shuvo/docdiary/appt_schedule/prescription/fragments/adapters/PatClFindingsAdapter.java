@@ -16,7 +16,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -29,18 +28,19 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.ClinicalFindings;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.ClinicalFindingsModify;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.DrugHistoryModify;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.arraylists.PatClinicalFindingsList;
 
 public class PatClFindingsAdapter extends RecyclerView.Adapter<PatClFindingsAdapter.PCFHolder> {
 
-    private ArrayList<PatClinicalFindingsList> mCategory;
-    private Context mContext;
+    private final ArrayList<PatClinicalFindingsList> mCategory;
+    private final Context mContext;
     private Boolean conn = false;
     private Boolean connected = false;
     String parsing_message = "";
@@ -49,6 +49,8 @@ public class PatClFindingsAdapter extends RecyclerView.Adapter<PatClFindingsAdap
         this.mCategory = mCategory;
         this.mContext = mContext;
     }
+
+    Logger logger = Logger.getLogger("PatClFindingsAdapter");
 
     @NonNull
     @Override
@@ -142,19 +144,19 @@ public class PatClFindingsAdapter extends RecyclerView.Adapter<PatClFindingsAdap
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterDeleteCFL(cf_id,index);
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterDeleteCFL(cf_id,index);
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_CF_ID",cf_id);
                 return headers;
@@ -172,7 +174,7 @@ public class PatClFindingsAdapter extends RecyclerView.Adapter<PatClFindingsAdap
                 Toast.makeText(mContext,"Clinical Findings Deleted Successfully",Toast.LENGTH_SHORT).show();
                 mCategory.remove(pos);
                 notifyDataSetChanged();
-                if (mCategory.size() == 0) {
+                if (mCategory.isEmpty()) {
                     ClinicalFindings.noPatClFindMsg.setVisibility(View.VISIBLE);
                 }
                 else {

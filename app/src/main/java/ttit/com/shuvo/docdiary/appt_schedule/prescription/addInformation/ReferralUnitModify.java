@@ -2,6 +2,7 @@ package ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation;
 
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
@@ -27,7 +28,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -43,11 +43,11 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.arraylists.ListOfComplains;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.arraylists.ListOfInjuries;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.arraylists.ReferralDoctorList;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.arraylists.ReferralUnitList;
 
@@ -87,6 +87,7 @@ public class ReferralUnitModify extends AppCompatActivity {
 
     String drd_id = "";
     int position = 0;
+    Logger logger = Logger.getLogger(ReferralUnitModify.class.getName());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -214,25 +215,21 @@ public class ReferralUnitModify extends AppCompatActivity {
 
                         if (ss.isEmpty()) {
                             refUnitMissing.setVisibility(View.VISIBLE);
-                            refUnitMissing.setText("Please Select Referral Unit");
+                            String rmt = "Please Select Referral Unit";
+                            refUnitMissing.setText(rmt);
                         }
                         else {
                             refUnitMissing.setVisibility(View.VISIBLE);
-                            refUnitMissing.setText("Invalid Referral Unit");
+                            String rmt = "Invalid Referral Unit";
+                            refUnitMissing.setText(rmt);
                         }
                     }
                     else {
                         getDoctors();
                     }
-                    System.out.println(selectedFromItems);
-                    System.out.println("ref_unit_name: " + ref_unit_name);
-                    System.out.println("depts_id: "+ depts_id);
                 }
                 else {
                     selectedFromItems = false;
-                    System.out.println(selectedFromItems);
-                    System.out.println("ref_unit_name: " + ref_unit_name);
-                    System.out.println("depts_id: "+ depts_id);
                 }
             }
         });
@@ -302,7 +299,8 @@ public class ReferralUnitModify extends AppCompatActivity {
                     if (ref_doc_id.isEmpty()) {
                         if (!ss.isEmpty()) {
                             refDoctorInvalid.setVisibility(View.VISIBLE);
-                            refDoctorInvalid.setText("Invalid Doctor Name");
+                            String rdt = "Invalid Doctor Name";
+                            refDoctorInvalid.setText(rdt);
                         }
                     }
                 }
@@ -328,7 +326,7 @@ public class ReferralUnitModify extends AppCompatActivity {
             return false;
         });
 
-        close.setOnClickListener(v -> onBackPressed());
+        close.setOnClickListener(v -> finish());
 
         modify.setOnClickListener(v -> {
             String ss = refDocs.getText().toString();
@@ -346,9 +344,7 @@ public class ReferralUnitModify extends AppCompatActivity {
                                     dialog.dismiss();
                                     addReferral();
                                 })
-                                .setNegativeButton("No",(dialog, which) -> {
-                                    dialog.dismiss();
-                                });
+                                .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
 
                         AlertDialog alert = alertDialogBuilder.create();
                         alert.show();
@@ -360,9 +356,7 @@ public class ReferralUnitModify extends AppCompatActivity {
                                     dialog.dismiss();
                                     updateReferral();
                                 })
-                                .setNegativeButton("No",(dialog, which) -> {
-                                    dialog.dismiss();
-                                });
+                                .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
 
                         AlertDialog alert = alertDialogBuilder.create();
                         alert.show();
@@ -378,15 +372,25 @@ public class ReferralUnitModify extends AppCompatActivity {
         delete.setOnClickListener(v -> {
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(ReferralUnitModify.this);
             builder.setMessage("Do you want to delete this Referral Unit?")
-                    .setPositiveButton("Yes", (dialogInterface, i) -> {
-                        deleteReferral();
-                    })
+                    .setPositiveButton("Yes", (dialogInterface, i) -> deleteReferral())
                     .setNegativeButton("No", (dialogInterface, i) -> dialogInterface.dismiss());
             AlertDialog alertDialog = builder.create();
             alertDialog.show();
         });
 
         PrescriptionSetup.previousDataSelected = true;
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (loading) {
+                    Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    finish();
+                }
+            }
+        });
 
         getData();
     }
@@ -397,15 +401,10 @@ public class ReferralUnitModify extends AppCompatActivity {
         return super.onTouchEvent(event);
     }
 
-    @Override
-    public void onBackPressed() {
-        if (loading) {
-            Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
-        }
-        else {
-            super.onBackPressed();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//
+//    }
 
     private void closeKeyBoard() {
         View view = getCurrentFocus();
@@ -426,8 +425,8 @@ public class ReferralUnitModify extends AppCompatActivity {
         referralDoctorLists = new ArrayList<>();
         referralUnitLists = new ArrayList<>();
 
-        String refUnitUrl = pre_url_api+"prescription/getReferralUnit?pdi_id="+pdi_id+"";
-        String refDocUrl = pre_url_api+"prescription/getReferralDoctor?depts_id="+depts_id+"";
+        String refUnitUrl = pre_url_api+"prescription/getReferralUnit?pdi_id="+pdi_id;
+        String refDocUrl = pre_url_api+"prescription/getReferralDoctor?depts_id="+depts_id;
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest refDocReq = new StringRequest(Request.Method.GET, refDocUrl, response -> {
@@ -459,14 +458,14 @@ public class ReferralUnitModify extends AppCompatActivity {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -505,14 +504,14 @@ public class ReferralUnitModify extends AppCompatActivity {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -552,14 +551,14 @@ public class ReferralUnitModify extends AppCompatActivity {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -583,8 +582,9 @@ public class ReferralUnitModify extends AppCompatActivity {
                 connected = false;
 
                 if (type.equals("ADD")) {
-                    if (referralUnitLists.size() == 0) {
-                        refUnitMissing.setText("No Referral Unit Found");
+                    if (referralUnitLists.isEmpty()) {
+                        String rut = "No Referral Unit Found";
+                        refUnitMissing.setText(rut);
                         refUnitMissing.setVisibility(View.VISIBLE);
                     }
                     else {
@@ -598,27 +598,28 @@ public class ReferralUnitModify extends AppCompatActivity {
                         type.add(referralUnitLists.get(i).getDepts_name());
                     }
 
-                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(ReferralUnitModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
+                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(ReferralUnitModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
                     refUnit.setAdapter(arrayAdapter);
 
                 }
                 else {
-                    if (referralUnitLists.size() == 0) {
-                        refUnitMissing.setText("No Referral Unit Found");
+                    if (referralUnitLists.isEmpty()) {
+                        String rut = "No Referral Unit Found";
+                        refUnitMissing.setText(rut);
                         refUnitMissing.setVisibility(View.VISIBLE);
                     }
                     else {
                         refUnitMissing.setVisibility(View.GONE);
                     }
 
-                    refDocsLay.setEnabled(referralDoctorLists.size() != 0);
+                    refDocsLay.setEnabled(!referralDoctorLists.isEmpty());
 
                     ArrayList<String> type = new ArrayList<>();
                     for(int i = 0; i < referralUnitLists.size(); i++) {
                         type.add(referralUnitLists.get(i).getDepts_name());
                     }
 
-                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(ReferralUnitModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
+                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(ReferralUnitModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
                     refUnit.setAdapter(arrayAdapter);
 
                     ArrayList<String> type1 = new ArrayList<>();
@@ -626,7 +627,7 @@ public class ReferralUnitModify extends AppCompatActivity {
                         type1.add(referralDoctorLists.get(i).getDoc_name());
                     }
 
-                    ArrayAdapter<String> arrayAdapter1 = new ArrayAdapter<String>(ReferralUnitModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type1);
+                    ArrayAdapter<String> arrayAdapter1 = new ArrayAdapter<>(ReferralUnitModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type1);
                     refDocs.setAdapter(arrayAdapter1);
                 }
 
@@ -678,7 +679,7 @@ public class ReferralUnitModify extends AppCompatActivity {
 
         referralDoctorLists = new ArrayList<>();
 
-        String refDocUrl = pre_url_api+"prescription/getReferralDoctor?depts_id="+depts_id+"";
+        String refDocUrl = pre_url_api+"prescription/getReferralDoctor?depts_id="+depts_id;
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest refDocReq = new StringRequest(Request.Method.GET, refDocUrl, response -> {
@@ -710,14 +711,14 @@ public class ReferralUnitModify extends AppCompatActivity {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateDoctorsList();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateDoctorsList();
         });
@@ -734,14 +735,16 @@ public class ReferralUnitModify extends AppCompatActivity {
                 conn = false;
                 connected = false;
 
-                if (referralDoctorLists.size() != 0) {
+                if (!referralDoctorLists.isEmpty()) {
                     refDocsLay.setEnabled(true);
-                    refDoctorInvalid.setText("Invalid Doctor Name");
+                    String rdt = "Invalid Doctor Name";
+                    refDoctorInvalid.setText(rdt);
                     refDoctorInvalid.setVisibility(View.GONE);
                 }
                 else {
                     refDocsLay.setEnabled(false);
-                    refDoctorInvalid.setText("No Doctor Found");
+                    String rdt = "No Doctor Found";
+                    refDoctorInvalid.setText(rdt);
                     refDoctorInvalid.setVisibility(View.VISIBLE);
                 }
 
@@ -751,7 +754,7 @@ public class ReferralUnitModify extends AppCompatActivity {
                     type1.add(referralDoctorLists.get(i).getDoc_name());
                 }
 
-                ArrayAdapter<String> arrayAdapter1 = new ArrayAdapter<String>(ReferralUnitModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type1);
+                ArrayAdapter<String> arrayAdapter1 = new ArrayAdapter<>(ReferralUnitModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type1);
                 refDocs.setAdapter(arrayAdapter1);
 
 
@@ -823,19 +826,19 @@ public class ReferralUnitModify extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterAdd();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterAdd();
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_PDI_ID",pdi_id);
                 headers.put("P_DEPTS_ID",depts_id);
@@ -882,9 +885,7 @@ public class ReferralUnitModify extends AppCompatActivity {
                     addReferral();
                     dialog.dismiss();
                 })
-                .setNegativeButton("Cancel",(dialog, which) -> {
-                    dialog.dismiss();
-                });
+                .setNegativeButton("Cancel",(dialog, which) -> dialog.dismiss());
 
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
@@ -920,19 +921,19 @@ public class ReferralUnitModify extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterUpdate();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterUpdate();
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_DEPTS_ID",depts_id);
                 headers.put("P_DOC_ID",ref_doc_id);
@@ -980,9 +981,7 @@ public class ReferralUnitModify extends AppCompatActivity {
                     updateReferral();
                     dialog.dismiss();
                 })
-                .setNegativeButton("Cancel",(dialog, which) -> {
-                    dialog.dismiss();
-                });
+                .setNegativeButton("Cancel",(dialog, which) -> dialog.dismiss());
 
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
@@ -1018,19 +1017,19 @@ public class ReferralUnitModify extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterDelete();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterDelete();
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_DRD_ID",drd_id);
                 return headers;
@@ -1085,9 +1084,7 @@ public class ReferralUnitModify extends AppCompatActivity {
                     deleteReferral();
                     dialog.dismiss();
                 })
-                .setNegativeButton("Cancel",(dialog, which) -> {
-                    dialog.dismiss();
-                });
+                .setNegativeButton("Cancel",(dialog, which) -> dialog.dismiss());
 
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);

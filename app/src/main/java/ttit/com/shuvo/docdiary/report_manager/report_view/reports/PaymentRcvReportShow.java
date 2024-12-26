@@ -2,6 +2,7 @@ package ttit.com.shuvo.docdiary.report_manager.report_view.reports;
 
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -10,9 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Base64;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -25,7 +24,6 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
@@ -37,10 +35,10 @@ import org.json.JSONObject;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.profile.DocProfile;
-import ttit.com.shuvo.docdiary.report_manager.report_view.ReportView;
 import ttit.com.shuvo.docdiary.report_manager.report_view.reports.adapters.PaymentRcvDataAdapter;
 import ttit.com.shuvo.docdiary.report_manager.report_view.reports.arraylists.PaymentReceiveDataList;
 
@@ -72,6 +70,8 @@ public class PaymentRcvReportShow extends AppCompatActivity {
     String end_date = "";
 
     String url = "";
+
+    Logger logger = Logger.getLogger(PaymentRcvReportShow.class.getName());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,7 +117,7 @@ public class PaymentRcvReportShow extends AppCompatActivity {
 
         appbarName.setText(app_bar_name);
 
-        close.setOnClickListener(v -> onBackPressed());
+        close.setOnClickListener(v -> finish());
 
         pdfShow.setOnClickListener(v -> {
             Intent intent1 = new Intent(PaymentRcvReportShow.this, ReportShow.class);
@@ -128,18 +128,25 @@ public class PaymentRcvReportShow extends AppCompatActivity {
             startActivity(intent1);
         });
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (loading) {
+                    Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    finish();
+                }
+            }
+        });
+
         getReportData();
     }
 
-    @Override
-    public void onBackPressed() {
-        if (loading) {
-            Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
-        }
-        else {
-            super.onBackPressed();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//
+//    }
 
     public void getReportData() {
         fullLayout.setVisibility(View.GONE);
@@ -202,14 +209,14 @@ public class PaymentRcvReportShow extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });

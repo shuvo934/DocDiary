@@ -48,19 +48,15 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import devs.mulham.horizontalcalendar.HorizontalCalendar;
 import devs.mulham.horizontalcalendar.utils.HorizontalCalendarListener;
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.all_appointment.AllAppointment;
-import ttit.com.shuvo.docdiary.appt_schedule.AppointmentSchedule;
-import ttit.com.shuvo.docdiary.appt_schedule.adapters.TimeLineAdapter;
-import ttit.com.shuvo.docdiary.appt_schedule.arraylists.ApptScheduleInfoList;
 import ttit.com.shuvo.docdiary.appt_schedule.arraylists.MonthSelectionList;
-import ttit.com.shuvo.docdiary.appt_schedule.health_rank.HealthProgress;
 import ttit.com.shuvo.docdiary.appt_schedule.health_rank.arraylists.ChoiceDoctorList;
 import ttit.com.shuvo.docdiary.appt_schedule.health_rank.arraylists.ChoiceUnitList;
-import ttit.com.shuvo.docdiary.patient_search.arraylists.PatientSearchList;
 import ttit.com.shuvo.docdiary.progressbar.WaitProgress;
 import ttit.com.shuvo.docdiary.unit_app_schedule.adapters.DoctorsListAdapter;
 import ttit.com.shuvo.docdiary.unit_app_schedule.arraylists.DoctorAppSchList;
@@ -112,6 +108,8 @@ public class UnitWiseAppointment extends AppCompatActivity {
 
     CardView unitCard;
 
+    Logger logger = Logger.getLogger(UnitWiseAppointment.class.getName());
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -153,7 +151,7 @@ public class UnitWiseAppointment extends AppCompatActivity {
             restart("Could Not Get Doctor Data. Please Restart the App.");
         }
         else {
-            if (userInfoLists.size() == 0) {
+            if (userInfoLists.isEmpty()) {
                 restart("Could Not Get Doctor Data. Please Restart the App.");
             }
             else {
@@ -402,7 +400,7 @@ public class UnitWiseAppointment extends AppCompatActivity {
 
         }
 
-        if (filteredList.size() == 0) {
+        if (filteredList.isEmpty()) {
             noDocsMess.setVisibility(View.VISIBLE);
         }
         else {
@@ -455,7 +453,7 @@ public class UnitWiseAppointment extends AppCompatActivity {
 
         choiceUnitLists = new ArrayList<>();
 
-        String url = pre_url_api+"doctors_app_schedule/getUnitList?deptd_id="+deptd_id+"";
+        String url = pre_url_api+"doctors_app_schedule/getUnitList?deptd_id="+deptd_id;
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest apptDataReq = new StringRequest(Request.Method.GET, url, response -> {
@@ -482,14 +480,14 @@ public class UnitWiseAppointment extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -519,7 +517,7 @@ public class UnitWiseAppointment extends AppCompatActivity {
                     type.add(choiceUnitLists.get(i).getDetps_name());
                 }
 
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(UnitWiseAppointment.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(UnitWiseAppointment.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
                 unitSelect.setAdapter(arrayAdapter);
 
                 if (selected_depts_id.isEmpty()) {
@@ -638,6 +636,9 @@ public class UnitWiseAppointment extends AppCompatActivity {
 
                         int bc = Integer.parseInt(tot_count) - (Integer.parseInt(app_count) + Integer.parseInt(busy_count));
                         String blank_count = String.valueOf(bc);
+                        if (Integer.parseInt(tot_count) == 0) {
+                            blank_count = "0";
+                        }
 
                         String app_list = apptDataInfo.getString("app_list");
                         JSONArray array1 = new JSONArray(app_list);
@@ -658,6 +659,8 @@ public class UnitWiseAppointment extends AppCompatActivity {
                                     .equals("null") ? "" :info.getString("pat_name");
                             String pat_code = info.getString("pat_code")
                                     .equals("null") ? "" :info.getString("pat_code");
+                            String pat_cell = info.getString("pat_cell")
+                                    .equals("null") ? "" :info.getString("pat_cell");
                             String pfn_fee_name = info.getString("pfn_fee_name")
                                     .equals("null") ? "" :info.getString("pfn_fee_name");
 
@@ -687,7 +690,7 @@ public class UnitWiseAppointment extends AppCompatActivity {
 
 
                             doctorAppSchLists.add(new DoctorAppSchList(adm_date,schedule_time,patient_data,pat_name,
-                                    pat_code,pfn_fee_name,pos));
+                                    pat_code,pat_cell,pfn_fee_name,pos,"1"));
 
                         }
 
@@ -702,14 +705,14 @@ public class UnitWiseAppointment extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateLayout();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateLayout();
         });
@@ -754,10 +757,10 @@ public class UnitWiseAppointment extends AppCompatActivity {
                     type.add(choiceDoctorLists.get(i).getDoc_name());
                 }
 
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(UnitWiseAppointment.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(UnitWiseAppointment.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
                 docSelect.setAdapter(arrayAdapter);
 
-                if (unitDoctorsLists.size() == 0) {
+                if (unitDoctorsLists.isEmpty()) {
                     noDocsMess.setVisibility(View.VISIBLE);
                     unitDocCount.setText("  0");
 //                    unitSchCount.setText("  0");

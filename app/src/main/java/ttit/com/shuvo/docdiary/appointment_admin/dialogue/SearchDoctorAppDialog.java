@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.appointment_admin.PatAppDoctorSelectionListener;
+import ttit.com.shuvo.docdiary.appointment_admin.interfaces.PatAppDoctorSelectionListener;
 import ttit.com.shuvo.docdiary.appointment_admin.adapters.SearchDoctorForAppAdapter;
 import ttit.com.shuvo.docdiary.appointment_admin.arraylists.DoctorForAppList;
 
@@ -89,6 +89,7 @@ public class SearchDoctorAppDialog extends AppCompatDialogFragment implements Se
 
         alertDialog.setCancelable(false);
         alertDialog.setCanceledOnTouchOutside(false);
+        setCancelable(false);
 
         search.addTextChangedListener(new TextWatcher() {
             @Override
@@ -164,7 +165,7 @@ public class SearchDoctorAppDialog extends AppCompatDialogFragment implements Se
                 isFiltered = true;
             }
         }
-        if (filteredLists.size() == 0) {
+        if (filteredLists.isEmpty()) {
             noDoctorMsg.setVisibility(View.VISIBLE);
         }
         else {
@@ -195,12 +196,12 @@ public class SearchDoctorAppDialog extends AppCompatDialogFragment implements Se
 
     @Override
     public void onItemClicked(int Position) {
-        String doc_id = "";
-        String doc_name = "";
-        String depts_id = "";
-        String depts_name = "";
-        String deptd_id = "";
-        String desig_id = "";
+        String doc_id;
+        String doc_name;
+        String depts_id;
+        String depts_name;
+        String deptd_id;
+        String desig_id;
 
         if (isFiltered) {
             doc_id = filteredLists.get(Position).getDoc_id();

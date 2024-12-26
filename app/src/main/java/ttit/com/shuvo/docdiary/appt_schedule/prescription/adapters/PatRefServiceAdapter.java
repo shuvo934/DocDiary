@@ -16,7 +16,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -29,6 +28,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
@@ -36,8 +37,8 @@ import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.RefServ
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.arraylists.PatRefServiceList;
 
 public class PatRefServiceAdapter extends RecyclerView.Adapter<PatRefServiceAdapter.PRSHolder> {
-    private ArrayList<PatRefServiceList> mCategory;
-    private Context mContext;
+    private final ArrayList<PatRefServiceList> mCategory;
+    private final Context mContext;
     private Boolean conn = false;
     private Boolean connected = false;
 
@@ -47,6 +48,8 @@ public class PatRefServiceAdapter extends RecyclerView.Adapter<PatRefServiceAdap
         this.mCategory = mCategory;
         this.mContext = mContext;
     }
+
+    Logger logger = Logger.getLogger("PatRefServiceAdapter");
 
     @NonNull
     @Override
@@ -142,19 +145,19 @@ public class PatRefServiceAdapter extends RecyclerView.Adapter<PatRefServiceAdap
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterDeleteSLV(drs_id,index);
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterDeleteSLV(drs_id,index);
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_DRS_ID",drs_id);
                 return headers;

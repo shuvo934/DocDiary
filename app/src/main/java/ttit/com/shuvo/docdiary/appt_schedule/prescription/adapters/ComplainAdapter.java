@@ -16,7 +16,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -29,6 +28,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
@@ -37,8 +38,8 @@ import ttit.com.shuvo.docdiary.appt_schedule.prescription.arraylists.ComplainLis
 
 public class ComplainAdapter extends RecyclerView.Adapter<ComplainAdapter.CMPHolder> {
 
-    private ArrayList<ComplainLists> mCategory;
-    private Context mContext;
+    private final ArrayList<ComplainLists> mCategory;
+    private final Context mContext;
     private Boolean conn = false;
     private Boolean connected = false;
 
@@ -48,6 +49,7 @@ public class ComplainAdapter extends RecyclerView.Adapter<ComplainAdapter.CMPHol
         this.mCategory = mCategory;
         this.mContext = mContext;
     }
+    Logger logger = Logger.getLogger("ComplainAdapter");
 
     @NonNull
     @Override
@@ -150,19 +152,19 @@ public class ComplainAdapter extends RecyclerView.Adapter<ComplainAdapter.CMPHol
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterDeleteComp(pci_id,index);
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterDeleteComp(pci_id,index);
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_PCI_ID",pci_id);
                 return headers;
@@ -180,7 +182,7 @@ public class ComplainAdapter extends RecyclerView.Adapter<ComplainAdapter.CMPHol
                 Toast.makeText(mContext,"Complain Deleted Successfully",Toast.LENGTH_SHORT).show();
                 mCategory.remove(pos);
                 notifyDataSetChanged();
-                if (mCategory.size() == 0) {
+                if (mCategory.isEmpty()) {
                     PrescriptionSetup.noComplainFoundMsg.setVisibility(View.VISIBLE);
                 }
                 else {

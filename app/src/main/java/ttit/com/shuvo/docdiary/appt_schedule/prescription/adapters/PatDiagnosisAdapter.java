@@ -2,7 +2,6 @@ package ttit.com.shuvo.docdiary.appt_schedule.prescription.adapters;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,18 +16,17 @@ import java.util.ArrayList;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.ReferralUnitModify;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.arraylists.DiagnosisModify;
+import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.DiagnosisModify;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.arraylists.PatDiagnosisList;
 
 
 public class PatDiagnosisAdapter extends RecyclerView.Adapter<PatDiagnosisAdapter.PDIHolder> {
-    private ArrayList<PatDiagnosisList> mCategory;
-    private Context mContext;
-    private Boolean conn = false;
-    private Boolean connected = false;
+    private final ArrayList<PatDiagnosisList> mCategory;
+    private final Context mContext;
+//    private Boolean conn = false;
+//    private Boolean connected = false;
 
-    String parsing_message = "";
+//    String parsing_message = "";
     private final ClickedItem myClickedItem;
 
     public PatDiagnosisAdapter(ArrayList<PatDiagnosisList> mCategory, Context mContext, ClickedItem cli) {

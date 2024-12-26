@@ -9,8 +9,12 @@ public class AdminInfoList {
     private String usr_contact;
     private String all_access_flag;
     private String admin_center_name;
+    private String hr_payment_active;
+    private String hr_appointment_active;
+    private String acc_payment_active;
+    private String acc_appointment_active;
 
-    public AdminInfoList(String usr_id, String usr_name, String usr_fname, String usr_lname, String usr_email, String usr_contact, String all_access_flag, String admin_center_name) {
+    public AdminInfoList(String usr_id, String usr_name, String usr_fname, String usr_lname, String usr_email, String usr_contact, String all_access_flag, String admin_center_name, String hr_payment_active, String hr_appointment_active, String acc_payment_active, String acc_appointment_active) {
         this.usr_id = usr_id;
         this.usr_name = usr_name;
         this.usr_fname = usr_fname;
@@ -19,6 +23,10 @@ public class AdminInfoList {
         this.usr_contact = usr_contact;
         this.all_access_flag = all_access_flag;
         this.admin_center_name = admin_center_name;
+        this.hr_payment_active = hr_payment_active;
+        this.hr_appointment_active = hr_appointment_active;
+        this.acc_payment_active = acc_payment_active;
+        this.acc_appointment_active = acc_appointment_active;
     }
 
     public String getUsr_id() {
@@ -83,5 +91,37 @@ public class AdminInfoList {
 
     public void setAdmin_center_name(String admin_center_name) {
         this.admin_center_name = admin_center_name;
+    }
+
+    public String getHr_payment_active() {
+        return hr_payment_active;
+    }
+
+    public void setHr_payment_active(String hr_payment_active) {
+        this.hr_payment_active = hr_payment_active;
+    }
+
+    public String getHr_appointment_active() {
+        return hr_appointment_active;
+    }
+
+    public void setHr_appointment_active(String hr_appointment_active) {
+        this.hr_appointment_active = hr_appointment_active;
+    }
+
+    public String getAcc_payment_active() {
+        return acc_payment_active;
+    }
+
+    public void setAcc_payment_active(String acc_payment_active) {
+        this.acc_payment_active = acc_payment_active;
+    }
+
+    public String getAcc_appointment_active() {
+        return acc_appointment_active;
+    }
+
+    public void setAcc_appointment_active(String acc_appointment_active) {
+        this.acc_appointment_active = acc_appointment_active;
     }
 }

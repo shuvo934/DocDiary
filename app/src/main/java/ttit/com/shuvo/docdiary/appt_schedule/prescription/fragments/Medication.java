@@ -32,14 +32,13 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.adapters.PatMedicHistAdapter;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.adapters.PatMedicationAdapter;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.MedHistoryModify;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.MedicationModify;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.arraylists.PatMedicHistList;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.arraylists.PatMedicationList;
 
 /**
@@ -49,12 +48,10 @@ import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.arraylists.P
  */
 public class Medication extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
     private String pmm_Id;
     private String mParam2;
 
@@ -84,6 +81,8 @@ public class Medication extends Fragment {
         mContext=context;
     }
 
+    Logger logger = Logger.getLogger(Medication.class.getName());
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -92,7 +91,6 @@ public class Medication extends Fragment {
      * @param param2 Parameter 2.
      * @return A new instance of fragment Medication.
      */
-    // TODO: Rename and change types and number of parameters
     public static Medication newInstance(String param1, String param2) {
         Medication fragment = new Medication();
         Bundle args = new Bundle();
@@ -142,9 +140,7 @@ public class Medication extends Fragment {
             startActivity(intent1);
         });
 
-        refresh.setOnClickListener(v -> {
-            getPatMedication();
-        });
+        refresh.setOnClickListener(v -> getPatMedication());
 
         getPatMedication();
 
@@ -168,7 +164,7 @@ public class Medication extends Fragment {
         }
 
         patMedicationLists = new ArrayList<>();
-        String medHistUrl = pre_url_api+"prescription/getPatMedication?pmm_id="+pmm_Id+"";
+        String medHistUrl = pre_url_api+"prescription/getPatMedication?pmm_id="+pmm_Id;
         RequestQueue requestQueue = Volley.newRequestQueue(mContext);
 
         StringRequest medHistReq = new StringRequest(Request.Method.GET, medHistUrl, response -> {
@@ -211,14 +207,14 @@ public class Medication extends Fragment {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -241,7 +237,7 @@ public class Medication extends Fragment {
                 conn = false;
                 connected = false;
 
-                if (patMedicationLists.size() == 0) {
+                if (patMedicationLists.isEmpty()) {
                     noPatMedMsg.setVisibility(View.VISIBLE);
                 }
                 else {

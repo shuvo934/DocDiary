@@ -13,7 +13,6 @@ import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -30,7 +29,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 
@@ -47,6 +47,9 @@ public class ReportShow extends AppCompatActivity {
     String firstDate = "";
     String lastDate = "";
     String app_bar_name = "";
+
+    Logger logger = Logger.getLogger(ReportShow.class.getName());
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,7 +70,7 @@ public class ReportShow extends AppCompatActivity {
         dbuilder.setView(R.layout.dowloading_progress_bar);
         pDialog = dbuilder.create();
 
-        close.setOnClickListener(v -> onBackPressed());
+        close.setOnClickListener(v -> finish());
 
         Intent intent = getIntent();
         report_url = intent.getStringExtra("REPORT_URL");
@@ -106,7 +109,7 @@ public class ReportShow extends AppCompatActivity {
                 }
 
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
             }
             runOnUiThread(() -> pdfView.fromStream(inputStream[0])
                     .enableSwipe(true)
@@ -189,7 +192,7 @@ public class ReportShow extends AppCompatActivity {
                 return connected;
             }
         } catch (Exception e) {
-            Log.e("Connectivity Exception", Objects.requireNonNull(e.getMessage()));
+            logger.log(Level.WARNING,e.getMessage(),e);
             return false;
         }
     }
@@ -203,7 +206,7 @@ public class ReportShow extends AppCompatActivity {
             int     exitValue = ipProcess.waitFor();
             return (exitValue == 0);
         }
-        catch (IOException | InterruptedException e)          { e.printStackTrace(); }
+        catch (IOException | InterruptedException e)          { logger.log(Level.WARNING,e.getMessage(),e); }
 
         return false;
     }

@@ -46,18 +46,29 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.payment.adapters.AddedServiceAdapter;
 import ttit.com.shuvo.docdiary.payment.adapters.UpdatedServiceAdapter;
 import ttit.com.shuvo.docdiary.payment.arraylists.AddedServiceList;
+import ttit.com.shuvo.docdiary.payment.arraylists.SelectedPaymentMethodList;
+import ttit.com.shuvo.docdiary.payment.arraylists.ServiceAmountIdList;
+import ttit.com.shuvo.docdiary.payment.arraylists.UpdatedPaymentMethodList;
 import ttit.com.shuvo.docdiary.payment.arraylists.UpdatedServiceList;
+import ttit.com.shuvo.docdiary.payment.dialog.ConfirmPaymentDialog;
 import ttit.com.shuvo.docdiary.payment.dialog.SearchPaymentDialog;
 import ttit.com.shuvo.docdiary.payment.dialog.SearchPrescriptionDialog;
+import ttit.com.shuvo.docdiary.payment.dialog.UpdateConfirmPayDialog;
+import ttit.com.shuvo.docdiary.payment.interfaces.ConfirmPaymentListener;
+import ttit.com.shuvo.docdiary.payment.interfaces.PatCodeCallBackListener;
+import ttit.com.shuvo.docdiary.payment.interfaces.PaymentCodeCallListener;
+import ttit.com.shuvo.docdiary.payment.interfaces.UpdateConfirmPayListener;
 import ttit.com.shuvo.docdiary.payment.service.ServiceModify;
 import ttit.com.shuvo.docdiary.payment.service.ServiceModifyForUp;
 
-public class AddPayment extends AppCompatActivity implements PatCodeCallBackListener, PaymentCodeCallListener {
+public class AddPayment extends AppCompatActivity implements PatCodeCallBackListener, PaymentCodeCallListener, ConfirmPaymentListener, UpdateConfirmPayListener {
 
     LinearLayout fullLayout;
     CircularProgressIndicator circularProgressIndicator;
@@ -129,19 +140,23 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
     RecyclerView upServiceView;
     RecyclerView.LayoutManager upLayoutManager;
     UpdatedServiceAdapter updatedServiceAdapter;
-    public static LinearLayout totalAmountUpLay;
-    public static TextView totalAmountUp;
+    public LinearLayout totalAmountUpLay;
+    public TextView totalAmountUp;
     public static String total_amount_up = "";
     MaterialButton addUpService;
 
     public static ArrayList<AddedServiceList> addedServiceLists;
     public static ArrayList<UpdatedServiceList> updatedServiceLists;
+    public static ArrayList<SelectedPaymentMethodList> selectedPaymentMethodLists;
+    public static ArrayList<UpdatedPaymentMethodList> updatedPaymentMethodLists;
 
     private Boolean conn = false;
     private Boolean connected = false;
 
     private Boolean masterConn = false;
     private Boolean masterConnected = false;
+    private Boolean payMethodConn = false;
+    private Boolean payMethodConnected = false;
     boolean loading = false;
     String parsing_message = "";
     String usr_name = "";
@@ -149,6 +164,8 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
     String out_prm_code = "";
     int previousTabPosition = 0;
 
+    Logger logger = Logger.getLogger(AddPayment.class.getName());
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -218,16 +235,18 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
 
         addedServiceLists = new ArrayList<>();
         updatedServiceLists = new ArrayList<>();
+        selectedPaymentMethodLists = new ArrayList<>();
+        updatedPaymentMethodLists = new ArrayList<>();
 
         if (adminInfoLists == null) {
             restart("Could Not Get Doctor Data. Please Restart the App.");
         }
         else {
-            if (adminInfoLists.size() == 0) {
+            if (adminInfoLists.isEmpty()) {
                 restart("Could Not Get Doctor Data. Please Restart the App.");
             }
             else {
-                if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) > 0) {
+                if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) == 1) {
                     usr_name = "";
                     int ct = paymentTab.getTabCount();
                     if (ct == 2) {
@@ -280,7 +299,7 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
                 System.out.println(tab.getPosition());
                 if (previousTabPosition != tab.getPosition()) {
                     if (tab.getPosition() == 1) {
-                        if (addedServiceLists.size() != 0) {
+                        if (!addedServiceLists.isEmpty()) {
                             MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AddPayment.this);
                             alertDialogBuilder
                                     .setMessage("You have Data Stored in this section. Do you want to switch to Update payment section?")
@@ -338,7 +357,7 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
                         }
                     }
                     else {
-                        if (updatedServiceLists.size() != 0) {
+                        if (!updatedServiceLists.isEmpty()) {
                             MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AddPayment.this);
                             alertDialogBuilder
                                     .setMessage("You have Data Stored in this section. Do you want to switch to Add payment section?")
@@ -443,7 +462,7 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
 
         selectYear.setOnClickListener(v -> yearDialog.show());
 
-        backButton.setOnClickListener(v -> onBackPressed());
+        backButton.setOnClickListener(v -> finish());
 
         searchPresc.setOnClickListener(v -> {
             SearchPrescriptionDialog searchPrescriptionDialog = new SearchPrescriptionDialog(AddPayment.this,selected_year_short);
@@ -476,9 +495,7 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
                 MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AddPayment.this);
                 alertDialogBuilder.setTitle("Warning!")
                         .setMessage("Appointment Schedule already taken from this payment. You will not be able to update this payment.")
-                        .setPositiveButton("OK", (dialog, which) -> {
-                            dialog.dismiss();
-                        });
+                        .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
 
                 AlertDialog alert = alertDialogBuilder.create();
                 alert.setCancelable(false);
@@ -494,18 +511,42 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
         });
 
         addPayment.setOnClickListener(v -> {
-            if (addedServiceLists.size() != 0) {
-                MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AddPayment.this);
-                alertDialogBuilder.setTitle("Add Payment!")
-                        .setMessage("Do you want to Add Payment from this patient?")
-                        .setPositiveButton("Yes", (dialog, which) -> {
-                            insertPaymentRcv();
-                            dialog.dismiss();
-                        })
-                        .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
+            if (!addedServiceLists.isEmpty()) {
+                if (pre_url_api.contains("cstar")) {
+                    selectedPaymentMethodLists = new ArrayList<>();
+                    ArrayList<ServiceAmountIdList> serviceAmountIdLists = new ArrayList<>();
+                    String service_amount_pay = "";
+                    double sva = 0.0;
+                    for (int i = 0; i < addedServiceLists.size(); i++) {
+                        sva = sva + Double.parseDouble(addedServiceLists.get(i).getService_amnt());
+                        String pfn_id = addedServiceLists.get(i).getPfn_id();
+                        String rate = addedServiceLists.get(i).getService_amnt();
 
-                AlertDialog alert = alertDialogBuilder.create();
-                alert.show();
+                        serviceAmountIdLists.add(new ServiceAmountIdList(pfn_id,rate,"0",false));
+                    }
+                    service_amount_pay = String.format(Locale.ENGLISH,"%.2f",sva);
+
+                    ConfirmPaymentDialog confirmPaymentDialog = new ConfirmPaymentDialog(AddPayment.this,service_amount_pay,serviceAmountIdLists);
+                    try {
+                        confirmPaymentDialog.show(getSupportFragmentManager(),"C_PAY");
+                    }
+                    catch (Exception e) {
+                        restart("App is paused for a long time. Please restart the app.");
+                    }
+                }
+                else {
+                    MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AddPayment.this);
+                    alertDialogBuilder.setTitle("Add Payment!")
+                            .setMessage("Do you want to Add Payment from this patient?")
+                            .setPositiveButton("Yes", (dialog, which) -> {
+                                insertPaymentRcv();
+                                dialog.dismiss();
+                            })
+                            .setNegativeButton("No", (dialog, which) -> dialog.dismiss());
+
+                    AlertDialog alert = alertDialogBuilder.create();
+                    alert.show();
+                }
             }
             else {
                 Toast.makeText(this, "Please Add Service.", Toast.LENGTH_SHORT).show();
@@ -513,29 +554,51 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
         });
 
         updatePayment.setOnClickListener(v -> {
-            if (updatedServiceLists.size() != 0) {
-                boolean updated = true;
-                for (int i = 0; i < updatedServiceLists.size(); i++) {
-                    updated = updatedServiceLists.get(i).isUpdated();
-                    if (!updated) {
-                        break;
+            if (!updatedServiceLists.isEmpty()) {
+                if (pre_url_api.contains("cstar")) {
+                    ArrayList<ServiceAmountIdList> serviceAmountIdLists = new ArrayList<>();
+                    String service_amount_pay = "";
+                    double sva = 0.0;
+                    for (int i = 0; i < updatedServiceLists.size(); i++) {
+                        sva = sva + Double.parseDouble(updatedServiceLists.get(i).getAmount());
+                        String pfn_id = updatedServiceLists.get(i).getPrd_pfn_id();
+                        String rate = updatedServiceLists.get(i).getAmount();
+
+                        serviceAmountIdLists.add(new ServiceAmountIdList(pfn_id,rate,"0",false));
+                    }
+                    service_amount_pay = String.format(Locale.ENGLISH,"%.2f",sva);
+
+                    UpdateConfirmPayDialog updateConfirmPayDialog = new UpdateConfirmPayDialog(AddPayment.this,service_amount_pay,serviceAmountIdLists);
+                    try {
+                        updateConfirmPayDialog.show(getSupportFragmentManager(),"C_PAY_UP");
+                    }
+                    catch (Exception e) {
+                        restart("App is paused for a long time. Please restart the app.");
                     }
                 }
-                if (!updated) {
-                    MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AddPayment.this);
-                    alertDialogBuilder.setTitle("Update Payment!")
-                            .setMessage("Do you want to Update Payment for this patient?")
-                            .setPositiveButton("Yes", (dialog, which) -> {
-                                updatePaymentDetails();
-                                dialog.dismiss();
-                            })
-                            .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
-
-                    AlertDialog alert = alertDialogBuilder.create();
-                    alert.show();
-                }
                 else {
-                    Toast.makeText(this, "No Service Changed for Update.", Toast.LENGTH_SHORT).show();
+                    boolean updated = true;
+                    for (int i = 0; i < updatedServiceLists.size(); i++) {
+                        updated = updatedServiceLists.get(i).isUpdated();
+                        if (!updated) {
+                            break;
+                        }
+                    }
+                    if (!updated) {
+                        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AddPayment.this);
+                        alertDialogBuilder.setTitle("Update Payment!")
+                                .setMessage("Do you want to Update Payment for this patient?")
+                                .setPositiveButton("Yes", (dialog, which) -> {
+                                    updatePaymentDetails();
+                                    dialog.dismiss();
+                                })
+                                .setNegativeButton("No", (dialog, which) -> dialog.dismiss());
+
+                        AlertDialog alert = alertDialogBuilder.create();
+                        alert.show();
+                    } else {
+                        Toast.makeText(this, "No Service Changed for Update.", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
             else {
@@ -554,6 +617,8 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
     public void resetAll() {
         addedServiceLists = new ArrayList<>();
         updatedServiceLists = new ArrayList<>();
+        selectedPaymentMethodLists = new ArrayList<>();
+        updatedPaymentMethodLists= new ArrayList<>();
 
         selected_payment_code = "";
         selected_prm_id = "";
@@ -596,7 +661,7 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
     }
 
     public void checkAmount() {
-        if (addedServiceLists.size() == 0) {
+        if (addedServiceLists.isEmpty()) {
             totalAmountLay.setVisibility(View.GONE);
             total_amount = "";
             totalAmount.setText(total_amount);
@@ -615,7 +680,7 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
         addedServiceAdapter = new AddedServiceAdapter(addedServiceLists,AddPayment.this);
         serviceView.setAdapter(addedServiceAdapter);
 
-        if (updatedServiceLists.size() == 0) {
+        if (updatedServiceLists.isEmpty()) {
             totalAmountUpLay.setVisibility(View.GONE);
             total_amount_up = "";
             totalAmountUp.setText(total_amount_up);
@@ -696,6 +761,8 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
         loading = true;
         masterConn = false;
         masterConnected = false;
+        payMethodConn = false;
+        payMethodConnected = false;
         parsing_message = "";
 
         String rcvMasterUrl = pre_url_api+"payement_receive/insertPaymentMaster";
@@ -731,13 +798,13 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
 
             }
             catch (JSONException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 masterConnected = false;
                 updateAfterInsert();
             }
         }, error -> {
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             masterConn = false;
             masterConnected = false;
@@ -752,6 +819,18 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
                 headers.put("P_PRM_PH_ID",selected_ph_id);
                 headers.put("P_PRM_USER", adminInfoLists.get(0).getUsr_name());
                 headers.put("P_INSERT_TYPE_FLAG","3");
+                double paid_amnt = 0.0;
+                if (pre_url_api.contains("cstar")) {
+                    for (int i = 0; i < selectedPaymentMethodLists.size(); i++) {
+                        paid_amnt = paid_amnt + Double.parseDouble(selectedPaymentMethodLists.get(i).getMethod_amount());
+                    }
+                }
+                else {
+                    for (int i = 0; i < addedServiceLists.size(); i++) {
+                        paid_amnt = paid_amnt + Double.parseDouble(addedServiceLists.get(i).getService_amnt());
+                    }
+                }
+                headers.put("P_PAID_AMOUNT",String.valueOf(paid_amnt));
                 return headers;
             }
         };
@@ -778,7 +857,14 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
         if (allUpdated) {
             conn = true;
             connected = true;
-            updateAfterInsert();
+            if (pre_url_api.contains("cstar")) {
+                checkToInsertPaymentMethod();
+            }
+            else {
+                payMethodConn = true;
+                payMethodConnected = true;
+                updateAfterInsert();
+            }
         }
     }
 
@@ -806,13 +892,13 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
                 }
 
             } catch (JSONException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 connected = false;
                 updateAfterInsert();
             }
         }, error -> {
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             conn = false;
             connected = false;
@@ -844,32 +930,118 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
         requestQueue.add(insertSODReq);
     }
 
+    public void checkToInsertPaymentMethod() {
+        boolean allUpdated = false;
+        for (int x = 0; x < selectedPaymentMethodLists.size(); x++) {
+            allUpdated = selectedPaymentMethodLists.get(x).isInserted();
+            if (!selectedPaymentMethodLists.get(x).isInserted()) {
+                insertPaymentModeData(x);
+                break;
+            }
+        }
+
+        if (allUpdated) {
+            payMethodConn = true;
+            payMethodConnected = true;
+            updateAfterInsert();
+        }
+    }
+
+    public void insertPaymentModeData(int index) {
+        payMethodConn = false;
+        payMethodConnected = false;
+        String insertPayMethodUrl = pre_url_api +"payement_receive/insertPaymentMode";
+        RequestQueue requestQueue = Volley.newRequestQueue(AddPayment.this);
+
+        StringRequest insertPMReq = new StringRequest(Request.Method.POST, insertPayMethodUrl, response -> {
+            payMethodConn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String string_out = jsonObject.getString("string_out");
+                parsing_message = string_out;
+
+                if (string_out.equals("Successfully Created")) {
+                    payMethodConnected = true;
+                    selectedPaymentMethodLists.get(index).setInserted(true);
+                    checkToInsertPaymentMethod();
+                }
+                else {
+                    payMethodConnected = false;
+                    updateAfterInsert();
+                }
+
+            } catch (JSONException e) {
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                payMethodConnected = false;
+                updateAfterInsert();
+            }
+        }, error -> {
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            payMethodConn = false;
+            payMethodConnected = false;
+            updateAfterInsert();
+        }) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("P_AMOUNT",selectedPaymentMethodLists.get(index).getMethod_amount());
+                headers.put("P_PMM_ID",selectedPaymentMethodLists.get(index).getPmm_id());
+                headers.put("P_PMD_ID",selectedPaymentMethodLists.get(index).getPmd_id());
+                headers.put("P_AD_ID", selectedPaymentMethodLists.get(index).getAd_id());
+                headers.put("P_PRM_ID", out_prm_id);
+                return headers;
+            }
+        };
+
+        insertPMReq.setRetryPolicy(new DefaultRetryPolicy(
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 10,
+                0,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        ));
+
+        requestQueue.add(insertPMReq);
+    }
+
     private void updateAfterInsert() {
         loading = false;
         if (masterConn) {
             if (masterConnected) {
                 if (conn) {
                     if (connected) {
-                        circularProgressIndicator.setVisibility(View.GONE);
-                        fullLayout.setVisibility(View.VISIBLE);
-                        masterConn = false;
-                        masterConnected = false;
-                        conn = false;
-                        connected = false;
+                        if (payMethodConn) {
+                            if (payMethodConnected) {
+                                circularProgressIndicator.setVisibility(View.GONE);
+                                fullLayout.setVisibility(View.VISIBLE);
+                                masterConn = false;
+                                masterConnected = false;
+                                conn = false;
+                                connected = false;
+                                payMethodConn = false;
+                                payMethodConnected = false;
 
-                        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AddPayment.this);
-                        alertDialogBuilder.setTitle("Success!")
-                                .setMessage("Payment Received Successfully.\n" +
-                                        "Payment Code: "+ out_prm_code)
-                                .setPositiveButton("Ok", (dialog, which) -> {
-                                    dialog.dismiss();
-                                    finish();
-                                });
+                                MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AddPayment.this);
+                                alertDialogBuilder.setTitle("Success!")
+                                        .setMessage("Payment Received Successfully.\n" +
+                                                "Payment Code: "+ out_prm_code)
+                                        .setPositiveButton("Ok", (dialog, which) -> {
+                                            dialog.dismiss();
+                                            finish();
+                                        });
 
-                        AlertDialog alert = alertDialogBuilder.create();
-                        alert.setCancelable(false);
-                        alert.setCanceledOnTouchOutside(false);
-                        alert.show();
+                                AlertDialog alert = alertDialogBuilder.create();
+                                alert.setCancelable(false);
+                                alert.setCanceledOnTouchOutside(false);
+                                alert.show();
+                            }
+                            else {
+                                alertMessagePayMode();
+                            }
+                        }
+                        else {
+                            alertMessagePayMode();
+                        }
                     }
                     else {
                         alertMessage1();
@@ -945,6 +1117,53 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
         alert.show();
     }
 
+    public void alertMessagePayMode() {
+        fullLayout.setVisibility(View.GONE);
+        circularProgressIndicator.setVisibility(View.GONE);
+        if (parsing_message != null) {
+            if (parsing_message.isEmpty() || parsing_message.equals("null")) {
+                parsing_message = "Server problem or Internet not connected. Please retry or data will be lost.";
+            }
+        }
+        else {
+            parsing_message = "Server problem or Internet not connected. Please retry or data will be lost.";
+        }
+        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AddPayment.this);
+        alertDialogBuilder.setTitle("Error!")
+                .setMessage("Error Message: "+parsing_message+".\n"+"Please retry or data will be lost..")
+                .setPositiveButton("Retry", (dialog, which) -> {
+                    circularProgressIndicator.setVisibility(View.VISIBLE);
+                    fullLayout.setVisibility(View.GONE);
+                    loading = true;
+                    payMethodConn = false;
+                    payMethodConnected = false;
+                    parsing_message = "";
+                    checkToInsertPaymentMethod();
+                    dialog.dismiss();
+                });
+
+        AlertDialog alert = alertDialogBuilder.create();
+        alert.setCancelable(false);
+        alert.setCanceledOnTouchOutside(false);
+        alert.show();
+    }
+
+    @Override
+    public void onPayConfirmation() {
+        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AddPayment.this);
+        alertDialogBuilder.setTitle("Add Payment!")
+                .setMessage("Do you want to Add Payment from this patient?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    insertPaymentRcv();
+                    dialog.dismiss();
+                })
+                .setNegativeButton("No", (dialog, which) -> dialog.dismiss());
+
+        AlertDialog alert = alertDialogBuilder.create();
+        alert.show();
+    }
+
+    // getting payment details for updating
     public void getPaymentDetails() {
         fullLayout.setVisibility(View.GONE);
         circularProgressIndicator.setVisibility(View.VISIBLE);
@@ -954,9 +1173,61 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
         parsing_message = "";
 
         updatedServiceLists = new ArrayList<>();
+        updatedPaymentMethodLists = new ArrayList<>();
 
         String paymentDetailUrl = pre_url_api+"payement_receive/getPaymentDetailsList?prm_id="+selected_prm_id;
+        String paymentModeUrl = pre_url_api+"payement_receive/getPaymentModeSavedList?prm_id="+selected_prm_id;
         RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        StringRequest paymentModeReq = new StringRequest(Request.Method.GET, paymentModeUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject info = array.getJSONObject(i);
+
+                        String prmd_id = info.getString("prmd_id")
+                                .equals("null") ? "" : info.getString("prmd_id");
+                        String prmd_amt = info.getString("prmd_amt")
+                                .equals("null") ? "" : info.getString("prmd_amt");
+                        String prmd_pmm_id = info.getString("prmd_pmm_id")
+                                .equals("null") ? "" : info.getString("prmd_pmm_id");
+                        String prmd_pmd_id = info.getString("prmd_pmd_id")
+                                .equals("null") ? "" : info.getString("prmd_pmd_id");
+                        String prmd_ad_id = info.getString("prmd_ad_id")
+                                .equals("null") ? "" : info.getString("prmd_ad_id");
+                        String pmm_name = info.getString("pmm_name")
+                                .equals("null") ? "" : info.getString("pmm_name");
+                        String account_name = info.getString("account_name")
+                                .equals("null") ? "" : info.getString("account_name");
+
+                        updatedPaymentMethodLists.add(new UpdatedPaymentMethodList(String.valueOf(i+1),
+                                prmd_id,prmd_pmm_id,pmm_name,prmd_pmd_id,prmd_ad_id,account_name,prmd_amt,
+                                true,"0"));
+                    }
+                }
+
+                connected = true;
+                updateLayout();
+            }
+            catch (Exception e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateLayout();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateLayout();
+        });
 
         StringRequest paymentDetailsReq = new StringRequest(Request.Method.GET, paymentDetailUrl, response -> {
             conn = true;
@@ -1003,19 +1274,24 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
                     }
                 }
 
-                connected = true;
-                updateLayout();
+                if (pre_url_api.contains("cstar")) {
+                    requestQueue.add(paymentModeReq);
+                }
+                else {
+                    connected = true;
+                    updateLayout();
+                }
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateLayout();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateLayout();
         });
@@ -1032,7 +1308,7 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
                 conn = false;
                 connected = false;
 
-                if (updatedServiceLists.size() == 0) {
+                if (updatedServiceLists.isEmpty()) {
                     totalAmountUpLay.setVisibility(View.GONE);
                     total_amount_up = "";
                     totalAmountUp.setText(total_amount_up);
@@ -1059,9 +1335,7 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
                         MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AddPayment.this);
                         alertDialogBuilder.setTitle("Warning!")
                                 .setMessage("Appointment Schedule already taken from this payment. You will not be able to update this payment.")
-                                .setPositiveButton("OK", (dialog, which) -> {
-                                    dialog.dismiss();
-                                });
+                                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
 
                         AlertDialog alert = alertDialogBuilder.create();
                         alert.setCancelable(false);
@@ -1129,6 +1403,8 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
         circularProgressIndicator.setVisibility(View.VISIBLE);
         conn = false;
         connected = false;
+        payMethodConn = false;
+        payMethodConnected = false;
         loading = true;
         parsing_message = "";
 
@@ -1148,7 +1424,14 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
         if (allUpdated) {
             conn = true;
             connected = true;
-            updateAfterUpdate();
+            if (pre_url_api.contains("cstar")) {
+                checkToUpdatePaymentMethod();
+            }
+            else {
+                payMethodConn = true;
+                payMethodConnected = true;
+                updateAfterUpdate();
+            }
         }
     }
 
@@ -1179,13 +1462,13 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
                     }
 
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    logger.log(Level.WARNING,e.getMessage(),e);
                     parsing_message = e.getLocalizedMessage();
                     connected = false;
                     updateAfterUpdate();
                 }
             }, error -> {
-                error.printStackTrace();
+                logger.log(Level.WARNING,error.getMessage(),error);
                 parsing_message = error.getLocalizedMessage();
                 conn = false;
                 connected = false;
@@ -1238,13 +1521,13 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
                     }
 
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    logger.log(Level.WARNING,e.getMessage(),e);
                     parsing_message = e.getLocalizedMessage();
                     connected = false;
                     updateAfterUpdate();
                 }
             }, error -> {
-                error.printStackTrace();
+                logger.log(Level.WARNING,error.getMessage(),error);
                 parsing_message = error.getLocalizedMessage();
                 conn = false;
                 connected = false;
@@ -1275,28 +1558,114 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
         }
     }
 
+    public void checkToUpdatePaymentMethod() {
+        boolean allUpdated = false;
+        for (int x = 0; x < updatedPaymentMethodLists.size(); x++) {
+            allUpdated = updatedPaymentMethodLists.get(x).isUpdated();
+            if (!updatedPaymentMethodLists.get(x).isUpdated()) {
+                updatePaymentModeData(x);
+                break;
+            }
+        }
+
+        if (allUpdated) {
+            payMethodConn = true;
+            payMethodConnected = true;
+            updateAfterUpdate();
+        }
+    }
+
+    public void updatePaymentModeData(int index) {
+        payMethodConn = false;
+        payMethodConnected = false;
+        String updatePayMethodUrl = pre_url_api +"payement_receive/updatePaymentMode";
+        RequestQueue requestQueue = Volley.newRequestQueue(AddPayment.this);
+
+        StringRequest updatePMReq = new StringRequest(Request.Method.POST, updatePayMethodUrl, response -> {
+            payMethodConn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String string_out = jsonObject.getString("string_out");
+                parsing_message = string_out;
+
+                if (string_out.equals("Successfully Created")) {
+                    payMethodConnected = true;
+                    updatedPaymentMethodLists.get(index).setUpdated(true);
+                    checkToUpdatePaymentMethod();
+                }
+                else {
+                    payMethodConnected = false;
+                    updateAfterUpdate();
+                }
+
+            } catch (JSONException e) {
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                payMethodConnected = false;
+                updateAfterUpdate();
+            }
+        }, error -> {
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            payMethodConn = false;
+            payMethodConnected = false;
+            updateAfterUpdate();
+        }) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("P_AMOUNT",updatedPaymentMethodLists.get(index).getPrmd_amt());
+                headers.put("P_PMM_ID",updatedPaymentMethodLists.get(index).getPrmd_pmm_id());
+                headers.put("P_PMD_ID",updatedPaymentMethodLists.get(index).getPrmd_pmd_id());
+                headers.put("P_AD_ID", updatedPaymentMethodLists.get(index).getPrmd_ad_id());
+                headers.put("D_PRMD_ID", updatedPaymentMethodLists.get(index).getPrmd_id());
+                headers.put("P_PRM_ID", selected_prm_id);
+                headers.put("P_UPDATE_TYPE", updatedPaymentMethodLists.get(index).getInsertDeleteTag());
+                return headers;
+            }
+        };
+
+        updatePMReq.setRetryPolicy(new DefaultRetryPolicy(
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 10,
+                0,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        ));
+
+        requestQueue.add(updatePMReq);
+    }
+
     public void updateAfterUpdate() {
         loading = false;
         if (conn) {
             if (connected) {
-                circularProgressIndicator.setVisibility(View.GONE);
-                fullLayout.setVisibility(View.VISIBLE);
-                conn = false;
-                connected = false;
+                if (payMethodConn) {
+                    if (payMethodConnected) {
+                        circularProgressIndicator.setVisibility(View.GONE);
+                        fullLayout.setVisibility(View.VISIBLE);
+                        conn = false;
+                        connected = false;
 
-                MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AddPayment.this);
-                alertDialogBuilder.setTitle("Success!")
-                        .setMessage("Payment Updated Successfully.\n" +
-                                "Payment Code: "+ selected_payment_code)
-                        .setPositiveButton("Ok", (dialog, which) -> {
-                            dialog.dismiss();
-                            finish();
-                        });
+                        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AddPayment.this);
+                        alertDialogBuilder.setTitle("Success!")
+                                .setMessage("Payment Updated Successfully.\n" +
+                                        "Payment Code: "+ selected_payment_code)
+                                .setPositiveButton("Ok", (dialog, which) -> {
+                                    dialog.dismiss();
+                                    finish();
+                                });
 
-                AlertDialog alert = alertDialogBuilder.create();
-                alert.setCancelable(false);
-                alert.setCanceledOnTouchOutside(false);
-                alert.show();
+                        AlertDialog alert = alertDialogBuilder.create();
+                        alert.setCancelable(false);
+                        alert.setCanceledOnTouchOutside(false);
+                        alert.show();
+                    }
+                    else {
+                        alertMessageUpPayMode();
+                    }
+                }
+                else {
+                    alertMessageUpPayMode();
+                }
             }
             else {
                 alertMessageUpPay();
@@ -1330,6 +1699,102 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
         alert.setCancelable(false);
         alert.setCanceledOnTouchOutside(false);
         alert.show();
+    }
+
+    public void alertMessageUpPayMode() {
+        fullLayout.setVisibility(View.GONE);
+        circularProgressIndicator.setVisibility(View.GONE);
+        if (parsing_message != null) {
+            if (parsing_message.isEmpty() || parsing_message.equals("null")) {
+                parsing_message = "Server problem or Internet not connected. Please retry or data will be lost.";
+            }
+        }
+        else {
+            parsing_message = "Server problem or Internet not connected. Please retry or data will be lost.";
+        }
+        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AddPayment.this);
+        alertDialogBuilder.setTitle("Error!")
+                .setMessage("Error Message: "+parsing_message+".\n"+"Please retry or data will be lost..")
+                .setPositiveButton("Retry", (dialog, which) -> {
+                    circularProgressIndicator.setVisibility(View.VISIBLE);
+                    fullLayout.setVisibility(View.GONE);
+                    loading = true;
+                    conn = true;
+                    connected = true;
+                    payMethodConn = false;
+                    payMethodConnected = false;
+                    parsing_message = "";
+                    checkToUpdatePaymentMethod();
+                    dialog.dismiss();
+                });
+
+        AlertDialog alert = alertDialogBuilder.create();
+        alert.setCancelable(false);
+        alert.setCanceledOnTouchOutside(false);
+        alert.show();
+    }
+
+    @Override
+    public void onUpdatePayConfirmation(ArrayList<UpdatedPaymentMethodList> selectedPaymentMethodLists) {
+        for (int i = 0; i < updatedPaymentMethodLists.size(); i++) {
+            String prmd_id = updatedPaymentMethodLists.get(i).getPrmd_id();
+            boolean found = false;
+            for (int j = 0; j < selectedPaymentMethodLists.size(); j++) {
+                String s_prmd_id = selectedPaymentMethodLists.get(j).getPrmd_id();
+                if (prmd_id.equals(s_prmd_id)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                updatedPaymentMethodLists.get(i).setUpdated(false);
+                updatedPaymentMethodLists.get(i).setInsertDeleteTag("2");
+            }
+        }
+
+        for (int i = 0; i < selectedPaymentMethodLists.size(); i++) {
+            String s_prmd_id = selectedPaymentMethodLists.get(i).getPrmd_id();
+            if (s_prmd_id.isEmpty()) {
+                String pmm_id = selectedPaymentMethodLists.get(i).getPrmd_pmm_id();
+                String pmm_name = selectedPaymentMethodLists.get(i).getPmm_name();
+                String pmd_id = selectedPaymentMethodLists.get(i).getPrmd_pmd_id();
+                String ad_id = selectedPaymentMethodLists.get(i).getPrmd_ad_id();
+                String acc_name = selectedPaymentMethodLists.get(i).getAccount_name();
+                String amnt = selectedPaymentMethodLists.get(i).getPrmd_amt();
+                updatedPaymentMethodLists.add(new UpdatedPaymentMethodList(String.valueOf(updatedPaymentMethodLists.size()+1)
+                        ,s_prmd_id,pmm_id,pmm_name,pmd_id, ad_id, acc_name,amnt,false,"1"));
+            }
+        }
+
+        boolean s_updated = true;
+        for (int i = 0; i < updatedServiceLists.size(); i++) {
+            s_updated = updatedServiceLists.get(i).isUpdated();
+            if (!s_updated) {
+                break;
+            }
+        }
+        boolean p_updated = true;
+        for (int i = 0; i < updatedPaymentMethodLists.size(); i++) {
+            p_updated = updatedPaymentMethodLists.get(i).isUpdated();
+            if (!p_updated) {
+                break;
+            }
+        }
+        if (s_updated && p_updated) {
+            Toast.makeText(this, "No new changes happened to update", Toast.LENGTH_SHORT).show();
+        } else {
+            MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AddPayment.this);
+            alertDialogBuilder.setTitle("Update Payment!")
+                    .setMessage("Do you want to Update Payment for this patient?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        updatePaymentDetails();
+                        dialog.dismiss();
+                    })
+                    .setNegativeButton("No", (dialog, which) -> dialog.dismiss());
+
+            AlertDialog alert = alertDialogBuilder.create();
+            alert.show();
+        }
     }
 
     public void restart(String msg) {

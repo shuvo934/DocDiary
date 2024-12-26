@@ -16,7 +16,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -29,6 +28,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
@@ -37,8 +38,8 @@ import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.MedH
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.arraylists.PatMedicHistList;
 
 public class PatMedicHistAdapter extends RecyclerView.Adapter<PatMedicHistAdapter.PMHAHolder> {
-    private ArrayList<PatMedicHistList> mCategory;
-    private Context mContext;
+    private final ArrayList<PatMedicHistList> mCategory;
+    private final Context mContext;
     private Boolean conn = false;
     private Boolean connected = false;
     String parsing_message = "";
@@ -47,6 +48,8 @@ public class PatMedicHistAdapter extends RecyclerView.Adapter<PatMedicHistAdapte
         this.mCategory = mCategory;
         this.mContext = mContext;
     }
+
+    Logger logger = Logger.getLogger("PatMedicHistAdapter");
 
     @NonNull
     @Override
@@ -141,19 +144,19 @@ public class PatMedicHistAdapter extends RecyclerView.Adapter<PatMedicHistAdapte
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterDeleteMH(pmh_id,index);
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterDeleteMH(pmh_id,index);
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_PMH_ID",pmh_id);
                 return headers;
@@ -171,7 +174,7 @@ public class PatMedicHistAdapter extends RecyclerView.Adapter<PatMedicHistAdapte
                 Toast.makeText(mContext,"Medical History Deleted Successfully",Toast.LENGTH_SHORT).show();
                 mCategory.remove(pos);
                 notifyDataSetChanged();
-                if (mCategory.size() == 0) {
+                if (mCategory.isEmpty()) {
                     MedicalHistory.noPatMedHistMsg.setVisibility(View.VISIBLE);
                 }
                 else {

@@ -1,10 +1,10 @@
 package ttit.com.shuvo.docdiary.login;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -21,7 +21,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -40,6 +39,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.dashboard.DocDashboard;
@@ -47,8 +48,13 @@ import ttit.com.shuvo.docdiary.login.arraylists.CenterList;
 import ttit.com.shuvo.docdiary.login.arraylists.MultipleUserList;
 import ttit.com.shuvo.docdiary.login.dialogue.SelectCenterDialogue;
 import ttit.com.shuvo.docdiary.login.dialogue.SelectUserIdDialogue;
+import ttit.com.shuvo.docdiary.login.interfaces.AdminCallBackListener;
+import ttit.com.shuvo.docdiary.login.interfaces.AdminIDCallbackListener;
+import ttit.com.shuvo.docdiary.login.interfaces.CallBackListener;
+import ttit.com.shuvo.docdiary.login.interfaces.CloseCallBack;
+import ttit.com.shuvo.docdiary.login.interfaces.IDCallbackListener;
 
-public class DocLogin extends AppCompatActivity implements CallBackListener,IDCallbackListener,CloseCallBack,AdminIDCallbackListener,AdminCallBackListener{
+public class DocLogin extends AppCompatActivity implements CallBackListener, IDCallbackListener, CloseCallBack, AdminIDCallbackListener, AdminCallBackListener {
 
     LinearLayout fullLayout;
     CircularProgressIndicator circularProgressIndicator;
@@ -88,7 +94,7 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
     String getPassword = "";
     boolean getChecked = false;
 
-    public static TextView centerName;
+    public TextView centerName;
     public static String center_api = "";
     public static String center_admin_user_id = "";
     public static String user_or_admin_flag = "";
@@ -96,6 +102,7 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
     boolean loading = false;
     Gson gson = new Gson();
     String json = "";
+    Logger logger = Logger.getLogger(DocLogin.class.getName());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -225,6 +232,32 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
 //        });
 
 //        getCenter();
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (loading) {
+                    Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(DocLogin.this);
+                    builder.setTitle("Exit!")
+                            .setIcon(R.drawable.doc_diary_default)
+                            .setMessage("Do you want to exit?")
+                            .setPositiveButton("YES", (dialog, which) -> System.exit(0))
+                            .setNegativeButton("NO", (dialog, which) -> {
+
+                            });
+                    AlertDialog alert = builder.create();
+                    try {
+                        alert.show();
+                    }
+                    catch (Exception e) {
+                        restart("App is paused for a long time. Please Start the app again.");
+                    }
+                }
+            }
+        });
     }
 
     private void closeKeyBoard () {
@@ -242,30 +275,11 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
         return super.onTouchEvent(event);
     }
 
-    @Override
-    public void onBackPressed () {
-        if (loading) {
-            Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
-        }
-        else {
-            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
-            builder.setTitle("Exit!")
-                .setIcon(R.drawable.doc_diary_default)
-                    .setMessage("Do you want to exit?")
-                    .setPositiveButton("YES", (dialog, which) -> System.exit(0))
-                    .setNegativeButton("NO", (dialog, which) -> {
-
-                    });
-            AlertDialog alert = builder.create();
-            try {
-                alert.show();
-            }
-            catch (Exception e) {
-                restart("App is paused for a long time. Please Start the app again.");
-            }
-        }
-
-    }
+//    @Override
+//    public void onBackPressed () {
+//
+//
+//    }
 
 
 //    public void getCenter() {
@@ -301,13 +315,13 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
 //            }
 //            catch (JSONException e) {
 //                connected = false;
-//                e.printStackTrace();
+//                logger.log(Level.WARNING,e.getMessage(),e);
 //                updateCenterList();
 //            }
 //        }, error -> {
 //            conn = false;
 //            connected = false;
-//            error.printStackTrace();
+//            logger.log(Level.WARNING,error.getMessage(),error);
 //            updateCenterList();
 //        });
 //
@@ -408,11 +422,11 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
         user_or_admin_flag = "";
         System.out.println("START");
 
-        String useridUrl = "http://103.56.208.123:8001/apex/cstar_local/"+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password+"";
-        String userIdUrl2 = "http://103.73.227.28:8080/cstar/cstar-ramp/"+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password+"";
-        String userIdUrl3 = "http://202.4.109.126:8003/crps/crp_savar/"+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password+"";
-        String userIdUrl4 = "http://144.48.119.59:8002/apex/crp_mirpur/"+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password+"";
-        String userIdUrl5 = "http://103.73.227.28:8080/cstar/cstar_bsd/"+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password+"";
+        String useridUrl = "http://103.56.208.123:8001/apex/cstar_local/"+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password;
+        String userIdUrl2 = "http://103.73.227.28:8080/cstar/cstar-ramp/"+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password;
+        String userIdUrl3 = "http://202.4.109.126:8003/crps/crp_savar/"+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password;
+        String userIdUrl4 = "http://144.48.119.59:8002/apex/crp_mirpur/"+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password;
+        String userIdUrl5 = "http://103.73.227.28:8080/cstar/cstar_bsd/"+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password;
 
         RequestQueue requestQueue = Volley.newRequestQueue(DocLogin.this);
 
@@ -559,13 +573,13 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 updateLayout();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             updateLayout();
         });
 
@@ -685,14 +699,15 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+//                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 requestQueue.add(getUserMessage5);
             }
 
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             requestQueue.add(getUserMessage5);
         });
 
@@ -812,14 +827,14 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 requestQueue.add(getUserMessage4);
             }
 
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             requestQueue.add(getUserMessage4);
         });
 
@@ -939,14 +954,14 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 requestQueue.add(getUserMessage3);
             }
 
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             requestQueue.add(getUserMessage3);
         });
 
@@ -1067,14 +1082,14 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 requestQueue.add(getUserMessage2);
             }
 
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             requestQueue.add(getUserMessage2);
         });
 
@@ -1082,10 +1097,10 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
     }
 
     private void updateLayout() {
-        if (centerLists.size() != 0) {
+        if (!centerLists.isEmpty()) {
             if (centerLists.size() == 1) {
                 ArrayList<MultipleUserList> multipleUserLists = centerLists.get(0).getMultipleUserLists();
-                if (multipleUserLists.size() == 0) {
+                if (multipleUserLists.isEmpty()) {
                     user_or_admin_flag = centerLists.get(0).getUser_admin_flag();
                     center_doc_code = centerLists.get(0).getDoc_code();
                     center_api = centerLists.get(0).getCenter_api();
@@ -1279,18 +1294,18 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
                 }
 
             } catch (JSONException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 connected = false;
                 updateInterface();
             }
         }, error -> {
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             conn = false;
             connected = false;
             updateInterface();
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_DOC_CODE", center_doc_code);
                 return headers;
@@ -1399,12 +1414,12 @@ public class DocLogin extends AppCompatActivity implements CallBackListener,IDCa
                 }
 
             } catch (JSONException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 connected = false;
                 updateInterface();
             }
         }, error -> {
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             conn = false;
             connected = false;
             updateInterface();

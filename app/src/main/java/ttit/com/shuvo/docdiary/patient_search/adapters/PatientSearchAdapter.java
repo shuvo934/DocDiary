@@ -4,15 +4,19 @@ import static ttit.com.shuvo.docdiary.patient_search.PatientSearchAdmin.needToUp
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,7 +27,6 @@ import java.util.ArrayList;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.health_rank.HealthProgress;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
 import ttit.com.shuvo.docdiary.patient_search.appointment_calendar.PatAppointmentCalendar;
 import ttit.com.shuvo.docdiary.patient_search.arraylists.PatientSearchList;
 import ttit.com.shuvo.docdiary.patient_search.prescription.PatPrescriptionV;
@@ -88,6 +91,20 @@ public class PatientSearchAdapter extends RecyclerView.Adapter<PatientSearchAdap
             holder.patYear.setText(tt);
             holder.patYear.setVisibility(View.GONE);
         }
+        if (patientSearchList.getCalling_permission().equals("1")) {
+            holder.calling.setVisibility(View.GONE);
+        }
+        else if (patientSearchList.getCalling_permission().equals("2")) {
+            if (!patientSearchList.getPat_cell().isEmpty()) {
+                holder.calling.setVisibility(View.VISIBLE);
+            }
+            else {
+                holder.calling.setVisibility(View.GONE);
+            }
+        }
+        else {
+            holder.calling.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -109,6 +126,7 @@ public class PatientSearchAdapter extends RecyclerView.Adapter<PatientSearchAdap
         TextView hpMissing;
         MaterialButton viewProgress;
         MaterialButton appCalendar;
+        MaterialButton calling;
         public PSAHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -124,6 +142,7 @@ public class PatientSearchAdapter extends RecyclerView.Adapter<PatientSearchAdap
             viewProgress = itemView.findViewById(R.id.patient_view_health_progress_pat_search);
             appCalendar = itemView.findViewById(R.id.patient_view_appointment_calendar_pat_search);
             patYear = itemView.findViewById(R.id.patient_year_in_pat_search);
+            calling = itemView.findViewById(R.id.phone_call_from_pat_search);
 
             cardView.setOnClickListener(v -> {
                 System.out.println(mCategory.get(getAdapterPosition()).getPat_name());
@@ -156,6 +175,31 @@ public class PatientSearchAdapter extends RecyclerView.Adapter<PatientSearchAdap
                 intent.putExtra("P_PH_ID",mCategory.get(getAdapterPosition()).getPh_id());
 
                 activity.startActivity(intent);
+            });
+
+            calling.setOnClickListener(view -> {
+                String number = mCategory.get(getAdapterPosition()).getPat_cell();
+                String name = mCategory.get(getAdapterPosition()).getPat_name();
+                if (!number.isEmpty()) {
+                    AppCompatActivity activity = (AppCompatActivity) view.getContext();
+                    AlertDialog dialog = new AlertDialog.Builder(activity)
+                            .setMessage("Do you want to make a call to "+name+" ?")
+                            .setPositiveButton("Yes", null)
+                            .setNegativeButton("No",null)
+                            .show();
+                    dialog.setCancelable(false);
+                    dialog.setCanceledOnTouchOutside(false);
+                    Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                    positive.setOnClickListener(v1 -> {
+                        dialog.dismiss();
+                        Intent callIntent = new Intent(Intent.ACTION_DIAL);
+                        callIntent.setData(Uri.parse("tel:"+number));
+                        activity.startActivity(callIntent);
+
+                    });
+                    Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+                    negative.setOnClickListener(v12 -> dialog.dismiss());
+                }
             });
         }
     }

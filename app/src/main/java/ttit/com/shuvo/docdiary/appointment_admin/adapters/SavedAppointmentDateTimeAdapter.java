@@ -23,14 +23,13 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.util.ArrayList;
 
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.appointment_admin.AppointmentModify;
 import ttit.com.shuvo.docdiary.appointment_admin.add_schedule.AddSchedule;
 import ttit.com.shuvo.docdiary.appointment_admin.arraylists.SavedAppointmentDateTimeList;
 
 public class SavedAppointmentDateTimeAdapter extends RecyclerView.Adapter<SavedAppointmentDateTimeAdapter.SADTHolder> {
 
-    private ArrayList<SavedAppointmentDateTimeList> mCategory;
-    private Context mContext;
+    private final ArrayList<SavedAppointmentDateTimeList> mCategory;
+    private final Context mContext;
 
     public SavedAppointmentDateTimeAdapter(ArrayList<SavedAppointmentDateTimeList> mCategory, Context mContext) {
         this.mCategory = mCategory;
@@ -124,9 +123,7 @@ public class SavedAppointmentDateTimeAdapter extends RecyclerView.Adapter<SavedA
                                         notifyDataSetChanged();
                                         dialog.dismiss();
                                     })
-                                    .setNegativeButton("No", (dialog, which) -> {
-                                        dialog.dismiss();
-                                    });
+                                    .setNegativeButton("No", (dialog, which) -> dialog.dismiss());
                             AlertDialog alertDialog = builder.create();
                             alertDialog.show();
                         }
@@ -140,9 +137,7 @@ public class SavedAppointmentDateTimeAdapter extends RecyclerView.Adapter<SavedA
                                         dialog.dismiss();
                                         activity.finish();
                                     })
-                                    .setNegativeButton("No", (dialog, which) -> {
-                                        dialog.dismiss();
-                                    });
+                                    .setNegativeButton("No", (dialog, which) -> dialog.dismiss());
                             AlertDialog alertDialog = builder.create();
                             alertDialog.show();
                         }
@@ -174,9 +169,7 @@ public class SavedAppointmentDateTimeAdapter extends RecyclerView.Adapter<SavedA
                                 notifyDataSetChanged();
                                 dialog.dismiss();
                             })
-                            .setNegativeButton("No", (dialog, which) -> {
-                                dialog.dismiss();
-                            });
+                            .setNegativeButton("No", (dialog, which) -> dialog.dismiss());
                     AlertDialog alertDialog = builder.create();
                     alertDialog.show();
                 }

@@ -57,11 +57,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Locale;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.payment.PaymentCodeCallListener;
+import ttit.com.shuvo.docdiary.payment.interfaces.PaymentCodeCallListener;
 import ttit.com.shuvo.docdiary.payment.adapters.SearchPaymentAdapter;
 import ttit.com.shuvo.docdiary.payment.arraylists.PaymentCodeList;
 
@@ -103,6 +104,8 @@ public class SearchPaymentDialog extends AppCompatDialogFragment implements Sear
         this.p_year = p_year;
         this.p_user = p_user;
     }
+
+    Logger logger = Logger.getLogger("SearchPaymentDialog");
 
     private PaymentCodeCallListener paymentCodeCallListener;
 
@@ -148,6 +151,7 @@ public class SearchPaymentDialog extends AppCompatDialogFragment implements Sear
 
         alertDialog.setCancelable(false);
         alertDialog.setCanceledOnTouchOutside(false);
+        setCancelable(false);
 
         search.addTextChangedListener(new TextWatcher() {
             @Override
@@ -258,7 +262,7 @@ public class SearchPaymentDialog extends AppCompatDialogFragment implements Sear
             search.setText("");
 
             latestPayListText.setVisibility(View.VISIBLE);
-            if (fiftyPaymentLists.size() == 0) {
+            if (fiftyPaymentLists.isEmpty()) {
                 noPaymentFound.setVisibility(View.VISIBLE);
 
             }
@@ -390,14 +394,14 @@ public class SearchPaymentDialog extends AppCompatDialogFragment implements Sear
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateLayout();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateLayout();
         });
@@ -425,7 +429,7 @@ public class SearchPaymentDialog extends AppCompatDialogFragment implements Sear
                 search.setText("");
 
                 latestPayListText.setVisibility(View.VISIBLE);
-                if (fiftyPaymentLists.size() == 0) {
+                if (fiftyPaymentLists.isEmpty()) {
                     noPaymentFound.setVisibility(View.VISIBLE);
 
                 }
@@ -516,14 +520,14 @@ public class SearchPaymentDialog extends AppCompatDialogFragment implements Sear
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -548,7 +552,7 @@ public class SearchPaymentDialog extends AppCompatDialogFragment implements Sear
                 latestPayListText.setVisibility(View.GONE);
                 clearButton.setVisibility(View.VISIBLE);
 
-                if (paymentCodeLists.size() == 0) {
+                if (paymentCodeLists.isEmpty()) {
                     noPaymentFound.setVisibility(View.VISIBLE);
                 }
                 else {
@@ -587,21 +591,21 @@ public class SearchPaymentDialog extends AppCompatDialogFragment implements Sear
 
     @Override
     public void onItemClicked(int Position) {
-        String prm_code = "";
-        String prm_id = "";
-        String payment_date = "";
-        String ph_id = "";
-        String pat_name = "";
-        String ph_sub_code = "";
-        String pat_code = "";
-        String pat_age = "";
-        String pat_material = "";
-        String pat_gender = "";
-        String pat_blood = "";
-        String pat_category = "";
-        String pat_status = "";
-        String pat_address = "";
-        String pat_cat_id = "";
+        String prm_code;
+        String prm_id;
+        String payment_date;
+        String ph_id;
+        String pat_name;
+        String ph_sub_code;
+        String pat_code;
+        String pat_age;
+        String pat_material;
+        String pat_gender;
+        String pat_blood;
+        String pat_category;
+        String pat_status;
+        String pat_address;
+        String pat_cat_id;
 
         if (firstGetter) {
             prm_code = fiftyPaymentLists.get(Position).getPrm_code();

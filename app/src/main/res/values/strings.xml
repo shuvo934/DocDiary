@@ -14,4 +14,22 @@
     <string name="pat_search_admin">Patient Search</string>
     <string name="appointment_modify_bar_name">Appointment</string>
     <string name="report_mang_bar_name">Report Manager</string>
+    <string name="hr_acc_bar_name">HR &amp; Accounts</string>
+    <string name="acc_dash_bar_name">Accounts Dashboard</string>
+    <string name="vou_trans_bar_name">Voucher Transaction</string>
+    <string name="pay_invoice_bar_name">Payment Invoice</string>
+    <string name="inc_exp_bar_name">Income/Expense Statement</string>
+    <string name="daily_state_bar_name">Daily Statement</string>
+    <string name="acc_ledger">Account Ledger</string>
+    <string name="cva_bar_name">Credit Voucher Approval</string>
+    <string name="dva_bar_name">Debit Voucher Approval</string>
+    <string name="jva_bar_name">Journal Voucher Approval</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="hr_dash_bar_name">HR Dashboard</string>
+    <string name="da_bar_name">Daily Attendance</string>
+    <string name="emp_att_bar_name">Emp Wise Attendance</string>
+    <string name="att_approve_bar_name">Attendance Update Approval</string>
+    <string name="le_record_bar_name">Leave Record</string>
+    <string name="le_approve_bar_name">Leave Approval</string>
 </resources>

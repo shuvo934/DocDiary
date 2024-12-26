@@ -18,6 +18,17 @@
         android:id="@+id/car_view_of_doc_app_sch_view"
         app:cardElevation="3dp">
 
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/phone_call_from_all_appointment"
+            android:layout_width="@dimen/_14sdp"
+            android:layout_height="@dimen/_14sdp"
+            android:src="@drawable/phone_24"
+            android:layout_gravity="end"
+            android:layout_marginStart="@dimen/_8sdp"
+            android:layout_marginEnd="@dimen/_8sdp"
+            android:layout_marginTop="@dimen/_9sdp"
+            app:tint="@color/green_sea"/>
+
         <RelativeLayout
             android:id="@+id/border_layout_unit_wise_doctor"
             android:layout_width="wrap_content"

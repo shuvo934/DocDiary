@@ -45,8 +45,8 @@ public class PatientAppSchAdapter extends RecyclerView.Adapter<PatientAppSchAdap
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy hh:mm a", Locale.ENGLISH);
         Date to_date = Calendar.getInstance().getTime();
         String now_date = dateFormat.format(to_date);
-        Date app_date = null;
-        Date only_date = null;
+        Date app_date;
+        Date only_date;
         try {
             app_date = dateFormat.parse(appointment_date);
             only_date = dateFormat.parse(now_date);
@@ -70,7 +70,7 @@ public class PatientAppSchAdapter extends RecyclerView.Adapter<PatientAppSchAdap
             else if (app_date.equals(only_date)) {
                 String schedule = list.getSchedule_time();
                 String schedule_time_date = appointment_date + " " + schedule;
-                Date appDate = null;
+                Date appDate;
                 try {
                     appDate = simpleDateFormat.parse(schedule_time_date);
                 }

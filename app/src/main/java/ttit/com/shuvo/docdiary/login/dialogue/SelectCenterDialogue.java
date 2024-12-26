@@ -1,6 +1,5 @@
 package ttit.com.shuvo.docdiary.login.dialogue;
 
-import static ttit.com.shuvo.docdiary.login.DocLogin.centerName;
 import static ttit.com.shuvo.docdiary.login.DocLogin.center_admin_user_id;
 import static ttit.com.shuvo.docdiary.login.DocLogin.center_api;
 import static ttit.com.shuvo.docdiary.login.DocLogin.center_doc_code;
@@ -9,8 +8,6 @@ import static ttit.com.shuvo.docdiary.login.DocLogin.user_or_admin_flag;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -25,10 +22,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.login.AdminCallBackListener;
-import ttit.com.shuvo.docdiary.login.CallBackListener;
-import ttit.com.shuvo.docdiary.login.CloseCallBack;
-import ttit.com.shuvo.docdiary.login.DocLogin;
+import ttit.com.shuvo.docdiary.login.interfaces.AdminCallBackListener;
+import ttit.com.shuvo.docdiary.login.interfaces.CallBackListener;
+import ttit.com.shuvo.docdiary.login.interfaces.CloseCallBack;
 import ttit.com.shuvo.docdiary.login.adapters.CenterAdapter;
 import ttit.com.shuvo.docdiary.login.arraylists.CenterList;
 import ttit.com.shuvo.docdiary.login.arraylists.MultipleUserList;
@@ -57,8 +53,8 @@ public class SelectCenterDialogue extends AppCompatDialogFragment implements Cen
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
         if (getActivity() instanceof CallBackListener)
             callBackListener = (CallBackListener) getActivity();
 
@@ -79,6 +75,7 @@ public class SelectCenterDialogue extends AppCompatDialogFragment implements Cen
 
         dialog.setCancelable(false);
         dialog.setCanceledOnTouchOutside(false);
+        setCancelable(false);
 
         centerView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getContext());
@@ -101,7 +98,7 @@ public class SelectCenterDialogue extends AppCompatDialogFragment implements Cen
         ArrayList<MultipleUserList> multipleUserLists = centerLists.get(CategoryPosition).getMultipleUserLists();
         centerAPI = centerLists.get(CategoryPosition).getCenter_api();
         center_api = centerAPI;
-        if (multipleUserLists.size() == 0) {
+        if (multipleUserLists.isEmpty()) {
             String user_admin_flag = centerLists.get(CategoryPosition).getUser_admin_flag();
             if (user_admin_flag.equals("1")) {
                 d_code = centerLists.get(CategoryPosition).getDoc_code();
@@ -132,7 +129,7 @@ public class SelectCenterDialogue extends AppCompatDialogFragment implements Cen
             String cn = centerLists.get(CategoryPosition).getCenter_name();
 
             SelectUserIdDialogue selectUserIdDialogue = new SelectUserIdDialogue(multipleUserLists, mContext,cn);
-            selectUserIdDialogue.show(getActivity().getSupportFragmentManager(),"USER_CENTER");
+            selectUserIdDialogue.show(requireActivity().getSupportFragmentManager(),"USER_CENTER");
             dialog.dismiss();
         }
     }

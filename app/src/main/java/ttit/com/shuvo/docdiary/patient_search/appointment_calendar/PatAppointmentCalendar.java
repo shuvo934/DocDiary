@@ -10,9 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.View;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,12 +36,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.leave_schedule.DocLeave;
-import ttit.com.shuvo.docdiary.leave_schedule.adapters.TimeSchAdapter;
-import ttit.com.shuvo.docdiary.leave_schedule.arraylists.LeaveCalenderValues;
-import ttit.com.shuvo.docdiary.leave_schedule.arraylists.LeaveTimeSchedule;
 import ttit.com.shuvo.docdiary.patient_search.appointment_calendar.adapters.PatientAppSchAdapter;
 import ttit.com.shuvo.docdiary.patient_search.appointment_calendar.arraylist.PatAppCalendarList;
 import ttit.com.shuvo.docdiary.patient_search.appointment_calendar.arraylist.PatAppointmentList;
@@ -79,6 +75,8 @@ public class PatAppointmentCalendar extends AppCompatActivity {
 
     Calendar startDates;
     Calendar endDates;
+
+    Logger logger = Logger.getLogger(PatAppointmentCalendar.class.getName());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -206,7 +204,7 @@ public class PatAppointmentCalendar extends AppCompatActivity {
         patAppointmentLists = new ArrayList<>();
         patAppCalendarLists = new ArrayList<>();
 
-        String apptUrl = pre_url_api+"patient_search/getPatAppointment?PHID="+ph_id+"&FIRST_MONTH="+first_month+"&LAST_MONTH="+last_month+"";
+        String apptUrl = pre_url_api+"patient_search/getPatAppointment?PHID="+ph_id+"&FIRST_MONTH="+first_month+"&LAST_MONTH="+last_month;
 
         RequestQueue requestQueue = Volley.newRequestQueue(PatAppointmentCalendar.this);
 
@@ -261,14 +259,14 @@ public class PatAppointmentCalendar extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -290,7 +288,7 @@ public class PatAppointmentCalendar extends AppCompatActivity {
                 Handler handler = new Handler();
                 handler.postDelayed(() -> {
 
-                    if (patAppointmentLists.size() != 0) {
+                    if (!patAppointmentLists.isEmpty()) {
                         int z = 0;
                         Date insertedDate = null;
                         for (int i = 0; i < patAppointmentLists.size(); i++) {
@@ -298,7 +296,7 @@ public class PatAppointmentCalendar extends AppCompatActivity {
                                 z = 1;
                             }
                             String app_date = patAppointmentLists.get(i).getApp_date();
-                            Date date = null;
+                            Date date;
                             try {
                                 date = dateFormat.parse(app_date);
                             } catch (ParseException e) {
@@ -329,7 +327,7 @@ public class PatAppointmentCalendar extends AppCompatActivity {
                             String appointment_date = "";
                             for (int i = 0; i < patAppointmentLists.size(); i++) {
                                 String app_date = patAppointmentLists.get(i).getApp_date();
-                                Date date = null;
+                                Date date;
                                 try {
                                     date = dateFormat.parse(app_date);
                                 } catch (ParseException e) {
@@ -361,8 +359,8 @@ public class PatAppointmentCalendar extends AppCompatActivity {
                             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy hh:mm a", Locale.ENGLISH);
                             Date to_date = Calendar.getInstance().getTime();
                             String now_date = dateFormat.format(to_date);
-                            Date app_date = null;
-                            Date only_date = null;
+                            Date app_date;
+                            Date only_date;
                             try {
                                 app_date = dateFormat.parse(appointment_date);
                                 only_date = dateFormat.parse(now_date);
@@ -413,7 +411,7 @@ public class PatAppointmentCalendar extends AppCompatActivity {
                                     String schedule = patAppointmentViewLists.get(0).getSchedule_time();
                                     String schedule_time_date = appointment_date + " " + schedule;
                                     System.out.println("TODAY SCHEDULE TIME: "+schedule);
-                                    Date appDate = null;
+                                    Date appDate;
                                     try {
                                         appDate = simpleDateFormat.parse(schedule_time_date);
                                     } catch (ParseException e) {
@@ -453,7 +451,7 @@ public class PatAppointmentCalendar extends AppCompatActivity {
                                         }
                                         String schedule = patAppointmentViewLists.get(i).getSchedule_time();
                                         String schedule_time_date = appointment_date + " " + schedule;
-                                        Date appDate = null;
+                                        Date appDate;
                                         try {
                                             appDate = simpleDateFormat.parse(schedule_time_date);
                                         } catch (ParseException e) {
@@ -570,7 +568,7 @@ public class PatAppointmentCalendar extends AppCompatActivity {
 
                     SimpleDateFormat dayNameFormat3 = new SimpleDateFormat("EEE", Locale.ENGLISH);
                     do {
-                        String text = "";
+                        String text;
                         Calendar ddc = Calendar.getInstance();
                         if (testStartdates.getTime().equals(startDates.getTime())) {
                             text = dayNameFormat3.format(testStartdates.getTime());

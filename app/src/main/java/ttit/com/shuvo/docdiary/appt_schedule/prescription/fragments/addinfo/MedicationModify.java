@@ -2,6 +2,7 @@ package ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo;
 
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
@@ -27,7 +28,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -45,11 +45,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.arraylists.DoseList;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.arraylists.MedTakeTimeList;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.arraylists.MedicalHistoryList;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.arraylists.MedicineList;
 
 public class MedicationModify extends AppCompatActivity {
@@ -75,7 +76,6 @@ public class MedicationModify extends AppCompatActivity {
     TextView doseMissing;
     ArrayList<DoseList> doseLists;
 
-    TextInputLayout durationLay;
     TextInputEditText duration;
 
     Button modify;
@@ -97,6 +97,9 @@ public class MedicationModify extends AppCompatActivity {
     boolean selectedFromItems = false;
 
     String pmp_id = "";
+    
+    Logger logger = Logger.getLogger(MedicationModify.class.getName());
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -213,18 +216,18 @@ public class MedicationModify extends AppCompatActivity {
 
                         if (ss.isEmpty()) {
                             medicineMissing.setVisibility(View.VISIBLE);
-                            medicineMissing.setText("Please Select Medicine");
+                            String mmt = "Please Select Medicine";
+                            medicineMissing.setText(mmt);
                         }
                         else {
                             medicineMissing.setVisibility(View.VISIBLE);
-                            medicineMissing.setText("Invalid Medicine");
+                            String mmt = "Invalid Medicine";
+                            medicineMissing.setText(mmt);
                         }
                     }
-                    System.out.println(selectedFromItems);
                 }
                 else {
                     selectedFromItems = false;
-                    System.out.println(selectedFromItems);
                 }
             }
         });
@@ -294,18 +297,18 @@ public class MedicationModify extends AppCompatActivity {
 
                         if (ss.isEmpty()) {
                             medicineTakeMissing.setVisibility(View.VISIBLE);
-                            medicineTakeMissing.setText("Please Select Medicine Time");
+                            String mtmt = "Please Select Medicine Time";
+                            medicineTakeMissing.setText(mtmt);
                         }
                         else {
                             medicineTakeMissing.setVisibility(View.VISIBLE);
-                            medicineTakeMissing.setText("Invalid Medicine Time");
+                            String mtmt = "Invalid Medicine Time";
+                            medicineTakeMissing.setText(mtmt);
                         }
                     }
-                    System.out.println(selectedFromItems);
                 }
                 else {
                     selectedFromItems = false;
-                    System.out.println(selectedFromItems);
                 }
             }
         });
@@ -375,18 +378,18 @@ public class MedicationModify extends AppCompatActivity {
 
                         if (ss.isEmpty()) {
                             doseMissing.setVisibility(View.VISIBLE);
-                            doseMissing.setText("Please Select Dose");
+                            String dmt = "Please Select Dose";
+                            doseMissing.setText(dmt);
                         }
                         else {
                             doseMissing.setVisibility(View.VISIBLE);
-                            doseMissing.setText("Invalid Dose");
+                            String dmt = "Invalid Dose";
+                            doseMissing.setText(dmt);
                         }
                     }
-                    System.out.println(selectedFromItems);
                 }
                 else {
                     selectedFromItems = false;
-                    System.out.println(selectedFromItems);
                 }
             }
         });
@@ -423,7 +426,7 @@ public class MedicationModify extends AppCompatActivity {
             return false;
         });
 
-        close.setOnClickListener(v -> onBackPressed());
+        close.setOnClickListener(v -> finish());
 
         modify.setOnClickListener(v -> {
             med_duration = Objects.requireNonNull(duration.getText()).toString();
@@ -438,9 +441,7 @@ public class MedicationModify extends AppCompatActivity {
                                         dialog.dismiss();
                                         addMedication();
                                     })
-                                    .setNegativeButton("No",(dialog, which) -> {
-                                        dialog.dismiss();
-                                    });
+                                    .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
 
                             AlertDialog alert = alertDialogBuilder.create();
                             alert.show();
@@ -452,9 +453,7 @@ public class MedicationModify extends AppCompatActivity {
                                         dialog.dismiss();
                                         updateMedication();
                                     })
-                                    .setNegativeButton("No",(dialog, which) -> {
-                                        dialog.dismiss();
-                                    });
+                                    .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
 
                             AlertDialog alert = alertDialogBuilder.create();
                             alert.show();
@@ -476,6 +475,18 @@ public class MedicationModify extends AppCompatActivity {
             }
         });
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (loading) {
+                    Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    finish();
+                }
+            }
+        });
+
         getData();
 
     }
@@ -486,15 +497,10 @@ public class MedicationModify extends AppCompatActivity {
         return super.onTouchEvent(event);
     }
 
-    @Override
-    public void onBackPressed() {
-        if (loading) {
-            Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
-        }
-        else {
-            super.onBackPressed();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//
+//    }
 
     private void closeKeyBoard() {
         View view = getCurrentFocus();
@@ -516,7 +522,7 @@ public class MedicationModify extends AppCompatActivity {
         medTakeTimeLists = new ArrayList<>();
         doseLists = new ArrayList<>();
 
-        String medicineUrl = pre_url_api+"prescription/getMedicines?pmm_id="+pmm_id+"";
+        String medicineUrl = pre_url_api+"prescription/getMedicines?pmm_id="+pmm_id;
         String medicineTimeUrl = pre_url_api+"prescription/getMedTakeTime";
         String doseUrl = pre_url_api+"prescription/getDoses";
         RequestQueue requestQueue = Volley.newRequestQueue(this);
@@ -546,14 +552,14 @@ public class MedicationModify extends AppCompatActivity {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -582,14 +588,14 @@ public class MedicationModify extends AppCompatActivity {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -621,14 +627,14 @@ public class MedicationModify extends AppCompatActivity {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -645,8 +651,9 @@ public class MedicationModify extends AppCompatActivity {
                 conn = false;
                 connected = false;
 
-                if (medicineLists.size() == 0) {
-                    medicineMissing.setText("No Medicine Found");
+                if (medicineLists.isEmpty()) {
+                    String mmt = "No Medicine Found";
+                    medicineMissing.setText(mmt);
                     medicineMissing.setVisibility(View.VISIBLE);
                 }
                 else {
@@ -658,11 +665,12 @@ public class MedicationModify extends AppCompatActivity {
                     type.add(medicineLists.get(i).getMedicine_name());
                 }
 
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(MedicationModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(MedicationModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
                 medicine.setAdapter(arrayAdapter);
 
-                if (medTakeTimeLists.size() == 0) {
-                    medicineTakeMissing.setText("No Medicine Time Found");
+                if (medTakeTimeLists.isEmpty()) {
+                    String mtmt = "No Medicine Time Found";
+                    medicineTakeMissing.setText(mtmt);
                     medicineTakeMissing.setVisibility(View.VISIBLE);
                 }
                 else {
@@ -674,11 +682,12 @@ public class MedicationModify extends AppCompatActivity {
                     type1.add(medTakeTimeLists.get(i).getMpm_name());
                 }
 
-                ArrayAdapter<String> arrayAdapter1 = new ArrayAdapter<String>(MedicationModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type1);
+                ArrayAdapter<String> arrayAdapter1 = new ArrayAdapter<>(MedicationModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type1);
                 medicineTake.setAdapter(arrayAdapter1);
 
-                if (doseLists.size() == 0) {
-                    doseMissing.setText("No Dose Found");
+                if (doseLists.isEmpty()) {
+                    String dmt = "No Dose Found";
+                    doseMissing.setText(dmt);
                     doseMissing.setVisibility(View.VISIBLE);
                 }
                 else {
@@ -690,7 +699,7 @@ public class MedicationModify extends AppCompatActivity {
                     type2.add(doseLists.get(i).getDose_name());
                 }
 
-                ArrayAdapter<String> arrayAdapter2 = new ArrayAdapter<String>(MedicationModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type2);
+                ArrayAdapter<String> arrayAdapter2 = new ArrayAdapter<>(MedicationModify.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type2);
                 dose.setAdapter(arrayAdapter2);
 
             }
@@ -760,19 +769,19 @@ public class MedicationModify extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterAdd();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterAdd();
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_PMM_ID",pmm_id);
                 headers.put("P_MEDICINE_ID",medicine_id);
@@ -821,9 +830,7 @@ public class MedicationModify extends AppCompatActivity {
                     addMedication();
                     dialog.dismiss();
                 })
-                .setNegativeButton("Cancel",(dialog, which) -> {
-                    dialog.dismiss();
-                });
+                .setNegativeButton("Cancel",(dialog, which) -> dialog.dismiss());
 
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
@@ -859,19 +866,19 @@ public class MedicationModify extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterUpdate();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterUpdate();
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_PMM_ID",pmm_id);
                 headers.put("P_MEDICINE_ID",medicine_id);
@@ -921,9 +928,7 @@ public class MedicationModify extends AppCompatActivity {
                     updateMedication();
                     dialog.dismiss();
                 })
-                .setNegativeButton("Cancel",(dialog, which) -> {
-                    dialog.dismiss();
-                });
+                .setNegativeButton("Cancel",(dialog, which) -> dialog.dismiss());
 
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);

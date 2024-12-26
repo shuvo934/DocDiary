@@ -5,12 +5,11 @@ import static java.util.Calendar.SATURDAY;
 import static ttit.com.shuvo.docdiary.appointment_admin.AppointmentModify.appointmentDateTimeLists;
 import static ttit.com.shuvo.docdiary.appointment_admin.AppointmentModify.scheduleSelected;
 import static ttit.com.shuvo.docdiary.appointment_admin.AppointmentModify.selected_service_qty;
-import static ttit.com.shuvo.docdiary.appointment_admin.AppointmentModify.serviceQty;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -28,7 +27,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,16 +51,14 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.appointment_admin.AppointmentModify;
 import ttit.com.shuvo.docdiary.appointment_admin.add_schedule.adapters.TakenScheduleAdapter;
 import ttit.com.shuvo.docdiary.appointment_admin.add_schedule.arraylists.SelectableAppointmentDateList;
 import ttit.com.shuvo.docdiary.appointment_admin.add_schedule.arraylists.SelectableTimeList;
 import ttit.com.shuvo.docdiary.appointment_admin.arraylists.SavedAppointmentDateTimeList;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.ComplainModify;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.arraylists.ListOfComplains;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.arraylists.ListOfInjuries;
 
 public class AddSchedule extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
@@ -116,6 +112,7 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
     boolean updateFlag = false;
     boolean sc_inserted = false;
     boolean sc_duplicate = false;
+    Logger logger = Logger.getLogger(AddSchedule.class.getName());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -188,10 +185,12 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
             timeSelection.setText(selected_time);
             dateSelectionLay.setEnabled(false);
 
-            addApp.setText("Update Schedule");
+            String ap = "Update Schedule";
+            addApp.setText(ap);
         }
         else {
-            addApp.setText("Add Schedule");
+            String ap = "Add Schedule";
+            addApp.setText(ap);
         }
 
         dateSelection.setOnClickListener(v -> {
@@ -214,7 +213,7 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
                 fdate = sdf.parse(firstDate);
                 ldate = sdf.parse(lastDate);
             } catch (ParseException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
             }
 
             Calendar firstDateCalendar = Calendar.getInstance();
@@ -240,7 +239,7 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
                     date = sdf.parse(dateLists.get(i).getP_adm_date());
                 }
                 catch (Exception e) {
-                    e.printStackTrace();
+                    logger.log(Level.WARNING,e.getMessage(),e);
                 }
                 Calendar calendar = Calendar.getInstance();
                 if (date != null) {
@@ -276,18 +275,20 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
             timeMissing.setVisibility(View.GONE);
         });
 
-        close.setOnClickListener(v -> onBackPressed());
+        close.setOnClickListener(v -> finish());
 
         addApp.setOnClickListener(v -> {
             if (updateFlag) {
                 if (adm_id.isEmpty()) {
                     dateMissing.setVisibility(View.VISIBLE);
-                    dateMissing.setText("Please Select Appointment Date");
+                    String dm = "Please Select Appointment Date";
+                    dateMissing.setText(dm);
                 }
                 else {
                     if (ts_id.isEmpty()) {
                         timeMissing.setVisibility(View.VISIBLE);
-                        timeMissing.setText("Please Select Appointment Time");
+                        String tm = "Please Select Appointment Time";
+                        timeMissing.setText(tm);
                     }
                     else {
                         scheduleSelected = true;
@@ -304,7 +305,7 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
                         appointmentDateTimeLists.get(pos).setInserted(false);
                         appointmentDateTimeLists.get(pos).setSchDuplicate(false);
                         if (takenTimeLists != null) {
-                            appointmentDateTimeLists.get(pos).setTakenScheduleAvailable(takenTimeLists.size() > 0);
+                            appointmentDateTimeLists.get(pos).setTakenScheduleAvailable(!takenTimeLists.isEmpty());
                         }
                         else {
                             appointmentDateTimeLists.get(pos).setTakenScheduleAvailable(false);
@@ -316,12 +317,14 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
             else {
                 if (adm_id.isEmpty()) {
                     dateMissing.setVisibility(View.VISIBLE);
-                    dateMissing.setText("Please Select Appointment Date");
+                    String dm = "Please Select Appointment Date";
+                    dateMissing.setText(dm);
                 }
                 else {
                     if (ts_id.isEmpty()) {
                         timeMissing.setVisibility(View.VISIBLE);
-                        timeMissing.setText("Please Select Appointment Time");
+                        String tm = "Please Select Appointment Time";
+                        timeMissing.setText(tm);
                     }
                     else {
                         int service_qty = Integer.parseInt(selected_service_qty);
@@ -337,7 +340,7 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
                             if (service_qty > 0) {
                                 scheduleSelected = true;
                                 if (takenTimeLists != null) {
-                                    if (takenTimeLists.size() > 0) {
+                                    if (!takenTimeLists.isEmpty()) {
                                         appointmentDateTimeLists.add(new SavedAppointmentDateTimeList(selected_date,adm_id,selected_time,ts_id,doc_id,pfn_id,depts_id,ph_id,prm_id,prd_id,true,false,false));
                                         finish();
                                     }
@@ -392,7 +395,7 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
                                     msg = "You have taken Service for " + dates + " date. You can not add more schedule other than this date.";
                                 }
                                 if (takenTimeLists != null) {
-                                    if (takenTimeLists.size() > 0) {
+                                    if (!takenTimeLists.isEmpty()) {
                                         scheduleSelected = true;
                                         appointmentDateTimeLists.add(new SavedAppointmentDateTimeList(selected_date,adm_id,selected_time,ts_id,doc_id,pfn_id,depts_id,ph_id,prm_id,prd_id,true, false,false));
                                         finish();
@@ -401,9 +404,7 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
                                         MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AddSchedule.this);
                                         alertDialogBuilder.setTitle("Service Quantity Empty!")
                                                 .setMessage(msg)
-                                                .setPositiveButton("Ok", (dialog, which) -> {
-                                                    dialog.dismiss();
-                                                });
+                                                .setPositiveButton("Ok", (dialog, which) -> dialog.dismiss());
 
                                         AlertDialog alert = alertDialogBuilder.create();
                                         alert.setCancelable(false);
@@ -415,9 +416,7 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
                                     MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AddSchedule.this);
                                     alertDialogBuilder.setTitle("Service Quantity Empty!")
                                             .setMessage(msg)
-                                            .setPositiveButton("Ok", (dialog, which) -> {
-                                                dialog.dismiss();
-                                            });
+                                            .setPositiveButton("Ok", (dialog, which) -> dialog.dismiss());
 
                                     AlertDialog alert = alertDialogBuilder.create();
                                     alert.setCancelable(false);
@@ -430,12 +429,24 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
                             scheduleSelected = true;
                             boolean tsa = false;
                             if (takenTimeLists != null) {
-                                tsa = takenTimeLists.size() > 0;
+                                tsa = !takenTimeLists.isEmpty();
                             }
                             appointmentDateTimeLists.add(new SavedAppointmentDateTimeList(selected_date,adm_id,selected_time,ts_id,doc_id,pfn_id,depts_id,ph_id,prm_id,prd_id,tsa, false,false));
                             finish();
                         }
                     }
+                }
+            }
+        });
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (loading) {
+                    Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    finish();
                 }
             }
         });
@@ -449,15 +460,10 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
         return super.onTouchEvent(event);
     }
 
-    @Override
-    public void onBackPressed() {
-        if (loading) {
-            Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
-        }
-        else {
-            super.onBackPressed();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//
+//    }
 
     private void closeKeyBoard() {
         View view = getCurrentFocus();
@@ -471,8 +477,8 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
     @Override
     public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
         String monthName = "";
-        String dayOfMonthName = "";
-        String yearName = "";
+        String dayOfMonthName;
+        String yearName;
         monthOfYear = monthOfYear + 1;
         if (monthOfYear == 1) {
             monthName = "JAN";
@@ -567,14 +573,14 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -592,8 +598,9 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
                 timeSelectionLay.setEnabled(false);
                 timeMissing.setVisibility(View.GONE);
 
-                if (dateLists.size() == 0) {
-                    dateMissing.setText("No Appointment Date Found. Please Reselect Doctor");
+                if (dateLists.isEmpty()) {
+                    String dm = "No Appointment Date Found. Please Reselect Doctor";
+                    dateMissing.setText(dm);
                     dateMissing.setVisibility(View.VISIBLE);
                     dateSelectionLay.setEnabled(false);
                     fullLayout.setVisibility(View.VISIBLE);
@@ -695,14 +702,14 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateTimeInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateTimeInterface();
         });
@@ -757,14 +764,14 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateTimeInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateTimeInterface();
         });
@@ -796,14 +803,14 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateTimeInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateTimeInterface();
         });
@@ -823,8 +830,9 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
                     connected = false;
 
 
-                    if (timeLists.size() == 0) {
-                        timeMissing.setText("No Appointment Time Found. Please Reselect Date");
+                    if (timeLists.isEmpty()) {
+                        String tm = "No Appointment Time Found. Please Reselect Date";
+                        timeMissing.setText(tm);
                         timeMissing.setVisibility(View.VISIBLE);
                         timeSelectionLay.setEnabled(false);
                     }
@@ -870,8 +878,9 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
                                 }
                             }
                         }
-                        if (timeLists.size() == 0) {
-                            timeMissing.setText("All available time already Selected. Please Reselect Date");
+                        if (timeLists.isEmpty()) {
+                            String tm = "All available time already Selected. Please Reselect Date";
+                            timeMissing.setText(tm);
                             timeMissing.setVisibility(View.VISIBLE);
                             timeSelectionLay.setEnabled(false);
                         }
@@ -889,7 +898,7 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
                     ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(AddSchedule.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
                     timeSelection.setAdapter(arrayAdapter);
 
-                    if (takenTimeLists.size() == 0) {
+                    if (takenTimeLists.isEmpty()) {
                         takenScheduleLay.setVisibility(View.GONE);
                     }
                     else {
@@ -912,7 +921,8 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
                             .setNegativeButton("Cancel",(dialog, which) -> {
                                 timeSelectionLay.setEnabled(false);
                                 timeMissing.setVisibility(View.VISIBLE);
-                                timeMissing.setText("Could Not Find Appointment Time Data. Try again");
+                                String tm = "Could Not Find Appointment Time Data. Try again";
+                                timeMissing.setText(tm);
                                 dialog.dismiss();
                             });
 
@@ -952,7 +962,8 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
                 .setNegativeButton("Cancel",(dialog, which) -> {
                     timeSelectionLay.setEnabled(false);
                     timeMissing.setVisibility(View.VISIBLE);
-                    timeMissing.setText("Appointment Time failed to load. Please Try Again");
+                    String tm = "Appointment Time failed to load. Please Try Again";
+                    timeMissing.setText(tm);
                     dialog.dismiss();
                 });
 

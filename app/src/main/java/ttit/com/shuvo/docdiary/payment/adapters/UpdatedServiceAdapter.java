@@ -25,8 +25,8 @@ import ttit.com.shuvo.docdiary.payment.arraylists.UpdatedServiceList;
 import ttit.com.shuvo.docdiary.payment.service.ServiceModifyForUp;
 
 public class UpdatedServiceAdapter extends RecyclerView.Adapter<UpdatedServiceAdapter.USAHolder>{
-    private ArrayList<UpdatedServiceList> updatedServiceLists;
-    private Context mContext;
+    private final ArrayList<UpdatedServiceList> updatedServiceLists;
+    private final Context mContext;
 
     public UpdatedServiceAdapter(ArrayList<UpdatedServiceList> updatedServiceLists, Context mContext) {
         this.updatedServiceLists = updatedServiceLists;
@@ -116,9 +116,7 @@ public class UpdatedServiceAdapter extends RecyclerView.Adapter<UpdatedServiceAd
                     MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(mContext);
                     alertDialogBuilder.setTitle("Warning!")
                             .setMessage("Appointment Schedule already taken from this payment. You will not be able to update this payment.")
-                            .setPositiveButton("OK", (dialog, which) -> {
-                                dialog.dismiss();
-                            });
+                            .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
 
                     AlertDialog alert = alertDialogBuilder.create();
                     alert.setCancelable(false);

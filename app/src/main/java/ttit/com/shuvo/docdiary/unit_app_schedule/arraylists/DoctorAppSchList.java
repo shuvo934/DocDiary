@@ -6,17 +6,22 @@ public class DoctorAppSchList {
     private String patient_data;
     private String pat_name;
     private String pat_code;
+    private String pat_cell;
     private String pfn_fee_name;
     private String position;
+    private String calling_permission;
 
-    public DoctorAppSchList(String adm_date, String schedule_time, String patient_data, String pat_name, String pat_code, String pfn_fee_name, String position) {
+    public DoctorAppSchList(String adm_date, String schedule_time, String patient_data, String pat_name,
+                            String pat_code, String pat_cell, String pfn_fee_name, String position, String calling_permission) {
         this.adm_date = adm_date;
         this.schedule_time = schedule_time;
         this.patient_data = patient_data;
         this.pat_name = pat_name;
         this.pat_code = pat_code;
+        this.pat_cell = pat_cell;
         this.pfn_fee_name = pfn_fee_name;
         this.position = position;
+        this.calling_permission = calling_permission;
     }
 
     public String getAdm_date() {
@@ -73,5 +78,21 @@ public class DoctorAppSchList {
 
     public void setPosition(String position) {
         this.position = position;
+    }
+
+    public String getCalling_permission() {
+        return calling_permission;
+    }
+
+    public void setCalling_permission(String calling_permission) {
+        this.calling_permission = calling_permission;
+    }
+
+    public String getPat_cell() {
+        return pat_cell;
+    }
+
+    public void setPat_cell(String pat_cell) {
+        this.pat_cell = pat_cell;
     }
 }

@@ -16,7 +16,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -29,18 +28,19 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.PatReference;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.AdviceModify;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.ReferenceModify;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.arraylists.PatReferenceList;
 
 public class PatReferenceAdapter extends RecyclerView.Adapter<PatReferenceAdapter.PRAHolder> {
 
-    private ArrayList<PatReferenceList> mCategory;
-    private Context mContext;
+    private final ArrayList<PatReferenceList> mCategory;
+    private final Context mContext;
     private Boolean conn = false;
     private Boolean connected = false;
     String parsing_message = "";
@@ -49,6 +49,8 @@ public class PatReferenceAdapter extends RecyclerView.Adapter<PatReferenceAdapte
         this.mCategory = mCategory;
         this.mContext = mContext;
     }
+
+    Logger logger = Logger.getLogger("PatReferenceAdapter");
 
     @NonNull
     @Override
@@ -134,19 +136,19 @@ public class PatReferenceAdapter extends RecyclerView.Adapter<PatReferenceAdapte
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateAfterDeleteRef(pref_id,index);
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateAfterDeleteRef(pref_id,index);
         }) {
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
+            public Map<String, String> getHeaders() {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("P_PREF_ID",pref_id);
                 return headers;
@@ -164,7 +166,7 @@ public class PatReferenceAdapter extends RecyclerView.Adapter<PatReferenceAdapte
                 Toast.makeText(mContext,"Reference Deleted Successfully",Toast.LENGTH_SHORT).show();
                 mCategory.remove(pos);
                 notifyDataSetChanged();
-                if (mCategory.size() == 0) {
+                if (mCategory.isEmpty()) {
                     PatReference.noRefMsg.setVisibility(View.VISIBLE);
                 }
                 else {

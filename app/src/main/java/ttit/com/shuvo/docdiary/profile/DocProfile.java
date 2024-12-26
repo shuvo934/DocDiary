@@ -3,6 +3,7 @@ package ttit.com.shuvo.docdiary.profile;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.userInfoLists;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,18 +21,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
+import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.jakewharton.processphoenix.ProcessPhoenix;
-import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,9 +38,10 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import ttit.com.shuvo.docdiary.R;
@@ -101,6 +101,8 @@ public class DocProfile extends AppCompatActivity {
 
     ImageView editAddress;
 
+    Logger logger = Logger.getLogger(DocProfile.class.getName());
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -137,7 +139,7 @@ public class DocProfile extends AppCompatActivity {
             restart("Could Not Get Doctor Data. Please Restart the App.");
         }
         else {
-            if (userInfoLists.size() == 0) {
+            if (userInfoLists.isEmpty()) {
                 restart("Could Not Get Doctor Data. Please Restart the App.");
             }
             else {
@@ -204,9 +206,14 @@ public class DocProfile extends AppCompatActivity {
 
         cameraCap.setOnClickListener(v -> {
             onResumeLoad = false;
-            CropImage.activity()
-                    .setGuidelines(CropImageView.Guidelines.ON)
-                    .start(DocProfile.this);
+//            CropImage.activity()
+//                    .setGuidelines(CropImageView.Guidelines.ON)
+//                    .start(DocProfile.this);
+            ImagePicker.with(this)
+                    .crop()
+                    .compress(1024)
+                    .maxResultSize(1080,1080)
+                    .start(1113);
         });
 
         editAddress.setOnClickListener(v -> {
@@ -219,6 +226,19 @@ public class DocProfile extends AppCompatActivity {
             intent.putExtra("DISTRICT",dist_name);
             startActivity(intent);
         });
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (loading) {
+                    Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    finish();
+                }
+            }
+        });
+
     }
 
     @Override
@@ -238,37 +258,52 @@ public class DocProfile extends AppCompatActivity {
 
     }
 
-    @Override
-    public void onBackPressed() {
-        if (loading) {
-            Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
-        }
-        else {
-            super.onBackPressed();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//
+//    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-            CropImage.ActivityResult result = CropImage.getActivityResult(data);
-            if (resultCode == RESULT_OK) {
-                assert result != null;
-                Uri resultUri = result.getUri();
-                try {
-                    selectedBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri);
-                    System.out.println("UPLOADED PIC");
+//        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+//            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+//            if (resultCode == RESULT_OK) {
+//                assert result != null;
+//                Uri resultUri = result.getUri();
+//                try {
+//                    selectedBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri);
+//                    System.out.println("UPLOADED PIC");
+//
+//                    updateUserImage();
+//
+//                } catch (IOException e) {
+//                    logger.log(Level.WARNING,e.getMessage(),e);
+//                }
+//            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+//                assert result != null;
+//                Exception error = result.getError();
+//                logger.log(Level.WARNING,error.getMessage(),error);
+//            }
+//        }
+        if (requestCode == 1113) {
+            if (resultCode == AppCompatActivity.RESULT_OK) {
+                if (data != null) {
+                    Uri resultUri = data.getData();
+                    try {
+                        selectedBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri);
+                        System.out.println("UPLOADED PIC");
 
-                    updateUserImage();
+                        updateUserImage();
 
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    } catch (IOException e) {
+                        logger.log(Level.WARNING,e.getMessage(),e);
+                        Toast.makeText(getApplicationContext(),"Failed to upload image",Toast.LENGTH_SHORT).show();
+                    }
                 }
-            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                assert result != null;
-                Exception error = result.getError();
-                error.printStackTrace();
+            }
+            else {
+                Toast.makeText(getApplicationContext(),"Failed to get image",Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -280,7 +315,7 @@ public class DocProfile extends AppCompatActivity {
         connected = false;
         loading = true;
 
-        String url = pre_url_api+"doc_profile/getDocProfile?doc_id="+doc_id+"";
+        String url = pre_url_api+"doc_profile/getDocProfile?doc_id="+doc_id;
 
         RequestQueue requestQueue = Volley.newRequestQueue(DocProfile.this);
 
@@ -324,7 +359,7 @@ public class DocProfile extends AppCompatActivity {
 
                         String doc_profile_pic = docInfo.optString("doc_profile_pic");
 
-                        if (doc_profile_pic.equals("null") || doc_profile_pic.equals("") ) {
+                        if (doc_profile_pic.equals("null") || doc_profile_pic.isEmpty()) {
                             System.out.println("NULL IMAGE");
                             imageFound = false;
                         }
@@ -349,14 +384,14 @@ public class DocProfile extends AppCompatActivity {
             }
             catch (JSONException e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -515,13 +550,13 @@ public class DocProfile extends AppCompatActivity {
                 updateLayout();
             }
             catch (JSONException e) {
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 connected = false;
                 updateLayout();
             }
         }, error ->  {
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             conn = false;
             connected = false;
@@ -529,12 +564,12 @@ public class DocProfile extends AppCompatActivity {
         })
         {
             @Override
-            public byte[] getBody() throws AuthFailureError {
+            public byte[] getBody() {
                 return finalBArray;
             }
             @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> params = new HashMap<String, String>();
+            public Map<String, String> getHeaders() {
+                Map<String, String> params = new HashMap<>();
                 params.put("p_doc_id",doc_id);
                 return params;
             }

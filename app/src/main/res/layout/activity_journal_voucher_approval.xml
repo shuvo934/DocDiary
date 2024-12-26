@@ -1,0 +1,995 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".hr_accounts.vouch_approval.JournalVoucherApproval">
+
+    <LinearLayout
+        android:id="@+id/journal_voucher_approved_full_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:background="@color/light_green">
+
+        <RelativeLayout
+            android:id="@+id/app_bar_journal_voucher_approved"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/light_green"
+            android:padding="@dimen/_12sdp">
+
+            <ImageView
+                android:layout_width="@dimen/_19sdp"
+                android:layout_height="@dimen/_19sdp"
+                android:id="@+id/back_logo_of_journal_voucher_approved"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="@dimen/_12sdp"
+                android:src="@drawable/arrow_back"
+                app:tint="@color/white"
+                tools:ignore="ContentDescription" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="5dp"
+                android:layout_toEndOf="@+id/back_logo_of_journal_voucher_approved"
+                android:fontFamily="@font/poppins_bold"
+                android:text="@string/jva_bar_name"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_14sdp" />
+
+        </RelativeLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:cardElevation="3dp"
+            android:background="@color/white"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MaterialCardView.Cut">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/_4sdp"
+                    app:cardCornerRadius="@dimen/_8sdp"
+                    app:cardElevation="@dimen/_2sdp"
+                    app:cardBackgroundColor="@color/white">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/border_design_2"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:weightSum="10"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="4"
+                                android:text="Voucher Pending"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textSize="@dimen/_10sdp"
+                                android:layout_gravity="center"
+                                android:gravity="start"
+                                android:textColor="@color/default_text_color"
+                                android:layout_marginStart="@dimen/_4sdp"
+                                android:layout_marginEnd="@dimen/_4sdp"/>
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text=":"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textSize="@dimen/_10sdp"
+                                android:textColor="@color/default_text_color"
+                                android:layout_marginEnd="@dimen/_4sdp"/>
+
+                            <TextView
+                                android:id="@+id/journal_voucher_pending_total_count"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="5"
+                                android:text=""
+                                android:fontFamily="@font/poppins_bold"
+                                android:textSize="@dimen/_11sdp"
+                                android:layout_gravity="center"
+                                android:gravity="end"
+                                android:textColor="@color/red_dark"
+                                android:layout_marginEnd="@dimen/_4sdp"/>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:weightSum="10"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="4"
+                                android:text="Voucher Approved"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textSize="@dimen/_10sdp"
+                                android:layout_gravity="center"
+                                android:gravity="start"
+                                android:textColor="@color/default_text_color"
+                                android:layout_marginStart="@dimen/_4sdp"
+                                android:layout_marginEnd="@dimen/_4sdp"/>
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text=":"
+                                android:layout_gravity="center"
+                                android:gravity="center"
+                                android:fontFamily="@font/poppins_bold"
+                                android:textSize="@dimen/_10sdp"
+                                android:textColor="@color/default_text_color"
+                                android:layout_marginEnd="@dimen/_4sdp"/>
+
+                            <TextView
+                                android:id="@+id/journal_voucher_approved_total_count"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="5"
+                                android:text=""
+                                android:fontFamily="@font/poppins_bold"
+                                android:textSize="@dimen/_11sdp"
+                                android:layout_gravity="center"
+                                android:gravity="end"
+                                android:textColor="@color/green_sea"
+                                android:layout_marginEnd="@dimen/_4sdp"/>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:weightSum="10"
+                    android:layout_marginBottom="@dimen/_4sdp"
+                    android:orientation="horizontal">
+
+                    <androidx.cardview.widget.CardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2.5"
+                        android:layout_marginStart="@dimen/_4sdp"
+                        android:layout_marginEnd="@dimen/_4sdp"
+                        android:layout_marginTop="@dimen/_4sdp"
+                        android:layout_marginBottom="@dimen/_4sdp"
+                        app:cardCornerRadius="@dimen/_8sdp"
+                        app:cardElevation="@dimen/_2sdp"
+                        app:cardBackgroundColor="@color/light_green">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="1dp"
+                            app:boxCornerRadiusTopStart="@dimen/_8sdp"
+                            app:boxCornerRadiusTopEnd="@dimen/_8sdp"
+                            app:boxCornerRadiusBottomEnd="@dimen/_8sdp"
+                            app:boxCornerRadiusBottomStart="@dimen/_8sdp"
+                            app:boxBackgroundColor="@color/white"
+                            app:boxBackgroundMode="filled"
+                            app:boxStrokeWidth="0dp"
+                            android:clickable="true"
+                            android:focusable="false"
+                            app:endIconMode="none"
+                            app:startIconDrawable="@drawable/search_24"
+                            app:startIconTint="@color/black"
+                            android:hint="Select Voucher No">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/journal_voucher_search_text"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text=""
+                                android:inputType="text"
+                                android:clickable="true"
+                                android:focusable="false"
+                                android:fontFamily="@font/poppins_medium"
+                                android:textSize="@dimen/_9sdp"
+                                android:imeOptions="actionDone"
+                                android:textColor="@color/black"/>
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/journal_voucher_report_button"
+                        android:layout_width="match_parent"
+                        android:layout_weight="7.5"
+                        android:layout_height="match_parent"
+                        app:cardCornerRadius="@dimen/_8sdp"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="@dimen/_4sdp"
+                        android:layout_marginEnd="@dimen/_4sdp"
+                        android:layout_marginTop="@dimen/_4sdp"
+                        android:layout_marginBottom="@dimen/_4sdp"
+                        app:cardElevation="@dimen/_2sdp"
+                        android:foreground="?attr/selectableItemBackground"
+                        app:cardBackgroundColor="@color/light_green">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:orientation="horizontal"
+                            android:background="@drawable/border_design_2"
+                            tools:ignore="UseCompoundDrawables">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:fontFamily="@font/poppins_bold"
+                                android:text="REPORT"
+                                android:textColor="@color/white"
+                                android:textSize="@dimen/_9sdp"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                </LinearLayout>
+
+                <RelativeLayout
+                    android:id="@+id/journal_voucher_approved_details_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <ScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_above="@+id/journal_approve_disapprove_button_layout">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <androidx.cardview.widget.CardView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/_4sdp"
+                                android:layout_marginStart="@dimen/_4sdp"
+                                android:layout_marginEnd="@dimen/_4sdp"
+                                android:layout_marginBottom="@dimen/_4sdp"
+                                app:cardElevation="@dimen/_2sdp"
+                                app:cardBackgroundColor="@color/white"
+                                app:cardCornerRadius="@dimen/_8sdp">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical">
+
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:orientation="horizontal"
+                                        android:weightSum="1"
+                                        android:baselineAligned="false">
+
+                                        <com.google.android.material.textfield.TextInputLayout
+                                            android:layout_width="0dp"
+                                            android:layout_height="wrap_content"
+                                            android:hint="Date:"
+                                            android:layout_weight=".5"
+                                            android:layout_marginStart="@dimen/_4sdp"
+                                            android:layout_marginTop="@dimen/_4sdp"
+                                            android:layout_marginEnd="2.5dp"
+                                            app:boxStrokeWidth="0dp"
+                                            app:boxStrokeWidthFocused="0dp"
+                                            app:boxCornerRadiusTopStart="@dimen/_4sdp"
+                                            app:boxCornerRadiusTopEnd="@dimen/_4sdp"
+                                            app:boxCornerRadiusBottomEnd="@dimen/_4sdp"
+                                            app:boxCornerRadiusBottomStart="@dimen/_4sdp"
+                                            app:boxBackgroundMode="filled"
+                                            android:clickable="false"
+                                            android:enabled="false"
+                                            app:boxBackgroundColor="@color/white"
+                                            app:hintTextColor="@color/black">
+
+                                            <com.google.android.material.textfield.TextInputEditText
+                                                android:id="@+id/date_journal_approved"
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:ems="10"
+                                                android:clickable="false"
+                                                android:enabled="false"
+                                                android:textSize="@dimen/_9sdp"
+                                                android:fontFamily="@font/ubuntu_medium"
+                                                android:text=""
+                                                android:textStyle="bold"
+                                                android:textColor="@color/black"
+                                                android:inputType="textMultiLine" />
+
+                                        </com.google.android.material.textfield.TextInputLayout>
+
+                                        <com.google.android.material.textfield.TextInputLayout
+                                            android:layout_width="0dp"
+                                            android:layout_height="wrap_content"
+                                            android:hint="Time:"
+                                            android:layout_weight=".5"
+                                            android:layout_marginStart="2.5dp"
+                                            android:layout_marginEnd="@dimen/_4sdp"
+                                            android:layout_marginTop="@dimen/_4sdp"
+                                            app:boxStrokeWidth="0dp"
+                                            app:boxStrokeWidthFocused="0dp"
+                                            app:boxCornerRadiusTopStart="@dimen/_4sdp"
+                                            app:boxCornerRadiusTopEnd="@dimen/_4sdp"
+                                            app:boxCornerRadiusBottomEnd="@dimen/_4sdp"
+                                            app:boxCornerRadiusBottomStart="@dimen/_4sdp"
+                                            app:boxBackgroundMode="filled"
+                                            android:clickable="false"
+                                            android:enabled="false"
+                                            app:boxBackgroundColor="@color/white"
+                                            app:hintTextColor="@color/black">
+
+                                            <com.google.android.material.textfield.TextInputEditText
+                                                android:id="@+id/time_journal_approved"
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:ems="10"
+                                                android:clickable="false"
+                                                android:enabled="false"
+                                                android:textSize="@dimen/_9sdp"
+                                                android:fontFamily="@font/ubuntu_medium"
+                                                android:text=""
+                                                android:textStyle="bold"
+                                                android:textColor="@color/black"
+                                                android:inputType="textMultiLine" />
+
+                                        </com.google.android.material.textfield.TextInputLayout>
+
+                                    </LinearLayout>
+
+                                    <com.google.android.material.textfield.TextInputLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:hint="Prepared By:"
+                                        android:layout_marginStart="@dimen/_4sdp"
+                                        android:layout_marginEnd="@dimen/_4sdp"
+                                        android:layout_marginTop="@dimen/_4sdp"
+                                        app:boxStrokeWidth="0dp"
+                                        app:boxStrokeWidthFocused="0dp"
+                                        app:boxCornerRadiusTopStart="@dimen/_4sdp"
+                                        app:boxCornerRadiusTopEnd="@dimen/_4sdp"
+                                        app:boxCornerRadiusBottomEnd="@dimen/_4sdp"
+                                        app:boxCornerRadiusBottomStart="@dimen/_4sdp"
+                                        app:boxBackgroundMode="filled"
+                                        android:clickable="false"
+                                        android:enabled="false"
+                                        app:boxBackgroundColor="@color/white"
+                                        app:hintTextColor="@color/black">
+
+                                        <com.google.android.material.textfield.TextInputEditText
+                                            android:id="@+id/prepared_by_journal_approved"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:ems="10"
+                                            android:clickable="false"
+                                            android:enabled="false"
+                                            android:textSize="@dimen/_9sdp"
+                                            android:fontFamily="@font/ubuntu_medium"
+                                            android:text=""
+                                            android:textStyle="bold"
+                                            android:textColor="@color/black"
+                                            android:inputType="textMultiLine" />
+
+                                    </com.google.android.material.textfield.TextInputLayout>
+
+                                    <com.google.android.material.textfield.TextInputLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:hint="Status:"
+                                        android:layout_marginStart="@dimen/_4sdp"
+                                        android:layout_marginEnd="@dimen/_4sdp"
+                                        android:layout_marginTop="@dimen/_4sdp"
+                                        app:boxStrokeWidth="0dp"
+                                        app:boxStrokeWidthFocused="0dp"
+                                        app:boxCornerRadiusTopStart="@dimen/_4sdp"
+                                        app:boxCornerRadiusTopEnd="@dimen/_4sdp"
+                                        app:boxCornerRadiusBottomEnd="@dimen/_4sdp"
+                                        app:boxCornerRadiusBottomStart="@dimen/_4sdp"
+                                        app:boxBackgroundMode="filled"
+                                        android:clickable="false"
+                                        android:focusable="false"
+                                        android:enabled="true"
+                                        app:boxBackgroundColor="#ffeaa7"
+                                        app:hintTextColor="@color/default_text_color"
+                                        android:textColorHint="@color/default_text_color">
+
+                                        <com.google.android.material.textfield.TextInputEditText
+                                            android:id="@+id/status_journal_approved"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:ems="10"
+                                            android:clickable="false"
+                                            android:focusable="false"
+                                            android:enabled="false"
+                                            android:textSize="@dimen/_9sdp"
+                                            android:fontFamily="@font/ubuntu_medium"
+                                            android:text=""
+                                            android:textStyle="bold"
+                                            android:textColor="@color/black"
+                                            android:textColorHint="@color/default_text_color"
+                                            android:inputType="textMultiLine" />
+
+                                    </com.google.android.material.textfield.TextInputLayout>
+
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:orientation="horizontal"
+                                        android:weightSum="1"
+                                        android:baselineAligned="false">
+
+                                        <com.google.android.material.textfield.TextInputLayout
+                                            android:layout_width="0dp"
+                                            android:layout_height="wrap_content"
+                                            android:hint="Bill Ref No:"
+                                            android:layout_weight=".5"
+                                            android:layout_marginStart="@dimen/_4sdp"
+                                            android:layout_marginTop="@dimen/_4sdp"
+                                            android:layout_marginEnd="2.5dp"
+                                            app:boxStrokeWidth="0dp"
+                                            app:boxStrokeWidthFocused="0dp"
+                                            app:boxCornerRadiusTopStart="@dimen/_4sdp"
+                                            app:boxCornerRadiusTopEnd="@dimen/_4sdp"
+                                            app:boxCornerRadiusBottomEnd="@dimen/_4sdp"
+                                            app:boxCornerRadiusBottomStart="@dimen/_4sdp"
+                                            app:boxBackgroundMode="filled"
+                                            android:clickable="false"
+                                            android:enabled="false"
+                                            app:boxBackgroundColor="@color/white"
+                                            app:hintTextColor="@color/black">
+
+                                            <com.google.android.material.textfield.TextInputEditText
+                                                android:id="@+id/bill_ref_no_journal_approved"
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:ems="10"
+                                                android:clickable="false"
+                                                android:enabled="false"
+                                                android:textSize="@dimen/_9sdp"
+                                                android:fontFamily="@font/ubuntu_medium"
+                                                android:text=""
+                                                android:textStyle="bold"
+                                                android:textColor="@color/black"
+                                                android:inputType="textMultiLine" />
+
+                                        </com.google.android.material.textfield.TextInputLayout>
+
+                                        <com.google.android.material.textfield.TextInputLayout
+                                            android:layout_width="0dp"
+                                            android:layout_height="wrap_content"
+                                            android:hint="Bill Ref Date:"
+                                            android:layout_weight=".5"
+                                            android:layout_marginStart="2.5dp"
+                                            android:layout_marginEnd="@dimen/_4sdp"
+                                            android:layout_marginTop="@dimen/_4sdp"
+                                            app:boxStrokeWidth="0dp"
+                                            app:boxStrokeWidthFocused="0dp"
+                                            app:boxCornerRadiusTopStart="@dimen/_4sdp"
+                                            app:boxCornerRadiusTopEnd="@dimen/_4sdp"
+                                            app:boxCornerRadiusBottomEnd="@dimen/_4sdp"
+                                            app:boxCornerRadiusBottomStart="@dimen/_4sdp"
+                                            app:boxBackgroundMode="filled"
+                                            android:clickable="false"
+                                            android:enabled="false"
+                                            app:boxBackgroundColor="@color/white"
+                                            app:hintTextColor="@color/black">
+
+                                            <com.google.android.material.textfield.TextInputEditText
+                                                android:id="@+id/bill_ref_date_journal_approved"
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:ems="10"
+                                                android:clickable="false"
+                                                android:enabled="false"
+                                                android:textSize="@dimen/_9sdp"
+                                                android:fontFamily="@font/ubuntu_medium"
+                                                android:text=""
+                                                android:textStyle="bold"
+                                                android:textColor="@color/black"
+                                                android:inputType="textMultiLine" />
+
+                                        </com.google.android.material.textfield.TextInputLayout>
+
+                                    </LinearLayout>
+
+                                    <com.google.android.material.textfield.TextInputLayout
+                                        android:id="@+id/app_or_disapp_journal_approved_layout"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:hint="Approved By:"
+                                        android:layout_marginStart="@dimen/_4sdp"
+                                        android:layout_marginEnd="@dimen/_4sdp"
+                                        android:layout_marginTop="@dimen/_4sdp"
+                                        app:boxStrokeWidth="0dp"
+                                        app:boxStrokeWidthFocused="0dp"
+                                        app:boxCornerRadiusTopStart="@dimen/_4sdp"
+                                        app:boxCornerRadiusTopEnd="@dimen/_4sdp"
+                                        app:boxCornerRadiusBottomEnd="@dimen/_4sdp"
+                                        app:boxCornerRadiusBottomStart="@dimen/_4sdp"
+                                        app:boxBackgroundMode="filled"
+                                        android:clickable="false"
+                                        android:enabled="false"
+                                        app:boxBackgroundColor="@color/white"
+                                        app:hintTextColor="@color/black">
+
+                                        <com.google.android.material.textfield.TextInputEditText
+                                            android:id="@+id/app_or_disapp_journal_approved"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:ems="10"
+                                            android:clickable="false"
+                                            android:enabled="false"
+                                            android:textSize="@dimen/_9sdp"
+                                            android:fontFamily="@font/ubuntu_medium"
+                                            android:text=""
+                                            android:textStyle="bold"
+                                            android:textColor="@color/black"
+                                            android:inputType="textMultiLine" />
+
+                                    </com.google.android.material.textfield.TextInputLayout>
+
+                                    <com.google.android.material.textfield.TextInputLayout
+                                        android:id="@+id/app_or_disapp_time_journal_approved_layout"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:hint="Approved Time:"
+                                        android:layout_marginStart="@dimen/_4sdp"
+                                        android:layout_marginEnd="@dimen/_4sdp"
+                                        android:layout_marginTop="@dimen/_4sdp"
+                                        app:boxStrokeWidth="0dp"
+                                        app:boxStrokeWidthFocused="0dp"
+                                        app:boxCornerRadiusTopStart="@dimen/_4sdp"
+                                        app:boxCornerRadiusTopEnd="@dimen/_4sdp"
+                                        app:boxCornerRadiusBottomEnd="@dimen/_4sdp"
+                                        app:boxCornerRadiusBottomStart="@dimen/_4sdp"
+                                        app:boxBackgroundMode="filled"
+                                        android:clickable="false"
+                                        android:enabled="false"
+                                        app:boxBackgroundColor="@color/white"
+                                        app:hintTextColor="@color/black">
+
+                                        <com.google.android.material.textfield.TextInputEditText
+                                            android:id="@+id/app_or_disapp_time_journal_approved"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:ems="10"
+                                            android:clickable="false"
+                                            android:enabled="false"
+                                            android:textSize="@dimen/_9sdp"
+                                            android:fontFamily="@font/ubuntu_medium"
+                                            android:text=""
+                                            android:textStyle="bold"
+                                            android:textColor="@color/black"
+                                            android:inputType="textMultiLine" />
+
+                                    </com.google.android.material.textfield.TextInputLayout>
+
+                                    <com.google.android.material.textfield.TextInputLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:hint="Narration:"
+                                        android:layout_marginStart="@dimen/_4sdp"
+                                        android:layout_marginEnd="@dimen/_4sdp"
+                                        android:layout_marginTop="@dimen/_4sdp"
+                                        android:layout_marginBottom="@dimen/_4sdp"
+                                        app:boxStrokeWidth="0dp"
+                                        app:boxStrokeWidthFocused="0dp"
+                                        app:boxCornerRadiusTopStart="@dimen/_4sdp"
+                                        app:boxCornerRadiusTopEnd="@dimen/_4sdp"
+                                        app:boxCornerRadiusBottomEnd="@dimen/_4sdp"
+                                        app:boxCornerRadiusBottomStart="@dimen/_4sdp"
+                                        app:boxBackgroundMode="filled"
+                                        android:clickable="false"
+                                        android:enabled="false"
+                                        app:boxBackgroundColor="@color/white"
+                                        app:hintTextColor="@color/black">
+
+                                        <com.google.android.material.textfield.TextInputEditText
+                                            android:id="@+id/narration_journal_approved"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:ems="10"
+                                            android:clickable="false"
+                                            android:enabled="false"
+                                            android:textSize="@dimen/_9sdp"
+                                            android:fontFamily="@font/ubuntu_medium"
+                                            android:text=""
+                                            android:textStyle="bold"
+                                            android:textColor="@color/black"
+                                            android:inputType="textMultiLine" />
+
+                                    </com.google.android.material.textfield.TextInputLayout>
+
+                                    <HorizontalScrollView
+                                        android:id="@+id/horizontal_scroll_dva"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:descendantFocusability="beforeDescendants"
+                                        android:focusable="true"
+                                        android:layout_marginTop="5dp"
+                                        android:focusableInTouchMode="true"
+                                        android:scrollbars="horizontal">
+
+                                        <LinearLayout
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:orientation="vertical">
+
+                                            <View
+                                                android:layout_width="match_parent"
+                                                android:layout_height="1dp"
+                                                android:layout_marginStart="5dp"
+                                                android:layout_marginEnd="5dp"
+                                                android:background="@color/green_sea"/>
+
+                                            <LinearLayout
+                                                android:layout_width="wrap_content"
+                                                android:layout_height="wrap_content"
+                                                android:orientation="horizontal"
+                                                android:layout_gravity="center"
+                                                android:gravity="center"
+                                                android:layout_marginStart="5dp"
+                                                android:layout_marginEnd="5dp"
+                                                android:background="@color/green_sea">
+
+                                                <View
+                                                    android:layout_width="1dp"
+                                                    android:layout_height="match_parent"
+                                                    android:background="@color/green_sea"/>
+
+                                                <TextView
+                                                    android:layout_width="80dp"
+                                                    android:layout_height="wrap_content"
+                                                    android:layout_gravity="center"
+                                                    android:layout_marginStart="5dp"
+                                                    android:layout_marginEnd="5dp"
+                                                    android:gravity="center"
+                                                    android:text="A/C No"
+                                                    android:textColor="@color/white"
+                                                    android:paddingTop="@dimen/_2sdp"
+                                                    android:paddingBottom="@dimen/_2sdp"
+                                                    android:fontFamily="@font/archivo_bold"
+                                                    android:textSize="@dimen/_9sdp"
+                                                    android:textStyle="bold" />
+
+                                                <View
+                                                    android:layout_width="1dp"
+                                                    android:layout_height="match_parent"
+                                                    android:background="@android:color/white"/>
+
+                                                <TextView
+                                                    android:layout_width="180dp"
+                                                    android:layout_height="wrap_content"
+                                                    android:layout_gravity="center"
+                                                    android:layout_marginStart="5dp"
+                                                    android:layout_marginEnd="5dp"
+                                                    android:gravity="center"
+                                                    android:text="A/C Details"
+                                                    android:textColor="@color/white"
+                                                    android:paddingTop="@dimen/_2sdp"
+                                                    android:paddingBottom="@dimen/_2sdp"
+                                                    android:fontFamily="@font/archivo_bold"
+                                                    android:textSize="@dimen/_9sdp"
+                                                    android:textStyle="bold" />
+
+                                                <View
+                                                    android:layout_width="1dp"
+                                                    android:layout_height="match_parent"
+                                                    android:background="@android:color/white"/>
+
+                                                <TextView
+                                                    android:layout_width="100dp"
+                                                    android:layout_height="wrap_content"
+                                                    android:layout_gravity="center"
+                                                    android:layout_marginStart="5dp"
+                                                    android:layout_marginEnd="5dp"
+                                                    android:gravity="center"
+                                                    android:text="Cheque No."
+                                                    android:textColor="@color/white"
+                                                    android:paddingTop="@dimen/_2sdp"
+                                                    android:paddingBottom="@dimen/_2sdp"
+                                                    android:fontFamily="@font/archivo_bold"
+                                                    android:textSize="@dimen/_9sdp"
+                                                    android:textStyle="bold" />
+
+                                                <View
+                                                    android:layout_width="1dp"
+                                                    android:layout_height="match_parent"
+                                                    android:background="@android:color/white"/>
+
+                                                <TextView
+                                                    android:layout_width="100dp"
+                                                    android:layout_height="wrap_content"
+                                                    android:layout_gravity="center"
+                                                    android:layout_marginStart="5dp"
+                                                    android:layout_marginEnd="5dp"
+                                                    android:gravity="center"
+                                                    android:text="Cheque Date"
+                                                    android:textColor="@color/white"
+                                                    android:paddingTop="@dimen/_2sdp"
+                                                    android:paddingBottom="@dimen/_2sdp"
+                                                    android:fontFamily="@font/archivo_bold"
+                                                    android:textSize="@dimen/_9sdp"
+                                                    android:textStyle="bold" />
+
+                                                <View
+                                                    android:layout_width="1dp"
+                                                    android:layout_height="match_parent"
+                                                    android:background="@android:color/white"/>
+
+                                                <TextView
+                                                    android:layout_width="100dp"
+                                                    android:layout_height="wrap_content"
+                                                    android:layout_gravity="center"
+                                                    android:layout_marginStart="5dp"
+                                                    android:layout_marginEnd="5dp"
+                                                    android:gravity="center"
+                                                    android:text="Debit"
+                                                    android:textColor="@color/white"
+                                                    android:paddingTop="@dimen/_2sdp"
+                                                    android:paddingBottom="@dimen/_2sdp"
+                                                    android:fontFamily="@font/archivo_bold"
+                                                    android:textSize="@dimen/_9sdp"
+                                                    android:textStyle="bold" />
+
+                                                <View
+                                                    android:layout_width="1dp"
+                                                    android:layout_height="match_parent"
+                                                    android:background="@android:color/white"/>
+
+                                                <TextView
+                                                    android:layout_width="100dp"
+                                                    android:layout_height="wrap_content"
+                                                    android:layout_gravity="center"
+                                                    android:layout_marginStart="5dp"
+                                                    android:layout_marginEnd="5dp"
+                                                    android:gravity="center"
+                                                    android:text="Credit"
+                                                    android:textColor="@color/white"
+                                                    android:paddingTop="@dimen/_2sdp"
+                                                    android:paddingBottom="@dimen/_2sdp"
+                                                    android:fontFamily="@font/archivo_bold"
+                                                    android:textSize="@dimen/_9sdp"
+                                                    android:textStyle="bold" />
+
+                                                <View
+                                                    android:layout_width="1dp"
+                                                    android:layout_height="match_parent"
+                                                    android:background="@color/green_sea"/>
+
+                                            </LinearLayout>
+
+                                            <View
+                                                android:layout_width="match_parent"
+                                                android:layout_height="1dp"
+                                                android:layout_marginStart="5dp"
+                                                android:layout_marginEnd="5dp"
+                                                android:background="@android:color/black"/>
+
+                                            <RelativeLayout
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:layout_marginStart="5dp"
+                                                android:layout_marginEnd="5dp">
+
+                                                <androidx.recyclerview.widget.RecyclerView
+                                                    android:id="@+id/journal_voucher_approved_transaction_view"
+                                                    android:layout_width="match_parent"
+                                                    android:layout_height="wrap_content"
+                                                    android:scrollbars="vertical"
+                                                    android:descendantFocusability="beforeDescendants"
+                                                    android:focusable="true"
+                                                    android:focusableInTouchMode="true" />
+
+                                            </RelativeLayout>
+
+                                            <View
+                                                android:layout_width="match_parent"
+                                                android:layout_height="1dp"
+                                                android:layout_marginStart="5dp"
+                                                android:layout_marginEnd="5dp"
+                                                android:background="@android:color/black"/>
+
+                                            <RelativeLayout
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:layout_marginStart="5dp"
+                                                android:layout_marginEnd="5dp"
+                                                android:background="@android:color/white">
+
+                                                <View
+                                                    android:id="@+id/first_line_jva"
+                                                    android:layout_width="1dp"
+                                                    android:layout_height="match_parent"
+                                                    android:layout_alignParentStart="true"
+                                                    android:layout_alignParentTop="true"
+                                                    android:background="@android:color/black"/>
+
+                                                <View
+                                                    android:id="@+id/after_debit_text_jva"
+                                                    android:layout_width="1dp"
+                                                    android:layout_toStartOf="@+id/total_debit_jva"
+                                                    android:layout_alignParentTop="true"
+                                                    android:layout_height="match_parent"
+                                                    android:background="@android:color/black"/>
+
+                                                <TextView
+                                                    android:id="@+id/total_debit_jva"
+                                                    android:layout_width="100dp"
+                                                    android:layout_height="wrap_content"
+                                                    android:layout_gravity="center"
+                                                    android:layout_marginStart="5dp"
+                                                    android:layout_marginEnd="5dp"
+                                                    android:gravity="center"
+                                                    android:text="Debit"
+                                                    android:layout_toStartOf="@+id/after_credit_text_jva"
+                                                    android:textColor="@color/black"
+                                                    android:paddingTop="@dimen/_2sdp"
+                                                    android:paddingBottom="@dimen/_2sdp"
+                                                    android:fontFamily="@font/poppins_bold"
+                                                    android:textSize="@dimen/_10sdp"
+                                                    android:textStyle="bold" />
+
+                                                <View
+                                                    android:id="@+id/after_credit_text_jva"
+                                                    android:layout_width="1dp"
+                                                    android:layout_toStartOf="@+id/total_credit_jva"
+                                                    android:layout_alignParentTop="true"
+                                                    android:layout_height="match_parent"
+                                                    android:background="@android:color/black"/>
+
+                                                <TextView
+                                                    android:id="@+id/total_credit_jva"
+                                                    android:layout_width="100dp"
+                                                    android:layout_height="wrap_content"
+                                                    android:layout_gravity="center"
+                                                    android:layout_marginStart="5dp"
+                                                    android:layout_marginEnd="5dp"
+                                                    android:gravity="center"
+                                                    android:text="Credit"
+                                                    android:layout_toStartOf="@+id/last_line_jva"
+                                                    android:textColor="@color/black"
+                                                    android:paddingTop="@dimen/_2sdp"
+                                                    android:paddingBottom="@dimen/_2sdp"
+                                                    android:fontFamily="@font/poppins_bold"
+                                                    android:textSize="@dimen/_10sdp"
+                                                    android:textStyle="bold" />
+
+                                                <View
+                                                    android:id="@+id/last_line_jva"
+                                                    android:layout_width="1dp"
+                                                    android:layout_alignParentEnd="true"
+                                                    android:layout_alignParentTop="true"
+                                                    android:layout_height="match_parent"
+                                                    android:background="@android:color/black"/>
+
+                                            </RelativeLayout>
+
+                                            <View
+                                                android:layout_width="match_parent"
+                                                android:layout_height="1dp"
+                                                android:layout_marginStart="5dp"
+                                                android:layout_marginEnd="5dp"
+                                                android:layout_marginBottom="5dp"
+                                                android:background="@android:color/black"/>
+
+                                        </LinearLayout>
+
+                                    </HorizontalScrollView>
+
+                                </LinearLayout>
+
+                            </androidx.cardview.widget.CardView>
+
+                        </LinearLayout>
+
+                    </ScrollView>
+
+                    <LinearLayout
+                        android:id="@+id/journal_approve_disapprove_button_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentBottom="true">
+
+                        <Button
+                            android:id="@+id/approve_button_jva"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/_8sdp"
+                            android:layout_weight=".5"
+                            android:layout_marginBottom="@dimen/_8sdp"
+                            android:layout_marginTop="@dimen/_8sdp"
+                            android:layout_marginEnd="@dimen/_8sdp"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:text="Approve"
+                            android:fontFamily="@font/patua_one"
+                            android:background="@drawable/custom_button"
+                            android:textSize="@dimen/_13sdp"
+                            android:textStyle="bold"
+                            android:textColor="@color/white"/>
+
+                        <Button
+                            android:id="@+id/reject_button_jva"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/_8sdp"
+                            android:layout_weight=".5"
+                            android:layout_marginBottom="@dimen/_8sdp"
+                            android:layout_marginTop="@dimen/_8sdp"
+                            android:layout_marginEnd="@dimen/_8sdp"
+                            android:visibility="visible"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:text="Disapprove"
+                            android:fontFamily="@font/patua_one"
+                            android:background="@drawable/custom_button"
+                            android:textSize="@dimen/_13sdp"
+                            android:textStyle="bold"
+                            android:textColor="@color/white"/>
+
+                    </LinearLayout>
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progress_indicator_journal_voucher_approved"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:indeterminate="true"
+        android:layout_gravity="center"/>
+
+</RelativeLayout>
