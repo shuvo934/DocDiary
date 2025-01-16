@@ -21,6 +21,7 @@
     <string name="inc_exp_bar_name">Income/Expense Statement</string>
     <string name="daily_state_bar_name">Daily Statement</string>
     <string name="acc_ledger">Account Ledger</string>
+    <string name="acc_ledger_pat">Account Ledger (Patient)</string>
     <string name="cva_bar_name">Credit Voucher Approval</string>
     <string name="dva_bar_name">Debit Voucher Approval</string>
     <string name="jva_bar_name">Journal Voucher Approval</string>
@@ -32,4 +33,5 @@
     <string name="att_approve_bar_name">Attendance Update Approval</string>
     <string name="le_record_bar_name">Leave Record</string>
     <string name="le_approve_bar_name">Leave Approval</string>
+    <string name="lv_bal_bar_name">Leave Balance</string>
 </resources>

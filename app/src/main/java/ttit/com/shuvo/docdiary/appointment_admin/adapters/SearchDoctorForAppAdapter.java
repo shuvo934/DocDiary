@@ -36,7 +36,8 @@ public class SearchDoctorForAppAdapter extends RecyclerView.Adapter<SearchDoctor
     @Override
     public void onBindViewHolder(@NonNull SDFAHolder holder, int position) {
         DoctorForAppList pa = mCategoryItem.get(position);
-        holder.doctorName.setText(pa.getDoc_name());
+        String dc = pa.getDoc_name() + " (" + pa.getDoc_code()+")";
+        holder.doctorName.setText(dc);
         holder.doctorDesig.setText(pa.getDesig_name());
         holder.doctorUnit.setText(pa.getDepts_name());
         holder.doctorDepart.setText(pa.getDeptd_name());

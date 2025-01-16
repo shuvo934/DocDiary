@@ -8,8 +8,9 @@ public class EmployeeList {
     private String jsm_dept_id;
     private String jsm_desig_id;
     private String job_calling_title;
+    private String coa_name;
 
-    public EmployeeList(String emp_id, String emp_code, String emp_name, String jsm_divm_id, String jsm_dept_id, String jsm_desig_id, String job_calling_title) {
+    public EmployeeList(String emp_id, String emp_code, String emp_name, String jsm_divm_id, String jsm_dept_id, String jsm_desig_id, String job_calling_title, String coa_name) {
         this.emp_id = emp_id;
         this.emp_code = emp_code;
         this.emp_name = emp_name;
@@ -17,6 +18,7 @@ public class EmployeeList {
         this.jsm_dept_id = jsm_dept_id;
         this.jsm_desig_id = jsm_desig_id;
         this.job_calling_title = job_calling_title;
+        this.coa_name = coa_name;
     }
 
     public String getEmp_id() {
@@ -73,5 +75,13 @@ public class EmployeeList {
 
     public void setJob_calling_title(String job_calling_title) {
         this.job_calling_title = job_calling_title;
+    }
+
+    public String getCoa_name() {
+        return coa_name;
+    }
+
+    public void setCoa_name(String coa_name) {
+        this.coa_name = coa_name;
     }
 }

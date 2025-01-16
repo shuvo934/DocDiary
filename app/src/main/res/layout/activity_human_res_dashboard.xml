@@ -326,6 +326,7 @@
                                             android:layout_alignParentEnd="true"
                                             android:layout_alignParentTop="true"
                                             android:layout_alignParentBottom="true"
+                                            android:foreground="?attr/selectableItemBackground"
                                             android:layout_marginTop="@dimen/_4sdp"
                                             android:layout_marginBottom="@dimen/_4sdp"
                                             android:layout_marginStart="@dimen/_4sdp"

@@ -30,7 +30,6 @@
                 android:layout_height="@dimen/_19sdp"
                 android:id="@+id/back_logo_of_leave_record"
                 android:layout_centerVertical="true"
-                android:layout_marginStart="@dimen/_12sdp"
                 android:src="@drawable/arrow_back"
                 app:tint="@color/white"
                 tools:ignore="ContentDescription" />
@@ -39,13 +38,42 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="5dp"
+                android:layout_marginStart="@dimen/_12sdp"
+                android:layout_marginEnd="@dimen/_4sdp"
                 android:layout_toEndOf="@+id/back_logo_of_leave_record"
                 android:fontFamily="@font/poppins_bold"
                 android:text="@string/le_record_bar_name"
                 android:textColor="@color/white"
                 android:textSize="@dimen/_14sdp" />
+
+            <LinearLayout
+                android:id="@+id/branch_selection_for_lv_rec"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="@dimen/_16sdp"
+                    android:layout_height="@dimen/_18sdp"
+                    android:src="@drawable/hospital_icon"
+                    app:tint="@color/white"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:id="@+id/selected_branch_name_lv_rec"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/white"
+                    android:text="None"
+                    android:fontFamily="@font/archivo_bold"
+                    android:textSize="@dimen/_8sdp"
+                    android:layout_gravity="center"
+                    android:padding="@dimen/_2sdp"
+                    android:layout_marginStart="@dimen/_2sdp"/>
+
+            </LinearLayout>
 
         </RelativeLayout>
 
@@ -380,19 +408,21 @@
                             android:textColor="@color/white"/>
 
                         <TextView
+                            android:id="@+id/all_leave_status_emp_lv_rec"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1.6"
                             android:layout_gravity="center"
                             android:text="STATUS"
                             android:gravity="center"
+                            android:foreground="?attr/selectableItemBackground"
                             android:layout_marginStart="@dimen/_4sdp"
                             android:layout_marginEnd="@dimen/_4sdp"
                             android:layout_marginTop="@dimen/_2sdp"
                             android:layout_marginBottom="@dimen/_2sdp"
                             android:fontFamily="@font/poppins_bold"
                             android:textSize="@dimen/_9sdp"
-                            android:textColor="@color/white"/>
+                            android:textColor="#f6e58d"/>
 
                     </LinearLayout>
 

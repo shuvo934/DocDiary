@@ -12,6 +12,9 @@
     <item android:title="@string/le_record_bar_name"
         android:id="@+id/leave_record_hr_menu"
         android:icon="@drawable/leave"/>
+    <item android:title="@string/lv_bal_bar_name"
+        android:id="@+id/leave_balance_hr_menu"
+        android:icon="@drawable/lv_bal"/>
     <item android:title="@string/le_approve_bar_name"
         android:id="@+id/leave_approve_hr_menu"
         android:icon="@drawable/leave_app"/>

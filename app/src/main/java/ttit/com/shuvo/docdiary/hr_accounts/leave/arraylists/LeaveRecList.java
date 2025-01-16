@@ -15,8 +15,10 @@ public class LeaveRecList {
     private String jsm_divm_id;
     private String jsm_dept_id;
     private String jsm_desig_id;
+    private String coa_name;
+    private String coa_id;
 
-    public LeaveRecList(String la_id, String la_app_code, String la_approved, String la_date, String leave_type, String la_from_date, String la_to_date, String la_leave_days, String emp_name, String emp_id, String job_calling_title, String jsm_divm_id, String jsm_dept_id, String jsm_desig_id) {
+    public LeaveRecList(String la_id, String la_app_code, String la_approved, String la_date, String leave_type, String la_from_date, String la_to_date, String la_leave_days, String emp_name, String emp_id, String job_calling_title, String jsm_divm_id, String jsm_dept_id, String jsm_desig_id, String coa_name, String coa_id) {
         this.la_id = la_id;
         this.la_app_code = la_app_code;
         this.la_approved = la_approved;
@@ -31,6 +33,8 @@ public class LeaveRecList {
         this.jsm_divm_id = jsm_divm_id;
         this.jsm_dept_id = jsm_dept_id;
         this.jsm_desig_id = jsm_desig_id;
+        this.coa_name = coa_name;
+        this.coa_id = coa_id;
     }
 
     public String getLa_id() {
@@ -143,5 +147,21 @@ public class LeaveRecList {
 
     public void setJsm_desig_id(String jsm_desig_id) {
         this.jsm_desig_id = jsm_desig_id;
+    }
+
+    public String getCoa_name() {
+        return coa_name;
+    }
+
+    public void setCoa_name(String coa_name) {
+        this.coa_name = coa_name;
+    }
+
+    public String getCoa_id() {
+        return coa_id;
+    }
+
+    public void setCoa_id(String coa_id) {
+        this.coa_id = coa_id;
     }
 }

@@ -18,15 +18,18 @@ import java.util.ArrayList;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.hr_accounts.leave.LeaveApproval;
+import ttit.com.shuvo.docdiary.hr_accounts.leave.LeaveBalance;
 import ttit.com.shuvo.docdiary.hr_accounts.leave.arraylists.LeaveRecList;
 
 public class LeaveRecordAdapter extends RecyclerView.Adapter<LeaveRecordAdapter.LRAHolder> {
     public ArrayList<LeaveRecList> mCategoryItem;
     public Context myContext;
+    public String last_date;
 
-    public LeaveRecordAdapter(ArrayList<LeaveRecList> mCategoryItem, Context myContext) {
+    public LeaveRecordAdapter(ArrayList<LeaveRecList> mCategoryItem, Context myContext,String last_date) {
         this.mCategoryItem = mCategoryItem;
         this.myContext = myContext;
+        this.last_date = last_date;
     }
 
     @NonNull
@@ -42,6 +45,16 @@ public class LeaveRecordAdapter extends RecyclerView.Adapter<LeaveRecordAdapter.
 
         holder.empName.setText(leaveRecList.getEmp_name());
         holder.empDesignation.setText(leaveRecList.getJob_calling_title());
+        if (leaveRecList.getCoa_name().isEmpty()) {
+            holder.empLocation.setVisibility(View.GONE);
+            holder.empLocation.setText("");
+        }
+        else {
+            holder.empLocation.setVisibility(View.VISIBLE);
+            String tt = "("+leaveRecList.getCoa_name()+")";
+            holder.empLocation.setText(tt);
+        }
+
         holder.leaveType.setText(leaveRecList.getLeave_type());
         String ld;
         if (leaveRecList.getLa_from_date().equals(leaveRecList.getLa_to_date())) {
@@ -143,6 +156,7 @@ public class LeaveRecordAdapter extends RecyclerView.Adapter<LeaveRecordAdapter.
     public class LRAHolder extends RecyclerView.ViewHolder {
         TextView empName;
         TextView empDesignation;
+        TextView empLocation;
         TextView leaveType;
         TextView leaveDate;
         TextView leaveDays;
@@ -153,6 +167,7 @@ public class LeaveRecordAdapter extends RecyclerView.Adapter<LeaveRecordAdapter.
             super(itemView);
             empName = itemView.findViewById(R.id.emp_name_lv_rec);
             empDesignation = itemView.findViewById(R.id.emp_designation_lv_rec);
+            empLocation = itemView.findViewById(R.id.emp_pri_location_lv_rec);
             leaveType = itemView.findViewById(R.id.leave_type_lv_rec);
             leaveDate = itemView.findViewById(R.id.leave_date_lv_rec);
             leaveDays = itemView.findViewById(R.id.leave_days_lv_rec);
@@ -167,6 +182,17 @@ public class LeaveRecordAdapter extends RecyclerView.Adapter<LeaveRecordAdapter.
                     intent.putExtra("LA_EMP_ID", mCategoryItem.get(getAdapterPosition()).getEmp_id());
                     intent.putExtra("LA_APP_CODE", mCategoryItem.get(getAdapterPosition()).getLa_app_code());
                     intent.putExtra("FLAG", 1);
+                    activity.startActivity(intent);
+                }
+                else {
+                    AppCompatActivity activity = (AppCompatActivity) view.getContext();
+                    Intent intent = new Intent(myContext, LeaveBalance.class);
+                    intent.putExtra("COA_ID", mCategoryItem.get(getAdapterPosition()).getCoa_id());
+                    intent.putExtra("DIV_ID", mCategoryItem.get(getAdapterPosition()).getJsm_divm_id());
+                    intent.putExtra("DEPT_ID", mCategoryItem.get(getAdapterPosition()).getJsm_dept_id());
+                    intent.putExtra("DESIG_ID", mCategoryItem.get(getAdapterPosition()).getJsm_desig_id());
+                    intent.putExtra("EMP_ID", mCategoryItem.get(getAdapterPosition()).getEmp_id());
+                    intent.putExtra("LAST_DATE", last_date);
                     activity.startActivity(intent);
                 }
             });

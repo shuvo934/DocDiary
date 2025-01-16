@@ -49,11 +49,9 @@ import org.json.JSONObject;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -66,6 +64,7 @@ import ttit.com.shuvo.docdiary.hr_accounts.dashboards.adapters.LeaveHRAdapter;
 import ttit.com.shuvo.docdiary.hr_accounts.dashboards.arraylists.DateWiseLeaveList;
 import ttit.com.shuvo.docdiary.hr_accounts.dashboards.arraylists.EmpWiseLeaveList;
 import ttit.com.shuvo.docdiary.hr_accounts.leave.LeaveApproval;
+import ttit.com.shuvo.docdiary.hr_accounts.leave.LeaveBalance;
 import ttit.com.shuvo.docdiary.hr_accounts.leave.LeaveRecord;
 
 public class HumanResDashboard extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -721,34 +720,44 @@ public class HumanResDashboard extends AppCompatActivity implements NavigationVi
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.daily_attendance_hr_menu) {
-            Intent intent = new Intent(HumanResDashboard.this, DailyAttendance.class);
-            startActivity(intent);
-            item.setChecked(true);
-        }
-        else if (item.getItemId() == R.id.emp_wise_attendance_hr_menu) {
-            Intent intent = new Intent(HumanResDashboard.this, EmpWiseAttendance.class);
-            startActivity(intent);
-            item.setChecked(true);
-        }
-        else if (item.getItemId() == R.id.leave_record_hr_menu) {
-            Intent intent = new Intent(HumanResDashboard.this, LeaveRecord.class);
-            startActivity(intent);
-            item.setChecked(true);
-        }
-        else if (item.getItemId() == R.id.leave_approve_hr_menu) {
-            Intent intent = new Intent(HumanResDashboard.this, LeaveApproval.class);
-            intent.putExtra("FLAG",0);
-            startActivity(intent);
-            item.setChecked(true);
-        }
-        else if (item.getItemId() == R.id.att_update_approve_hr_menu) {
-            Intent intent = new Intent(HumanResDashboard.this, AttendanceUpdateReqApproval.class);
-            startActivity(intent);
-            item.setChecked(true);
+        if (loading) {
+            Toast.makeText(HumanResDashboard.this, "Please wait while loading", Toast.LENGTH_SHORT).show();
         }
         else {
-            Toast.makeText(getApplicationContext(),"No Menu Selected",Toast.LENGTH_SHORT).show();
+            if (item.getItemId() == R.id.daily_attendance_hr_menu) {
+                Intent intent = new Intent(HumanResDashboard.this, DailyAttendance.class);
+                startActivity(intent);
+                item.setChecked(true);
+            }
+            else if (item.getItemId() == R.id.emp_wise_attendance_hr_menu) {
+                Intent intent = new Intent(HumanResDashboard.this, EmpWiseAttendance.class);
+                startActivity(intent);
+                item.setChecked(true);
+            }
+            else if (item.getItemId() == R.id.leave_record_hr_menu) {
+                Intent intent = new Intent(HumanResDashboard.this, LeaveRecord.class);
+                startActivity(intent);
+                item.setChecked(true);
+            }
+            else if (item.getItemId() == R.id.leave_approve_hr_menu) {
+                Intent intent = new Intent(HumanResDashboard.this, LeaveApproval.class);
+                intent.putExtra("FLAG", 0);
+                startActivity(intent);
+                item.setChecked(true);
+            }
+            else if (item.getItemId() == R.id.leave_balance_hr_menu) {
+                Intent intent = new Intent(HumanResDashboard.this, LeaveBalance.class);
+                startActivity(intent);
+                item.setChecked(true);
+            }
+            else if (item.getItemId() == R.id.att_update_approve_hr_menu) {
+                Intent intent = new Intent(HumanResDashboard.this, AttendanceUpdateReqApproval.class);
+                startActivity(intent);
+                item.setChecked(true);
+            }
+            else {
+                Toast.makeText(getApplicationContext(), "No Menu Selected", Toast.LENGTH_SHORT).show();
+            }
         }
         drawerLayout.closeDrawer(GravityCompat.END);
         return true;

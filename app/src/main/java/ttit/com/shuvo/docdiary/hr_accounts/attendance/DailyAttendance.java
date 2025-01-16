@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -16,6 +17,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,6 +56,7 @@ import devs.mulham.horizontalcalendar.utils.HorizontalCalendarListener;
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.arraylists.MonthSelectionList;
 import ttit.com.shuvo.docdiary.hr_accounts.attendance.adapters.DailyAttendanceAdapter;
+import ttit.com.shuvo.docdiary.hr_accounts.attendance.araylists.BranchList;
 import ttit.com.shuvo.docdiary.hr_accounts.attendance.araylists.DailyAttendanceList;
 import ttit.com.shuvo.docdiary.hr_accounts.attendance.araylists.DepartmentList;
 import ttit.com.shuvo.docdiary.hr_accounts.attendance.araylists.DivisionList;
@@ -67,6 +70,10 @@ public class DailyAttendance extends AppCompatActivity {
 
     ImageView backButton;
 
+    LinearLayout branchSelect;
+    TextView branchName;
+    ArrayList<BranchList> branchLists;
+
     AppCompatAutoCompleteTextView divisionSelect;
     ArrayList<DivisionList> divisionLists;
 
@@ -79,6 +86,7 @@ public class DailyAttendance extends AppCompatActivity {
     AppCompatAutoCompleteTextView employeeSelect;
     ArrayList<EmployeeList> employeeLists;
     ArrayList<EmployeeList> filteredEmpLists;
+    TextView empCount;
 
     MaterialButton preMonthButton, nextMonthButton;
     TextView selectedMonthName;
@@ -97,6 +105,7 @@ public class DailyAttendance extends AppCompatActivity {
 
     TextView noDa;
 
+    String branch_id = "";
     String selected_div_id = "";
     String selected_dept_id = "";
     String selected_emp_id = "";
@@ -109,6 +118,8 @@ public class DailyAttendance extends AppCompatActivity {
     String parsing_message = "";
 
     Logger logger = Logger.getLogger(DailyAttendance.class.getName());
+
+    PopupMenu popupMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,6 +136,12 @@ public class DailyAttendance extends AppCompatActivity {
 
         backButton = findViewById(R.id.back_logo_of_daily_attendance);
 
+        branchSelect = findViewById(R.id.branch_selection_for_da);
+        branchName = findViewById(R.id.selected_branch_name_da);
+        branchLists = new ArrayList<>();
+
+        popupMenu = new PopupMenu(DailyAttendance.this, branchSelect);
+
         divisionSelect = findViewById(R.id.division_select_for_da);
         divisionLists = new ArrayList<>();
 
@@ -137,6 +154,7 @@ public class DailyAttendance extends AppCompatActivity {
         employeeSelectLay = findViewById(R.id.spinner_layout_emp_select_for_da);
         employeeSelectLay.setEnabled(false);
         employeeSelect = findViewById(R.id.emp_select_for_da);
+        empCount = findViewById(R.id.emp_count_in_da);
         employeeLists = new ArrayList<>();
         filteredEmpLists = new ArrayList<>();
 
@@ -245,7 +263,12 @@ public class DailyAttendance extends AppCompatActivity {
                     }
                 }
 
-                getDailyAttendance();
+                if (branch_id.isEmpty()) {
+                    getDailyAttendance();
+                }
+                else {
+                    getBranchWiseAttendance();
+                }
             }
 
         });
@@ -318,6 +341,45 @@ public class DailyAttendance extends AppCompatActivity {
                 }
             }
         });
+
+        popupMenu.setOnMenuItemClickListener(menuItem -> {
+            selected_div_id = "";
+            divisionSelect.setText("");
+            divisionLists = new ArrayList<>();
+
+            selected_dept_id = "";
+            departmentSelect.setText("");
+            departmentSelectLay.setEnabled(false);
+            filteredDepartmentLists = new ArrayList<>();
+
+            selected_emp_id = "";
+            employeeSelect.setText("");
+            employeeSelectLay.setEnabled(false);
+            filteredEmpLists = new ArrayList<>();
+
+            filteredList = new ArrayList<>();
+            String branch_name = "";
+            for (int i = 0; i <branchLists.size(); i++) {
+                if (String.valueOf(menuItem.getItemId()).equals(branchLists.get(i).getId())) {
+
+                    branch_id = branchLists.get(i).getId();
+                    branch_name = branchLists.get(i).getName();
+                }
+            }
+
+            branchName.setText(branch_name);
+
+            if (branch_id.equals("30")) {
+                branch_id = "";
+                getAllData();
+            }
+            else {
+                getBranchWiseData();
+            }
+            return false;
+        });
+
+        branchSelect.setOnClickListener(view -> popupMenu.show());
 
         divisionSelect.setOnItemClickListener((parent, view, position, id) -> {
             selected_dept_id = "";
@@ -450,9 +512,10 @@ public class DailyAttendance extends AppCompatActivity {
                             String status = dailyAttendanceLists.get(i).getStatus();
                             String late_status = dailyAttendanceLists.get(i).getLate_status();
                             String early_status = dailyAttendanceLists.get(i).getEarly_status();
+                            String coa_name = dailyAttendanceLists.get(i).getCoa_name();
 
                             filteredList.add(new DailyAttendanceList(emp_id, emp_code,emp_name,job_calling_title,jsm_divm_id,
-                                    jsm_dept_id,jsm_desig_id,osm_name,in_time,out_time,status,late_status,early_status));
+                                    jsm_dept_id,jsm_desig_id,osm_name,in_time,out_time,status,late_status,early_status,coa_name));
                         }
                     }
 
@@ -465,7 +528,7 @@ public class DailyAttendance extends AppCompatActivity {
 
                     filteredList = new ArrayList<>();
 
-                    filteredEmpLists.add(new EmployeeList("","","...","","","",""));
+                    filteredEmpLists.add(new EmployeeList("","","...","","","","",""));
                     for (int i = 0; i < employeeLists.size(); i++) {
                         if (selected_div_id.equals(employeeLists.get(i).getJsm_divm_id()) && selected_dept_id.equals(employeeLists.get(i).getJsm_dept_id())) {
                             String emp_id = employeeLists.get(i).getEmp_id();
@@ -476,7 +539,7 @@ public class DailyAttendance extends AppCompatActivity {
                             String jsm_desig_id = employeeLists.get(i).getJsm_desig_id();
                             String job_calling_title = employeeLists.get(i).getJob_calling_title();
 
-                            filteredEmpLists.add(new EmployeeList(emp_id,emp_code,emp_name,jsm_divm_id,jsm_dept_id,jsm_desig_id,job_calling_title));
+                            filteredEmpLists.add(new EmployeeList(emp_id,emp_code,emp_name,jsm_divm_id,jsm_dept_id,jsm_desig_id,job_calling_title,""));
                         }
                     }
 
@@ -487,6 +550,9 @@ public class DailyAttendance extends AppCompatActivity {
 
                     ArrayAdapter<String> arrayAdapter1 = new ArrayAdapter<>(DailyAttendance.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type1);
                     employeeSelect.setAdapter(arrayAdapter1);
+
+                    String emp_count = String.valueOf(filteredEmpLists.size()-1);
+                    empCount.setText(emp_count);
 
                     for (int i = 0; i < dailyAttendanceLists.size(); i++) {
                         if (selected_div_id.equals(dailyAttendanceLists.get(i).getJsm_divm_id()) && selected_dept_id.equals(dailyAttendanceLists.get(i).getJsm_dept_id())) {
@@ -503,9 +569,10 @@ public class DailyAttendance extends AppCompatActivity {
                             String status = dailyAttendanceLists.get(i).getStatus();
                             String late_status = dailyAttendanceLists.get(i).getLate_status();
                             String early_status = dailyAttendanceLists.get(i).getEarly_status();
+                            String coa_name = dailyAttendanceLists.get(i).getCoa_name();
 
                             filteredList.add(new DailyAttendanceList(emp_id, emp_code,emp_name,job_calling_title,jsm_divm_id,
-                                    jsm_dept_id,jsm_desig_id,osm_name,in_time,out_time,status,late_status,early_status));
+                                    jsm_dept_id,jsm_desig_id,osm_name,in_time,out_time,status,late_status,early_status,coa_name));
                         }
                     }
 
@@ -551,6 +618,16 @@ public class DailyAttendance extends AppCompatActivity {
                 ArrayAdapter<String> arrayAdapter1 = new ArrayAdapter<>(DailyAttendance.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type1);
                 employeeSelect.setAdapter(arrayAdapter1);
 
+                int count = 0;
+                for (int i = 0; i < employeeLists.size(); i++) {
+                    if (selected_div_id.equals(employeeLists.get(i).getJsm_divm_id())) {
+                        count++;
+                    }
+                }
+
+                String emp_count = String.valueOf(count);
+                empCount.setText(emp_count);
+
                 for (int i = 0; i < dailyAttendanceLists.size(); i++) {
                     if (selected_div_id.equals(dailyAttendanceLists.get(i).getJsm_divm_id())) {
                         String emp_id = dailyAttendanceLists.get(i).getEmp_id();
@@ -566,15 +643,23 @@ public class DailyAttendance extends AppCompatActivity {
                         String status = dailyAttendanceLists.get(i).getStatus();
                         String late_status = dailyAttendanceLists.get(i).getLate_status();
                         String early_status = dailyAttendanceLists.get(i).getEarly_status();
+                        String coa_name = dailyAttendanceLists.get(i).getCoa_name();
 
                         filteredList.add(new DailyAttendanceList(emp_id, emp_code,emp_name,job_calling_title,jsm_divm_id,
-                                jsm_dept_id,jsm_desig_id,osm_name,in_time,out_time,status,late_status,early_status));
+                                jsm_dept_id,jsm_desig_id,osm_name,in_time,out_time,status,late_status,early_status,coa_name));
                     }
                 }
 
             }
 
-            dailyAttendanceAdapter = new DailyAttendanceAdapter(DailyAttendance.this,filteredList);
+            String bd;
+            if (branch_id.equals("30")) {
+                bd = "";
+            }
+            else {
+                bd = branch_id;
+            }
+            dailyAttendanceAdapter = new DailyAttendanceAdapter(DailyAttendance.this,filteredList,bd);
             daListView.setAdapter(dailyAttendanceAdapter);
             if (filteredList.isEmpty()) {
                 noDa.setVisibility(View.VISIBLE);
@@ -611,8 +696,17 @@ public class DailyAttendance extends AppCompatActivity {
 
             ArrayAdapter<String> arrayAdapter1 = new ArrayAdapter<>(DailyAttendance.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type1);
             employeeSelect.setAdapter(arrayAdapter1);
+            String emp_count = String.valueOf(employeeLists.size());
+            empCount.setText(emp_count);
 
-            dailyAttendanceAdapter = new DailyAttendanceAdapter(DailyAttendance.this,dailyAttendanceLists);
+            String bd;
+            if (branch_id.equals("30")) {
+                bd = "";
+            }
+            else {
+                bd = branch_id;
+            }
+            dailyAttendanceAdapter = new DailyAttendanceAdapter(DailyAttendance.this,dailyAttendanceLists,bd);
             daListView.setAdapter(dailyAttendanceAdapter);
 
             if (dailyAttendanceLists.isEmpty()) {
@@ -637,6 +731,7 @@ public class DailyAttendance extends AppCompatActivity {
         conn = false;
         connected = false;
 
+        branchLists = new ArrayList<>();
         divisionLists = new ArrayList<>();
         departmentLists = new ArrayList<>();
         filteredDepartmentLists = new ArrayList<>();
@@ -645,6 +740,7 @@ public class DailyAttendance extends AppCompatActivity {
         dailyAttendanceLists = new ArrayList<>();
         filteredList = new ArrayList<>();
 
+        String brnUrl = pre_url_api+"hrm_dashboard/getBranches";
         String divUrl = pre_url_api+"hrm_dashboard/getDivision";
         String depUrl = pre_url_api+"hrm_dashboard/getDepartment";
         String empUrl = pre_url_api+"hrm_dashboard/getEmployee";
@@ -689,9 +785,11 @@ public class DailyAttendance extends AppCompatActivity {
                                 .equals("null") ? "" :info.getString("late_status");
                         String early_status = info.getString("early_status")
                                 .equals("null") ? "" :info.getString("early_status");
+                        String coa_name = info.getString("coa_name")
+                                .equals("null") ? "" :info.getString("coa_name");
 
                         dailyAttendanceLists.add(new DailyAttendanceList(emp_id,emp_code,emp_name,job_calling_title,jsm_divm_id,jsm_dept_id,jsm_desig_id,
-                                osm_name,in_time,out_time,status,late_status,early_status));
+                                osm_name,in_time,out_time,status,late_status,early_status,coa_name));
                     }
                 }
                 connected = true;
@@ -737,7 +835,7 @@ public class DailyAttendance extends AppCompatActivity {
                         String job_calling_title = info.getString("job_calling_title")
                                 .equals("null") ? "" :info.getString("job_calling_title");
 
-                        employeeLists.add(new EmployeeList(emp_id,emp_code,emp_name,jsm_divm_id,jsm_dept_id,jsm_desig_id,job_calling_title));
+                        employeeLists.add(new EmployeeList(emp_id,emp_code,emp_name,jsm_divm_id,jsm_dept_id,jsm_desig_id,job_calling_title,""));
                     }
                 }
                 requestQueue.add(daReq);
@@ -829,7 +927,43 @@ public class DailyAttendance extends AppCompatActivity {
             updateInterface();
         });
 
-        requestQueue.add(divReq);
+        StringRequest brnReq = new StringRequest(Request.Method.GET, brnUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    branchLists.add(new BranchList("30","None"));
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject info = array.getJSONObject(i);
+
+                        String coa_id = info.getString("coa_id")
+                                .equals("null") ? "" :info.getString("coa_id");
+                        String coa_name = info.getString("coa_name")
+                                .equals("null") ? "" :info.getString("coa_name");
+
+                        branchLists.add(new BranchList(coa_id,coa_name));
+                    }
+                }
+                requestQueue.add(divReq);
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateInterface();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateInterface();
+        });
+
+        requestQueue.add(brnReq);
 
     }
 
@@ -839,6 +973,14 @@ public class DailyAttendance extends AppCompatActivity {
 
                 conn = false;
                 connected = false;
+
+                popupMenu.getMenuInflater().inflate(R.menu.branch_menu, popupMenu.getMenu());
+
+                Menu menu = popupMenu.getMenu();
+                menu.clear();
+                for(int i = 0; i < branchLists.size(); i++) {
+                    menu.add(0,Integer.parseInt(branchLists.get(i).getId()),Menu.NONE,branchLists.get(i).getName());
+                }
 
                 ArrayList<String> type = new ArrayList<>();
                 for(int i = 0; i < divisionLists.size(); i++) {
@@ -890,6 +1032,292 @@ public class DailyAttendance extends AppCompatActivity {
                 .setPositiveButton("Retry", (dialog, which) -> {
                     loading = false;
                     getAllData();
+                    dialog.dismiss();
+                })
+                .setNegativeButton("Cancel",(dialog, which) -> {
+                    loading = false;
+                    dialog.dismiss();
+                    finish();
+                });
+
+        AlertDialog alert = alertDialogBuilder.create();
+        alert.setCancelable(false);
+        alert.setCanceledOnTouchOutside(false);
+        try {
+            alert.show();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
+    }
+
+    public void getBranchWiseData() {
+        loading = true;
+        try {
+            waitProgress.show(getSupportFragmentManager(), "WaitBar");
+            waitProgress.setCancelable(false);
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
+
+        conn = false;
+        connected = false;
+
+        divisionLists = new ArrayList<>();
+        departmentLists = new ArrayList<>();
+        filteredDepartmentLists = new ArrayList<>();
+        employeeLists = new ArrayList<>();
+        filteredEmpLists = new ArrayList<>();
+        dailyAttendanceLists = new ArrayList<>();
+        filteredList = new ArrayList<>();
+
+        String divUrl = pre_url_api+"hrm_dashboard/getDivisionWithCoa?p_coa_id="+branch_id;
+        String depUrl = pre_url_api+"hrm_dashboard/getDepartmentWithCoa?p_coa_id="+branch_id;
+        String empUrl = pre_url_api+"hrm_dashboard/getEmployeeWithCoa?p_coa_id="+branch_id;
+        String daUrl = pre_url_api+"hrm_dashboard/getDailyAttendanceWithCoa?p_date="+selected_date+"&p_coa_id="+branch_id;
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        StringRequest daReq = new StringRequest(Request.Method.GET, daUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject info = array.getJSONObject(i);
+
+                        String emp_id = info.getString("emp_id")
+                                .equals("null") ? "" :info.getString("emp_id");
+                        String emp_code = info.getString("emp_code")
+                                .equals("null") ? "" :info.getString("emp_code");
+                        String emp_name = info.getString("emp_name")
+                                .equals("null") ? "" :info.getString("emp_name");
+                        String job_calling_title = info.getString("job_calling_title")
+                                .equals("null") ? "" :info.getString("job_calling_title");
+                        String jsm_divm_id = info.getString("jsm_divm_id")
+                                .equals("null") ? "" :info.getString("jsm_divm_id");
+                        String jsm_dept_id = info.getString("jsm_dept_id")
+                                .equals("null") ? "" :info.getString("jsm_dept_id");
+                        String jsm_desig_id = info.getString("jsm_desig_id")
+                                .equals("null") ? "" :info.getString("jsm_desig_id");
+                        String osm_name = info.getString("osm_name")
+                                .equals("null") ? "" :info.getString("osm_name");
+                        String in_time = info.getString("in_time")
+                                .equals("null") ? "" :info.getString("in_time");
+                        String out_time = info.getString("out_time")
+                                .equals("null") ? "" :info.getString("out_time");
+                        String status = info.getString("status")
+                                .equals("null") ? "" :info.getString("status");
+                        String late_status = info.getString("late_status")
+                                .equals("null") ? "" :info.getString("late_status");
+                        String early_status = info.getString("early_status")
+                                .equals("null") ? "" :info.getString("early_status");
+                        String coa_name = info.getString("coa_name")
+                                .equals("null") ? "" :info.getString("coa_name");
+
+                        dailyAttendanceLists.add(new DailyAttendanceList(emp_id,emp_code,emp_name,job_calling_title,jsm_divm_id,jsm_dept_id,jsm_desig_id,
+                                osm_name,in_time,out_time,status,late_status,early_status,coa_name));
+                    }
+                }
+                connected = true;
+                updateInterfaceCoa();
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateInterfaceCoa();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateInterfaceCoa();
+        });
+
+        StringRequest empReq = new StringRequest(Request.Method.GET, empUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject info = array.getJSONObject(i);
+
+                        String emp_id = info.getString("emp_id")
+                                .equals("null") ? "" :info.getString("emp_id");
+                        String emp_code = info.getString("emp_code")
+                                .equals("null") ? "" :info.getString("emp_code");
+                        String emp_name = info.getString("emp_name")
+                                .equals("null") ? "" :info.getString("emp_name");
+                        String jsm_divm_id = info.getString("jsm_divm_id")
+                                .equals("null") ? "" :info.getString("jsm_divm_id");
+                        String jsm_dept_id = info.getString("jsm_dept_id")
+                                .equals("null") ? "" :info.getString("jsm_dept_id");
+                        String jsm_desig_id = info.getString("jsm_desig_id")
+                                .equals("null") ? "" :info.getString("jsm_desig_id");
+                        String job_calling_title = info.getString("job_calling_title")
+                                .equals("null") ? "" :info.getString("job_calling_title");
+
+                        employeeLists.add(new EmployeeList(emp_id,emp_code,emp_name,jsm_divm_id,jsm_dept_id,jsm_desig_id,job_calling_title,""));
+                    }
+                }
+                requestQueue.add(daReq);
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateInterfaceCoa();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateInterfaceCoa();
+        });
+
+        StringRequest depReq = new StringRequest(Request.Method.GET, depUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject info = array.getJSONObject(i);
+
+                        String dept_id = info.getString("dept_id")
+                                .equals("null") ? "" :info.getString("dept_id");
+                        String dept_name = info.getString("dept_name")
+                                .equals("null") ? "" :info.getString("dept_name");
+                        String dept_divm_id = info.getString("dept_divm_id")
+                                .equals("null") ? "" :info.getString("dept_divm_id");
+
+                        departmentLists.add(new DepartmentList(dept_id,dept_name,dept_divm_id));
+                    }
+                }
+                requestQueue.add(empReq);
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateInterfaceCoa();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateInterfaceCoa();
+        });
+
+        StringRequest divReq = new StringRequest(Request.Method.GET, divUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    divisionLists.add(new DivisionList("","..."));
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject info = array.getJSONObject(i);
+
+                        String divm_id = info.getString("divm_id")
+                                .equals("null") ? "" :info.getString("divm_id");
+                        String divm_name = info.getString("divm_name")
+                                .equals("null") ? "" :info.getString("divm_name");
+
+                        divisionLists.add(new DivisionList(divm_id,divm_name));
+                    }
+                }
+                requestQueue.add(depReq);
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateInterfaceCoa();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateInterfaceCoa();
+        });
+
+        requestQueue.add(divReq);
+    }
+
+    private void updateInterfaceCoa() {
+        if (conn) {
+            if (connected) {
+
+                conn = false;
+                connected = false;
+
+                ArrayList<String> type = new ArrayList<>();
+                for(int i = 0; i < divisionLists.size(); i++) {
+                    type.add(divisionLists.get(i).getDivm_name());
+                }
+
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(DailyAttendance.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
+                divisionSelect.setAdapter(arrayAdapter);
+
+                filterAll();
+
+                loading = false;
+                try {
+                    waitProgress.dismiss();
+                }
+                catch (Exception e) {
+                    restart("App is paused for a long time. Please Start the app again.");
+                }
+
+            }
+            else {
+                alertMessageCoa();
+            }
+        }
+        else {
+            alertMessageCoa();
+        }
+    }
+
+    public void alertMessageCoa() {
+        try {
+            waitProgress.dismiss();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
+
+        if (parsing_message != null) {
+            if (parsing_message.isEmpty() || parsing_message.equals("null")) {
+                parsing_message = "Server problem or Internet not connected";
+            }
+        }
+        else {
+            parsing_message = "Server problem or Internet not connected";
+        }
+        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DailyAttendance.this);
+        alertDialogBuilder.setTitle("Error!")
+                .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
+                .setPositiveButton("Retry", (dialog, which) -> {
+                    loading = false;
+                    getBranchWiseData();
                     dialog.dismiss();
                 })
                 .setNegativeButton("Cancel",(dialog, which) -> {
@@ -966,9 +1394,11 @@ public class DailyAttendance extends AppCompatActivity {
                                 .equals("null") ? "" :info.getString("late_status");
                         String early_status = info.getString("early_status")
                                 .equals("null") ? "" :info.getString("early_status");
+                        String coa_name = info.getString("coa_name")
+                                .equals("null") ? "" :info.getString("coa_name");
 
                         dailyAttendanceLists.add(new DailyAttendanceList(emp_id,emp_code,emp_name,job_calling_title,jsm_divm_id,jsm_dept_id,jsm_desig_id,
-                                osm_name,in_time,out_time,status,late_status,early_status));
+                                osm_name,in_time,out_time,status,late_status,early_status,coa_name));
                     }
                 }
                 connected = true;
@@ -1040,6 +1470,158 @@ public class DailyAttendance extends AppCompatActivity {
                 .setPositiveButton("Retry", (dialog, which) -> {
                     loading = false;
                     getDailyAttendance();
+                    dialog.dismiss();
+                })
+                .setNegativeButton("Cancel",(dialog, which) -> {
+                    loading = false;
+                    dialog.dismiss();
+                    finish();
+                });
+
+        AlertDialog alert = alertDialogBuilder.create();
+        alert.setCancelable(false);
+        alert.setCanceledOnTouchOutside(false);
+        try {
+            alert.show();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
+    }
+
+    public void getBranchWiseAttendance() {
+        loading = true;
+        try {
+            waitProgress.show(getSupportFragmentManager(), "WaitBar");
+            waitProgress.setCancelable(false);
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
+
+        conn = false;
+        connected = false;
+
+        dailyAttendanceLists = new ArrayList<>();
+        filteredList = new ArrayList<>();
+
+        String daUrl = pre_url_api+"hrm_dashboard/getDailyAttendanceWithCoa?p_date="+selected_date+"&p_coa_id="+branch_id;
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        StringRequest daReq = new StringRequest(Request.Method.GET, daUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject info = array.getJSONObject(i);
+
+                        String emp_id = info.getString("emp_id")
+                                .equals("null") ? "" :info.getString("emp_id");
+                        String emp_code = info.getString("emp_code")
+                                .equals("null") ? "" :info.getString("emp_code");
+                        String emp_name = info.getString("emp_name")
+                                .equals("null") ? "" :info.getString("emp_name");
+                        String job_calling_title = info.getString("job_calling_title")
+                                .equals("null") ? "" :info.getString("job_calling_title");
+                        String jsm_divm_id = info.getString("jsm_divm_id")
+                                .equals("null") ? "" :info.getString("jsm_divm_id");
+                        String jsm_dept_id = info.getString("jsm_dept_id")
+                                .equals("null") ? "" :info.getString("jsm_dept_id");
+                        String jsm_desig_id = info.getString("jsm_desig_id")
+                                .equals("null") ? "" :info.getString("jsm_desig_id");
+                        String osm_name = info.getString("osm_name")
+                                .equals("null") ? "" :info.getString("osm_name");
+                        String in_time = info.getString("in_time")
+                                .equals("null") ? "" :info.getString("in_time");
+                        String out_time = info.getString("out_time")
+                                .equals("null") ? "" :info.getString("out_time");
+                        String status = info.getString("status")
+                                .equals("null") ? "" :info.getString("status");
+                        String late_status = info.getString("late_status")
+                                .equals("null") ? "" :info.getString("late_status");
+                        String early_status = info.getString("early_status")
+                                .equals("null") ? "" :info.getString("early_status");
+                        String coa_name = info.getString("coa_name")
+                                .equals("null") ? "" :info.getString("coa_name");
+
+                        dailyAttendanceLists.add(new DailyAttendanceList(emp_id,emp_code,emp_name,job_calling_title,jsm_divm_id,jsm_dept_id,jsm_desig_id,
+                                osm_name,in_time,out_time,status,late_status,early_status,coa_name));
+                    }
+                }
+                connected = true;
+                updateLayoutCoa();
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateLayoutCoa();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateLayoutCoa();
+        });
+
+        requestQueue.add(daReq);
+
+    }
+
+    private void updateLayoutCoa() {
+        if (conn) {
+            if (connected) {
+                conn = false;
+                connected = false;
+
+                filterAll();
+
+                loading = false;
+                try {
+                    waitProgress.dismiss();
+                }
+                catch (Exception e) {
+                    restart("App is paused for a long time. Please Start the app again.");
+                }
+
+            }
+            else {
+                alertMessageDaCoa();
+            }
+        }
+        else {
+            alertMessageDaCoa();
+        }
+    }
+
+    public void alertMessageDaCoa() {
+        try {
+            waitProgress.dismiss();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
+
+        if (parsing_message != null) {
+            if (parsing_message.isEmpty() || parsing_message.equals("null")) {
+                parsing_message = "Server problem or Internet not connected";
+            }
+        }
+        else {
+            parsing_message = "Server problem or Internet not connected";
+        }
+        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DailyAttendance.this);
+        alertDialogBuilder.setTitle("Error!")
+                .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
+                .setPositiveButton("Retry", (dialog, which) -> {
+                    loading = false;
+                    getBranchWiseAttendance();
                     dialog.dismiss();
                 })
                 .setNegativeButton("Cancel",(dialog, which) -> {

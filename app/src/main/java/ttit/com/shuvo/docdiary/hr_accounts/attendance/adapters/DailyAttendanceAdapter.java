@@ -16,7 +16,6 @@ import com.google.android.material.card.MaterialCardView;
 import java.util.ArrayList;
 
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
 import ttit.com.shuvo.docdiary.hr_accounts.attendance.EmpWiseAttendance;
 import ttit.com.shuvo.docdiary.hr_accounts.attendance.araylists.DailyAttendanceList;
 
@@ -24,10 +23,12 @@ public class DailyAttendanceAdapter extends RecyclerView.Adapter<DailyAttendance
 
     private final ArrayList<DailyAttendanceList> mCategoryItem;
     private final Context myContext;
+    private final String coa_id;
 
-    public DailyAttendanceAdapter(Context myContext, ArrayList<DailyAttendanceList> mCategoryItem) {
+    public DailyAttendanceAdapter(Context myContext, ArrayList<DailyAttendanceList> mCategoryItem, String coa_id) {
         this.myContext = myContext;
         this.mCategoryItem = mCategoryItem;
+        this.coa_id = coa_id;
     }
 
     @NonNull
@@ -46,6 +47,16 @@ public class DailyAttendanceAdapter extends RecyclerView.Adapter<DailyAttendance
         holder.shiftName.setText(dailyAttendanceList.getOsm_name());
         holder.inTime.setText(dailyAttendanceList.getIn_time());
         holder.outTime.setText(dailyAttendanceList.getOut_time());
+
+        if (dailyAttendanceList.getCoa_name().isEmpty()) {
+            holder.locationName.setVisibility(View.GONE);
+            holder.locationName.setText("");
+        }
+        else {
+            holder.locationName.setVisibility(View.VISIBLE);
+            String tt = "("+dailyAttendanceList.getCoa_name()+")";
+            holder.locationName.setText(tt);
+        }
 
         if (dailyAttendanceList.getLate_status().isEmpty()) {
             holder.lateStatus.setVisibility(View.GONE);
@@ -99,6 +110,7 @@ public class DailyAttendanceAdapter extends RecyclerView.Adapter<DailyAttendance
     public class DAHolder extends RecyclerView.ViewHolder {
         TextView empName;
         TextView empDesignation;
+        TextView locationName;
         TextView shiftName;
         TextView inTime;
         TextView lateStatus;
@@ -111,6 +123,7 @@ public class DailyAttendanceAdapter extends RecyclerView.Adapter<DailyAttendance
             super(itemView);
             empName = itemView.findViewById(R.id.emp_name_da);
             empDesignation = itemView.findViewById(R.id.emp_designation_da);
+            locationName = itemView.findViewById(R.id.att_punch_location_da);
             shiftName = itemView.findViewById(R.id.shift_name_da);
             inTime = itemView.findViewById(R.id.in_time_da);
             lateStatus = itemView.findViewById(R.id.late_status_da);
@@ -126,6 +139,7 @@ public class DailyAttendanceAdapter extends RecyclerView.Adapter<DailyAttendance
                 intent.putExtra("DEPT_ID",mCategoryItem.get(getAdapterPosition()).getJsm_dept_id());
                 intent.putExtra("DESIG_ID",mCategoryItem.get(getAdapterPosition()).getJsm_desig_id());
                 intent.putExtra("EMP_ID",mCategoryItem.get(getAdapterPosition()).getEmp_id());
+                intent.putExtra("COA_ID",coa_id);
                 activity.startActivity(intent);
             });
         }

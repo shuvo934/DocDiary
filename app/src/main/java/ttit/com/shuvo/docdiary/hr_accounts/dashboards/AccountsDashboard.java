@@ -51,6 +51,7 @@ import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.hr_accounts.acc_ledger.AccountLedger;
+import ttit.com.shuvo.docdiary.hr_accounts.acc_ledger_pat.AccountLedgerPatient;
 import ttit.com.shuvo.docdiary.hr_accounts.income_expense.IncomeExpenseStatement;
 import ttit.com.shuvo.docdiary.hr_accounts.vouch_approval.CreditVoucherApproval;
 import ttit.com.shuvo.docdiary.hr_accounts.vouch_approval.DebitVoucherApproval;
@@ -354,11 +355,11 @@ public class AccountsDashboard extends AppCompatActivity implements NavigationVi
         l.setOrientation(Legend.LegendOrientation.VERTICAL);
         l.setForm(Legend.LegendForm.CIRCLE);
 
-        l.setXOffset(20f);
+        l.setXOffset(8f);
         l.setTextSize(12);
         l.setWordWrapEnabled(false);
         l.setDrawInside(false);
-        l.setYOffset(10f);
+        l.setYOffset(5f);
 
         voucherPieChart.animateXY(1000, 1000);
 
@@ -384,60 +385,70 @@ public class AccountsDashboard extends AppCompatActivity implements NavigationVi
         i_e_l.setOrientation(Legend.LegendOrientation.VERTICAL);
         i_e_l.setForm(Legend.LegendForm.CIRCLE);
 
-        i_e_l.setXOffset(20f);
+        i_e_l.setXOffset(8f);
         i_e_l.setTextSize(12);
         i_e_l.setWordWrapEnabled(false);
         i_e_l.setDrawInside(false);
-        i_e_l.setYOffset(10f);
+        i_e_l.setYOffset(5f);
 
         incExpPieChart.animateXY(1000, 1000);
     }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.credit_voucher_approved) {
-            Intent intent = new Intent(AccountsDashboard.this, CreditVoucherApproval.class);
-            startActivity(intent);
-            item.setChecked(true);
-        }
-        else if (item.getItemId() == R.id.debit_voucher_approved) {
-            Intent intent = new Intent(AccountsDashboard.this, DebitVoucherApproval.class);
-            startActivity(intent);
-            item.setChecked(true);
-        }
-        else if (item.getItemId() == R.id.journal_voucher_approved) {
-            Intent intent = new Intent(AccountsDashboard.this, JournalVoucherApproval.class);
-            startActivity(intent);
-            item.setChecked(true);
-        }
-        else if (item.getItemId() == R.id.voucher_transaction_acc_menu) {
-            Intent intent = new Intent(AccountsDashboard.this, VoucherTransaction.class);
-            intent.putExtra("FIRST_DATE","");
-            intent.putExtra("LAST_DATE","");
-            startActivity(intent);
-            item.setChecked(true);
-        }
-        else if (item.getItemId() == R.id.accnt_ledger_acc_menu) {
-            Intent intent = new Intent(AccountsDashboard.this, AccountLedger.class);
-            intent.putExtra("FIRST_DATE","");
-            intent.putExtra("LAST_DATE","");
-            intent.putExtra("AD_ID","");
-            startActivity(intent);
-            item.setChecked(true);
-        }
-        else if (item.getItemId() == R.id.income_expense_acc_menu) {
-            Intent intent = new Intent(AccountsDashboard.this, IncomeExpenseStatement.class);
-            intent.putExtra("FIRST_DATE","");
-            intent.putExtra("LAST_DATE","");
-            startActivity(intent);
-            item.setChecked(true);
-        }
-        else if (item.getItemId() == R.id.daily_statement_acc_menu) {
-            getUrlData();
-            item.setChecked(true);
+        if (loading) {
+            Toast.makeText(AccountsDashboard.this, "Please wait while loading", Toast.LENGTH_SHORT).show();
         }
         else {
-            Toast.makeText(getApplicationContext(),"No Menu Selected",Toast.LENGTH_SHORT).show();
+            if (item.getItemId() == R.id.credit_voucher_approved) {
+                Intent intent = new Intent(AccountsDashboard.this, CreditVoucherApproval.class);
+                startActivity(intent);
+                item.setChecked(true);
+            }
+            else if (item.getItemId() == R.id.debit_voucher_approved) {
+                Intent intent = new Intent(AccountsDashboard.this, DebitVoucherApproval.class);
+                startActivity(intent);
+                item.setChecked(true);
+            }
+            else if (item.getItemId() == R.id.journal_voucher_approved) {
+                Intent intent = new Intent(AccountsDashboard.this, JournalVoucherApproval.class);
+                startActivity(intent);
+                item.setChecked(true);
+            }
+            else if (item.getItemId() == R.id.voucher_transaction_acc_menu) {
+                Intent intent = new Intent(AccountsDashboard.this, VoucherTransaction.class);
+                intent.putExtra("FIRST_DATE", "");
+                intent.putExtra("LAST_DATE", "");
+                startActivity(intent);
+                item.setChecked(true);
+            }
+            else if (item.getItemId() == R.id.accnt_ledger_acc_menu) {
+                Intent intent = new Intent(AccountsDashboard.this, AccountLedger.class);
+                intent.putExtra("FIRST_DATE", "");
+                intent.putExtra("LAST_DATE", "");
+                intent.putExtra("AD_ID", "");
+                startActivity(intent);
+                item.setChecked(true);
+            }
+            else if (item.getItemId() == R.id.income_expense_acc_menu) {
+                Intent intent = new Intent(AccountsDashboard.this, IncomeExpenseStatement.class);
+                intent.putExtra("FIRST_DATE", "");
+                intent.putExtra("LAST_DATE", "");
+                startActivity(intent);
+                item.setChecked(true);
+            }
+            else if (item.getItemId() == R.id.daily_statement_acc_menu) {
+                getUrlData();
+                item.setChecked(true);
+            }
+            else if (item.getItemId() == R.id.accnt_ledger_ph_acc_menu) {
+                Intent intent = new Intent(AccountsDashboard.this, AccountLedgerPatient.class);
+                startActivity(intent);
+                item.setChecked(true);
+            }
+            else {
+                Toast.makeText(getApplicationContext(), "No Menu Selected", Toast.LENGTH_SHORT).show();
+            }
         }
         drawerLayout.closeDrawer(GravityCompat.END);
         return true;

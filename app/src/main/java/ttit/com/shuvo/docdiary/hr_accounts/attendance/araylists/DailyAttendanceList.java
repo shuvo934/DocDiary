@@ -14,8 +14,9 @@ public class DailyAttendanceList {
     private String status;
     private String late_status;
     private String early_status;
+    private String coa_name;
 
-    public DailyAttendanceList(String emp_id, String emp_code, String emp_name, String job_calling_title, String jsm_divm_id, String jsm_dept_id, String jsm_desig_id, String osm_name, String in_time, String out_time, String status, String late_status, String early_status) {
+    public DailyAttendanceList(String emp_id, String emp_code, String emp_name, String job_calling_title, String jsm_divm_id, String jsm_dept_id, String jsm_desig_id, String osm_name, String in_time, String out_time, String status, String late_status, String early_status, String coa_name) {
         this.emp_id = emp_id;
         this.emp_code = emp_code;
         this.emp_name = emp_name;
@@ -29,6 +30,7 @@ public class DailyAttendanceList {
         this.status = status;
         this.late_status = late_status;
         this.early_status = early_status;
+        this.coa_name = coa_name;
     }
 
     public String getEmp_id() {
@@ -133,5 +135,13 @@ public class DailyAttendanceList {
 
     public void setEarly_status(String early_status) {
         this.early_status = early_status;
+    }
+
+    public String getCoa_name() {
+        return coa_name;
+    }
+
+    public void setCoa_name(String coa_name) {
+        this.coa_name = coa_name;
     }
 }

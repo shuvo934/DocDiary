@@ -21,4 +21,7 @@
     <item android:title="@string/acc_ledger"
         android:id="@+id/accnt_ledger_acc_menu"
         android:icon="@drawable/account_ledger"/>
+    <item android:title="@string/acc_ledger_pat"
+        android:id="@+id/accnt_ledger_ph_acc_menu"
+        android:icon="@drawable/acc_ledger_ph"/>
 </menu>

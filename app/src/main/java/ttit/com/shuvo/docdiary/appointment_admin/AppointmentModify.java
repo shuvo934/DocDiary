@@ -2017,7 +2017,7 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
 
                 selectServiceCancLay.setEnabled(true);
                 selectServiceCancLay.setHint("Select Service");
-                selectService.setText("");
+                selectServiceCanc.setText("");
 
                 serviceSelectCancErrMsg.setVisibility(View.GONE);
                 appDateSelectCancErrMsg.setVisibility(View.GONE);

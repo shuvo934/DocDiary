@@ -32,6 +32,18 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".hr_accounts.leave.LeaveBalance"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity" />
+        <activity
+            android:name=".hr_accounts.acc_ledger_pat.AccountLedgerPatient"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity" />
+        <activity
             android:name=".hr_accounts.attendance.AttendanceUpdateReqApproval"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:exported="false"

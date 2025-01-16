@@ -55,6 +55,18 @@
                 android:textSize="@dimen/_8sdp"
                 android:textStyle="bold" />
 
+            <TextView
+                android:id="@+id/emp_pri_location_lv_rec"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:fontFamily="@font/poppins_bold"
+                android:textSize="@dimen/_7sdp"
+                android:layout_alignParentStart="true"
+                android:layout_below="@id/emp_designation_lv_rec"
+                android:textColor="@color/default_text_color"
+                tools:ignore="HardcodedText" />
+
         </RelativeLayout>
 
         <LinearLayout

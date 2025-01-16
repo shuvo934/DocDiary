@@ -3,10 +3,14 @@ package ttit.com.shuvo.docdiary.hr_accounts.leave;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
 import android.os.Bundle;
+import android.text.Html;
+import android.text.Spanned;
+import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,6 +47,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
+import ttit.com.shuvo.docdiary.hr_accounts.attendance.araylists.BranchList;
 import ttit.com.shuvo.docdiary.hr_accounts.attendance.araylists.DepartmentList;
 import ttit.com.shuvo.docdiary.hr_accounts.attendance.araylists.DivisionList;
 import ttit.com.shuvo.docdiary.hr_accounts.attendance.araylists.EmployeeList;
@@ -55,6 +60,10 @@ public class LeaveRecord extends AppCompatActivity {
     CircularProgressIndicator circularProgressIndicator;
 
     ImageView backButton;
+
+    LinearLayout branchSelect;
+    TextView branchName;
+    ArrayList<BranchList> branchLists;
 
     AppCompatAutoCompleteTextView divisionSelect;
     ArrayList<DivisionList> divisionLists;
@@ -79,8 +88,12 @@ public class LeaveRecord extends AppCompatActivity {
     ArrayList<LeaveRecList> leaveRecLists;
     ArrayList<LeaveRecList> filteredList;
 
+    TextView allLeaveStatus;
+    Spanned all_leave_stat;
+
     TextView noDa;
 
+    String branch_id = "";
     String first_date = "";
     String last_date = "";
     String selected_div_id = "";
@@ -94,6 +107,8 @@ public class LeaveRecord extends AppCompatActivity {
 
     Logger logger = Logger.getLogger(LeaveRecord.class.getName());
 
+    PopupMenu popupMenu;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,6 +119,12 @@ public class LeaveRecord extends AppCompatActivity {
         circularProgressIndicator.setVisibility(View.GONE);
 
         backButton = findViewById(R.id.back_logo_of_leave_record);
+
+        branchSelect = findViewById(R.id.branch_selection_for_lv_rec);
+        branchName = findViewById(R.id.selected_branch_name_lv_rec);
+        branchLists = new ArrayList<>();
+
+        popupMenu = new PopupMenu(LeaveRecord.this, branchSelect);
 
         divisionSelect = findViewById(R.id.division_select_for_lv_rec);
         divisionLists = new ArrayList<>();
@@ -127,6 +148,8 @@ public class LeaveRecord extends AppCompatActivity {
         noDa = findViewById(R.id.no_leave_found_message_lv_rec);
         noDa.setVisibility(View.GONE);
 
+        allLeaveStatus = findViewById(R.id.all_leave_status_emp_lv_rec);
+
         leaveRecLists = new ArrayList<>();
         filteredList = new ArrayList<>();
 
@@ -135,6 +158,46 @@ public class LeaveRecord extends AppCompatActivity {
         lvRecListView.setLayoutManager(layoutManager);
 
         getCurrentDateMonthYear();
+
+        popupMenu.setOnMenuItemClickListener(menuItem -> {
+            selected_div_id = "";
+            divisionSelect.setText("");
+            divisionLists = new ArrayList<>();
+
+            selected_dept_id = "";
+            departmentSelect.setText("");
+            departmentSelectLay.setEnabled(false);
+            filteredDepartmentLists = new ArrayList<>();
+
+            selected_emp_id = "";
+            employeeSelect.setText("");
+            employeeSelectLay.setEnabled(false);
+            filteredEmpLists = new ArrayList<>();
+
+            filteredList = new ArrayList<>();
+
+            String branch_name = "";
+            for (int i = 0; i <branchLists.size(); i++) {
+                if (String.valueOf(menuItem.getItemId()).equals(branchLists.get(i).getId())) {
+
+                    branch_id = branchLists.get(i).getId();
+                    branch_name = branchLists.get(i).getName();
+                }
+            }
+
+            branchName.setText(branch_name);
+
+            if (branch_id.equals("30")) {
+                branch_id = "";
+                getAllData();
+            }
+            else {
+                getBranchWiseAllData();
+            }
+            return false;
+        });
+
+        branchSelect.setOnClickListener(view -> popupMenu.show());
 
         divisionSelect.setOnItemClickListener((parent, view, position, id) -> {
             selected_dept_id = "";
@@ -346,9 +409,23 @@ public class LeaveRecord extends AppCompatActivity {
                     selectedMonth.setText(mo_name);
                 }
 
-                getLeaveData();
+                if (branch_id.isEmpty()) {
+                    getLeaveData();
+                }
+                else {
+                    getBranchWiseLeaveData();
+                }
             });
 
+        });
+
+        allLeaveStatus.setOnClickListener(view -> {
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(this);
+            builder.setTitle("Leave Status")
+                    .setMessage(all_leave_stat)
+                    .setPositiveButton("Close", (dialogInterface, i) -> dialogInterface.dismiss());
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
         });
 
         backButton.setOnClickListener(view -> {
@@ -378,8 +455,8 @@ public class LeaveRecord extends AppCompatActivity {
     private void getCurrentDateMonthYear() {
         Date dd = Calendar.getInstance().getTime();
         SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM-yy", Locale.getDefault());
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM, yyyy", Locale.getDefault());
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM-yy", Locale.ENGLISH);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM, yyyy", Locale.ENGLISH);
 
         first_date = simpleDateFormat.format(dd).toUpperCase(Locale.ENGLISH);
         first_date = "01-"+first_date;
@@ -432,9 +509,11 @@ public class LeaveRecord extends AppCompatActivity {
                             String jsm_divm_id = leaveRecLists.get(i).getJsm_divm_id();
                             String jsm_dept_id = leaveRecLists.get(i).getJsm_dept_id();
                             String jsm_desig_id = leaveRecLists.get(i).getJsm_desig_id();
+                            String coa_name = leaveRecLists.get(i).getCoa_name();
+                            String coa_id = leaveRecLists.get(i).getCoa_id();
 
                             filteredList.add(new LeaveRecList(la_id,la_app_code,la_approved,la_date,leave_type,la_from_date,la_to_date,
-                                    la_leave_days,emp_name,emp_id,job_calling_title,jsm_divm_id,jsm_dept_id,jsm_desig_id));
+                                    la_leave_days,emp_name,emp_id,job_calling_title,jsm_divm_id,jsm_dept_id,jsm_desig_id,coa_name,coa_id));
                         }
                     }
 
@@ -447,7 +526,7 @@ public class LeaveRecord extends AppCompatActivity {
 
                     filteredList = new ArrayList<>();
 
-                    filteredEmpLists.add(new EmployeeList("","","...","","","",""));
+                    filteredEmpLists.add(new EmployeeList("","","...","","","","",""));
                     for (int i = 0; i < employeeLists.size(); i++) {
                         if (selected_div_id.equals(employeeLists.get(i).getJsm_divm_id()) && selected_dept_id.equals(employeeLists.get(i).getJsm_dept_id())) {
                             String emp_id = employeeLists.get(i).getEmp_id();
@@ -458,7 +537,7 @@ public class LeaveRecord extends AppCompatActivity {
                             String jsm_desig_id = employeeLists.get(i).getJsm_desig_id();
                             String job_calling_title = employeeLists.get(i).getJob_calling_title();
 
-                            filteredEmpLists.add(new EmployeeList(emp_id,emp_code,emp_name,jsm_divm_id,jsm_dept_id,jsm_desig_id,job_calling_title));
+                            filteredEmpLists.add(new EmployeeList(emp_id,emp_code,emp_name,jsm_divm_id,jsm_dept_id,jsm_desig_id,job_calling_title,""));
                         }
                     }
 
@@ -486,9 +565,11 @@ public class LeaveRecord extends AppCompatActivity {
                             String jsm_divm_id = leaveRecLists.get(i).getJsm_divm_id();
                             String jsm_dept_id = leaveRecLists.get(i).getJsm_dept_id();
                             String jsm_desig_id = leaveRecLists.get(i).getJsm_desig_id();
+                            String coa_name = leaveRecLists.get(i).getCoa_name();
+                            String coa_id = leaveRecLists.get(i).getCoa_id();
 
                             filteredList.add(new LeaveRecList(la_id,la_app_code,la_approved,la_date,leave_type,la_from_date,la_to_date,
-                                    la_leave_days,emp_name,emp_id,job_calling_title,jsm_divm_id,jsm_dept_id,jsm_desig_id));
+                                    la_leave_days,emp_name,emp_id,job_calling_title,jsm_divm_id,jsm_dept_id,jsm_desig_id,coa_name,coa_id));
                         }
                     }
 
@@ -550,15 +631,17 @@ public class LeaveRecord extends AppCompatActivity {
                         String jsm_divm_id = leaveRecLists.get(i).getJsm_divm_id();
                         String jsm_dept_id = leaveRecLists.get(i).getJsm_dept_id();
                         String jsm_desig_id = leaveRecLists.get(i).getJsm_desig_id();
+                        String coa_name = leaveRecLists.get(i).getCoa_name();
+                        String coa_id = leaveRecLists.get(i).getCoa_id();
 
                         filteredList.add(new LeaveRecList(la_id,la_app_code,la_approved,la_date,leave_type,la_from_date,la_to_date,
-                                la_leave_days,emp_name,emp_id,job_calling_title,jsm_divm_id,jsm_dept_id,jsm_desig_id));
+                                la_leave_days,emp_name,emp_id,job_calling_title,jsm_divm_id,jsm_dept_id,jsm_desig_id,coa_name,coa_id));
                     }
                 }
 
             }
 
-            leaveRecordAdapter = new LeaveRecordAdapter(filteredList,LeaveRecord.this);
+            leaveRecordAdapter = new LeaveRecordAdapter(filteredList,LeaveRecord.this,last_date);
             lvRecListView.setAdapter(leaveRecordAdapter);
             if (filteredList.isEmpty()) {
                 noDa.setVisibility(View.VISIBLE);
@@ -566,6 +649,31 @@ public class LeaveRecord extends AppCompatActivity {
             else {
                 noDa.setVisibility(View.GONE);
             }
+            int p_c = 0;
+            int a_c = 0;
+            int r_c = 0;
+            int c_a_c = 0;
+            for (int i = 0; i < filteredList.size(); i++) {
+                switch (filteredList.get(i).getLa_approved()) {
+                    case "0":
+                        p_c++;
+                        break;
+                    case "1":
+                        a_c++;
+                        break;
+                    case "2":
+                        r_c++;
+                        break;
+                    case "3":
+                        c_a_c++;
+                        break;
+                }
+            }
+            all_leave_stat = Html.fromHtml("Total Leave Application:   <font color='black'><b>"+ filteredList.size() +"</b></font><br>"+
+                    "Pending:   <font color='black'><b>"+ p_c +"</b></font><br>"+
+                    "Approved:   <font color='black'><b>"+a_c+"</b></font><br>"+
+                    "Rejected:   <font color='black'><b>"+r_c+"</b></font><br>"+
+                    "Cancel Approved Leave:   <font color='black'><b>"+c_a_c+"</b></font><br>");
         }
         else {
             selected_dept_id = "";
@@ -596,7 +704,7 @@ public class LeaveRecord extends AppCompatActivity {
             ArrayAdapter<String> arrayAdapter1 = new ArrayAdapter<>(LeaveRecord.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type1);
             employeeSelect.setAdapter(arrayAdapter1);
 
-            leaveRecordAdapter = new LeaveRecordAdapter(leaveRecLists,LeaveRecord.this);
+            leaveRecordAdapter = new LeaveRecordAdapter(leaveRecLists,LeaveRecord.this,last_date);
             lvRecListView.setAdapter(leaveRecordAdapter);
 
             if (leaveRecLists.isEmpty()) {
@@ -605,6 +713,31 @@ public class LeaveRecord extends AppCompatActivity {
             else {
                 noDa.setVisibility(View.GONE);
             }
+            int p_c = 0;
+            int a_c = 0;
+            int r_c = 0;
+            int c_a_c = 0;
+            for (int i = 0; i < leaveRecLists.size(); i++) {
+                switch (leaveRecLists.get(i).getLa_approved()) {
+                    case "0":
+                        p_c++;
+                        break;
+                    case "1":
+                        a_c++;
+                        break;
+                    case "2":
+                        r_c++;
+                        break;
+                    case "3":
+                        c_a_c++;
+                        break;
+                }
+            }
+            all_leave_stat = Html.fromHtml("Total Leave Application:   <font color='black'><b>"+ leaveRecLists.size() +"</b></font><br>"+
+                    "Pending:   <font color='black'><b>"+ p_c +"</b></font><br>"+
+                    "Approved:   <font color='black'><b>"+a_c+"</b></font><br>"+
+                    "Rejected:   <font color='black'><b>"+r_c+"</b></font><br>"+
+                    "Cancel Approved Leave:   <font color='black'><b>"+c_a_c+"</b></font><br>");
         }
     }
 
@@ -615,6 +748,7 @@ public class LeaveRecord extends AppCompatActivity {
         conn = false;
         connected = false;
 
+        branchLists = new ArrayList<>();
         divisionLists = new ArrayList<>();
         departmentLists = new ArrayList<>();
         filteredDepartmentLists = new ArrayList<>();
@@ -623,6 +757,7 @@ public class LeaveRecord extends AppCompatActivity {
         leaveRecLists = new ArrayList<>();
         filteredList = new ArrayList<>();
 
+        String brnUrl = pre_url_api+"hrm_dashboard/getBranches";
         String divUrl = pre_url_api+"hrm_dashboard/getDivision";
         String depUrl = pre_url_api+"hrm_dashboard/getDepartment";
         String empUrl = pre_url_api+"hrm_dashboard/getEmployee";
@@ -669,9 +804,13 @@ public class LeaveRecord extends AppCompatActivity {
                                 .equals("null") ? "" :info.getString("jsm_dept_id");
                         String jsm_desig_id = info.getString("jsm_desig_id")
                                 .equals("null") ? "" :info.getString("jsm_desig_id");
+                        String coa_name = info.getString("coa_name")
+                                .equals("null") ? "" :info.getString("coa_name");
+                        String coa_id = info.getString("coa_id")
+                                .equals("null") ? "" :info.getString("coa_id");
 
                         leaveRecLists.add(new LeaveRecList(la_id,la_app_code,la_approved,la_date,leave_type,la_from_date,la_to_date,
-                                la_leave_days,emp_name,emp_id,job_calling_title,jsm_divm_id,jsm_dept_id,jsm_desig_id));
+                                la_leave_days,emp_name,emp_id,job_calling_title,jsm_divm_id,jsm_dept_id,jsm_desig_id,coa_name,coa_id));
                     }
                 }
                 connected = true;
@@ -717,7 +856,7 @@ public class LeaveRecord extends AppCompatActivity {
                         String job_calling_title = info.getString("job_calling_title")
                                 .equals("null") ? "" :info.getString("job_calling_title");
 
-                        employeeLists.add(new EmployeeList(emp_id,emp_code,emp_name,jsm_divm_id,jsm_dept_id,jsm_desig_id,job_calling_title));
+                        employeeLists.add(new EmployeeList(emp_id,emp_code,emp_name,jsm_divm_id,jsm_dept_id,jsm_desig_id,job_calling_title,""));
                     }
                 }
                 requestQueue.add(lvRecReq);
@@ -809,7 +948,43 @@ public class LeaveRecord extends AppCompatActivity {
             updateInterface();
         });
 
-        requestQueue.add(divReq);
+        StringRequest brnReq = new StringRequest(Request.Method.GET, brnUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    branchLists.add(new BranchList("30","None"));
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject info = array.getJSONObject(i);
+
+                        String coa_id = info.getString("coa_id")
+                                .equals("null") ? "" :info.getString("coa_id");
+                        String coa_name = info.getString("coa_name")
+                                .equals("null") ? "" :info.getString("coa_name");
+
+                        branchLists.add(new BranchList(coa_id,coa_name));
+                    }
+                }
+                requestQueue.add(divReq);
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateInterface();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateInterface();
+        });
+
+        requestQueue.add(brnReq);
 
     }
 
@@ -820,6 +995,14 @@ public class LeaveRecord extends AppCompatActivity {
                 circularProgressIndicator.setVisibility(View.GONE);
                 conn = false;
                 connected = false;
+
+                popupMenu.getMenuInflater().inflate(R.menu.branch_menu, popupMenu.getMenu());
+
+                Menu menu = popupMenu.getMenu();
+                menu.clear();
+                for(int i = 0; i < branchLists.size(); i++) {
+                    menu.add(0,Integer.parseInt(branchLists.get(i).getId()),Menu.NONE,branchLists.get(i).getName());
+                }
 
                 ArrayList<String> type = new ArrayList<>();
                 for(int i = 0; i < divisionLists.size(); i++) {
@@ -861,6 +1044,282 @@ public class LeaveRecord extends AppCompatActivity {
                 .setPositiveButton("Retry", (dialog, which) -> {
                     loading = false;
                     getAllData();
+                    dialog.dismiss();
+                })
+                .setNegativeButton("Cancel",(dialog, which) -> {
+                    loading = false;
+                    dialog.dismiss();
+                    finish();
+                });
+
+        AlertDialog alert = alertDialogBuilder.create();
+        alert.setCancelable(false);
+        alert.setCanceledOnTouchOutside(false);
+        try {
+            alert.show();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
+    }
+
+    public void getBranchWiseAllData() {
+        fullLayout.setVisibility(View.GONE);
+        circularProgressIndicator.setVisibility(View.VISIBLE);
+        loading = true;
+        conn = false;
+        connected = false;
+
+        divisionLists = new ArrayList<>();
+        departmentLists = new ArrayList<>();
+        filteredDepartmentLists = new ArrayList<>();
+        employeeLists = new ArrayList<>();
+        filteredEmpLists = new ArrayList<>();
+        leaveRecLists = new ArrayList<>();
+        filteredList = new ArrayList<>();
+
+        String divUrl = pre_url_api+"hrm_dashboard/getDivisionWithCoa?p_coa_id="+branch_id;
+        String depUrl = pre_url_api+"hrm_dashboard/getDepartmentWithCoa?p_coa_id="+branch_id;
+        String empUrl = pre_url_api+"hrm_dashboard/getEmployeeWithCoa?p_coa_id="+branch_id;
+        String lvRecUrl = pre_url_api+"hrm_dashboard/getLeaveRecordWithCoa?first_date="+first_date+"&last_date="+last_date+"&p_coa_id="+branch_id;
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        StringRequest lvRecReq = new StringRequest(Request.Method.GET, lvRecUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject info = array.getJSONObject(i);
+
+                        String la_id = info.getString("la_id")
+                                .equals("null") ? "" :info.getString("la_id");
+                        String la_app_code = info.getString("la_app_code")
+                                .equals("null") ? "" :info.getString("la_app_code");
+                        String la_approved = info.getString("la_approved")
+                                .equals("null") ? "" :info.getString("la_approved");
+                        String la_date = info.getString("la_date")
+                                .equals("null") ? "" :info.getString("la_date");
+                        String leave_type = info.getString("leave_type")
+                                .equals("null") ? "" :info.getString("leave_type");
+                        String la_from_date = info.getString("la_from_date")
+                                .equals("null") ? "" :info.getString("la_from_date");
+                        String la_to_date = info.getString("la_to_date")
+                                .equals("null") ? "" :info.getString("la_to_date");
+                        String la_leave_days = info.getString("la_leave_days")
+                                .equals("null") ? "" :info.getString("la_leave_days");
+                        String emp_name = info.getString("emp_name")
+                                .equals("null") ? "" :info.getString("emp_name");
+                        String emp_id = info.getString("emp_id")
+                                .equals("null") ? "" :info.getString("emp_id");
+                        String job_calling_title = info.getString("job_calling_title")
+                                .equals("null") ? "" :info.getString("job_calling_title");
+                        String jsm_divm_id = info.getString("jsm_divm_id")
+                                .equals("null") ? "" :info.getString("jsm_divm_id");
+                        String jsm_dept_id = info.getString("jsm_dept_id")
+                                .equals("null") ? "" :info.getString("jsm_dept_id");
+                        String jsm_desig_id = info.getString("jsm_desig_id")
+                                .equals("null") ? "" :info.getString("jsm_desig_id");
+                        String coa_name = info.getString("coa_name")
+                                .equals("null") ? "" :info.getString("coa_name");
+                        String coa_id = info.getString("coa_id")
+                                .equals("null") ? "" :info.getString("coa_id");
+
+                        leaveRecLists.add(new LeaveRecList(la_id,la_app_code,la_approved,la_date,leave_type,la_from_date,la_to_date,
+                                la_leave_days,emp_name,emp_id,job_calling_title,jsm_divm_id,jsm_dept_id,jsm_desig_id,coa_name,coa_id));
+                    }
+                }
+                connected = true;
+                updateInterfaceCoa();
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateInterfaceCoa();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateInterfaceCoa();
+        });
+
+        StringRequest empReq = new StringRequest(Request.Method.GET, empUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject info = array.getJSONObject(i);
+
+                        String emp_id = info.getString("emp_id")
+                                .equals("null") ? "" :info.getString("emp_id");
+                        String emp_code = info.getString("emp_code")
+                                .equals("null") ? "" :info.getString("emp_code");
+                        String emp_name = info.getString("emp_name")
+                                .equals("null") ? "" :info.getString("emp_name");
+                        String jsm_divm_id = info.getString("jsm_divm_id")
+                                .equals("null") ? "" :info.getString("jsm_divm_id");
+                        String jsm_dept_id = info.getString("jsm_dept_id")
+                                .equals("null") ? "" :info.getString("jsm_dept_id");
+                        String jsm_desig_id = info.getString("jsm_desig_id")
+                                .equals("null") ? "" :info.getString("jsm_desig_id");
+                        String job_calling_title = info.getString("job_calling_title")
+                                .equals("null") ? "" :info.getString("job_calling_title");
+
+                        employeeLists.add(new EmployeeList(emp_id,emp_code,emp_name,jsm_divm_id,jsm_dept_id,jsm_desig_id,job_calling_title,""));
+                    }
+                }
+                requestQueue.add(lvRecReq);
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateInterfaceCoa();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateInterfaceCoa();
+        });
+
+        StringRequest depReq = new StringRequest(Request.Method.GET, depUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject info = array.getJSONObject(i);
+
+                        String dept_id = info.getString("dept_id")
+                                .equals("null") ? "" :info.getString("dept_id");
+                        String dept_name = info.getString("dept_name")
+                                .equals("null") ? "" :info.getString("dept_name");
+                        String dept_divm_id = info.getString("dept_divm_id")
+                                .equals("null") ? "" :info.getString("dept_divm_id");
+
+                        departmentLists.add(new DepartmentList(dept_id,dept_name,dept_divm_id));
+                    }
+                }
+                requestQueue.add(empReq);
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateInterfaceCoa();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateInterfaceCoa();
+        });
+
+        StringRequest divReq = new StringRequest(Request.Method.GET, divUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    divisionLists.add(new DivisionList("","..."));
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject info = array.getJSONObject(i);
+
+                        String divm_id = info.getString("divm_id")
+                                .equals("null") ? "" :info.getString("divm_id");
+                        String divm_name = info.getString("divm_name")
+                                .equals("null") ? "" :info.getString("divm_name");
+
+                        divisionLists.add(new DivisionList(divm_id,divm_name));
+                    }
+                }
+                requestQueue.add(depReq);
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateInterfaceCoa();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateInterfaceCoa();
+        });
+
+        requestQueue.add(divReq);
+
+    }
+
+    private void updateInterfaceCoa() {
+        if (conn) {
+            if (connected) {
+                fullLayout.setVisibility(View.VISIBLE);
+                circularProgressIndicator.setVisibility(View.GONE);
+                conn = false;
+                connected = false;
+
+                ArrayList<String> type = new ArrayList<>();
+                for(int i = 0; i < divisionLists.size(); i++) {
+                    type.add(divisionLists.get(i).getDivm_name());
+                }
+
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(LeaveRecord.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
+                divisionSelect.setAdapter(arrayAdapter);
+
+                filterAll();
+
+                loading = false;
+
+            }
+            else {
+                alertMessageCoa();
+            }
+        }
+        else {
+            alertMessageCoa();
+        }
+    }
+
+    public void alertMessageCoa() {
+        fullLayout.setVisibility(View.GONE);
+        circularProgressIndicator.setVisibility(View.GONE);
+
+        if (parsing_message != null) {
+            if (parsing_message.isEmpty() || parsing_message.equals("null")) {
+                parsing_message = "Server problem or Internet not connected";
+            }
+        }
+        else {
+            parsing_message = "Server problem or Internet not connected";
+        }
+        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(LeaveRecord.this);
+        alertDialogBuilder.setTitle("Error!")
+                .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
+                .setPositiveButton("Retry", (dialog, which) -> {
+                    loading = false;
+                    getBranchWiseAllData();
                     dialog.dismiss();
                 })
                 .setNegativeButton("Cancel",(dialog, which) -> {
@@ -933,9 +1392,13 @@ public class LeaveRecord extends AppCompatActivity {
                                 .equals("null") ? "" :info.getString("jsm_dept_id");
                         String jsm_desig_id = info.getString("jsm_desig_id")
                                 .equals("null") ? "" :info.getString("jsm_desig_id");
+                        String coa_name = info.getString("coa_name")
+                                .equals("null") ? "" :info.getString("coa_name");
+                        String coa_id = info.getString("coa_id")
+                                .equals("null") ? "" :info.getString("coa_id");
 
                         leaveRecLists.add(new LeaveRecList(la_id,la_app_code,la_approved,la_date,leave_type,la_from_date,la_to_date,
-                                la_leave_days,emp_name,emp_id,job_calling_title,jsm_divm_id,jsm_dept_id,jsm_desig_id));
+                                la_leave_days,emp_name,emp_id,job_calling_title,jsm_divm_id,jsm_dept_id,jsm_desig_id,coa_name,coa_id));
                     }
                 }
                 connected = true;
@@ -999,6 +1462,148 @@ public class LeaveRecord extends AppCompatActivity {
                 .setPositiveButton("Retry", (dialog, which) -> {
                     loading = false;
                     getLeaveData();
+                    dialog.dismiss();
+                })
+                .setNegativeButton("Cancel",(dialog, which) -> {
+                    loading = false;
+                    dialog.dismiss();
+                    finish();
+                });
+
+        AlertDialog alert = alertDialogBuilder.create();
+        alert.setCancelable(false);
+        alert.setCanceledOnTouchOutside(false);
+        try {
+            alert.show();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
+    }
+
+    public void getBranchWiseLeaveData() {
+        fullLayout.setVisibility(View.GONE);
+        circularProgressIndicator.setVisibility(View.VISIBLE);
+        loading = true;
+        conn = false;
+        connected = false;
+
+        leaveRecLists = new ArrayList<>();
+        filteredList = new ArrayList<>();
+
+        String lvRecUrl = pre_url_api+"hrm_dashboard/getLeaveRecordWithCoa?first_date="+first_date+"&last_date="+last_date+"&p_coa_id="+branch_id;
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        StringRequest lvRecReq = new StringRequest(Request.Method.GET, lvRecUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject info = array.getJSONObject(i);
+
+                        String la_id = info.getString("la_id")
+                                .equals("null") ? "" :info.getString("la_id");
+                        String la_app_code = info.getString("la_app_code")
+                                .equals("null") ? "" :info.getString("la_app_code");
+                        String la_approved = info.getString("la_approved")
+                                .equals("null") ? "" :info.getString("la_approved");
+                        String la_date = info.getString("la_date")
+                                .equals("null") ? "" :info.getString("la_date");
+                        String leave_type = info.getString("leave_type")
+                                .equals("null") ? "" :info.getString("leave_type");
+                        String la_from_date = info.getString("la_from_date")
+                                .equals("null") ? "" :info.getString("la_from_date");
+                        String la_to_date = info.getString("la_to_date")
+                                .equals("null") ? "" :info.getString("la_to_date");
+                        String la_leave_days = info.getString("la_leave_days")
+                                .equals("null") ? "" :info.getString("la_leave_days");
+                        String emp_name = info.getString("emp_name")
+                                .equals("null") ? "" :info.getString("emp_name");
+                        String emp_id = info.getString("emp_id")
+                                .equals("null") ? "" :info.getString("emp_id");
+                        String job_calling_title = info.getString("job_calling_title")
+                                .equals("null") ? "" :info.getString("job_calling_title");
+                        String jsm_divm_id = info.getString("jsm_divm_id")
+                                .equals("null") ? "" :info.getString("jsm_divm_id");
+                        String jsm_dept_id = info.getString("jsm_dept_id")
+                                .equals("null") ? "" :info.getString("jsm_dept_id");
+                        String jsm_desig_id = info.getString("jsm_desig_id")
+                                .equals("null") ? "" :info.getString("jsm_desig_id");
+                        String coa_name = info.getString("coa_name")
+                                .equals("null") ? "" :info.getString("coa_name");
+                        String coa_id = info.getString("coa_id")
+                                .equals("null") ? "" :info.getString("coa_id");
+
+                        leaveRecLists.add(new LeaveRecList(la_id,la_app_code,la_approved,la_date,leave_type,la_from_date,la_to_date,
+                                la_leave_days,emp_name,emp_id,job_calling_title,jsm_divm_id,jsm_dept_id,jsm_desig_id,coa_name,coa_id));
+                    }
+                }
+                connected = true;
+                updateLayoutCoa();
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateLayoutCoa();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateLayoutCoa();
+        });
+
+        requestQueue.add(lvRecReq);
+
+    }
+
+    private void updateLayoutCoa() {
+        if (conn) {
+            if (connected) {
+                fullLayout.setVisibility(View.VISIBLE);
+                circularProgressIndicator.setVisibility(View.GONE);
+                conn = false;
+                connected = false;
+
+                filterAll();
+
+                loading = false;
+
+            }
+            else {
+                alertMessageDaCoa();
+            }
+        }
+        else {
+            alertMessageDaCoa();
+        }
+    }
+
+    public void alertMessageDaCoa() {
+        fullLayout.setVisibility(View.GONE);
+        circularProgressIndicator.setVisibility(View.GONE);
+
+        if (parsing_message != null) {
+            if (parsing_message.isEmpty() || parsing_message.equals("null")) {
+                parsing_message = "Server problem or Internet not connected";
+            }
+        }
+        else {
+            parsing_message = "Server problem or Internet not connected";
+        }
+        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(LeaveRecord.this);
+        alertDialogBuilder.setTitle("Error!")
+                .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
+                .setPositiveButton("Retry", (dialog, which) -> {
+                    loading = false;
+                    getBranchWiseLeaveData();
                     dialog.dismiss();
                 })
                 .setNegativeButton("Cancel",(dialog, which) -> {

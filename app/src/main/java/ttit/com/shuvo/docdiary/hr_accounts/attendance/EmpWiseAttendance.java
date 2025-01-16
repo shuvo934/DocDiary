@@ -5,10 +5,12 @@ import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -57,6 +59,7 @@ import java.util.logging.Logger;
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.hr_accounts.attendance.adapters.AttendanceReportAdapter;
 import ttit.com.shuvo.docdiary.hr_accounts.attendance.araylists.AttendanceReportList;
+import ttit.com.shuvo.docdiary.hr_accounts.attendance.araylists.BranchList;
 import ttit.com.shuvo.docdiary.hr_accounts.attendance.araylists.DepartmentList;
 import ttit.com.shuvo.docdiary.hr_accounts.attendance.araylists.DesignationList;
 import ttit.com.shuvo.docdiary.hr_accounts.attendance.araylists.DivisionList;
@@ -67,6 +70,10 @@ public class EmpWiseAttendance extends AppCompatActivity {
     LinearLayout fullLayout;
     CircularProgressIndicator circularProgressIndicator;
     ImageView backButton;
+
+    LinearLayout branchSelect;
+    TextView branchName;
+    ArrayList<BranchList> branchLists;
 
     AppCompatAutoCompleteTextView divisionSelect;
     ArrayList<DivisionList> divisionLists;
@@ -88,10 +95,12 @@ public class EmpWiseAttendance extends AppCompatActivity {
     TextView empName;
     TextView empCode;
     TextView empDesignation;
+    TextView empCenter;
 
     String emp_name = "";
     String emp_code = "";
     String emp_designation = "";
+    String emp_center = "";
 
     TextView monthSelection;
     String first_date = "";
@@ -109,6 +118,7 @@ public class EmpWiseAttendance extends AppCompatActivity {
     String early_tot = "";
     String both_late_early_tot = "";
 
+    String selected_coa_id = "";
     String selected_div_id = "";
     String selected_dept_id = "";
     String selected_desig_id = "";
@@ -154,6 +164,8 @@ public class EmpWiseAttendance extends AppCompatActivity {
 
     Logger logger = Logger.getLogger(EmpWiseAttendance.class.getName());
 
+    PopupMenu popupMenu;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -164,6 +176,12 @@ public class EmpWiseAttendance extends AppCompatActivity {
         circularProgressIndicator.setVisibility(View.GONE);
 
         backButton = findViewById(R.id.back_logo_of_emp_wise_attendance);
+
+        branchSelect = findViewById(R.id.branch_selection_for_emp_att);
+        branchName = findViewById(R.id.selected_branch_name_emp_att);
+        branchLists = new ArrayList<>();
+
+        popupMenu = new PopupMenu(EmpWiseAttendance.this, branchSelect);
 
         divisionSelect = findViewById(R.id.division_select_for_emp_att);
         divisionLists = new ArrayList<>();
@@ -189,6 +207,7 @@ public class EmpWiseAttendance extends AppCompatActivity {
         empName = findViewById(R.id.emp_name_in_emp_wise_attendace);
         empCode = findViewById(R.id.emp_code_in_emp_wise_attendace);
         empDesignation = findViewById(R.id.emp_designation_in_emp_wise_attendace);
+        empCenter = findViewById(R.id.emp_pri_loc_in_emp_wise_attendace);
 
         monthSelection = findViewById(R.id.select_month_for_att_graph_emp_wise);
 
@@ -222,6 +241,7 @@ public class EmpWiseAttendance extends AppCompatActivity {
         reportView.addItemDecoration(dividerItemDecoration);
 
         Intent intent = getIntent();
+        selected_coa_id = intent.getStringExtra("COA_ID") != null ? intent.getStringExtra("COA_ID") : "";
         selected_div_id = intent.getStringExtra("DIV_ID") != null ? intent.getStringExtra("DIV_ID") : "";
         selected_dept_id = intent.getStringExtra("DEPT_ID") != null ? intent.getStringExtra("DEPT_ID") : "";
         selected_desig_id = intent.getStringExtra("DESIG_ID") != null ? intent.getStringExtra("DESIG_ID") : "";
@@ -230,6 +250,29 @@ public class EmpWiseAttendance extends AppCompatActivity {
         attChartInit();
 
         getCurrentDateMonthYear();
+
+        popupMenu.setOnMenuItemClickListener(menuItem -> {
+            String branch_name = "";
+            for (int i = 0; i <branchLists.size(); i++) {
+                if (String.valueOf(menuItem.getItemId()).equals(branchLists.get(i).getId())) {
+
+                    selected_coa_id = branchLists.get(i).getId();
+                    branch_name = branchLists.get(i).getName();
+                }
+            }
+
+            branchName.setText(branch_name);
+
+            if (selected_coa_id.equals("30")) {
+                getDivisions();
+            }
+            else {
+                getDivisionsCoa();
+            }
+            return false;
+        });
+
+        branchSelect.setOnClickListener(view -> popupMenu.show());
 
         divisionSelect.setOnItemClickListener((parent, view, position, id) -> {
             selected_dept_id = "";
@@ -322,6 +365,7 @@ public class EmpWiseAttendance extends AppCompatActivity {
             emp_name = "";
             emp_code = "";
             emp_designation = "";
+            emp_center = "";
 
             String name = parent.getItemAtPosition(position).toString();
             System.out.println(position+": "+name);
@@ -332,6 +376,7 @@ public class EmpWiseAttendance extends AppCompatActivity {
                     emp_name = employeeLists.get(i).getEmp_name();
                     emp_code = employeeLists.get(i).getEmp_code();
                     emp_designation = employeeLists.get(i).getJob_calling_title();
+                    emp_center = employeeLists.get(i).getCoa_name();
                 }
             }
 
@@ -525,7 +570,12 @@ public class EmpWiseAttendance extends AppCompatActivity {
         });
 
         if (!selected_div_id.isEmpty() && !selected_dept_id.isEmpty() && !selected_desig_id.isEmpty() && !selected_emp_id.isEmpty()) {
-            getAllData();
+            if (selected_coa_id.isEmpty() || selected_coa_id.equals("30")) {
+                getAllData();
+            }
+            else {
+                getAllDataCoa();
+            }
         }
         else {
             getDivisions();
@@ -535,7 +585,7 @@ public class EmpWiseAttendance extends AppCompatActivity {
     private void getCurrentDateMonthYear() {
         Date dd = Calendar.getInstance().getTime();
         SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM-yy", Locale.getDefault());
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM-yy", Locale.ENGLISH);
         SimpleDateFormat dateFormat1 = new SimpleDateFormat("MMM, yyyy",Locale.ENGLISH);
         SimpleDateFormat dateFormat2 = new SimpleDateFormat("dd MMM, yyyy",Locale.ENGLISH);
 
@@ -560,7 +610,7 @@ public class EmpWiseAttendance extends AppCompatActivity {
             Date lastDayOfMonth = calendar1.getTime();
 
             last_date = df.format(lastDayOfMonth).toUpperCase(Locale.ENGLISH);
-            lastDateToView = dateFormat2.format(lastDayOfMonth);
+            lastDateToView = dateFormat2.format(lastDayOfMonth).toUpperCase(Locale.ENGLISH);
         }
 
         YearMonth yearMonthObject;
@@ -625,7 +675,9 @@ public class EmpWiseAttendance extends AppCompatActivity {
         connected = false;
         loading = true;
         divisionLists = new ArrayList<>();
+        branchLists = new ArrayList<>();
 
+        String brnUrl = pre_url_api+"hrm_dashboard/getBranches";
         String divUrl = pre_url_api+"hrm_dashboard/getDivision";
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
@@ -666,7 +718,43 @@ public class EmpWiseAttendance extends AppCompatActivity {
             updateDivisionLay();
         });
 
-        requestQueue.add(divReq);
+        StringRequest brnReq = new StringRequest(Request.Method.GET, brnUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    branchLists.add(new BranchList("30","None"));
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject info = array.getJSONObject(i);
+
+                        String coa_id = info.getString("coa_id")
+                                .equals("null") ? "" :info.getString("coa_id");
+                        String coa_name = info.getString("coa_name")
+                                .equals("null") ? "" :info.getString("coa_name");
+
+                        branchLists.add(new BranchList(coa_id,coa_name));
+                    }
+                }
+                requestQueue.add(divReq);
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateDivisionLay();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateDivisionLay();
+        });
+
+        requestQueue.add(brnReq);
     }
 
     public void updateDivisionLay() {
@@ -693,6 +781,14 @@ public class EmpWiseAttendance extends AppCompatActivity {
                 employeeSelectLay.setEnabled(false);
 
                 empDataLay.setVisibility(View.GONE);
+
+                popupMenu.getMenuInflater().inflate(R.menu.branch_menu, popupMenu.getMenu());
+
+                Menu menu = popupMenu.getMenu();
+                menu.clear();
+                for(int i = 0; i < branchLists.size(); i++) {
+                    menu.add(0,Integer.parseInt(branchLists.get(i).getId()),Menu.NONE,branchLists.get(i).getName());
+                }
 
                 ArrayList<String> type = new ArrayList<>();
                 for(int i = 0; i < divisionLists.size(); i++) {
@@ -752,6 +848,142 @@ public class EmpWiseAttendance extends AppCompatActivity {
         }
     }
 
+    // -- Divisions with COA
+    public void getDivisionsCoa() {
+        fullLayout.setVisibility(View.GONE);
+        circularProgressIndicator.setVisibility(View.VISIBLE);
+        empDataLay.setVisibility(View.GONE);
+        conn = false;
+        connected = false;
+        loading = true;
+        divisionLists = new ArrayList<>();
+
+        String divUrl = pre_url_api+"hrm_dashboard/getDivisionWithCoa?p_coa_id="+selected_coa_id;
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        StringRequest divReq = new StringRequest(Request.Method.GET, divUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject info = array.getJSONObject(i);
+
+                        String divm_id = info.getString("divm_id")
+                                .equals("null") ? "" :info.getString("divm_id");
+                        String divm_name = info.getString("divm_name")
+                                .equals("null") ? "" :info.getString("divm_name");
+
+                        divisionLists.add(new DivisionList(divm_id,divm_name));
+                    }
+                }
+                connected = true;
+                updateDivisionLayCoa();
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateDivisionLayCoa();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateDivisionLayCoa();
+        });
+
+        requestQueue.add(divReq);
+    }
+
+    public void updateDivisionLayCoa() {
+        if (conn) {
+            if (connected) {
+                fullLayout.setVisibility(View.VISIBLE);
+                circularProgressIndicator.setVisibility(View.GONE);
+                conn = false;
+                connected = false;
+
+                selected_div_id = "";
+                divisionSelect.setText("");
+
+                selected_dept_id = "";
+                departmentSelect.setText("");
+                departmentSelectLay.setEnabled(false);
+
+                selected_desig_id = "";
+                designationSelect.setText("");
+                designationSelectLay.setEnabled(false);
+
+                selected_emp_id = "";
+                employeeSelect.setText("");
+                employeeSelectLay.setEnabled(false);
+
+                empDataLay.setVisibility(View.GONE);
+
+                ArrayList<String> type = new ArrayList<>();
+                for(int i = 0; i < divisionLists.size(); i++) {
+                    type.add(divisionLists.get(i).getDivm_name());
+                }
+
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(EmpWiseAttendance.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
+                divisionSelect.setAdapter(arrayAdapter);
+
+                loading = false;
+
+            }
+            else {
+                alertMessageDivCoa();
+            }
+        }
+        else {
+            alertMessageDivCoa();
+        }
+    }
+
+    public void alertMessageDivCoa() {
+        fullLayout.setVisibility(View.GONE);
+        circularProgressIndicator.setVisibility(View.GONE);
+
+        if (parsing_message != null) {
+            if (parsing_message.isEmpty() || parsing_message.equals("null")) {
+                parsing_message = "Server problem or Internet not connected";
+            }
+        }
+        else {
+            parsing_message = "Server problem or Internet not connected";
+        }
+
+        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(this);
+        alertDialogBuilder.setTitle("Error!")
+                .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
+                .setPositiveButton("Retry", (dialog, which) -> {
+                    loading = false;
+                    getDivisionsCoa();
+                    dialog.dismiss();
+                })
+                .setNegativeButton("Exit",(dialog, which) -> {
+                    loading = false;
+                    dialog.dismiss();
+                    finish();
+                });
+
+        AlertDialog alert = alertDialogBuilder.create();
+        alert.setCancelable(false);
+        alert.setCanceledOnTouchOutside(false);
+        try {
+            alert.show();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
+    }
+
     // --- Departments
     public void getDepartment() {
         fullLayout.setVisibility(View.GONE);
@@ -761,7 +993,13 @@ public class EmpWiseAttendance extends AppCompatActivity {
         loading = true;
         departmentLists = new ArrayList<>();
 
-        String deptUrl = pre_url_api+"hrm_dashboard/getDepartmentByDiv?p_div_id="+selected_div_id;
+        String deptUrl;
+        if (selected_coa_id.isEmpty() || selected_coa_id.equals("30")) {
+            deptUrl = pre_url_api + "hrm_dashboard/getDepartmentByDiv?p_div_id=" + selected_div_id;
+        }
+        else {
+            deptUrl = pre_url_api+"hrm_dashboard/getDepartmentByDivCoa?p_div_id="+selected_div_id+"&p_coa_id="+selected_coa_id;
+        }
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
@@ -894,7 +1132,13 @@ public class EmpWiseAttendance extends AppCompatActivity {
         loading = true;
         designationLists = new ArrayList<>();
 
-        String desigUrl = pre_url_api+"hrm_dashboard/getDesignationsByDept?p_dep_Id="+selected_dept_id+"&p_div_id="+selected_div_id;
+        String desigUrl;
+        if (selected_coa_id.isEmpty() || selected_coa_id.equals("30")) {
+            desigUrl = pre_url_api + "hrm_dashboard/getDesignationsByDept?p_dep_Id=" + selected_dept_id + "&p_div_id=" + selected_div_id;
+        }
+        else {
+            desigUrl = pre_url_api+"hrm_dashboard/getDesignationsByDeptCoa?p_dep_Id="+selected_dept_id+"&p_div_id="+selected_div_id+"&p_coa_id="+selected_coa_id;
+        }
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
@@ -1021,7 +1265,13 @@ public class EmpWiseAttendance extends AppCompatActivity {
         loading = true;
         employeeLists = new ArrayList<>();
 
-        String empUrl = pre_url_api+"hrm_dashboard/getEmployeeByDesig?p_dep_id="+selected_dept_id+"&p_div_id="+selected_div_id+"&p_desig_id="+selected_desig_id;
+        String empUrl;
+        if (selected_coa_id.isEmpty() || selected_coa_id.equals("30")) {
+            empUrl = pre_url_api + "hrm_dashboard/getEmployeeByDesig?p_dep_id=" + selected_dept_id + "&p_div_id=" + selected_div_id + "&p_desig_id=" + selected_desig_id;
+        }
+        else {
+            empUrl = pre_url_api+"hrm_dashboard/getEmployeeByDesigCoa?p_dep_id="+selected_dept_id+"&p_div_id="+selected_div_id+"&p_desig_id="+selected_desig_id+"&p_coa_id="+selected_coa_id;
+        }
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
@@ -1050,8 +1300,10 @@ public class EmpWiseAttendance extends AppCompatActivity {
                                 .equals("null") ? "" :info.getString("jsm_desig_id");
                         String job_calling_title = info.getString("job_calling_title")
                                 .equals("null") ? "" :info.getString("job_calling_title");
+                        String coa_name = info.getString("coa_name")
+                                .equals("null") ? "" :info.getString("coa_name");
 
-                        employeeLists.add(new EmployeeList(emp_id,emp_code,emp_name,jsm_divm_id,jsm_dept_id,jsm_desig_id,job_calling_title));
+                        employeeLists.add(new EmployeeList(emp_id,emp_code,emp_name,jsm_divm_id,jsm_dept_id,jsm_desig_id,job_calling_title,coa_name));
                     }
                 }
                 connected = true;
@@ -1520,6 +1772,7 @@ public class EmpWiseAttendance extends AppCompatActivity {
                 String tt = "("+emp_code+")";
                 empCode.setText(tt);
                 empDesignation.setText(emp_designation);
+                empCenter.setText(emp_center);
 
                 final int[] piecolors = new int[]{
                         Color.rgb(85, 239, 196),
@@ -1712,6 +1965,7 @@ public class EmpWiseAttendance extends AppCompatActivity {
         connected = false;
         loading = true;
 
+        branchLists = new ArrayList<>();
         divisionLists = new ArrayList<>();
         departmentLists = new ArrayList<>();
         designationLists = new ArrayList<>();
@@ -1738,6 +1992,7 @@ public class EmpWiseAttendance extends AppCompatActivity {
         leave_days = "";
         work_leave_days = "";
 
+        String brnUrl = pre_url_api+"hrm_dashboard/getBranches";
         String divUrl = pre_url_api+"hrm_dashboard/getDivision";
         String deptUrl = pre_url_api+"hrm_dashboard/getDepartmentByDiv?p_div_id="+selected_div_id;
         String desigUrl = pre_url_api+"hrm_dashboard/getDesignationsByDept?p_dep_Id="+selected_dept_id+"&p_div_id="+selected_div_id;
@@ -2096,8 +2351,10 @@ public class EmpWiseAttendance extends AppCompatActivity {
                                 .equals("null") ? "" :info.getString("jsm_desig_id");
                         String job_calling_title = info.getString("job_calling_title")
                                 .equals("null") ? "" :info.getString("job_calling_title");
+                        String coa_name = info.getString("coa_name")
+                                .equals("null") ? "" :info.getString("coa_name");
 
-                        employeeLists.add(new EmployeeList(emp_id,emp_code,emp_name,jsm_divm_id,jsm_dept_id,jsm_desig_id,job_calling_title));
+                        employeeLists.add(new EmployeeList(emp_id,emp_code,emp_name,jsm_divm_id,jsm_dept_id,jsm_desig_id,job_calling_title,coa_name));
                     }
                 }
                 requestQueue.add(attReq);
@@ -2223,8 +2480,43 @@ public class EmpWiseAttendance extends AppCompatActivity {
             updateInterface();
         });
 
-        requestQueue.add(divReq);
+        StringRequest brnReq = new StringRequest(Request.Method.GET, brnUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    branchLists.add(new BranchList("30","None"));
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject info = array.getJSONObject(i);
 
+                        String coa_id = info.getString("coa_id")
+                                .equals("null") ? "" :info.getString("coa_id");
+                        String coa_name = info.getString("coa_name")
+                                .equals("null") ? "" :info.getString("coa_name");
+
+                        branchLists.add(new BranchList(coa_id,coa_name));
+                    }
+                }
+                requestQueue.add(divReq);
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateInterface();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateInterface();
+        });
+
+        requestQueue.add(brnReq);
     }
 
     public void updateInterface() {
@@ -2235,6 +2527,26 @@ public class EmpWiseAttendance extends AppCompatActivity {
                 conn = false;
                 connected = false;
 
+                popupMenu.getMenuInflater().inflate(R.menu.branch_menu, popupMenu.getMenu());
+                Menu menu = popupMenu.getMenu();
+                menu.clear();
+                for(int i = 0; i < branchLists.size(); i++) {
+                    menu.add(0,Integer.parseInt(branchLists.get(i).getId()),Menu.NONE,branchLists.get(i).getName());
+                }
+
+                if (selected_coa_id.isEmpty()) {
+                    String bb = "None";
+                    branchName.setText(bb);
+                }
+                else {
+                    String brn = "";
+                    for (int i = 0; i < branchLists.size(); i++) {
+                        if (selected_coa_id.equals(branchLists.get(i).getId())) {
+                            brn = branchLists.get(i).getName();
+                        }
+                    }
+                    branchName.setText(brn);
+                }
                 // --- Division
                 String div_name = "";
                 for (int i = 0; i < divisionLists.size(); i++) {
@@ -2292,11 +2604,13 @@ public class EmpWiseAttendance extends AppCompatActivity {
                 emp_name = "";
                 emp_code = "";
                 emp_designation = "";
+                emp_center = "";
                 for (int i = 0; i < employeeLists.size(); i++) {
                     if (selected_emp_id.equals(employeeLists.get(i).getEmp_id())) {
                         emp_name = employeeLists.get(i).getEmp_name();
                         emp_code = employeeLists.get(i).getEmp_code();
                         emp_designation = employeeLists.get(i).getJob_calling_title();
+                        emp_center = employeeLists.get(i).getCoa_name();
                     }
                 }
                 employeeSelect.setText(emp_name);
@@ -2316,6 +2630,7 @@ public class EmpWiseAttendance extends AppCompatActivity {
                 String tt = "("+emp_code+")";
                 empCode.setText(tt);
                 empDesignation.setText(emp_designation);
+                empCenter.setText(emp_center);
                 // --- Pie chart Initialization
                 final int[] piecolors = new int[]{
                         Color.rgb(85, 239, 196),
@@ -2480,7 +2795,12 @@ public class EmpWiseAttendance extends AppCompatActivity {
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
                     loading = false;
-                    getAllData();
+                    if (selected_coa_id.isEmpty() || selected_coa_id.equals("30")) {
+                        getAllData();
+                    }
+                    else {
+                        getAllDataCoa();
+                    }
                     dialog.dismiss();
                 })
                 .setNegativeButton("Exit",(dialog, which) -> {
@@ -2498,6 +2818,569 @@ public class EmpWiseAttendance extends AppCompatActivity {
         catch (Exception e) {
             restart("App is paused for a long time. Please Start the app again.");
         }
+    }
+
+    public void getAllDataCoa() {
+        fullLayout.setVisibility(View.GONE);
+        circularProgressIndicator.setVisibility(View.VISIBLE);
+        empDataLay.setVisibility(View.GONE);
+        conn = false;
+        connected = false;
+        loading = true;
+
+        branchLists = new ArrayList<>();
+        divisionLists = new ArrayList<>();
+        departmentLists = new ArrayList<>();
+        designationLists = new ArrayList<>();
+        employeeLists = new ArrayList<>();
+
+        attPieEntry = new ArrayList<>();
+        present_tot = "0";
+        absent_tot = "0";
+        leave_tot = "0";
+        holiday_tot = "0";
+        late_tot = "0";
+        early_tot = "0";
+        both_late_early_tot = "0";
+
+        attendanceReportLists = new ArrayList<>();
+
+        present_days = "";
+        absent_days = "";
+        weekend = "";
+        present_weekend = "";
+        hol = "";
+        present_holi = "";
+        working_days = "";
+        leave_days = "";
+        work_leave_days = "";
+
+        String brnUrl = pre_url_api+"hrm_dashboard/getBranches";
+        String divUrl = pre_url_api+"hrm_dashboard/getDivisionWithCoa?p_coa_id="+selected_coa_id;
+        String deptUrl = pre_url_api+"hrm_dashboard/getDepartmentByDivCoa?p_div_id="+selected_div_id+"&p_coa_id="+selected_coa_id;
+        String desigUrl = pre_url_api+"hrm_dashboard/getDesignationsByDeptCoa?p_dep_Id="+selected_dept_id+"&p_div_id="+selected_div_id+"&p_coa_id="+selected_coa_id;
+        String empUrl = pre_url_api+"hrm_dashboard/getEmployeeByDesigCoa?p_dep_id="+selected_dept_id+"&p_div_id="+selected_div_id+"&p_desig_id="+selected_desig_id+"&p_coa_id="+selected_coa_id;
+        String attUrl = pre_url_api+"hrm_dashboard/getAttendanceCountEmp?first_date="+first_date+"&last_date="+last_date+"&p_emp_id="+selected_emp_id;
+        String attReportUrl = pre_url_api+"hrm_dashboard/getAttReportData?first_date="+first_date+"&last_date="+last_date+"&emp_id="+selected_emp_id;
+        String attStatUrl =pre_url_api+"hrm_dashboard/getAttStatus?first_date="+first_date+"&last_date="+last_date+"&emp_id="+selected_emp_id;
+        String workDaysUrl = pre_url_api+"hrm_dashboard/getAttWorkingDays?first_date="+first_date+"&last_date="+last_date;
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        StringRequest workingDaysReq = new StringRequest(Request.Method.GET, workDaysUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject workDaysInfo = array.getJSONObject(i);
+
+                        working_days = workDaysInfo.getString("work_days")
+                                .equals("null") ? "0" : workDaysInfo.getString("work_days");
+                    }
+                }
+                connected = true;
+                updateInterface();
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateInterface();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateInterface();
+        });
+
+        StringRequest attStatReq = new StringRequest(Request.Method.GET, attStatUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject attStatInfo = array.getJSONObject(i);
+
+                        present_days = attStatInfo.getString("present_status")
+                                .equals("null") ? "0" : attStatInfo.getString("present_status");
+                        absent_days = attStatInfo.getString("absent_status")
+                                .equals("null") ? "0" : attStatInfo.getString("absent_status");
+                        weekend = attStatInfo.getString("weekend_status")
+                                .equals("null") ? "0" : attStatInfo.getString("weekend_status");
+                        present_weekend = attStatInfo.getString("present_weekend")
+                                .equals("null") ? "0" : attStatInfo.getString("present_weekend");
+                        hol = attStatInfo.getString("holiday_status")
+                                .equals("null") ? "0" : attStatInfo.getString("holiday_status");
+                        present_holi = attStatInfo.getString("present_holiday_status")
+                                .equals("null") ? "0" : attStatInfo.getString("present_holiday_status");
+                        leave_days = attStatInfo.getString("leave_status")
+                                .equals("null") ? "0" : attStatInfo.getString("leave_status");
+                        work_leave_days = attStatInfo.getString("present_leave_status")
+                                .equals("null") ? "0" : attStatInfo.getString("present_leave_status");
+                    }
+                }
+
+                requestQueue.add(workingDaysReq);
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateInterface();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateInterface();
+        });
+
+        StringRequest attendanceReportReq = new StringRequest(Request.Method.GET, attReportUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject attRepInfo = array.getJSONObject(i);
+
+                        String dac_in_date_time = attRepInfo.getString("dac_in_date_time")
+                                .equals("null") ? "" : attRepInfo.getString("dac_in_date_time");
+
+                        String dac_late_after = attRepInfo.getString("dac_late_after")
+                                .equals("null") ? "" : attRepInfo.getString("dac_late_after");
+                        String dac_early_before = attRepInfo.getString("dac_early_before")
+                                .equals("null") ? "" : attRepInfo.getString("dac_early_before");
+
+                        String dac_out_date_time = attRepInfo.getString("dac_out_date_time")
+                                .equals("null") ? "" : attRepInfo.getString("dac_out_date_time");
+
+                        String dac_date1 = attRepInfo.getString("dac_date1")
+                                .equals("null") ? "" : attRepInfo.getString("dac_date1");
+
+                        String statusShort = attRepInfo.getString("dac_attn_status")
+                                .equals("null") ? "" : attRepInfo.getString("dac_attn_status");
+
+                        String lc_name = attRepInfo.getString("lc_name")
+                                .equals("null") ? "" : attRepInfo.getString("lc_name");
+
+                        String osm_name = attRepInfo.getString("osm_name")
+                                .equals("null") ? "" : attRepInfo.getString("osm_name");
+                        String coa_name = attRepInfo.getString("coa_name")
+                                .equals("null") ? "" : attRepInfo.getString("coa_name");
+
+                        String inCode = attRepInfo.getString("in_machine_coa_id")
+                                .equals("null") ? "" : attRepInfo.getString("in_machine_coa_id");
+                        String outCode = attRepInfo.getString("out_machine_coa_id")
+                                .equals("null") ? "" : attRepInfo.getString("out_machine_coa_id");
+
+                        String in_lat = attRepInfo.getString("dac_in_attd_latitude")
+                                .equals("null") ? "" : attRepInfo.getString("dac_in_attd_latitude");
+                        String in_lon = attRepInfo.getString("dac_in_attd_longitude")
+                                .equals("null") ? "" : attRepInfo.getString("dac_in_attd_longitude");
+                        String out_lat = attRepInfo.getString("dac_out_attd_latitude")
+                                .equals("null") ? "" : attRepInfo.getString("dac_out_attd_latitude");
+                        String out_lon = attRepInfo.getString("dac_out_attd_longitude")
+                                .equals("null") ? "" : attRepInfo.getString("dac_out_attd_longitude");
+
+                        String status;
+                        String attStatus;
+
+                        if (!statusShort.isEmpty()) {
+                            if (!dac_in_date_time.isEmpty() && dac_out_date_time.isEmpty()) {
+                                status = "Out Miss";
+                                attStatus = "Out Miss";
+                            } else if (statusShort.equals("L") || statusShort.equals("LW") || statusShort.equals("LH")) {
+                                status = lc_name;
+                                if (status.isEmpty()) {
+                                    status = "In Leave";
+                                }
+                                attStatus = "In Leave";
+                            } else if (statusShort.equals("H")) {
+                                status = "Holiday";
+                                attStatus = "Off Day";
+                            } else if (statusShort.equals("W")) {
+                                status = "Weekend";
+                                attStatus = "Off Day";
+                            } else if (statusShort.equals("PL") || statusShort.equals("PLH") || statusShort.equals("PLW")) {
+                                status = "Present & Leave";
+                                attStatus = "Present on Leave Day";
+                            } else if (statusShort.equals("PAT")) {
+                                status = "Attended training";
+                                attStatus = "White";
+                            } else if (statusShort.equals("PHD") || statusShort.equals("PWD") || statusShort.equals("PLHD") || statusShort.equals("PLWD")) {
+                                status = "Present & Day Off Taken";
+                                attStatus = "White";
+                            } else if (statusShort.equals("P") || statusShort.equals("PWWO") || statusShort.equals("PHWC") || statusShort.equals("PWWC") || statusShort.equals("PA")) {
+                                status = "Present";
+                                attStatus = "White";
+                            } else if (statusShort.equals("PW") || statusShort.equals("PH")) {
+                                status = "Present & Off Day";
+                                attStatus = "Present on Off Day";
+                            } else if (statusShort.equals("A")) {
+                                status = "Absent";
+                                attStatus = "Absent";
+                            } else if (statusShort.equals("PT")) {
+                                status = "Tour";
+                                attStatus = "White";
+                            } else if (statusShort.equals("SP")) {
+                                status = "Suspend";
+                                attStatus = "White";
+                            } else {
+                                status = "Absent";
+                                attStatus = "Absent";
+                            }
+                        }
+                        else {
+                            status = "No Status";
+                            attStatus = "White";
+                        }
+
+                        if (!inCode.isEmpty() && !outCode.isEmpty()) {
+                            int in = Integer.parseInt(inCode);
+                            int out = Integer.parseInt(outCode);
+                            if (in != out ) {
+                                attStatus = "Multi Station";
+                            }
+                        }
+
+                        String shift = osm_name;
+
+                        if (!lc_name.isEmpty()) {
+                            shift = "";
+                        }
+                        if (status.equals("Weekend")) {
+                            shift = "";
+                        }
+
+                        String inTime = dac_in_date_time;
+
+                        Date in = null;
+                        Date late = null;
+
+                        String inStatus = "";
+
+                        SimpleDateFormat tt = new SimpleDateFormat("hh:mm:ss aa", Locale.ENGLISH);
+                        SimpleDateFormat newtt = new SimpleDateFormat("hh:mm aa",Locale.ENGLISH);
+
+                        if (inTime.isEmpty()) {
+                            inStatus = "";
+                        }
+                        else {
+                            try {
+                                in = tt.parse(inTime);
+                                late = tt.parse(dac_late_after);
+
+                            } catch (ParseException e) {
+                                logger.log(Level.WARNING,e.getMessage(),e);
+                            }
+
+                            if (in != null && late != null) {
+                                inTime = newtt.format(in);
+                                if (late.after(in)) {
+                                    inStatus = "";
+                                } else {
+                                    inStatus = "Late";
+                                }
+                            }
+                        }
+
+                        String outTime = dac_out_date_time;
+
+                        String outStatus = "";
+
+                        if (outTime.isEmpty()) {
+                            outStatus = "";
+                        }
+                        else {
+                            try {
+                                in = tt.parse(outTime);
+                                late = tt.parse(dac_early_before);
+
+                            } catch (ParseException e) {
+                                logger.log(Level.WARNING,e.getMessage(),e);
+                            }
+
+                            if (in != null && late != null) {
+                                outTime = newtt.format(in);
+                                if (late.after(in)) {
+                                    outStatus = "Early";
+                                } else {
+                                    outStatus = "";
+                                }
+                            }
+                        }
+
+                        attendanceReportLists.add(new AttendanceReportList(dac_date1,status,shift,coa_name,
+                                inTime,inStatus,outTime,outStatus,attStatus,in_lat,in_lon,out_lat,out_lon));
+                    }
+                }
+
+                requestQueue.add(attStatReq);
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateInterface();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateInterface();
+        });
+
+        StringRequest attReq = new StringRequest(Request.Method.GET, attUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject docInfo = array.getJSONObject(i);
+
+                        absent_tot = docInfo.getString("absent")
+                                .equals("null") ? "0" : docInfo.getString("absent");
+                        present_tot = docInfo.getString("present")
+                                .equals("null") ? "0" : docInfo.getString("present");
+                        leave_tot = docInfo.getString("leave")
+                                .equals("null") ? "0" : docInfo.getString("leave");
+                        holiday_tot = docInfo.getString("holiday_weekend")
+                                .equals("null") ? "0" : docInfo.getString("holiday_weekend");
+                        late_tot = docInfo.getString("late_count")
+                                .equals("null") ? "0" : docInfo.getString("late_count");
+                        early_tot = docInfo.getString("early_count")
+                                .equals("null") ? "0" : docInfo.getString("early_count");
+                        both_late_early_tot = docInfo.getString("both_late_early_count")
+                                .equals("null") ? "0" : docInfo.getString("both_late_early_count");
+
+                    }
+                }
+
+                requestQueue.add(attendanceReportReq);
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateInterface();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateInterface();
+        });
+
+        StringRequest empReq = new StringRequest(Request.Method.GET, empUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject info = array.getJSONObject(i);
+
+                        String emp_id = info.getString("emp_id")
+                                .equals("null") ? "" :info.getString("emp_id");
+                        String emp_code = info.getString("emp_code")
+                                .equals("null") ? "" :info.getString("emp_code");
+                        String emp_name = info.getString("emp_name")
+                                .equals("null") ? "" :info.getString("emp_name");
+                        String jsm_divm_id = info.getString("jsm_divm_id")
+                                .equals("null") ? "" :info.getString("jsm_divm_id");
+                        String jsm_dept_id = info.getString("jsm_dept_id")
+                                .equals("null") ? "" :info.getString("jsm_dept_id");
+                        String jsm_desig_id = info.getString("jsm_desig_id")
+                                .equals("null") ? "" :info.getString("jsm_desig_id");
+                        String job_calling_title = info.getString("job_calling_title")
+                                .equals("null") ? "" :info.getString("job_calling_title");
+                        String coa_name = info.getString("coa_name")
+                                .equals("null") ? "" :info.getString("coa_name");
+
+                        employeeLists.add(new EmployeeList(emp_id,emp_code,emp_name,jsm_divm_id,jsm_dept_id,jsm_desig_id,job_calling_title,coa_name));
+                    }
+                }
+                requestQueue.add(attReq);
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateInterface();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateInterface();
+        });
+
+        StringRequest desigReq = new StringRequest(Request.Method.GET, desigUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject info = array.getJSONObject(i);
+
+                        String desig_id = info.getString("desig_id")
+                                .equals("null") ? "" :info.getString("desig_id");
+                        String desig_name = info.getString("desig_name")
+                                .equals("null") ? "" :info.getString("desig_name");
+
+                        designationLists.add(new DesignationList(desig_id,desig_name));
+                    }
+                }
+                requestQueue.add(empReq);
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateInterface();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateInterface();
+        });
+
+        StringRequest depReq = new StringRequest(Request.Method.GET, deptUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject info = array.getJSONObject(i);
+
+                        String dept_id = info.getString("dept_id")
+                                .equals("null") ? "" :info.getString("dept_id");
+                        String dept_name = info.getString("dept_name")
+                                .equals("null") ? "" :info.getString("dept_name");
+                        String dept_divm_id = info.getString("dept_divm_id")
+                                .equals("null") ? "" :info.getString("dept_divm_id");
+
+                        departmentLists.add(new DepartmentList(dept_id,dept_name,dept_divm_id));
+                    }
+                }
+                requestQueue.add(desigReq);
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateInterface();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateInterface();
+        });
+
+        StringRequest divReq = new StringRequest(Request.Method.GET, divUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject info = array.getJSONObject(i);
+
+                        String divm_id = info.getString("divm_id")
+                                .equals("null") ? "" :info.getString("divm_id");
+                        String divm_name = info.getString("divm_name")
+                                .equals("null") ? "" :info.getString("divm_name");
+
+                        divisionLists.add(new DivisionList(divm_id,divm_name));
+                    }
+                }
+                requestQueue.add(depReq);
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateInterface();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateInterface();
+        });
+
+        StringRequest brnReq = new StringRequest(Request.Method.GET, brnUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    branchLists.add(new BranchList("30","None"));
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject info = array.getJSONObject(i);
+
+                        String coa_id = info.getString("coa_id")
+                                .equals("null") ? "" :info.getString("coa_id");
+                        String coa_name = info.getString("coa_name")
+                                .equals("null") ? "" :info.getString("coa_name");
+
+                        branchLists.add(new BranchList(coa_id,coa_name));
+                    }
+                }
+                requestQueue.add(divReq);
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateInterface();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateInterface();
+        });
+
+        requestQueue.add(brnReq);
+
     }
 
     public void restart(String msg) {

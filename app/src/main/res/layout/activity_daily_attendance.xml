@@ -38,6 +38,8 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="@dimen/_12sdp"
                 android:layout_toEndOf="@+id/back_logo_of_daily_attendance"
+                android:layout_toStartOf="@+id/branch_selection_for_da"
+                android:layout_marginEnd="@dimen/_4sdp"
                 android:fontFamily="@font/poppins_bold"
                 android:text="@string/da_bar_name"
                 android:paddingTop="2dp"
@@ -45,6 +47,35 @@
                 android:textColor="@color/black"
                 android:textSize="@dimen/_14sdp"
                 tools:ignore="HardcodedText" />
+
+            <LinearLayout
+                android:id="@+id/branch_selection_for_da"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="@dimen/_16sdp"
+                    android:layout_height="@dimen/_18sdp"
+                    android:src="@drawable/hospital_icon"
+                    app:tint="@color/green_sea"
+                    tools:ignore="ContentDescription" />
+
+                <TextView
+                    android:id="@+id/selected_branch_name_da"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/green_sea"
+                    android:text="None"
+                    android:fontFamily="@font/archivo_bold"
+                    android:textSize="@dimen/_8sdp"
+                    android:layout_gravity="center"
+                    android:padding="@dimen/_2sdp"
+                    android:layout_marginStart="@dimen/_2sdp"/>
+
+            </LinearLayout>
 
         </RelativeLayout>
 

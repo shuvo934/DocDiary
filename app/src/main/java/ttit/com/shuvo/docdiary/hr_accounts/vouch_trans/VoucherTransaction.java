@@ -142,9 +142,9 @@ public class VoucherTransaction extends AppCompatActivity {
         lastDate = intent.getStringExtra("LAST_DATE");
 
         voucherTypeLists.add("...");
-        voucherTypeLists.add("CV");
-        voucherTypeLists.add("DV");
-        voucherTypeLists.add("JV");
+        voucherTypeLists.add("CV (Receive)");
+        voucherTypeLists.add("DV (Payment)");
+        voucherTypeLists.add("JV (Transfer)");
 
         ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, R.layout.dropdown_menu_popup_item, R.id.drop_down_item, voucherTypeLists);
 
@@ -442,6 +442,9 @@ public class VoucherTransaction extends AppCompatActivity {
 
     private void filterVoucher(String text) {
         filteredLists = new ArrayList<>();
+        if (!text.isEmpty()) {
+            text = text.substring(0,2);
+        }
 //        for (VoucherLists1 item : voucherLists1s) {
 //            if (text.isEmpty()) {
 //                filteredLists.add(item);
