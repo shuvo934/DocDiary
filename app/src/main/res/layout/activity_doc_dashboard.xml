@@ -110,7 +110,7 @@
                             android:textSize="@dimen/_12sdp"
                             android:layout_alignParentStart="true"
                             android:layout_below="@id/greetings_text"
-                            android:layout_toStartOf="@+id/doc_pic_dashboard_cardview"
+                            android:layout_toStartOf="@+id/doc_pic_dashboard_cardview_layout"
                             android:textColor="@color/black"
                             android:fontFamily="@font/poppins_medium"
                             android:layout_marginBottom="@dimen/_4sdp"
@@ -128,27 +128,47 @@
                             android:layout_marginBottom="@dimen/_4sdp"
                             android:layout_marginStart="@dimen/_7sdp"/>
 
-                        <androidx.cardview.widget.CardView
-                            android:id="@+id/doc_pic_dashboard_cardview"
-                            android:layout_width="@dimen/_40sdp"
-                            android:layout_height="@dimen/_40sdp"
-                            android:elevation="4dp"
-                            app:cardCornerRadius="@dimen/_70sdp"
+                        <RelativeLayout
+                            android:id="@+id/doc_pic_dashboard_cardview_layout"
+                            android:layout_width="@dimen/_50sdp"
+                            android:layout_height="@dimen/_50sdp"
                             android:layout_margin="@dimen/_7sdp"
                             android:layout_alignParentEnd="true"
                             android:layout_centerVertical="true"
                             android:layout_gravity="center">
 
-                            <de.hdodenhof.circleimageview.CircleImageView
-                                android:id="@+id/doc_profile_image_in_dashboard"
-                                android:layout_width="@dimen/_40sdp"
-                                android:layout_height="@dimen/_40sdp"
-                                android:layout_gravity="center"
-                                android:src="@drawable/doctor"
-                                app:civ_border_width="1dp"
-                                app:civ_border_color="@color/green_sea"/>
+                            <androidx.cardview.widget.CardView
+                                android:id="@+id/doc_pic_dashboard_cardview"
+                                android:layout_width="@dimen/_42sdp"
+                                android:layout_height="@dimen/_42sdp"
+                                android:elevation="4dp"
+                                android:layout_centerInParent="true"
+                                app:cardCornerRadius="@dimen/_70sdp"
+                                android:layout_gravity="center">
 
-                        </androidx.cardview.widget.CardView>
+                                <de.hdodenhof.circleimageview.CircleImageView
+                                    android:id="@+id/doc_profile_image_in_dashboard"
+                                    android:layout_width="@dimen/_42sdp"
+                                    android:layout_height="@dimen/_42sdp"
+                                    android:layout_gravity="center"
+                                    android:src="@drawable/doctor"
+                                    app:civ_border_width="1dp"
+                                    app:civ_border_color="@color/green_sea"/>
+
+                            </androidx.cardview.widget.CardView>
+
+                            <ImageView
+                                android:id="@+id/camera_capture_view"
+                                android:layout_width="@dimen/_12sdp"
+                                android:layout_height="@dimen/_12sdp"
+                                android:src="@drawable/camera_24"
+                                android:layout_alignParentTop="true"
+                                android:visibility="gone"
+                                android:elevation="10dp"
+                                android:layout_alignParentEnd="true"
+                                tools:ignore="ContentDescription" />
+
+                        </RelativeLayout>
 
                     </RelativeLayout>
 

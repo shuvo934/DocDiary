@@ -41,16 +41,41 @@ public class HRAccounts extends AppCompatActivity {
         if (adminInfoLists != null) {
             if (!adminInfoLists.isEmpty()) {
                 if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) == 2) {
-                    hrDashboard.setVisibility(View.VISIBLE);
+                    if (adminInfoLists.get(0).getHr_dashboard().equals("1")) {
+                        hrDashboard.setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        hrDashboard.setVisibility(View.GONE);
+                    }
                     accDashboard.setVisibility(View.GONE);
                 }
                 else if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) == 3) {
                     hrDashboard.setVisibility(View.GONE);
-                    accDashboard.setVisibility(View.VISIBLE);
+                    if (adminInfoLists.get(0).getAcc_dashboard().equals("1")) {
+                        accDashboard.setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        accDashboard.setVisibility(View.GONE);
+                    }
+                }
+                else if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) == 1) {
+                    if (adminInfoLists.get(0).getHr_dashboard().equals("1")) {
+                        hrDashboard.setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        hrDashboard.setVisibility(View.GONE);
+                    }
+
+                    if (adminInfoLists.get(0).getAcc_dashboard().equals("1")) {
+                        accDashboard.setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        accDashboard.setVisibility(View.GONE);
+                    }
                 }
                 else {
-                    hrDashboard.setVisibility(View.VISIBLE);
-                    accDashboard.setVisibility(View.VISIBLE);
+                    hrDashboard.setVisibility(View.GONE);
+                    accDashboard.setVisibility(View.GONE);
                 }
             }
         }

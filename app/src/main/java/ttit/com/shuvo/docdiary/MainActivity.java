@@ -63,6 +63,8 @@ public class MainActivity extends AppCompatActivity {
                             alertDialog.show();
                         }
                     });
+
+    private ActivityResultLauncher<String> cameraPermResultLauncher;
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
@@ -106,6 +108,29 @@ public class MainActivity extends AppCompatActivity {
         sharedPreferences = getSharedPreferences(LOGIN_ACTIVITY_FILE, MODE_PRIVATE);
 
         loginfile = sharedPreferences.getBoolean(LOGIN_TF,false);
+
+        cameraPermResultLauncher =
+                registerForActivityResult(
+                        new ActivityResultContracts.RequestPermission(), result -> {
+            System.out.println("OnActivityResult: " +result);
+            if (result) {
+                System.out.println("HOLA5");
+                goToActivity();
+            }
+            else {
+                if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
+                    showDialog("Camera Permission!", "This app needs the Camera permission to function. Please Allow that permission from settings.", "Go to Settings", (dialogInterface, i) -> {
+                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:"+ getPackageName()));
+                        startActivity(intent);
+                        perm = true;
+                    });
+                }
+                else {
+                    System.out.println("HOLA6");
+                    enableCameraPermission();
+                }
+            }
+        });
 
         System.out.println(loginfile);
         perm = false;
@@ -344,41 +369,15 @@ public class MainActivity extends AppCompatActivity {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
                 Log.i("Ekhane", "15");
                 showDialog("Camera Permission!", "This app needs the Camera permission for functioning.", "OK", (dialogInterface, i) -> {
-                    cameraPermResultLauncher.launch(new String[]{Manifest.permission.CAMERA});
+                    cameraPermResultLauncher.launch(Manifest.permission.CAMERA);
                 });
             }
             else {
                 Log.i("Ekhane", "16");
-                cameraPermResultLauncher.launch(new String[]{Manifest.permission.CAMERA});
+                cameraPermResultLauncher.launch(Manifest.permission.CAMERA);
             }
         }
     }
-
-    private final ActivityResultLauncher<String[]> cameraPermResultLauncher = registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
-        System.out.println("OnActivityResult: " +result);
-        boolean allGranted = true;
-        for (String key: result.keySet()) {
-            allGranted = allGranted && result.get(key);
-        }
-        if (allGranted) {
-            System.out.println("HOLA5");
-            goToActivity();
-        }
-        else {
-            if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
-                showDialog("Camera Permission!", "This app needs the Camera permission to function. Please Allow that permission from settings.", "Go to Settings", (dialogInterface, i) -> {
-                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:"+ getPackageName()));
-                    startActivity(intent);
-                    perm = true;
-                });
-            }
-            else {
-                System.out.println("HOLA6");
-                enableCameraPermission();
-            }
-        }
-    });
-
 
 //    private void enableFileAccess() {
 //

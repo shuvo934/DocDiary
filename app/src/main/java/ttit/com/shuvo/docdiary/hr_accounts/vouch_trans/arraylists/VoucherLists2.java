@@ -10,15 +10,17 @@ public class VoucherLists2 {
     private String type;
     private String orderNo;
     private String pay_type_flag;
+    private String lg_voucher_type;
     private boolean updated;
 
-    public VoucherLists2(String vNo, String particulars, ArrayList<VoucherLists3> voucherLists3s, String type, String orderNo, String pay_type_flag, boolean updated) {
+    public VoucherLists2(String vNo, String particulars, ArrayList<VoucherLists3> voucherLists3s, String type, String orderNo, String pay_type_flag, String lg_voucher_type, boolean updated) {
         this.vNo = vNo;
         this.particulars = particulars;
         this.voucherLists3s = voucherLists3s;
         this.type = type;
         this.orderNo = orderNo;
         this.pay_type_flag = pay_type_flag;
+        this.lg_voucher_type = lg_voucher_type;
         this.updated = updated;
     }
 
@@ -76,5 +78,13 @@ public class VoucherLists2 {
 
     public void setUpdated(boolean updated) {
         this.updated = updated;
+    }
+
+    public String getLg_voucher_type() {
+        return lg_voucher_type;
+    }
+
+    public void setLg_voucher_type(String lg_voucher_type) {
+        this.lg_voucher_type = lg_voucher_type;
     }
 }

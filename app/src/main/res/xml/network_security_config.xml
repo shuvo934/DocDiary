@@ -5,5 +5,6 @@
         <domain includeSubdomains="true">103.73.227.28</domain>
         <domain includeSubdomains="true">202.4.109.126</domain>
         <domain includeSubdomains="true">144.48.119.59</domain>
+        <domain includeSubdomains="true">grameenphone.filter.ncnd.mobi</domain>
     </domain-config>
 </network-security-config>

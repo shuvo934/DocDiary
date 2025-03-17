@@ -210,11 +210,12 @@ public class IncomeExpenseStatement extends AppCompatActivity {
         // Getting Date
         Date c = Calendar.getInstance().getTime();
         SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yy", Locale.getDefault());
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM-yy",Locale.getDefault());
+//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM-yy",Locale.getDefault());
 
         if (firstDate.isEmpty()) {
-            firstDate = simpleDateFormat.format(c);
-            firstDate = "01-"+firstDate;
+//            firstDate = simpleDateFormat.format(c);
+//            firstDate = "01-"+firstDate;
+            firstDate = df.format(c);
         }
         if (lastDate.isEmpty()) {
             lastDate = df.format(c);
@@ -486,6 +487,7 @@ public class IncomeExpenseStatement extends AppCompatActivity {
                 double inc_cr_credit_amnt = 0.0;
                 double inc_bal = 0.0;
                 for (int i = 0; i < incomeStatementLists.size(); i++) {
+                    incomeStatementLists.get(i).setLevel_type(level);
                     if (!incomeStatementLists.get(i).getBfdr().isEmpty()) {
                         inc_bf_debit_amnt = inc_bf_debit_amnt + Double.parseDouble(incomeStatementLists.get(i).getBfdr());
                     }
@@ -542,6 +544,7 @@ public class IncomeExpenseStatement extends AppCompatActivity {
                 double exp_cr_credit_amnt = 0.0;
                 double exp_bal = 0.0;
                 for (int i = 0; i < expenseStatementLists.size(); i++) {
+                    expenseStatementLists.get(i).setLevel_type(level);
                     if (!expenseStatementLists.get(i).getBfdr().isEmpty()) {
                         exp_bf_debit_amnt = exp_bf_debit_amnt + Double.parseDouble(expenseStatementLists.get(i).getBfdr());
                     }

@@ -1,18 +1,25 @@
 package ttit.com.shuvo.docdiary.dashboard;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -38,7 +45,6 @@ import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.github.dewinjm.monthyearpicker.MonthFormat;
 import com.github.dewinjm.monthyearpicker.MonthYearPickerDialogFragment;
-import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Legend;
@@ -49,23 +55,32 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.LargeValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.play.core.review.ReviewInfo;
+import com.google.android.play.core.review.ReviewManager;
+import com.google.android.play.core.review.ReviewManagerFactory;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.jakewharton.processphoenix.ProcessPhoenix;
 import com.whiteelephant.monthpicker.MonthPickerDialog;
+import com.yalantis.ucrop.UCrop;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -82,16 +97,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appointment_admin.AppointmentModify;
+import ttit.com.shuvo.docdiary.camera_preview.BitmapCallBack;
+import ttit.com.shuvo.docdiary.camera_preview.CameraPreview;
 import ttit.com.shuvo.docdiary.dashboard.arraylists.AdminInfoList;
 import ttit.com.shuvo.docdiary.dashboard.arraylists.AppointmentChartList;
 import ttit.com.shuvo.docdiary.dashboard.arraylists.PaymentChartList;
+import ttit.com.shuvo.docdiary.dashboard.dialogue.ImageTakerChoiceDialog;
 import ttit.com.shuvo.docdiary.dashboard.extra.AppointMarkerView;
 import ttit.com.shuvo.docdiary.dashboard.extra.MyMarkerView;
+import ttit.com.shuvo.docdiary.dashboard.interfaces.PictureChooseListener;
 import ttit.com.shuvo.docdiary.hr_accounts.HRAccounts;
 import ttit.com.shuvo.docdiary.login.interfaces.AdminCallBackListener;
 import ttit.com.shuvo.docdiary.login.interfaces.AdminIDCallbackListener;
@@ -113,7 +133,8 @@ import ttit.com.shuvo.docdiary.profile.DocProfile;
 import ttit.com.shuvo.docdiary.report_manager.ReportManager;
 import ttit.com.shuvo.docdiary.unit_app_schedule.UnitWiseAppointment;
 
-public class DocDashboard extends AppCompatActivity implements CallBackListener, IDCallbackListener, AdminIDCallbackListener, AdminCallBackListener {
+public class DocDashboard extends AppCompatActivity implements CallBackListener, IDCallbackListener, AdminIDCallbackListener,
+        AdminCallBackListener, BitmapCallBack, PictureChooseListener {
 
     LinearLayout fullLayout;
     CircularProgressIndicator circularProgressIndicator;
@@ -211,6 +232,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     Bitmap bitmap;
     private boolean imageFound = false;
     ImageView docImage;
+    ImageView adminCaptureImage;
     MaterialButton unitDoctor;
     MaterialButton allDoctorAppointment;
     MaterialButton doctorReports;
@@ -260,6 +282,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     AlertDialog yearDialogAppoint;
     Logger logger = Logger.getLogger(DocDashboard.class.getName());
     Bitmap selectedBitmap;
+    ReviewManager reviewManager;
+    boolean cameraResumeLoad = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -270,12 +294,14 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         window.setStatusBarColor(ContextCompat.getColor(DocDashboard.this,R.color.clouds));
         setContentView(R.layout.activity_doc_dashboard);
 
+        reviewManager = ReviewManagerFactory.create(this);
         fullLayout = findViewById(R.id.doc_dashboard_full_layout);
         circularProgressIndicator = findViewById(R.id.progress_indicator_doc_dashboard);
         circularProgressIndicator.setVisibility(View.GONE);
         welcomeText = findViewById(R.id.greetings_text);
         docName = findViewById(R.id.doctor_name);
         docImage = findViewById(R.id.doc_profile_image_in_dashboard);
+        adminCaptureImage = findViewById(R.id.camera_capture_view);
         docCenterName = findViewById(R.id.doctor_s_center_name);
         logOut = findViewById(R.id.log_out_doc);
         progressBarCard = findViewById(R.id.next_meeting_progressbar_details_card_view);
@@ -443,20 +469,13 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                         case 1:
                             System.out.println("Tab 2");
                             Calendar ccc = Calendar.getInstance();
-//                        Log.v("Current Week", String.valueOf(ccc.get(Calendar.WEEK_OF_YEAR)));
-//                        int current_week=ccc.get(Calendar.WEEK_OF_YEAR);
-//                        int week_start_day=ccc.getFirstDayOfWeek();
-//                        Toast.makeText(getApplicationContext(),"Current Week is "+current_week +"Start Day is "+week_start_day,Toast.LENGTH_SHORT).show();
                             ccc.setFirstDayOfWeek(Calendar.SATURDAY);
                             ccc.set(Calendar.DAY_OF_WEEK,Calendar.SATURDAY);
-//                        System.out.println("Current week = " + Calendar.DAY_OF_WEEK);
                             tabFirstDate = dateFormat.format(ccc.getTime());
                             String first_date_range = full_date_format.format(ccc.getTime());
                             ccc.add(Calendar.DATE, 6);
                             tabEndDate = dateFormat.format(ccc.getTime());
                             String last_date_range = full_date_format.format(ccc.getTime());
-//                        System.out.println("Start Date = " + tabFirstDate);
-//                        System.out.println("End Date = " + tabEndDate);
                             String text = first_date_range + "  --  " + last_date_range;
                             if (admin_user_flag.equals("1")) {
                                 dateRangeText.setText(text);
@@ -482,8 +501,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                             tabFirstDate = "01-"+ llmmmyy;
                             String month_only_full = only_month_full_date_format.format(lastDayOfMonth);
 
-//                        System.out.println("Start Date = " + tabFirstDate);
-//                        System.out.println("End Date = " + tabEndDate);
                             String text1 = "01 " + month_only_full + "  --  " + llll + " " + month_only_full;
                             if (admin_user_flag.equals("1")) {
                                 dateRangeText.setText(text1);
@@ -497,7 +514,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                         case 3:
                             System.out.println("Tab 4");
                             Calendar n_monthcc = Calendar.getInstance();
-//                        monthcc.setTime(today);
                             n_monthcc.add(Calendar.MONTH, 2);
                             n_monthcc.set(Calendar.DAY_OF_MONTH, 1);
                             n_monthcc.add(Calendar.DATE, -1);
@@ -509,8 +525,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                             tabEndDate = llll_n + "-" + n_llmmmyy;
                             tabFirstDate = "01-"+ n_llmmmyy;
                             String month_only_full1 = only_month_full_date_format.format(lastDayOf_n_Month);
-//                        System.out.println("Start Date = " + tabFirstDate);
-//                        System.out.println("End Date = " + tabEndDate);
                             String text12 = "01 " + month_only_full1 + "  --  " + llll_n + " " + month_only_full1;
                             if (admin_user_flag.equals("1")) {
                                 dateRangeText.setText(text12);
@@ -1057,7 +1071,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 startActivity(intent);
             }
             else if (item.getItemId() == R.id.admin_hr_account_menu) {
-                if (pre_url_api.contains("cstar")) {
+                if (Integer.parseInt(adminInfoLists.get(0).getHr_acc_active_flag()) == 1) {
                     if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) > 0) {
                         Intent intent = new Intent(DocDashboard.this, HRAccounts.class);
                         startActivity(intent);
@@ -1150,13 +1164,16 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             }
         });
 
-        docImage.setOnClickListener(view -> {
+        adminCaptureImage.setOnClickListener(view -> {
             if (admin_user_flag.equals("2")) {
-                ImagePicker.with(this)
-                        .crop()
-                        .compress(1024)
-                        .maxResultSize(1080,1080)
-                        .start(1114);
+                cameraResumeLoad = false;
+//                ImagePicker.with(this)
+//                        .crop()
+//                        .compress(1024)
+//                        .maxResultSize(1080,1080)
+//                        .start(1114);
+                ImageTakerChoiceDialog imageTakerChoiceDialog = new ImageTakerChoiceDialog();
+                imageTakerChoiceDialog.show(getSupportFragmentManager(),"CH_IMAGE");
             }
         });
 
@@ -1186,6 +1203,128 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         initData();
     }
 
+    ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
+            registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                if (uri != null) {
+                    try {
+                        startCrop(uri);
+//                        selectedBitmap = getCorrectlyOrientedBitmap(uri);
+////                        selectedBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+//                        System.out.println("UPLOADED PIC");
+//                        if (selectedBitmap != null) {
+//                            updateAdminPic();
+//                        }
+//                        else {
+//                            Toast.makeText(getApplicationContext(),"Invalid image",Toast.LENGTH_SHORT).show();
+//                        }
+                    }
+                    catch (Exception e) {
+                        logger.log(Level.WARNING,e.getMessage(),e);
+                        Toast.makeText(getApplicationContext(),"Failed to read image",Toast.LENGTH_SHORT).show();
+                    }
+                }
+                else {
+                    Toast.makeText(getApplicationContext(),"Failed to get image",Toast.LENGTH_SHORT).show();
+                }
+            });
+
+    private Bitmap getCorrectlyOrientedBitmap(Uri uri) {
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+
+            if (bitmap == null) {
+                return null;
+            }
+
+            // Get real file path (copying file if necessary)
+            String realPath = copyFileToInternalStorage(uri);
+
+            // Read EXIF data
+            if (realPath != null) {
+                return modifyOrientation(bitmap, realPath);
+            }
+            else {
+                return null;
+            }
+
+        }
+        catch (IOException e) {
+            logger.log(Level.WARNING,e.getMessage(),e);
+            Toast.makeText(getApplicationContext(),"Failed to upload image",Toast.LENGTH_SHORT).show();
+            return null;
+        }
+    }
+
+    private String copyFileToInternalStorage(Uri uri) {
+        File directory = getFilesDir(); // Internal storage
+        File file = new File(directory, "temp_image.jpg");
+
+        try (InputStream inputStream = getContentResolver().openInputStream(uri);
+             OutputStream outputStream = new FileOutputStream(file)) {
+
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+
+            return file.getAbsolutePath(); // Now you have the file path
+
+        } catch (IOException e) {
+            logger.log(Level.WARNING,e.getMessage(),e);
+            Toast.makeText(getApplicationContext(),"Failed to get image path",Toast.LENGTH_SHORT).show();
+        }
+        return null;
+    }
+
+    public static Bitmap modifyOrientation(Bitmap bitmap, String image_absolute_path) throws IOException {
+        ExifInterface ei = new ExifInterface(image_absolute_path);
+        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                return rotate(bitmap, 90);
+
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                return rotate(bitmap, 180);
+
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                return rotate(bitmap, 270);
+
+            case ExifInterface.ORIENTATION_FLIP_HORIZONTAL:
+                return flip(bitmap, true, false);
+
+            case ExifInterface.ORIENTATION_FLIP_VERTICAL:
+                return flip(bitmap, false, true);
+
+            default:
+                return bitmap;
+        }
+    }
+
+    public static Bitmap rotate(Bitmap bitmap, float degrees) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degrees);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+    }
+
+    public static Bitmap flip(Bitmap bitmap, boolean horizontal, boolean vertical) {
+        Matrix matrix = new Matrix();
+        matrix.preScale(horizontal ? -1 : 1, vertical ? -1 : 1);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+    }
+
+    private Uri getImageUri(Context context, Bitmap bitmap) {
+        File file = new File(context.getCacheDir(), "temp_image.jpg"); // Store in cache
+        try (FileOutputStream fos = new FileOutputStream(file)) {
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return FileProvider.getUriForFile(context, "ttit.com.shuvo.docdiary.fileProvider", file);
+    }
+
     private void initData() {
         sharedPreferences = getSharedPreferences(LOGIN_ACTIVITY_FILE,MODE_PRIVATE);
         doc_code = sharedPreferences.getString(DOC_USER_CODE,"");
@@ -1197,9 +1336,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         Type type = new TypeToken<ArrayList<CenterList>>(){}.getType();
         centerLists = gson1.fromJson(json1, type);
 
-//        int index = -1;
-//        int multi_index = -1;
-//        int multi_center_index = -1;
         if (centerLists != null) {
             if (centerLists.isEmpty()) {
                 System.out.println("NO USER");
@@ -1207,30 +1343,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             }
             else {
                 switchUser.setVisibility(View.VISIBLE);
-//                for (int i = 0; i < centerLists.size(); i++) {
-//                    ArrayList<MultipleUserList> multipleUserLists = centerLists.get(i).getMultipleUserLists();
-//                    if (multipleUserLists.size() == 0) {
-//                        System.out.println("MULTI USER NAI");
-//                        if (centerLists.get(i).getDoc_code().equals(doc_code) && centerLists.get(i).getCenter_api().equals(pre_url_api)) {
-//                            index = i;
-//                        }
-//                    }
-//                    else {
-//                        System.out.println("MULTI USER PAISE");
-//                        for (int j = 0; j < multipleUserLists.size(); j++) {
-//                            if (multipleUserLists.get(j).getDoc_code().equals(doc_code) && centerLists.get(i).getCenter_api().equals(pre_url_api)) {
-//                                multi_index = j;
-//                                multi_center_index = i;
-//                            }
-//                        }
-//                    }
-//                }
-//                if (index >= 0) {
-//                    centerLists.remove(index);
-//                }
-//                if (multi_index >= 0) {
-//                    centerLists.get(multi_center_index).getMultipleUserLists().remove(multi_index);
-//                }
             }
         }
         else {
@@ -1241,11 +1353,13 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         if (admin_user_flag.equals("1")) {
             bottomNavigationView.getMenu().clear();
             bottomNavigationView.inflateMenu(R.menu.bottom_menu);
+            adminCaptureImage.setVisibility(View.GONE);
 
         }
         else {
             bottomNavigationView.getMenu().clear();
             bottomNavigationView.inflateMenu(R.menu.bottom_menu_admin);
+            adminCaptureImage.setVisibility(View.VISIBLE);
             LineChartInit();
         }
         bottomNavigationView.getMenu().setGroupCheckable(0, false, true);
@@ -1280,8 +1394,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
             if (fieldValue == Build.VERSION.SDK_INT) {
                 builder.append(": ").append(fieldName);
-                //builder.append(" : ").append(fieldName).append(" : ");
-                //builder.append("sdk=").append(fieldValue);
             }
         }
         osName = builder.toString();
@@ -1296,7 +1408,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         xAxis.setGranularity(1);
         xAxis.setDrawGridLines(false);
         xAxis.setTextColor(Color.GRAY);
-        //xAxis.setAxisMaximum(10f);
         paymentChart.getDescription().setEnabled(false);
         paymentChart.setPinchZoom(false);
 
@@ -1365,7 +1476,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 for (InetAddress addr : addrs) {
                     if (!addr.isLoopbackAddress()) {
                         String sAddr = addr.getHostAddress();
-                        //boolean isIPv4 = InetAddressUtils.isIPv4Address(sAddr);
                         boolean isIPv4 = false;
                         if (sAddr != null) {
                             isIPv4 = sAddr.indexOf(':')<0;
@@ -1399,7 +1509,12 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             String tt = "getString";
             @SuppressLint("DiscouragedPrivateApi") Method getString = Build.class.getDeclaredMethod(tt, String.class);
             getString.setAccessible(true);
-            return getString.invoke(null, "net.hostname").toString();
+            if (getString.invoke(null, "net.hostname") == null) {
+                return defValue;
+            }
+            else {
+                return Objects.requireNonNull(getString.invoke(null, "net.hostname")).toString();
+            }
         } catch (Exception ex) {
             return defValue;
         }
@@ -1408,6 +1523,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        cameraResumeLoad = false;
         if (requestCode == 1114) {
             if (resultCode == AppCompatActivity.RESULT_OK) {
                 if (data != null) {
@@ -1428,62 +1544,88 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 Toast.makeText(getApplicationContext(),"Failed to get image",Toast.LENGTH_SHORT).show();
             }
         }
+        else if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
+            if (data != null) {
+                Uri croppedUri = UCrop.getOutput(data);
+                selectedBitmap = getCorrectlyOrientedBitmap(croppedUri);
+                if (selectedBitmap != null) {
+                    updateAdminPic();
+                }
+                else {
+                    Toast.makeText(getApplicationContext(),"Invalid image",Toast.LENGTH_SHORT).show();
+                }
+            }
+            else {
+                Toast.makeText(getApplicationContext(),"Failed to crop image",Toast.LENGTH_SHORT).show();
+            }
+        } else if (resultCode == UCrop.RESULT_ERROR) {
+//            if (data != null) {
+//                Throwable error = UCrop.getError(data);
+//                Toast.makeText(getApplicationContext(), error != null ? error.getLocalizedMessage() : "Image handler failed", Toast.LENGTH_SHORT).show();
+//            }
+//            else {
+//                Toast.makeText(getApplicationContext(),"Failed to crop image",Toast.LENGTH_SHORT).show();
+//            }
+            Toast.makeText(getApplicationContext(), "Invalid Image", Toast.LENGTH_SHORT).show();
+
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         System.out.println("First_flag on resume: "+ first_flag);
-        if(loading != null) {
-            if (!loading) {
-                if (admin_user_flag.equals("1")) {
-                    if (first_flag == 0) {
-                        getDocData();
-                    }
-                    else {
-                        loading = true;
-                        fullLayout.setVisibility(View.GONE);
-                        progressBarCard.setVisibility(View.GONE);
-                        bottomNavigationView.setVisibility(View.GONE);
-                        circularProgressIndicator.setVisibility(View.VISIBLE);
-                        tabFullLayout.setVisibility(View.GONE);
-                        tabFullLayoutAdmin.setVisibility(View.GONE);
-                        tabCircularProgressIndicator.setVisibility(View.GONE);
-                        tabLayout.setVisibility(View.GONE);
-                        tabRefresh.setVisibility(View.GONE);
-                        graphicalViewLayout.setVisibility(View.GONE);
-                        chartTabCircularProgressIndicator.setVisibility(View.GONE);
-                        conn = false;
-                        connected = false;
-                        getDocSchedule();
-                    }
-                }
-                else {
-                    if (first_flag == 0) {
-                        getAdminData();
-                    }
-                    else {
-                        loading = true;
-                        fullLayout.setVisibility(View.GONE);
-                        progressBarCard.setVisibility(View.GONE);
-                        bottomNavigationView.setVisibility(View.GONE);
-                        circularProgressIndicator.setVisibility(View.VISIBLE);
-                        tabFullLayout.setVisibility(View.GONE);
-                        tabFullLayoutAdmin.setVisibility(View.GONE);
-                        tabCircularProgressIndicator.setVisibility(View.GONE);
-                        tabLayout.setVisibility(View.GONE);
-                        tabRefresh.setVisibility(View.GONE);
-                        graphicalViewLayout.setVisibility(View.GONE);
-                        chartTabCircularProgressIndicator.setVisibility(View.GONE);
-                        conn = false;
-                        connected = false;
-                        getAdminDashboardData();
-                    }
-                }
-            }
+        if (!cameraResumeLoad) {
+            cameraResumeLoad = true;
         }
         else {
-            restart("App is paused for a long time. Please Start the app again.");
+            if (loading != null) {
+                if (!loading) {
+                    if (admin_user_flag.equals("1")) {
+                        if (first_flag == 0) {
+                            getDocData();
+                        } else {
+                            loading = true;
+                            fullLayout.setVisibility(View.GONE);
+                            progressBarCard.setVisibility(View.GONE);
+                            bottomNavigationView.setVisibility(View.GONE);
+                            circularProgressIndicator.setVisibility(View.VISIBLE);
+                            tabFullLayout.setVisibility(View.GONE);
+                            tabFullLayoutAdmin.setVisibility(View.GONE);
+                            tabCircularProgressIndicator.setVisibility(View.GONE);
+                            tabLayout.setVisibility(View.GONE);
+                            tabRefresh.setVisibility(View.GONE);
+                            graphicalViewLayout.setVisibility(View.GONE);
+                            chartTabCircularProgressIndicator.setVisibility(View.GONE);
+                            conn = false;
+                            connected = false;
+                            getDocSchedule();
+                        }
+                    } else {
+                        if (first_flag == 0) {
+                            getAdminData();
+                        } else {
+                            loading = true;
+                            fullLayout.setVisibility(View.GONE);
+                            progressBarCard.setVisibility(View.GONE);
+                            bottomNavigationView.setVisibility(View.GONE);
+                            circularProgressIndicator.setVisibility(View.VISIBLE);
+                            tabFullLayout.setVisibility(View.GONE);
+                            tabFullLayoutAdmin.setVisibility(View.GONE);
+                            tabCircularProgressIndicator.setVisibility(View.GONE);
+                            tabLayout.setVisibility(View.GONE);
+                            tabRefresh.setVisibility(View.GONE);
+                            graphicalViewLayout.setVisibility(View.GONE);
+                            chartTabCircularProgressIndicator.setVisibility(View.GONE);
+                            conn = false;
+                            connected = false;
+                            getAdminDashboardData();
+                        }
+                    }
+                }
+            } else {
+                restart("App is paused for a long time. Please Start the app again.");
+            }
         }
     }
 
@@ -1492,12 +1634,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         super.onPause();
         normalCountDownView.stopTimer();
     }
-
-//    @Override
-//    public void onBackPressed() {
-//
-//    }
-
 
     /// ---------------- DOCTOR DETAILS -------------------
     public void getDocData() {
@@ -1973,7 +2109,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                             } catch (ParseException e) {
                                 throw new RuntimeException(e);
                             }
-//                            System.out.println(time);
                             assert time != null;
                             if (nt.getTime() >= time.getTime()) {
                                 completed_meeting++;
@@ -2129,8 +2264,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                         }
                         assert exp_date != null;
                         assert now_date != null;
-//                    System.out.println(now_date);
-//                    System.out.println(exp_date);
                         if (exp_date.getTime() < now_date.getTime()) {
                             fullLayout.setVisibility(View.GONE);
                             progressBarCard.setVisibility(View.GONE);
@@ -2323,14 +2456,14 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                 normalCountDownView.initTimer(remaining_seconds, HappyTimer.Type.COUNT_DOWN);
                                 normalCountDownView.startTimer();
 
+                                String text;
                                 if (patient_name.isEmpty()) {
-                                    String text = "No Name Found";
-                                    patientName.setText(text);
+                                    text = "No Name Found";
                                 }
                                 else {
-                                    String text = "With "+patient_name;
-                                    patientName.setText(text);
+                                    text = "With " + patient_name;
                                 }
+                                patientName.setText(text);
                             }
                             else if (last_schedule.isEmpty() && !next_schedule.isEmpty()) {
                                 String nt = "Next Meeting";
@@ -2394,14 +2527,14 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                 normalCountDownView.initTimer(remaining_seconds, HappyTimer.Type.COUNT_DOWN);
                                 normalCountDownView.startTimer();
 
+                                String text;
                                 if (patient_name.isEmpty()) {
-                                    String text = "No Name Found";
-                                    patientName.setText(text);
+                                    text = "No Name Found";
                                 }
                                 else {
-                                    String text = "With "+patient_name;
-                                    patientName.setText(text);
+                                    text = "With " + patient_name;
                                 }
+                                patientName.setText(text);
                             }
                             else  {
                                 String nt = "No Upcoming Meeting Available";
@@ -2657,14 +2790,14 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     normalCountDownView.initTimer(remaining_seconds, HappyTimer.Type.COUNT_DOWN);
                     normalCountDownView.startTimer();
 
+                    String text;
                     if (patient_name.isEmpty()) {
-                        String text = "No Name Found";
-                        patientName.setText(text);
+                        text = "No Name Found";
                     }
                     else {
-                        String text = "With "+patient_name;
-                        patientName.setText(text);
+                        text = "With " + patient_name;
                     }
+                    patientName.setText(text);
                 }
                 else if (last_schedule.isEmpty() && !next_schedule.isEmpty()) {
                     String nt = "Next Meeting";
@@ -2728,14 +2861,14 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     normalCountDownView.initTimer(remaining_seconds, HappyTimer.Type.COUNT_DOWN);
                     normalCountDownView.startTimer();
 
+                    String text;
                     if (patient_name.isEmpty()) {
-                        String text = "No Name Found";
-                        patientName.setText(text);
+                        text = "No Name Found";
                     }
                     else {
-                        String text = "With "+patient_name;
-                        patientName.setText(text);
+                        text = "With " + patient_name;
                     }
+                    patientName.setText(text);
                 }
                 else  {
                     String nt = "No Upcoming Meeting Available";
@@ -2780,6 +2913,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     docImage.setImageResource(R.drawable.doctor);
                 }
 
+                askUserForReview();
                 first_flag = 1;
                 loading = false;
             }
@@ -2864,11 +2998,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         loading = true;
         System.out.println("HAI HAI");
 
-//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm a", Locale.ENGLISH);
-//        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
         SimpleDateFormat timeFormat = new SimpleDateFormat("dd-MMM-yy hh:mm a", Locale.ENGLISH);
-//        String time_now = simpleDateFormat.format(Calendar.getInstance().getTime());
-//        String date_now = dateFormat.format(Calendar.getInstance().getTime());
         String docMeetingUrl = pre_url_api+"doc_dashboard/getMeetingCount?doc_id="+doc_id+"&first_date="+tabFirstDate+"&end_date="+tabEndDate;
         String docScheduleUrl = pre_url_api+"doc_dashboard/getScheduleCount?doc_id="+doc_id+"&first_date="+tabFirstDate+"&end_date="+tabEndDate;
 
@@ -3153,11 +3283,18 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                 .equals("null") ? "0" :adminInfo.getString("acc_payment_active");
                         String acc_appointment_active = adminInfo.getString("acc_appointment_active")
                                 .equals("null") ? "0" :adminInfo.getString("acc_appointment_active");
+                        String hr_dashboard = adminInfo.getString("hr_dashboard")
+                                .equals("null") ? "0" :adminInfo.getString("hr_dashboard");
+                        String acc_dashboard = adminInfo.getString("acc_dashboard")
+                                .equals("null") ? "0" :adminInfo.getString("acc_dashboard");
+                        String hr_acc_active_flag = adminInfo.getString("hr_acc_active_flag")
+                                .equals("null") ? "0" :adminInfo.getString("hr_acc_active_flag");
 
                         adminInfoLists.add(new AdminInfoList(admin_usr_id, usr_name,usr_fname,usr_lname,
-                                usr_email,usr_contact,all_access_flag, admin_center_name, hr_payment_active, hr_appointment_active,acc_payment_active,acc_appointment_active));
+                                usr_email,usr_contact,all_access_flag, admin_center_name, hr_payment_active, hr_appointment_active,
+                                acc_payment_active,acc_appointment_active,hr_dashboard,acc_dashboard,hr_acc_active_flag));
 
-                        if (Integer.parseInt(all_access_flag) > 0) {
+                        if (Integer.parseInt(all_access_flag) == 1) {
                             admin_usr_name = "";
                         }
                         else {
@@ -3674,17 +3811,32 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                     if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) == 2) {
                                         bottomNavigationView.getMenu().findItem(R.id.admin_payment_menu).setVisible(adminInfoLists.get(0).getHr_payment_active().equals("1"));
                                         bottomNavigationView.getMenu().findItem(R.id.admin_appointment_schedule_menu).setVisible(adminInfoLists.get(0).getHr_appointment_active().equals("1"));
-                                        bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("HR & Reports");
+                                        if (adminInfoLists.get(0).getHr_acc_active_flag().equals("1")) {
+                                            bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("HR & Reports");
+                                        }
+                                        else {
+                                            bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("Reports");
+                                        }
                                     }
                                     else if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) == 3) {
                                         bottomNavigationView.getMenu().findItem(R.id.admin_payment_menu).setVisible(adminInfoLists.get(0).getAcc_payment_active().equals("1"));
                                         bottomNavigationView.getMenu().findItem(R.id.admin_appointment_schedule_menu).setVisible(adminInfoLists.get(0).getAcc_appointment_active().equals("1"));
-                                        bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("Accounts & Reports");
+                                        if (adminInfoLists.get(0).getHr_acc_active_flag().equals("1")) {
+                                            bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("Accounts & Reports");
+                                        }
+                                        else {
+                                            bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("Reports");
+                                        }
                                     }
                                     else if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) == 1) {
                                         bottomNavigationView.getMenu().findItem(R.id.admin_payment_menu).setVisible(true);
                                         bottomNavigationView.getMenu().findItem(R.id.admin_appointment_schedule_menu).setVisible(true);
-                                        bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("HR & Accounts");
+                                        if (adminInfoLists.get(0).getHr_acc_active_flag().equals("1")) {
+                                            bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("HR & Accounts");
+                                        }
+                                        else {
+                                            bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("Reports");
+                                        }
                                     }
                                     else {
                                         bottomNavigationView.getMenu().findItem(R.id.admin_payment_menu).setVisible(true);
@@ -3794,8 +3946,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                             lineDataSet.setColor(getColor(R.color.green_sea));
                             lineDataSet.setDrawFilled(false);
                             lineDataSet.setValueTextSize(9f);
-//                            Drawable drawable = ContextCompat.getDrawable(mContext, R.drawable.sales_chart_fill);
-//                            lineDataSet.setFillDrawable(drawable);
 
                             lineDataSet.setDrawCircleHole(true);
                             lineDataSet.setValueTextColor(R.color.default_text_color);
@@ -4167,8 +4317,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 lineDataSet.setColor(getColor(R.color.green_sea));
                 lineDataSet.setDrawFilled(false);
                 lineDataSet.setValueTextSize(9f);
-//                Drawable drawable = ContextCompat.getDrawable(mContext, R.drawable.sales_chart_fill);
-//                lineDataSet.setFillDrawable(drawable);
 
                 lineDataSet.setDrawCircleHole(true);
                 lineDataSet.setValueTextColor(R.color.default_text_color);
@@ -4283,6 +4431,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 appointmentChart.getData().setHighlightEnabled(true);
                 appointmentChart.invalidate();
 
+                askUserForReview();
                 first_flag = 1;
                 loading = false;
             }
@@ -4441,6 +4590,38 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         else {
             alertMessage3();
         }
+    }
+
+    @Override
+    public void onBitmapReceived(Bitmap bitmap) {
+        Uri uri = getImageUri(this,bitmap);
+        startCrop(uri);
+    }
+
+    @Override
+    public void onPictureChoose(int type) {
+        if (type == 1) {
+            Intent intent = new Intent(this, CameraPreview.class);
+            CameraPreview.setBitmapCallback(this);
+            startActivity(intent);
+        }
+        else if (type == 2) {
+            pickMedia.launch(new PickVisualMediaRequest.Builder()
+                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                    .build());
+        }
+        else {
+            cameraResumeLoad = true;
+        }
+    }
+
+    private void startCrop(Uri sourceUri) {
+        Uri destinationUri = Uri.fromFile(new File(getCacheDir(), "cropped_image.jpg"));
+
+        UCrop.of(sourceUri, destinationUri)
+                //.withAspectRatio(1, 1)  // Optional: Set aspect ratio
+                .withMaxResultSize(1080, 1080) // Optional: Set max resolution
+                .start(this);
     }
 
     public static class MyAxisValueFormatter extends ValueFormatter {
@@ -4735,8 +4916,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 lineDataSet.setColor(getColor(R.color.green_sea));
                 lineDataSet.setDrawFilled(false);
                 lineDataSet.setValueTextSize(9f);
-//                Drawable drawable = ContextCompat.getDrawable(mContext, R.drawable.sales_chart_fill);
-//                lineDataSet.setFillDrawable(drawable);
 
                 lineDataSet.setDrawCircleHole(true);
                 lineDataSet.setValueTextColor(R.color.default_text_color);
@@ -4772,7 +4951,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 paymentChart.getData().setHighlightEnabled(true);
                 paymentChart.invalidate();
 
-                // Apointment Chart
+                // Appointment Chart
                 AppointMarkerView view = new AppointMarkerView(getApplicationContext(), R.layout.custom_marker_view);
                 view.setChartView(appointmentChart);
                 appointmentChart.setMarker(view);
@@ -5069,8 +5248,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 lineDataSet.setColor(getColor(R.color.green_sea));
                 lineDataSet.setDrawFilled(false);
                 lineDataSet.setValueTextSize(9f);
-//                Drawable drawable = ContextCompat.getDrawable(mContext, R.drawable.sales_chart_fill);
-//                lineDataSet.setFillDrawable(drawable);
 
                 lineDataSet.setDrawCircleHole(true);
                 lineDataSet.setValueTextColor(R.color.default_text_color);
@@ -5418,6 +5595,33 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         }
     }
 
+    public Bitmap resizeBitmap(Bitmap bitmap, int maxWidth, int maxHeight) {
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+
+        float scaleWidth = ((float) maxWidth) / width;
+        float scaleHeight = ((float) maxHeight) / height;
+        float scale = Math.min(scaleWidth, scaleHeight); // Maintain aspect ratio
+
+        int newWidth = Math.round(width * scale);
+        int newHeight = Math.round(height * scale);
+
+        return Bitmap.createScaledBitmap(bitmap, newWidth, newHeight, true);
+    }
+
+    public byte[] compressBitmap(Bitmap bitmap, int maxSizeKB) {
+        int quality = 100; // Start at highest quality
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        do {
+            outputStream.reset(); // Clear the stream
+            bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream);
+            quality -= 5; // Reduce quality in steps of 5
+        } while (outputStream.toByteArray().length / 1024 > maxSizeKB && quality > 5);
+
+        return outputStream.toByteArray();
+    }
+
     public void updateAdminPic() {
         String url = pre_url_api+"doc_dashboard/updateAdminPic";
         conn = false;
@@ -5425,53 +5629,56 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         loading = true;
         circularProgressIndicator.setVisibility(View.VISIBLE);
         fullLayout.setVisibility(View.GONE);
+        bottomNavigationView.setVisibility(View.GONE);
 
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        selectedBitmap = resizeBitmap(selectedBitmap, 1080,1080);
 
-        int quality = 30;
-        selectedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, bos);
-        byte[] bArray = bos.toByteArray();
-        long lengthbmp1 = bArray.length;
-        lengthbmp1 = (lengthbmp1/1024);
-
-        if (lengthbmp1 > 100) {
-            quality = quality - 10;
-            ByteArrayOutputStream bos1 = new ByteArrayOutputStream();
-            selectedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, bos1);
-            bArray = bos1.toByteArray();
-            lengthbmp1 = bArray.length;
-            lengthbmp1 = (lengthbmp1/1024);
-            System.out.println(lengthbmp1);
-            if (lengthbmp1 > 100) {
-                quality = quality - 10;
-                ByteArrayOutputStream bos2 = new ByteArrayOutputStream();
-                selectedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, bos2);
-                bArray = bos2.toByteArray();
-                lengthbmp1 = bArray.length;
-                lengthbmp1 = (lengthbmp1/1024);
-                System.out.println(lengthbmp1);
-                if (lengthbmp1 > 100) {
-                    quality = quality - 5;
-                    ByteArrayOutputStream bos3 = new ByteArrayOutputStream();
-                    selectedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, bos3);
-                    bArray = bos3.toByteArray();
-                    lengthbmp1 = bArray.length;
-                    lengthbmp1 = (lengthbmp1/1024);
-                    System.out.println(lengthbmp1);
-                    if (lengthbmp1 > 100) {
-                        quality = quality - 3;
-                        ByteArrayOutputStream bos4 = new ByteArrayOutputStream();
-                        selectedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, bos4);
-                        bArray = bos4.toByteArray();
-                        lengthbmp1 = bArray.length;
-                        lengthbmp1 = (lengthbmp1/1024);
-                        System.out.println(lengthbmp1);
-                    }
-                }
-            }
-        }
-
-        byte[] finalBArray = bArray;
+//        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//
+//        int quality = 30;
+//        selectedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, bos);
+//        byte[] bArray = bos.toByteArray();
+//        long lengthbmp1 = bArray.length;
+//        lengthbmp1 = (lengthbmp1/1024);
+//
+//        if (lengthbmp1 > 100) {
+//            quality = quality - 10;
+//            ByteArrayOutputStream bos1 = new ByteArrayOutputStream();
+//            selectedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, bos1);
+//            bArray = bos1.toByteArray();
+//            lengthbmp1 = bArray.length;
+//            lengthbmp1 = (lengthbmp1/1024);
+//            System.out.println(lengthbmp1);
+//            if (lengthbmp1 > 100) {
+//                quality = quality - 10;
+//                ByteArrayOutputStream bos2 = new ByteArrayOutputStream();
+//                selectedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, bos2);
+//                bArray = bos2.toByteArray();
+//                lengthbmp1 = bArray.length;
+//                lengthbmp1 = (lengthbmp1/1024);
+//                System.out.println(lengthbmp1);
+//                if (lengthbmp1 > 100) {
+//                    quality = quality - 5;
+//                    ByteArrayOutputStream bos3 = new ByteArrayOutputStream();
+//                    selectedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, bos3);
+//                    bArray = bos3.toByteArray();
+//                    lengthbmp1 = bArray.length;
+//                    lengthbmp1 = (lengthbmp1/1024);
+//                    System.out.println(lengthbmp1);
+//                    if (lengthbmp1 > 100) {
+//                        quality = quality - 3;
+//                        ByteArrayOutputStream bos4 = new ByteArrayOutputStream();
+//                        selectedBitmap.compress(Bitmap.CompressFormat.JPEG, quality, bos4);
+//                        bArray = bos4.toByteArray();
+//                        lengthbmp1 = bArray.length;
+//                        lengthbmp1 = (lengthbmp1/1024);
+//                        System.out.println(lengthbmp1);
+//                    }
+//                }
+//            }
+//        }
+//
+        byte[] finalBArray = compressBitmap(selectedBitmap,1024);
 
         RequestQueue requestQueue = Volley.newRequestQueue(DocDashboard.this);
 
@@ -5530,6 +5737,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         if(conn) {
             if (connected) {
                 fullLayout.setVisibility(View.VISIBLE);
+                bottomNavigationView.setVisibility(View.VISIBLE);
                 circularProgressIndicator.setVisibility(View.GONE);
                 conn = false;
                 connected = false;
@@ -5550,6 +5758,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             }
             else {
                 fullLayout.setVisibility(View.VISIBLE);
+                bottomNavigationView.setVisibility(View.VISIBLE);
                 circularProgressIndicator.setVisibility(View.GONE);
                 if (parsing_message != null) {
                     if (parsing_message.isEmpty() || parsing_message.equals("null")) {
@@ -5585,6 +5794,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         }
         else {
             fullLayout.setVisibility(View.VISIBLE);
+            bottomNavigationView.setVisibility(View.VISIBLE);
             circularProgressIndicator.setVisibility(View.GONE);
             if (parsing_message != null) {
                 if (parsing_message.isEmpty() || parsing_message.equals("null")) {
@@ -5633,5 +5843,20 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         loading = false;
         initData();
         getAdminData();
+    }
+
+    // in app review
+    public void askUserForReview() {
+        Task<ReviewInfo> request = reviewManager.requestReviewFlow();
+        request.addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Task<Void> flow = reviewManager.launchReviewFlow(DocDashboard.this, task.getResult());
+                flow.addOnCompleteListener(flow_task -> {
+                    // The flow has finished. The API does not indicate whether the user
+                    // reviewed or not, or even whether the review dialog was shown. Thus, no
+                    // matter the result, we continue our app flow.
+                });
+            }
+        });
     }
 }

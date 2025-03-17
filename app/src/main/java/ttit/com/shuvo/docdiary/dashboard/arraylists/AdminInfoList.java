@@ -13,8 +13,14 @@ public class AdminInfoList {
     private String hr_appointment_active;
     private String acc_payment_active;
     private String acc_appointment_active;
+    private String hr_dashboard;
+    private String acc_dashboard;
+    private String hr_acc_active_flag;
 
-    public AdminInfoList(String usr_id, String usr_name, String usr_fname, String usr_lname, String usr_email, String usr_contact, String all_access_flag, String admin_center_name, String hr_payment_active, String hr_appointment_active, String acc_payment_active, String acc_appointment_active) {
+    public AdminInfoList(String usr_id, String usr_name, String usr_fname, String usr_lname, String usr_email,
+                         String usr_contact, String all_access_flag, String admin_center_name, String hr_payment_active,
+                         String hr_appointment_active, String acc_payment_active, String acc_appointment_active,
+                         String hr_dashboard, String acc_dashboard, String hr_acc_active_flag) {
         this.usr_id = usr_id;
         this.usr_name = usr_name;
         this.usr_fname = usr_fname;
@@ -27,6 +33,9 @@ public class AdminInfoList {
         this.hr_appointment_active = hr_appointment_active;
         this.acc_payment_active = acc_payment_active;
         this.acc_appointment_active = acc_appointment_active;
+        this.hr_dashboard = hr_dashboard;
+        this.acc_dashboard = acc_dashboard;
+        this.hr_acc_active_flag = hr_acc_active_flag;
     }
 
     public String getUsr_id() {
@@ -123,5 +132,29 @@ public class AdminInfoList {
 
     public void setAcc_appointment_active(String acc_appointment_active) {
         this.acc_appointment_active = acc_appointment_active;
+    }
+
+    public String getHr_dashboard() {
+        return hr_dashboard;
+    }
+
+    public void setHr_dashboard(String hr_dashboard) {
+        this.hr_dashboard = hr_dashboard;
+    }
+
+    public String getAcc_dashboard() {
+        return acc_dashboard;
+    }
+
+    public void setAcc_dashboard(String acc_dashboard) {
+        this.acc_dashboard = acc_dashboard;
+    }
+
+    public String getHr_acc_active_flag() {
+        return hr_acc_active_flag;
+    }
+
+    public void setHr_acc_active_flag(String hr_acc_active_flag) {
+        this.hr_acc_active_flag = hr_acc_active_flag;
     }
 }

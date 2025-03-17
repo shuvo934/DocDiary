@@ -45,6 +45,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 import java.util.logging.Level;
@@ -52,6 +53,7 @@ import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.hr_accounts.vouch_trans.adapters.VouchTrans1Adapter;
+import ttit.com.shuvo.docdiary.hr_accounts.vouch_trans.arraylists.VoucherAllData;
 import ttit.com.shuvo.docdiary.hr_accounts.vouch_trans.arraylists.VoucherLists1;
 import ttit.com.shuvo.docdiary.hr_accounts.vouch_trans.arraylists.VoucherLists2;
 import ttit.com.shuvo.docdiary.hr_accounts.vouch_trans.arraylists.VoucherLists3;
@@ -90,6 +92,7 @@ public class VoucherTransaction extends AppCompatActivity {
     RecyclerView.LayoutManager layoutManager;
     TextView noVoucherMsg;
 
+    ArrayList<VoucherAllData> voucherAllData;
     ArrayList<VoucherLists1> voucherLists1s;
     ArrayList<VoucherLists1> filteredLists;
 
@@ -134,21 +137,13 @@ public class VoucherTransaction extends AppCompatActivity {
         totalCredit = findViewById(R.id.total_credit_val_in_voucher_transaction);
 
         voucherTypeLists = new ArrayList<>();
+        voucherAllData = new ArrayList<>();
         voucherLists1s = new ArrayList<>();
         filteredLists = new ArrayList<>();
 
         Intent intent = getIntent();
         firstDate = intent.getStringExtra("FIRST_DATE");
         lastDate = intent.getStringExtra("LAST_DATE");
-
-        voucherTypeLists.add("...");
-        voucherTypeLists.add("CV (Receive)");
-        voucherTypeLists.add("DV (Payment)");
-        voucherTypeLists.add("JV (Transfer)");
-
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, R.layout.dropdown_menu_popup_item, R.id.drop_down_item, voucherTypeLists);
-
-        voucherSpinner.setAdapter(arrayAdapter);
 
         voucherSpinner.setOnItemClickListener((parent, view, position, id) -> {
             String name = parent.getItemAtPosition(position).toString();
@@ -483,11 +478,12 @@ public class VoucherTransaction extends AppCompatActivity {
                     String type = voucherLists2s.get(j).getType();
                     String orderNo = voucherLists2s.get(j).getOrderNo();
                     String flag = voucherLists2s.get(j).getPay_type_flag();
+                    String lg_voucher_type = voucherLists2s.get(j).getLg_voucher_type();
                     boolean updated = voucherLists2s.get(j).isUpdated();
 
-                    if (vNo.toUpperCase().contains(text.toUpperCase())) {
+                    if (lg_voucher_type.equalsIgnoreCase(text)) {
                         found = true;
-                        ft2.add(new VoucherLists2(vNo,particulars,voucherLists3s,type,orderNo,flag,updated));
+                        ft2.add(new VoucherLists2(vNo,particulars,voucherLists3s,type,orderNo,flag,lg_voucher_type,updated));
                     }
                 }
 
@@ -622,9 +618,12 @@ public class VoucherTransaction extends AppCompatActivity {
 
         voucherPieEntry = new ArrayList<>();
         voucherLists1s = new ArrayList<>();
+        voucherAllData = new ArrayList<>();
+        voucherTypeLists = new ArrayList<>();
 
         String voucherCountUrl = pre_url_api+"acc_dashboard/getVoucherCount?first_date="+firstDate+"&end_date="+lastDate;
-        String voucherDateUrl = pre_url_api+"acc_dashboard/getVoucherList?st_date="+firstDate+"&end_date="+lastDate+"&voucher_type=&voucher_date=&voucher_no=&options=1";
+        String voucherDateUrl = pre_url_api+"acc_dashboard/getNewVoucherList?st_date="+firstDate+"&end_date="+lastDate;
+//        String voucherDateUrl = pre_url_api+"acc_dashboard/getVoucherList?st_date="+firstDate+"&end_date="+lastDate+"&voucher_type=&voucher_date=&voucher_no=&options=1";
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, voucherDateUrl, response -> {
@@ -637,18 +636,34 @@ public class VoucherTransaction extends AppCompatActivity {
                     JSONArray array = new JSONArray(items);
                     for (int i = 0; i < array.length(); i++) {
                         JSONObject info = array.getJSONObject(i);
-                        String voucher_transaction_list = info.getString("voucher_transaction_list");
-                        JSONArray itemsArray = new JSONArray(voucher_transaction_list);
-                        for (int j = 0; j < itemsArray.length(); j++) {
-                            JSONObject v_date_info = itemsArray.getJSONObject(j);
 
-                            String vdate = v_date_info.getString("vdate");
+                        String vdate = info.getString("vdate")
+                                .equals("null") ? "" : info.getString("vdate");
+                        String lg_voucher_no = info.getString("lg_voucher_no")
+                                .equals("null") ? "" : info.getString("lg_voucher_no");
+                        String lg_particulars = info.getString("lg_particulars")
+                                .equals("null") ? "" : info.getString("lg_particulars");
+                        String lg_inv_pur_no = info.getString("lg_inv_pur_no")
+                                .equals("null") ? "" : info.getString("lg_inv_pur_no");
+                        String lg_trans_type = info.getString("lg_trans_type")
+                                .equals("null") ? "" : info.getString("lg_trans_type");
+                        String prm_pay_type_flag = info.getString("prm_pay_type_flag")
+                                .equals("null") ? "" : info.getString("prm_pay_type_flag");
+                        String ad_dtl = info.getString("ad_dtl")
+                                .equals("null") ? "" : info.getString("ad_dtl");
+                        String lg_dr_amt = info.getString("lg_dr_amt")
+                                .equals("null") ? "" : info.getString("lg_dr_amt");
+                        String lg_cr_amt = info.getString("lg_cr_amt")
+                                .equals("null") ? "" : info.getString("lg_cr_amt");
+                        String lg_voucher_type = info.getString("lg_voucher_type")
+                                .equals("null") ? "" : info.getString("lg_voucher_type");
 
-                            voucherLists1s.add(new VoucherLists1(vdate,new ArrayList<>(),false));
-                        }
+                        voucherAllData.add(new VoucherAllData(vdate,lg_voucher_no,lg_particulars,lg_inv_pur_no,
+                                lg_trans_type,prm_pay_type_flag,ad_dtl,lg_dr_amt,lg_cr_amt,lg_voucher_type));
+
                     }
                 }
-                checkToGetVlist2();
+                getVouchers();
             }
             catch (JSONException e) {
                 logger.log(Level.WARNING,e.getMessage(),e);
@@ -664,6 +679,43 @@ public class VoucherTransaction extends AppCompatActivity {
             updateInterface();
         });
 
+//        StringRequest stringRequest = new StringRequest(Request.Method.GET, voucherDateUrl, response -> {
+//            conn = true;
+//            try {
+//                JSONObject jsonObject = new JSONObject(response);
+//                String items = jsonObject.getString("items");
+//                String count = jsonObject.getString("count");
+//                if (!count.equals("0")) {
+//                    JSONArray array = new JSONArray(items);
+//                    for (int i = 0; i < array.length(); i++) {
+//                        JSONObject info = array.getJSONObject(i);
+//                        String voucher_transaction_list = info.getString("voucher_transaction_list");
+//                        JSONArray itemsArray = new JSONArray(voucher_transaction_list);
+//                        for (int j = 0; j < itemsArray.length(); j++) {
+//                            JSONObject v_date_info = itemsArray.getJSONObject(j);
+//
+//                            String vdate = v_date_info.getString("vdate");
+//
+//                            voucherLists1s.add(new VoucherLists1(vdate,new ArrayList<>(),false));
+//                        }
+//                    }
+//                }
+//                checkToGetVlist2();
+//            }
+//            catch (JSONException e) {
+//                logger.log(Level.WARNING,e.getMessage(),e);
+//                parsing_message = e.getLocalizedMessage();
+//                connected = false;
+//                updateInterface();
+//            }
+//        }, error -> {
+//            logger.log(Level.WARNING,error.getMessage(),error);
+//            parsing_message = error.getLocalizedMessage();
+//            conn = false;
+//            connected = false;
+//            updateInterface();
+//        });
+
         StringRequest voucherCountReq = new StringRequest(Request.Method.GET, voucherCountUrl, response -> {
             conn = true;
             try {
@@ -672,6 +724,7 @@ public class VoucherTransaction extends AppCompatActivity {
                 String count = jsonObject.getString("count");
                 if (!count.equals("0")) {
                     JSONArray array = new JSONArray(items);
+                    voucherTypeLists.add("...");
                     for (int i = 0; i < array.length(); i++) {
                         JSONObject docInfo = array.getJSONObject(i);
 
@@ -681,6 +734,7 @@ public class VoucherTransaction extends AppCompatActivity {
                                 .equals("null") ? "0" : docInfo.getString("cc");
 
                         if (!voucher_type.isEmpty()) {
+                            voucherTypeLists.add(voucher_type);
                             voucherPieEntry.add(new PieEntry(Float.parseFloat(cc),voucher_type,i));
                         }
                     }
@@ -706,162 +760,296 @@ public class VoucherTransaction extends AppCompatActivity {
         requestQueue.add(voucherCountReq);
     }
 
-    private void checkToGetVlist2() {
-        if (!voucherLists1s.isEmpty()) {
-            boolean allUpdated = false;
-            for (int i = 0; i < voucherLists1s.size(); i++) {
-                allUpdated = voucherLists1s.get(i).isUpdated();
-                if (!voucherLists1s.get(i).isUpdated()) {
-                    allUpdated = voucherLists1s.get(i).isUpdated();
-                    String vDate = voucherLists1s.get(i).getvDate();
-                    getVoucherLists2(vDate,i);
-                    break;
+    public void getVouchers() {
+        new Thread(() -> {
+            ArrayList<String> uniqueDate = new ArrayList<>();
+
+            for (int i = 0; i < voucherAllData.size(); i++) {
+                if (uniqueDate.isEmpty()) {
+                    uniqueDate.add(voucherAllData.get(i).getVdate());
+                }
+                else {
+                    boolean found = false;
+                    for (int j = 0; j < uniqueDate.size(); j++) {
+                        if (voucherAllData.get(i).getVdate().equals(uniqueDate.get(j))) {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found) {
+                        uniqueDate.add(voucherAllData.get(i).getVdate());
+                    }
                 }
             }
-            if (allUpdated) {
-//                checkToGetSalesOrderList();
+
+            for (int i = 0; i < uniqueDate.size(); i++) {
+                System.out.println(uniqueDate.get(i));
+                voucherLists1s.add(new VoucherLists1(uniqueDate.get(i),new ArrayList<>(),false));
+            }
+
+            for (int i = 0; i < voucherLists1s.size(); i++) {
+                ArrayList<VoucherLists2> voucherLists2s = new ArrayList<>();
+                for (int j = 0; j < voucherAllData.size(); j++) {
+
+                    String vNo = voucherAllData.get(j).getLg_voucher_no();
+                    String lg_particulars = voucherAllData.get(j).getLg_particulars();
+                    String type = voucherAllData.get(j).getLg_trans_type();
+                    String purchase = voucherAllData.get(j).getLg_inv_pur_no();
+                    String flag = voucherAllData.get(j).getPrm_pay_type_flag();
+                    String lg_voucher_type = voucherAllData.get(j).getLg_voucher_type();
+
+                    if (voucherLists1s.get(i).getvDate().equals(voucherAllData.get(j).getVdate())) {
+                        if (voucherLists2s.isEmpty()) {
+                            voucherLists2s.add(new VoucherLists2(vNo,lg_particulars,new ArrayList<>(),type,purchase,flag,lg_voucher_type,false));
+                        }
+                        else {
+                            boolean found = false;
+                            for (int k = 0; k < voucherLists2s.size(); k++) {
+                                if (vNo.equals(voucherLists2s.get(k).getvNo())) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if (!found) {
+                                voucherLists2s.add(new VoucherLists2(vNo,lg_particulars,new ArrayList<>(),type,purchase,flag,lg_voucher_type,false));
+                            }
+                        }
+                    }
+                }
+                voucherLists1s.get(i).setVoucherLists2s(voucherLists2s);
+                voucherLists1s.get(i).setUpdated(true);
+            }
+
+            for (int i = 0; i < voucherLists1s.size(); i++) {
+                String date = voucherLists1s.get(i).getvDate();
+                ArrayList<VoucherLists2> voucherLists2s = voucherLists1s.get(i).getVoucherLists2s();
+
+                for (int j = 0; j < voucherLists2s.size(); j++) {
+                    ArrayList<VoucherLists3> voucherLists3s = new ArrayList<>();
+                    ArrayList<VoucherLists3> voucherLists3s_dr = new ArrayList<>();
+                    ArrayList<VoucherLists3> voucherLists3s_cr = new ArrayList<>();
+                    ArrayList<Integer> dr_coll = new ArrayList<>();
+                    ArrayList<Integer> cr_coll = new ArrayList<>();
+                    String vNo = voucherLists2s.get(j).getvNo();
+
+                    for (int k = 0; k < voucherAllData.size(); k++) {
+                        String voucherNo = voucherAllData.get(k).getLg_voucher_no();
+                        String acc_dtl = voucherAllData.get(k).getAd_dtl();
+                        String lg_dr_amt = voucherAllData.get(k).getLg_dr_amt();
+                        String lg_cr_amt = voucherAllData.get(k).getLg_cr_amt();
+
+                        if (date.equals(voucherAllData.get(k).getVdate()) && vNo.equals(voucherNo)) {
+                            if (lg_dr_amt.isEmpty()) {
+                                if (!lg_cr_amt.isEmpty()) {
+                                    cr_coll.add(Integer.parseInt(lg_cr_amt));
+                                }
+                                voucherLists3s_cr.add(new VoucherLists3(acc_dtl,lg_dr_amt,lg_cr_amt));
+                            }
+                            if (lg_cr_amt.isEmpty()) {
+                                if (!lg_dr_amt.isEmpty()) {
+                                    dr_coll.add(Integer.parseInt(lg_dr_amt));
+                                }
+                                voucherLists3s_dr.add(new VoucherLists3(acc_dtl,lg_dr_amt,lg_cr_amt));
+                            }
+                        }
+                    }
+
+                    Collections.sort(cr_coll, Collections.reverseOrder());
+                    Collections.sort(dr_coll, Collections.reverseOrder());
+
+                    for (int k = 0; k < dr_coll.size(); k++) {
+                        for (int l = 0; l < voucherLists3s_dr.size(); l++) {
+                            String acc_dtl = voucherLists3s_dr.get(l).getAccountDetails();
+                            String lg_dr_amt = voucherLists3s_dr.get(l).getDebit();
+                            String lg_cr_amt = voucherLists3s_dr.get(l).getCredit();
+
+                            if (dr_coll.get(k) == Integer.parseInt(voucherLists3s_dr.get(l).getDebit())) {
+                                voucherLists3s.add(new VoucherLists3(acc_dtl,lg_dr_amt,lg_cr_amt));
+                            }
+                        }
+                    }
+
+                    for (int k = 0; k < cr_coll.size(); k++) {
+                        for (int l = 0; l < voucherLists3s_cr.size(); l++) {
+                            String acc_dtl = voucherLists3s_cr.get(l).getAccountDetails();
+                            String lg_dr_amt = voucherLists3s_cr.get(l).getDebit();
+                            String lg_cr_amt = voucherLists3s_cr.get(l).getCredit();
+
+                            if (cr_coll.get(k) == Integer.parseInt(voucherLists3s_cr.get(l).getCredit())) {
+                                voucherLists3s.add(new VoucherLists3(acc_dtl,lg_dr_amt,lg_cr_amt));
+                            }
+                        }
+                    }
+
+                    voucherLists2s.get(j).setVoucherLists3s(voucherLists3s);
+                    voucherLists2s.get(j).setUpdated(true);
+                }
+            }
+
+            runOnUiThread(() -> {
                 connected = true;
                 updateInterface();
-            }
-        }
-        else {
-//            checkToGetSalesOrderList();
-            connected = true;
-            updateInterface();
-        }
+            });
+        }).start();
     }
 
-    public void getVoucherLists2(String vDate, int firstIndex) {
-        String voucherLists2Url = pre_url_api+"acc_dashboard/getVoucherList?st_date="+firstDate+"&end_date="+lastDate+"&voucher_type=&voucher_date="+vDate+"&voucher_no=&options=2";
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
+//    private void checkToGetVlist2() {
+//        if (!voucherLists1s.isEmpty()) {
+//            boolean allUpdated = false;
+//            for (int i = 0; i < voucherLists1s.size(); i++) {
+//                allUpdated = voucherLists1s.get(i).isUpdated();
+//                if (!voucherLists1s.get(i).isUpdated()) {
+//                    allUpdated = voucherLists1s.get(i).isUpdated();
+//                    String vDate = voucherLists1s.get(i).getvDate();
+//                    getVoucherLists2(vDate,i);
+//                    break;
+//                }
+//            }
+//            if (allUpdated) {
+////                checkToGetSalesOrderList();
+//                connected = true;
+//                updateInterface();
+//            }
+//        }
+//        else {
+////            checkToGetSalesOrderList();
+//            connected = true;
+//            updateInterface();
+//        }
+//    }
 
-        ArrayList<VoucherLists2> voucherLists2s = new ArrayList<>();
+//    public void getVoucherLists2(String vDate, int firstIndex) {
+//        String voucherLists2Url = pre_url_api+"acc_dashboard/getVoucherList?st_date="+firstDate+"&end_date="+lastDate+"&voucher_type=&voucher_date="+vDate+"&voucher_no=&options=2";
+//        RequestQueue requestQueue = Volley.newRequestQueue(this);
+//
+//        ArrayList<VoucherLists2> voucherLists2s = new ArrayList<>();
+//
+//        StringRequest stringRequest = new StringRequest(Request.Method.GET, voucherLists2Url, response -> {
+//            conn = true;
+//            try {
+//                JSONObject jsonObject = new JSONObject(response);
+//                String items = jsonObject.getString("items");
+//                String count = jsonObject.getString("count");
+//                if (!count.equals("0")) {
+//                    JSONArray array = new JSONArray(items);
+//                    for (int i = 0; i < array.length(); i++) {
+//                        JSONObject info = array.getJSONObject(i);
+//                        String voucher_transaction_list = info.getString("voucher_transaction_list");
+//                        JSONArray itemsArray = new JSONArray(voucher_transaction_list);
+//                        for (int j = 0; j < itemsArray.length(); j++) {
+//                            JSONObject vlist2_info = itemsArray.getJSONObject(j);
+//
+//                            String vNo = vlist2_info.getString("lg_voucher_no");
+//                            String purchase = vlist2_info.getString("lg_inv_pur_no");
+//                            String type = vlist2_info.getString("lg_trans_type");
+//                            String lg_particulars = vlist2_info.getString("lg_particulars")
+//                                    .equals("null") ? "" : vlist2_info.getString("lg_particulars");
+//                            String flag = vlist2_info.getString("prm_pay_type_flag")
+//                                    .equals("null") ? "" : vlist2_info.getString("prm_pay_type_flag");
+//
+//                            voucherLists2s.add(new VoucherLists2(vNo,lg_particulars,new ArrayList<>(),type,purchase,flag,false));
+//                        }
+//                    }
+//                }
+//                checkToGetVlist3(voucherLists2s, vDate, firstIndex);
+//            }
+//            catch (JSONException e) {
+//                logger.log(Level.WARNING,e.getMessage(),e);
+//                parsing_message = e.getLocalizedMessage();
+//                connected = false;
+//                updateInterface();
+//            }
+//        }, error -> {
+//            logger.log(Level.WARNING,error.getMessage(),error);
+//            parsing_message = error.getLocalizedMessage();
+//            conn = false;
+//            connected = false;
+//            updateInterface();
+//        });
+//
+//        requestQueue.add(stringRequest);
+//    }
 
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, voucherLists2Url, response -> {
-            conn = true;
-            try {
-                JSONObject jsonObject = new JSONObject(response);
-                String items = jsonObject.getString("items");
-                String count = jsonObject.getString("count");
-                if (!count.equals("0")) {
-                    JSONArray array = new JSONArray(items);
-                    for (int i = 0; i < array.length(); i++) {
-                        JSONObject info = array.getJSONObject(i);
-                        String voucher_transaction_list = info.getString("voucher_transaction_list");
-                        JSONArray itemsArray = new JSONArray(voucher_transaction_list);
-                        for (int j = 0; j < itemsArray.length(); j++) {
-                            JSONObject vlist2_info = itemsArray.getJSONObject(j);
+//    private void checkToGetVlist3(ArrayList<VoucherLists2> voucherLists2s, String vDate, int firstIndex) {
+//        if (!voucherLists2s.isEmpty()) {
+//            boolean allUpdated = false;
+//            for (int i = 0; i < voucherLists2s.size(); i++) {
+//                allUpdated = voucherLists2s.get(i).isUpdated();
+//                if (!voucherLists2s.get(i).isUpdated()) {
+//                    allUpdated = voucherLists2s.get(i).isUpdated();
+//                    String vNo = voucherLists2s.get(i).getvNo();
+//                    getVoucherLists3(voucherLists2s,vNo,vDate,i,firstIndex);
+//                    break;
+//                }
+//            }
+//            if (allUpdated) {
+//                voucherLists1s.get(firstIndex).setVoucherLists2s(voucherLists2s);
+//                voucherLists1s.get(firstIndex).setUpdated(true);
+//                checkToGetVlist2();
+//            }
+//        }
+//        else {
+//            voucherLists1s.get(firstIndex).setVoucherLists2s(voucherLists2s);
+//            voucherLists1s.get(firstIndex).setUpdated(true);
+//            checkToGetVlist2();
+//        }
+//    }
 
-                            String vNo = vlist2_info.getString("lg_voucher_no");
-                            String purchase = vlist2_info.getString("lg_inv_pur_no");
-                            String type = vlist2_info.getString("lg_trans_type");
-                            String lg_particulars = vlist2_info.getString("lg_particulars")
-                                    .equals("null") ? "" : vlist2_info.getString("lg_particulars");
-                            String flag = vlist2_info.getString("prm_pay_type_flag")
-                                    .equals("null") ? "" : vlist2_info.getString("prm_pay_type_flag");
-
-                            voucherLists2s.add(new VoucherLists2(vNo,lg_particulars,new ArrayList<>(),type,purchase,flag,false));
-                        }
-                    }
-                }
-                checkToGetVlist3(voucherLists2s, vDate, firstIndex);
-            }
-            catch (JSONException e) {
-                logger.log(Level.WARNING,e.getMessage(),e);
-                parsing_message = e.getLocalizedMessage();
-                connected = false;
-                updateInterface();
-            }
-        }, error -> {
-            logger.log(Level.WARNING,error.getMessage(),error);
-            parsing_message = error.getLocalizedMessage();
-            conn = false;
-            connected = false;
-            updateInterface();
-        });
-
-        requestQueue.add(stringRequest);
-    }
-
-    private void checkToGetVlist3(ArrayList<VoucherLists2> voucherLists2s, String vDate, int firstIndex) {
-        if (!voucherLists2s.isEmpty()) {
-            boolean allUpdated = false;
-            for (int i = 0; i < voucherLists2s.size(); i++) {
-                allUpdated = voucherLists2s.get(i).isUpdated();
-                if (!voucherLists2s.get(i).isUpdated()) {
-                    allUpdated = voucherLists2s.get(i).isUpdated();
-                    String vNo = voucherLists2s.get(i).getvNo();
-                    getVoucherLists3(voucherLists2s,vNo,vDate,i,firstIndex);
-                    break;
-                }
-            }
-            if (allUpdated) {
-                voucherLists1s.get(firstIndex).setVoucherLists2s(voucherLists2s);
-                voucherLists1s.get(firstIndex).setUpdated(true);
-                checkToGetVlist2();
-            }
-        }
-        else {
-            voucherLists1s.get(firstIndex).setVoucherLists2s(voucherLists2s);
-            voucherLists1s.get(firstIndex).setUpdated(true);
-            checkToGetVlist2();
-        }
-    }
-
-    public void getVoucherLists3(ArrayList<VoucherLists2> voucherLists2s, String vNo, String vDate, int secondIndex, int firstIndex) {
-        String voucherLists3Url =  pre_url_api+"acc_dashboard/getVoucherList?st_date="+firstDate+"&end_date="+lastDate+"&voucher_type=&voucher_date="+vDate+"&voucher_no="+vNo+"&options=3";
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-
-        ArrayList<VoucherLists3> voucherLists3s = new ArrayList<>();
-
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, voucherLists3Url, response -> {
-            conn = true;
-            try {
-                JSONObject jsonObject = new JSONObject(response);
-                String items = jsonObject.getString("items");
-                String count = jsonObject.getString("count");
-                if (!count.equals("0")) {
-                    JSONArray array = new JSONArray(items);
-                    for (int i = 0; i < array.length(); i++) {
-                        JSONObject info = array.getJSONObject(i);
-                        String voucher_transaction_list = info.getString("voucher_transaction_list");
-                        JSONArray itemsArray = new JSONArray(voucher_transaction_list);
-                        for (int j = 0; j < itemsArray.length(); j++) {
-                            JSONObject vlist3_info = itemsArray.getJSONObject(j);
-
-                            String acc_dtl = vlist3_info.getString("acc_dtl")
-                                    .equals("null") ? "" : vlist3_info.getString("acc_dtl");
-
-                            String lg_dr_amt = vlist3_info.getString("lg_dr_amt")
-                                    .equals("null") ? "" : vlist3_info.getString("lg_dr_amt");
-                            String lg_cr_amt = vlist3_info.getString("lg_cr_amt")
-                                    .equals("null") ? "" : vlist3_info.getString("lg_cr_amt");
-
-
-                            voucherLists3s.add(new VoucherLists3(acc_dtl,lg_dr_amt,lg_cr_amt));
-                        }
-                    }
-                }
-                voucherLists2s.get(secondIndex).setVoucherLists3s(voucherLists3s);
-                voucherLists2s.get(secondIndex).setUpdated(true);
-                checkToGetVlist3(voucherLists2s, vDate, firstIndex);
-            }
-            catch (JSONException e) {
-                logger.log(Level.WARNING,e.getMessage(),e);
-                parsing_message = e.getLocalizedMessage();
-                connected = false;
-                updateInterface();
-            }
-        }, error -> {
-            logger.log(Level.WARNING,error.getMessage(),error);
-            parsing_message = error.getLocalizedMessage();
-            conn = false;
-            connected = false;
-            updateInterface();
-        });
-
-        requestQueue.add(stringRequest);
-    }
+//    public void getVoucherLists3(ArrayList<VoucherLists2> voucherLists2s, String vNo, String vDate, int secondIndex, int firstIndex) {
+//        String voucherLists3Url =  pre_url_api+"acc_dashboard/getVoucherList?st_date="+firstDate+"&end_date="+lastDate+"&voucher_type=&voucher_date="+vDate+"&voucher_no="+vNo+"&options=3";
+//        RequestQueue requestQueue = Volley.newRequestQueue(this);
+//
+//        ArrayList<VoucherLists3> voucherLists3s = new ArrayList<>();
+//
+//        StringRequest stringRequest = new StringRequest(Request.Method.GET, voucherLists3Url, response -> {
+//            conn = true;
+//            try {
+//                JSONObject jsonObject = new JSONObject(response);
+//                String items = jsonObject.getString("items");
+//                String count = jsonObject.getString("count");
+//                if (!count.equals("0")) {
+//                    JSONArray array = new JSONArray(items);
+//                    for (int i = 0; i < array.length(); i++) {
+//                        JSONObject info = array.getJSONObject(i);
+//                        String voucher_transaction_list = info.getString("voucher_transaction_list");
+//                        JSONArray itemsArray = new JSONArray(voucher_transaction_list);
+//                        for (int j = 0; j < itemsArray.length(); j++) {
+//                            JSONObject vlist3_info = itemsArray.getJSONObject(j);
+//
+//                            String acc_dtl = vlist3_info.getString("acc_dtl")
+//                                    .equals("null") ? "" : vlist3_info.getString("acc_dtl");
+//
+//                            String lg_dr_amt = vlist3_info.getString("lg_dr_amt")
+//                                    .equals("null") ? "" : vlist3_info.getString("lg_dr_amt");
+//                            String lg_cr_amt = vlist3_info.getString("lg_cr_amt")
+//                                    .equals("null") ? "" : vlist3_info.getString("lg_cr_amt");
+//
+//
+//                            voucherLists3s.add(new VoucherLists3(acc_dtl,lg_dr_amt,lg_cr_amt));
+//                        }
+//                    }
+//                }
+//                voucherLists2s.get(secondIndex).setVoucherLists3s(voucherLists3s);
+//                voucherLists2s.get(secondIndex).setUpdated(true);
+//                checkToGetVlist3(voucherLists2s, vDate, firstIndex);
+//            }
+//            catch (JSONException e) {
+//                logger.log(Level.WARNING,e.getMessage(),e);
+//                parsing_message = e.getLocalizedMessage();
+//                connected = false;
+//                updateInterface();
+//            }
+//        }, error -> {
+//            logger.log(Level.WARNING,error.getMessage(),error);
+//            parsing_message = error.getLocalizedMessage();
+//            conn = false;
+//            connected = false;
+//            updateInterface();
+//        });
+//
+//        requestQueue.add(stringRequest);
+//    }
 
     private void updateInterface() {
         if (conn) {
@@ -870,6 +1058,10 @@ public class VoucherTransaction extends AppCompatActivity {
                 circularProgressIndicator.setVisibility(View.GONE);
                 conn = false;
                 connected = false;
+
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, R.layout.dropdown_menu_popup_item, R.id.drop_down_item, voucherTypeLists);
+
+                voucherSpinner.setAdapter(arrayAdapter);
 
                 if (voucherLists1s.isEmpty()) {
                     noVoucherMsg.setVisibility(View.VISIBLE);

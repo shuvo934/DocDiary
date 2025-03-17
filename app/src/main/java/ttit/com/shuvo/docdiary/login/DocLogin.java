@@ -35,6 +35,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,6 +48,7 @@ import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.dashboard.DocDashboard;
+import ttit.com.shuvo.docdiary.login.arraylists.AllUrlList;
 import ttit.com.shuvo.docdiary.login.arraylists.CenterList;
 import ttit.com.shuvo.docdiary.login.arraylists.MultipleUserList;
 import ttit.com.shuvo.docdiary.login.dialogue.SelectCenterDialogue;
@@ -98,11 +103,15 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
     public static String center_api = "";
     public static String center_admin_user_id = "";
     public static String user_or_admin_flag = "";
+    String user_center_name = "";
     ArrayList<CenterList> centerLists;
     boolean loading = false;
     Gson gson = new Gson();
     String json = "";
     Logger logger = Logger.getLogger(DocLogin.class.getName());
+
+    ArrayList<AllUrlList> urls;
+    String text_url = "https://raw.githubusercontent.com/shuvo934/Story/refs/heads/master/docDiaryServers";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -208,31 +217,29 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
             user_mobile = Objects.requireNonNull(userMobile.getText()).toString();
             user_password = Objects.requireNonNull(userPassword.getText()).toString();
 
-            if (!user_mobile.isEmpty() && !user_password.isEmpty()) {
-                loginCheck();
-            } else {
-                Toast.makeText(getApplicationContext(), "Please Give Mobile No and Password", Toast.LENGTH_SHORT).show();
+            if (!urls.isEmpty()) {
+                if (!user_mobile.isEmpty() && !user_password.isEmpty()) {
+                    for (int i = 0; i < urls.size(); i++) {
+                        urls.get(i).setChecked(false);
+                    }
+                    dynamicLoginCheck();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Please Give Mobile No and Password", Toast.LENGTH_SHORT).show();
+                }
             }
-//            if (!center_api.isEmpty()) {
-//                if (!user_mobile.isEmpty() && !user_password.isEmpty()) {
-//                    loginCheck();
-//                } else {
-//                    Toast.makeText(getApplicationContext(), "Please Give User Code and Password", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//            else {
-//                Toast.makeText(getApplicationContext(), "Center not selected correctly. Please exit the app and try again.", Toast.LENGTH_SHORT).show();
-//            }
+            else {
+                AlertDialog dialog = new AlertDialog.Builder(DocLogin.this)
+                        .setMessage("Server Error. Please Try again later.")
+                        .setPositiveButton("OK", null)
+                        .show();
+
+                Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                positive.setOnClickListener(vv -> dialog.dismiss());
+            }
 
         });
 
-//        centerName.setOnClickListener(v -> {
-//            SelectCenterDialogue selectCenterDialogue = new SelectCenterDialogue(centerLists,DocLogin.this);
-//            selectCenterDialogue.show(getSupportFragmentManager(),"CENTER");
-//        });
-
-//        getCenter();
-
+        readApiText();
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -275,139 +282,54 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
         return super.onTouchEvent(event);
     }
 
-//    @Override
-//    public void onBackPressed () {
-//
-//
-//    }
+    public void readApiText() {
+        fullLayout.setVisibility(View.GONE);
+        circularProgressIndicator.setVisibility(View.VISIBLE);
+        new Thread(() -> {
+            urls = new ArrayList<>();
+            try {
+                // Create a URL for the desired page
+                URL url = new URL(text_url);
+                //System.out.println(text_url);//My text file location
+                HttpURLConnection conn=(HttpURLConnection) url.openConnection();
+                conn.setConnectTimeout(60000); // timing out in a minute
+                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                String str;
+                while ((str = in.readLine()) != null) {
+                    urls.add(new AllUrlList(str,false));
+                }
+                in.close();
+            }
+            catch (Exception e) {
+                urls.add(new AllUrlList("http://103.56.208.123:8001/apex/cstar_local/",false));
+                urls.add(new AllUrlList("http://103.73.227.28:8080/cstar/cstar-ramp/",false));
+                urls.add(new AllUrlList("http://202.4.109.126:8003/crps/crp_savar/",false));
+                urls.add(new AllUrlList("http://144.48.119.59:8002/apex/crp_mirpur/",false));
+                urls.add(new AllUrlList("http://103.73.227.28:8080/cstar/cstar_bsd/",false));
+                Log.d("MyTag",e.toString());
+            }
 
+            runOnUiThread(() -> {
+                if (urls.isEmpty()) {
+                    urls.add(new AllUrlList("http://103.56.208.123:8001/apex/cstar_local/",false));
+                    urls.add(new AllUrlList("http://103.73.227.28:8080/cstar/cstar-ramp/",false));
+                    urls.add(new AllUrlList("http://202.4.109.126:8003/crps/crp_savar/",false));
+                    urls.add(new AllUrlList("http://144.48.119.59:8002/apex/crp_mirpur/",false));
+                    urls.add(new AllUrlList("http://103.73.227.28:8080/cstar/cstar_bsd/",false));
+                }
+                else {
+                    for (int i = 0; i < urls.size(); i++) {
+                        System.out.println(urls.get(i).getUrls());
+                    }
+                }
+                fullLayout.setVisibility(View.VISIBLE);
+                circularProgressIndicator.setVisibility(View.GONE);
+            });
 
-//    public void getCenter() {
-//        fullLayout.setVisibility(View.GONE);
-//        circularProgressIndicator.setVisibility(View.VISIBLE);
-//        conn = false;
-//        connected = false;
-//        centerLists = new ArrayList<>();
-//
-//        // http://103.56.208.123:8001/apex/cstar_local/
-//        String url = "http://103.56.208.123:8001/apex/cstar_local/all_database/getAllDatabase";
-//        RequestQueue requestQueue = Volley.newRequestQueue(DocLogin.this);
-//
-//        StringRequest stringRequest = new StringRequest(Request.Method.GET, url, response -> {
-//            conn = true;
-//            try {
-//                JSONObject jsonObject = new JSONObject(response);
-//                String items = jsonObject.getString("items");
-//                String count = jsonObject.getString("count");
-//                if (!count.equals("0")) {
-//                    JSONArray array = new JSONArray(items);
-//                    for (int i = 0; i < array.length(); i++) {
-//                        JSONObject info = array.getJSONObject(i);
-//
-//                        String center_name = info.getString("center_name");
-//                        String center_api = info.getString("center_api");
-//
-//                        centerLists.add(new CenterList(center_name,center_api));
-//                    }
-//                }
-//                connected = true;
-//                updateCenterList();
-//            }
-//            catch (JSONException e) {
-//                connected = false;
-//                logger.log(Level.WARNING,e.getMessage(),e);
-//                updateCenterList();
-//            }
-//        }, error -> {
-//            conn = false;
-//            connected = false;
-//            logger.log(Level.WARNING,error.getMessage(),error);
-//            updateCenterList();
-//        });
-//
-//        requestQueue.add(stringRequest);
-//    }
+        }).start();
+    }
 
-//    private void updateCenterList() {
-//        fullLayout.setVisibility(View.VISIBLE);
-//        circularProgressIndicator.setVisibility(View.GONE);
-//        if (conn) {
-//            if (connected) {
-//                if (centerLists.size() == 0) {
-//                    centerName.setVisibility(View.GONE);
-//                    AlertDialog dialog = new AlertDialog.Builder(DocLogin.this)
-//                            .setMessage("Center Database Not Found. Please contact to the administration to active Database.")
-//                            .setPositiveButton("OK", null)
-//                            .show();
-//
-//                    dialog.setCancelable(false);
-//                    dialog.setCanceledOnTouchOutside(false);
-//                    Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-//                    positive.setOnClickListener(v -> {
-//
-//                        dialog.dismiss();
-//                        finish();
-//                    });
-//
-//                }
-//                center_api = "http://103.56.208.123:8001/apex/cstar_local/";
-////                else if(centerLists.size() == 1 ) {
-////                    center_api = centerLists.get(0).getCenter_api();
-////                    centerName.setVisibility(View.GONE);
-////                }
-////                else {
-////                    SelectCenterDialogue selectCenterDialogue = new SelectCenterDialogue(centerLists,DocLogin.this);
-////                    selectCenterDialogue.show(getSupportFragmentManager(),"CENTER");
-////                }
-//            }
-//            else {
-//                AlertDialog dialog = new AlertDialog.Builder(DocLogin.this)
-//                        .setMessage("There is a network issue in the server. Please Try later.")
-//                        .setPositiveButton("Retry", null)
-//                        .setNegativeButton("Exit",null)
-//                        .show();
-//
-//                dialog.setCancelable(false);
-//                dialog.setCanceledOnTouchOutside(false);
-//                Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-//                positive.setOnClickListener(v -> {
-//
-//                    getCenter();
-//                    dialog.dismiss();
-//                });
-//                Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-//                negative.setOnClickListener(v -> {
-//
-//                    dialog.dismiss();
-//                    finish();
-//                });
-//            }
-//        }
-//        else {
-//            AlertDialog dialog = new AlertDialog.Builder(DocLogin.this)
-//                    .setMessage("Server Problem or Internet Not Connected.")
-//                    .setPositiveButton("Retry", null)
-//                    .setNegativeButton("Exit",null)
-//                    .show();
-//
-//            dialog.setCancelable(false);
-//            dialog.setCanceledOnTouchOutside(false);
-//            Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-//            positive.setOnClickListener(v -> {
-//
-//                getCenter();
-//                dialog.dismiss();
-//            });
-//            Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-//            negative.setOnClickListener(v -> {
-//
-//                dialog.dismiss();
-//                finish();
-//            });
-//        }
-//    }
-
-    public void loginCheck() {
+    public void dynamicLoginCheck() {
         fullLayout.setVisibility(View.GONE);
         circularProgressIndicator.setVisibility(View.VISIBLE);
         user_message = "";
@@ -420,551 +342,33 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
         center_doc_code = "";
         center_admin_user_id = "";
         user_or_admin_flag = "";
+        user_center_name = "";
         System.out.println("START");
 
-        String useridUrl = "http://103.56.208.123:8001/apex/cstar_local/"+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password;
-        String userIdUrl2 = "http://103.73.227.28:8080/cstar/cstar-ramp/"+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password;
-        String userIdUrl3 = "http://202.4.109.126:8003/crps/crp_savar/"+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password;
-        String userIdUrl4 = "http://144.48.119.59:8002/apex/crp_mirpur/"+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password;
-        String userIdUrl5 = "http://103.73.227.28:8080/cstar/cstar_bsd/"+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password;
+        checkToGetLoginData();
+    }
 
-        RequestQueue requestQueue = Volley.newRequestQueue(DocLogin.this);
-
-        StringRequest getUserMessage5 = new StringRequest(Request.Method.GET, userIdUrl5, response -> {
-            conn = true;
-            try {
-                JSONObject jsonObject = new JSONObject(response);
-                user_message = jsonObject.getString("is_online");
-                is_available = jsonObject.getString("is_available");
-                center_doc_code = jsonObject.getString("p_doc_code");
-                center_api = jsonObject.getString("p_center_api");
-                user_or_admin_flag = jsonObject.getString("p_admin_user_flag");
-                center_admin_user_id = jsonObject.getString("p_admin_user_id");
-
-                switch (is_available) {
-                    case "1":
-                        centerLists.add(new CenterList("CSTAR - BASHUNDHARA", center_api, center_doc_code,
-                                center_admin_user_id, user_or_admin_flag, new ArrayList<>()));
-                        System.out.println("5th Found : 1");
-                        connected = true;
-                        updateLayout();
-                        break;
-                    case "0":
-                        System.out.println("5th Found : 0");
-                        connected = true;
-                        updateLayout();
-                        break;
-                    case "3":
-                        String p_doc_list = jsonObject.getString("p_doc_list");
-                        JSONArray array = new JSONArray(p_doc_list);
-                        ArrayList<MultipleUserList> multipleUserLists = new ArrayList<>();
-                        for (int i = 0; i < array.length(); i++) {
-                            JSONObject docInfo = array.getJSONObject(i);
-                            String dc = docInfo.getString("doc_code")
-                                    .equals("null") ? "" : docInfo.getString("doc_code");
-                            String dn = docInfo.getString("doc_name")
-                                    .equals("null") ? "" : docInfo.getString("doc_name");
-                            String dep_name = docInfo.getString("depts_name")
-                                    .equals("null") ? "" : docInfo.getString("depts_name");
-                            multipleUserLists.add(new MultipleUserList(dc, dn, dep_name,user_or_admin_flag,
-                                    "","","",""));
-                        }
-                        centerLists.add(new CenterList("CSTAR - BASHUNDHARA",center_api, center_doc_code,
-                                center_admin_user_id, user_or_admin_flag, multipleUserLists));
-                        System.out.println("5th Found : 3");
-                        connected = true;
-                        updateLayout();
-                        break;
-                    case "4":
-                        String p_admin_list = jsonObject.getString("p_admin_list");
-                        JSONArray admin_array = new JSONArray(p_admin_list);
-                        ArrayList<MultipleUserList> multipleUserLists1 = new ArrayList<>();
-                        for (int i = 0; i < admin_array.length(); i++) {
-                            JSONObject adminInfo = admin_array.getJSONObject(i);
-                            String usr_id = adminInfo.getString("usr_id")
-                                    .equals("null") ? "" : adminInfo.getString("usr_id");
-                            String usr_name = adminInfo.getString("usr_name")
-                                    .equals("null") ? "" : adminInfo.getString("usr_name");
-                            String usr_fname = adminInfo.getString("usr_fname")
-                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
-                            String usr_lname = adminInfo.getString("usr_lname")
-                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
-
-                            multipleUserLists1.add(new MultipleUserList("", "", "",
-                                    user_or_admin_flag, usr_id,usr_fname,usr_lname,usr_name));
-                        }
-                        centerLists.add(new CenterList("CSTAR - BASHUNDHARA", center_api, center_doc_code,
-                                center_admin_user_id, user_or_admin_flag, multipleUserLists1));
-                        connected = true;
-                        updateLayout();
-                        System.out.println("5th Found : 4");
-                        break;
-                    case "5":
-                        String p_admin_list_5 = jsonObject.getString("p_admin_list");
-                        JSONArray admin_array_5 = new JSONArray(p_admin_list_5);
-                        String p_doc_list_5 = jsonObject.getString("p_doc_list");
-                        JSONArray doc_array_5 = new JSONArray(p_doc_list_5);
-                        ArrayList<MultipleUserList> multipleUserLists2 = new ArrayList<>();
-
-                        for (int i = 0; i < admin_array_5.length(); i++) {
-                            JSONObject adminInfo = admin_array_5.getJSONObject(i);
-                            String usr_id = adminInfo.getString("usr_id")
-                                    .equals("null") ? "" : adminInfo.getString("usr_id");
-                            String usr_name = adminInfo.getString("usr_name")
-                                    .equals("null") ? "" : adminInfo.getString("usr_name");
-                            String usr_fname = adminInfo.getString("usr_fname")
-                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
-                            String usr_lname = adminInfo.getString("usr_lname")
-                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
-
-                            multipleUserLists2.add(new MultipleUserList("", "", "",
-                                    "2", usr_id,usr_fname,usr_lname,usr_name));
-                        }
-
-                        for (int i = 0; i < doc_array_5.length(); i++) {
-                            JSONObject docInfo = doc_array_5.getJSONObject(i);
-                            String dc = docInfo.getString("doc_code")
-                                    .equals("null") ? "" : docInfo.getString("doc_code");
-                            String dn = docInfo.getString("doc_name")
-                                    .equals("null") ? "" : docInfo.getString("doc_name");
-                            String dep_name = docInfo.getString("depts_name")
-                                    .equals("null") ? "" : docInfo.getString("depts_name");
-                            multipleUserLists2.add(new MultipleUserList(dc, dn, dep_name,"1",
-                                    "","","",""));
-                        }
-                        centerLists.add(new CenterList("CSTAR - BASHUNDHARA", center_api, center_doc_code,
-                                center_admin_user_id, user_or_admin_flag, multipleUserLists2));
-                        connected = true;
-                        updateLayout();
-                        System.out.println("5th Found : 5");
-                        break;
-                    default:
-                        connected = true;
-                        updateLayout();
-                        System.out.println("5th Found : 2");
-                        break;
-                }
-//                if (is_available.equals("1")) {
-////                    connected = true;
-////                    updateLayout();
-//                    centerLists.add(new CenterList("CSTAR - BASHUNDHARA",center_api, center_doc_code,new ArrayList<>()));
-//                    System.out.println("5th Found : 1");
-//                }
-//                else if (is_available.equals("3")) {
-//                    String p_doc_list = jsonObject.getString("p_doc_list");
-//                    JSONArray array = new JSONArray(p_doc_list);
-//                    ArrayList<MultipleUserList> multipleUserLists = new ArrayList<>();
-//                    for (int i = 0; i < array.length(); i++) {
-//                        JSONObject docInfo = array.getJSONObject(i);
-//                        String dc = docInfo.getString("doc_code")
-//                                .equals("null") ? "" : docInfo.getString("doc_code");
-//                        String dn = docInfo.getString("doc_name")
-//                                .equals("null") ? "" : docInfo.getString("doc_name");
-//                        String dep_name = docInfo.getString("depts_name")
-//                                .equals("null") ? "" : docInfo.getString("depts_name");
-//                        multipleUserLists.add(new MultipleUserList(dc,dn,dep_name,"1","","","",""));
-//                    }
-//                    centerLists.add(new CenterList("CSTAR - BASHUNDHARA",center_api, center_doc_code, center_admin_user_id, "1", multipleUserLists));
-//                    System.out.println("5th Found : 3");
-//                }
-//                System.out.println("5th Found : 2,0");
-//                connected = true;
-//                updateLayout();
+    public void checkToGetLoginData() {
+        boolean allUpdated = false;
+        for (int i = 0; i < urls.size(); i++) {
+            allUpdated = urls.get(i).isChecked();
+            if (!urls.get(i).isChecked()) {
+                allUpdated = urls.get(i).isChecked();
+                String url = urls.get(i).getUrls();
+                System.out.println(i+" Started");
+                getLoginData(url,i);
+                break;
             }
-            catch (JSONException e) {
-                connected = false;
-                logger.log(Level.WARNING,e.getMessage(),e);
-                updateLayout();
-            }
-        }, error -> {
-            conn = false;
-            connected = false;
-            logger.log(Level.WARNING,error.getMessage(),error);
+        }
+        if (allUpdated) {
+            System.out.println("all clear");
             updateLayout();
-        });
+        }
+    }
 
-        StringRequest getUserMessage4 = new StringRequest(Request.Method.GET, userIdUrl4, response -> {
-            conn = true;
-            try {
-                JSONObject jsonObject = new JSONObject(response);
-                user_message = jsonObject.getString("is_online");
-                is_available = jsonObject.getString("is_available");
-                center_doc_code = jsonObject.getString("p_doc_code");
-                center_api = jsonObject.getString("p_center_api");
-                user_or_admin_flag = jsonObject.getString("p_admin_user_flag");
-                center_admin_user_id = jsonObject.getString("p_admin_user_id");
-                switch (is_available) {
-                    case "1":
-//                    connected = true;
-//                    updateLayout();
-                        centerLists.add(new CenterList("CRP - MIRPUR", center_api, center_doc_code,
-                                center_admin_user_id, user_or_admin_flag, new ArrayList<>()));
-                        requestQueue.add(getUserMessage5);
-                        System.out.println("4th Found : 1");
-                        break;
-                    case "0":
-//                    connected = true;
-//                    updateLayout();
-                        prv_message = user_message;
-                        requestQueue.add(getUserMessage5);
-                        System.out.println("4th Found : 0");
-                        break;
-                    case "3":
-                        String p_doc_list = jsonObject.getString("p_doc_list");
-                        JSONArray array = new JSONArray(p_doc_list);
-                        ArrayList<MultipleUserList> multipleUserLists = new ArrayList<>();
-                        for (int i = 0; i < array.length(); i++) {
-                            JSONObject docInfo = array.getJSONObject(i);
-                            String dc = docInfo.getString("doc_code")
-                                    .equals("null") ? "" : docInfo.getString("doc_code");
-                            String dn = docInfo.getString("doc_name")
-                                    .equals("null") ? "" : docInfo.getString("doc_name");
-                            String dep_name = docInfo.getString("depts_name")
-                                    .equals("null") ? "" : docInfo.getString("depts_name");
-                            multipleUserLists.add(new MultipleUserList(dc, dn, dep_name,user_or_admin_flag,
-                                    "","","",""));
-                        }
-                        centerLists.add(new CenterList("CRP - MIRPUR", center_api, center_doc_code,
-                                center_admin_user_id, user_or_admin_flag, multipleUserLists));
-                        requestQueue.add(getUserMessage5);
-                        System.out.println("4th Found : 3");
-                        break;
-                    case "4":
-                        String p_admin_list = jsonObject.getString("p_admin_list");
-                        JSONArray admin_array = new JSONArray(p_admin_list);
-                        ArrayList<MultipleUserList> multipleUserLists1 = new ArrayList<>();
-                        for (int i = 0; i < admin_array.length(); i++) {
-                            JSONObject adminInfo = admin_array.getJSONObject(i);
-                            String usr_id = adminInfo.getString("usr_id")
-                                    .equals("null") ? "" : adminInfo.getString("usr_id");
-                            String usr_name = adminInfo.getString("usr_name")
-                                    .equals("null") ? "" : adminInfo.getString("usr_name");
-                            String usr_fname = adminInfo.getString("usr_fname")
-                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
-                            String usr_lname = adminInfo.getString("usr_lname")
-                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
-
-                            multipleUserLists1.add(new MultipleUserList("", "", "",
-                                    user_or_admin_flag, usr_id,usr_fname,usr_lname,usr_name));
-                        }
-                        centerLists.add(new CenterList("CRP - MIRPUR", center_api, center_doc_code,
-                                center_admin_user_id, user_or_admin_flag, multipleUserLists1));
-                        requestQueue.add(getUserMessage5);
-                        System.out.println("4th Found : 4");
-                        break;
-                    case "5":
-                        String p_admin_list_5 = jsonObject.getString("p_admin_list");
-                        JSONArray admin_array_5 = new JSONArray(p_admin_list_5);
-                        String p_doc_list_5 = jsonObject.getString("p_doc_list");
-                        JSONArray doc_array_5 = new JSONArray(p_doc_list_5);
-                        ArrayList<MultipleUserList> multipleUserLists2 = new ArrayList<>();
-
-                        for (int i = 0; i < admin_array_5.length(); i++) {
-                            JSONObject adminInfo = admin_array_5.getJSONObject(i);
-                            String usr_id = adminInfo.getString("usr_id")
-                                    .equals("null") ? "" : adminInfo.getString("usr_id");
-                            String usr_name = adminInfo.getString("usr_name")
-                                    .equals("null") ? "" : adminInfo.getString("usr_name");
-                            String usr_fname = adminInfo.getString("usr_fname")
-                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
-                            String usr_lname = adminInfo.getString("usr_lname")
-                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
-
-                            multipleUserLists2.add(new MultipleUserList("", "", "",
-                                    "2", usr_id,usr_fname,usr_lname,usr_name));
-                        }
-
-                        for (int i = 0; i < doc_array_5.length(); i++) {
-                            JSONObject docInfo = doc_array_5.getJSONObject(i);
-                            String dc = docInfo.getString("doc_code")
-                                    .equals("null") ? "" : docInfo.getString("doc_code");
-                            String dn = docInfo.getString("doc_name")
-                                    .equals("null") ? "" : docInfo.getString("doc_name");
-                            String dep_name = docInfo.getString("depts_name")
-                                    .equals("null") ? "" : docInfo.getString("depts_name");
-                            multipleUserLists2.add(new MultipleUserList(dc, dn, dep_name,"1",
-                                    "","","",""));
-                        }
-                        centerLists.add(new CenterList("CRP - MIRPUR", center_api, center_doc_code,
-                                center_admin_user_id, user_or_admin_flag, multipleUserLists2));
-                        requestQueue.add(getUserMessage5);
-                        System.out.println("4th Found : 5");
-                        break;
-                    default:
-                        requestQueue.add(getUserMessage5);
-                        System.out.println("4th Found : 2");
-                        break;
-                }
-
-            }
-            catch (JSONException e) {
-                connected = false;
-//                e.printStackTrace();
-                logger.log(Level.WARNING,e.getMessage(),e);
-                requestQueue.add(getUserMessage5);
-            }
-
-        }, error -> {
-            conn = false;
-            connected = false;
-            logger.log(Level.WARNING,error.getMessage(),error);
-            requestQueue.add(getUserMessage5);
-        });
-
-        StringRequest getUserMessage3 = new StringRequest(Request.Method.GET, userIdUrl3, response -> {
-            conn = true;
-            try {
-                JSONObject jsonObject = new JSONObject(response);
-                user_message = jsonObject.getString("is_online");
-                is_available = jsonObject.getString("is_available");
-                center_doc_code = jsonObject.getString("p_doc_code");
-                center_api = jsonObject.getString("p_center_api");
-                user_or_admin_flag = jsonObject.getString("p_admin_user_flag");
-                center_admin_user_id = jsonObject.getString("p_admin_user_id");
-                switch (is_available) {
-                    case "1":
-//                    connected = true;
-//                    updateLayout();
-                        centerLists.add(new CenterList("CRP - SAVAR", center_api, center_doc_code,
-                                center_admin_user_id, user_or_admin_flag, new ArrayList<>()));
-                        requestQueue.add(getUserMessage4);
-                        System.out.println("3rd Found : 1");
-                        break;
-                    case "0":
-//                    connected = true;
-//                    updateLayout();
-                        prv_message = user_message;
-                        requestQueue.add(getUserMessage4);
-                        System.out.println("3rd Found : 0");
-                        break;
-                    case "3":
-                        String p_doc_list = jsonObject.getString("p_doc_list");
-                        JSONArray array = new JSONArray(p_doc_list);
-                        ArrayList<MultipleUserList> multipleUserLists = new ArrayList<>();
-                        for (int i = 0; i < array.length(); i++) {
-                            JSONObject docInfo = array.getJSONObject(i);
-                            String dc = docInfo.getString("doc_code")
-                                    .equals("null") ? "" : docInfo.getString("doc_code");
-                            String dn = docInfo.getString("doc_name")
-                                    .equals("null") ? "" : docInfo.getString("doc_name");
-                            String dep_name = docInfo.getString("depts_name")
-                                    .equals("null") ? "" : docInfo.getString("depts_name");
-                            multipleUserLists.add(new MultipleUserList(dc, dn, dep_name,user_or_admin_flag,
-                                    "","","",""));
-                        }
-                        centerLists.add(new CenterList("CRP - SAVAR", center_api, center_doc_code,
-                                center_admin_user_id, user_or_admin_flag, multipleUserLists));
-                        requestQueue.add(getUserMessage4);
-                        System.out.println("3rd Found : 3");
-                        break;
-                    case "4":
-                        String p_admin_list = jsonObject.getString("p_admin_list");
-                        JSONArray admin_array = new JSONArray(p_admin_list);
-                        ArrayList<MultipleUserList> multipleUserLists1 = new ArrayList<>();
-                        for (int i = 0; i < admin_array.length(); i++) {
-                            JSONObject adminInfo = admin_array.getJSONObject(i);
-                            String usr_id = adminInfo.getString("usr_id")
-                                    .equals("null") ? "" : adminInfo.getString("usr_id");
-                            String usr_name = adminInfo.getString("usr_name")
-                                    .equals("null") ? "" : adminInfo.getString("usr_name");
-                            String usr_fname = adminInfo.getString("usr_fname")
-                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
-                            String usr_lname = adminInfo.getString("usr_lname")
-                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
-
-                            multipleUserLists1.add(new MultipleUserList("", "", "",
-                                    user_or_admin_flag, usr_id,usr_fname,usr_lname,usr_name));
-                        }
-                        centerLists.add(new CenterList("CRP - SAVAR", center_api, center_doc_code,
-                                center_admin_user_id, user_or_admin_flag, multipleUserLists1));
-                        requestQueue.add(getUserMessage4);
-                        System.out.println("3rd Found : 4");
-                        break;
-                    case "5":
-                        String p_admin_list_5 = jsonObject.getString("p_admin_list");
-                        JSONArray admin_array_5 = new JSONArray(p_admin_list_5);
-                        String p_doc_list_5 = jsonObject.getString("p_doc_list");
-                        JSONArray doc_array_5 = new JSONArray(p_doc_list_5);
-                        ArrayList<MultipleUserList> multipleUserLists2 = new ArrayList<>();
-
-                        for (int i = 0; i < admin_array_5.length(); i++) {
-                            JSONObject adminInfo = admin_array_5.getJSONObject(i);
-                            String usr_id = adminInfo.getString("usr_id")
-                                    .equals("null") ? "" : adminInfo.getString("usr_id");
-                            String usr_name = adminInfo.getString("usr_name")
-                                    .equals("null") ? "" : adminInfo.getString("usr_name");
-                            String usr_fname = adminInfo.getString("usr_fname")
-                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
-                            String usr_lname = adminInfo.getString("usr_lname")
-                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
-
-                            multipleUserLists2.add(new MultipleUserList("", "", "",
-                                    "2", usr_id,usr_fname,usr_lname,usr_name));
-                        }
-
-                        for (int i = 0; i < doc_array_5.length(); i++) {
-                            JSONObject docInfo = doc_array_5.getJSONObject(i);
-                            String dc = docInfo.getString("doc_code")
-                                    .equals("null") ? "" : docInfo.getString("doc_code");
-                            String dn = docInfo.getString("doc_name")
-                                    .equals("null") ? "" : docInfo.getString("doc_name");
-                            String dep_name = docInfo.getString("depts_name")
-                                    .equals("null") ? "" : docInfo.getString("depts_name");
-                            multipleUserLists2.add(new MultipleUserList(dc, dn, dep_name,"1",
-                                    "","","",""));
-                        }
-                        centerLists.add(new CenterList("CRP - SAVAR", center_api, center_doc_code,
-                                center_admin_user_id, user_or_admin_flag, multipleUserLists2));
-                        requestQueue.add(getUserMessage4);
-                        System.out.println("3rd Found : 5");
-                        break;
-                    default:
-                        requestQueue.add(getUserMessage4);
-                        System.out.println("3rd Found : 2");
-                        break;
-                }
-
-            }
-            catch (JSONException e) {
-                connected = false;
-                logger.log(Level.WARNING,e.getMessage(),e);
-                requestQueue.add(getUserMessage4);
-            }
-
-        }, error -> {
-            conn = false;
-            connected = false;
-            logger.log(Level.WARNING,error.getMessage(),error);
-            requestQueue.add(getUserMessage4);
-        });
-
-        StringRequest getUserMessage2 = new StringRequest(Request.Method.GET, userIdUrl2, response -> {
-            conn = true;
-            try {
-                JSONObject jsonObject = new JSONObject(response);
-                user_message = jsonObject.getString("is_online");
-                is_available = jsonObject.getString("is_available");
-                center_doc_code = jsonObject.getString("p_doc_code");
-                center_api = jsonObject.getString("p_center_api");
-                user_or_admin_flag = jsonObject.getString("p_admin_user_flag");
-                center_admin_user_id = jsonObject.getString("p_admin_user_id");
-                switch (is_available) {
-                    case "1":
-//                    connected = true;
-//                    updateLayout();
-                        centerLists.add(new CenterList("CSTAR - RAMPURA", center_api, center_doc_code,
-                                center_admin_user_id, user_or_admin_flag, new ArrayList<>()));
-                        requestQueue.add(getUserMessage3);
-                        System.out.println("2nd Found : 1");
-                        break;
-                    case "0":
-//                    connected = true;
-//                    updateLayout();
-                        prv_message = user_message;
-                        requestQueue.add(getUserMessage3);
-                        System.out.println("2nd Found : 0");
-                        break;
-                    case "3":
-                        String p_doc_list = jsonObject.getString("p_doc_list");
-                        JSONArray array = new JSONArray(p_doc_list);
-                        ArrayList<MultipleUserList> multipleUserLists = new ArrayList<>();
-                        for (int i = 0; i < array.length(); i++) {
-                            JSONObject docInfo = array.getJSONObject(i);
-                            String dc = docInfo.getString("doc_code")
-                                    .equals("null") ? "" : docInfo.getString("doc_code");
-                            String dn = docInfo.getString("doc_name")
-                                    .equals("null") ? "" : docInfo.getString("doc_name");
-                            String dep_name = docInfo.getString("depts_name")
-                                    .equals("null") ? "" : docInfo.getString("depts_name");
-                            multipleUserLists.add(new MultipleUserList(dc, dn, dep_name,user_or_admin_flag,
-                                    "","","",""));
-                        }
-                        centerLists.add(new CenterList("CSTAR - RAMPURA", center_api, center_doc_code,
-                                center_admin_user_id, user_or_admin_flag, multipleUserLists));
-                        requestQueue.add(getUserMessage3);
-                        System.out.println("2nd Found : 3");
-                        break;
-                    case "4":
-                        String p_admin_list = jsonObject.getString("p_admin_list");
-                        JSONArray admin_array = new JSONArray(p_admin_list);
-                        ArrayList<MultipleUserList> multipleUserLists1 = new ArrayList<>();
-                        for (int i = 0; i < admin_array.length(); i++) {
-                            JSONObject adminInfo = admin_array.getJSONObject(i);
-                            String usr_id = adminInfo.getString("usr_id")
-                                    .equals("null") ? "" : adminInfo.getString("usr_id");
-                            String usr_name = adminInfo.getString("usr_name")
-                                    .equals("null") ? "" : adminInfo.getString("usr_name");
-                            String usr_fname = adminInfo.getString("usr_fname")
-                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
-                            String usr_lname = adminInfo.getString("usr_lname")
-                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
-
-                            multipleUserLists1.add(new MultipleUserList("", "", "",
-                                    user_or_admin_flag, usr_id,usr_fname,usr_lname,usr_name));
-                        }
-                        centerLists.add(new CenterList("CSTAR - RAMPURA", center_api, center_doc_code,
-                                center_admin_user_id, user_or_admin_flag, multipleUserLists1));
-                        requestQueue.add(getUserMessage3);
-                        System.out.println("2nd Found : 4");
-                        break;
-                    case "5":
-                        String p_admin_list_5 = jsonObject.getString("p_admin_list");
-                        JSONArray admin_array_5 = new JSONArray(p_admin_list_5);
-                        String p_doc_list_5 = jsonObject.getString("p_doc_list");
-                        JSONArray doc_array_5 = new JSONArray(p_doc_list_5);
-                        ArrayList<MultipleUserList> multipleUserLists2 = new ArrayList<>();
-
-                        for (int i = 0; i < admin_array_5.length(); i++) {
-                            JSONObject adminInfo = admin_array_5.getJSONObject(i);
-                            String usr_id = adminInfo.getString("usr_id")
-                                    .equals("null") ? "" : adminInfo.getString("usr_id");
-                            String usr_name = adminInfo.getString("usr_name")
-                                    .equals("null") ? "" : adminInfo.getString("usr_name");
-                            String usr_fname = adminInfo.getString("usr_fname")
-                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
-                            String usr_lname = adminInfo.getString("usr_lname")
-                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
-
-                            multipleUserLists2.add(new MultipleUserList("", "", "",
-                                    "2", usr_id,usr_fname,usr_lname,usr_name));
-                        }
-
-                        for (int i = 0; i < doc_array_5.length(); i++) {
-                            JSONObject docInfo = doc_array_5.getJSONObject(i);
-                            String dc = docInfo.getString("doc_code")
-                                    .equals("null") ? "" : docInfo.getString("doc_code");
-                            String dn = docInfo.getString("doc_name")
-                                    .equals("null") ? "" : docInfo.getString("doc_name");
-                            String dep_name = docInfo.getString("depts_name")
-                                    .equals("null") ? "" : docInfo.getString("depts_name");
-                            multipleUserLists2.add(new MultipleUserList(dc, dn, dep_name,"1",
-                                    "","","",""));
-                        }
-                        centerLists.add(new CenterList("CSTAR - RAMPURA", center_api, center_doc_code,
-                                center_admin_user_id, user_or_admin_flag, multipleUserLists2));
-                        requestQueue.add(getUserMessage3);
-                        System.out.println("2nd Found : 5");
-                        break;
-                    default:
-                        requestQueue.add(getUserMessage3);
-                        System.out.println("2nd Found : 2");
-                        break;
-                }
-
-            }
-            catch (JSONException e) {
-                connected = false;
-                logger.log(Level.WARNING,e.getMessage(),e);
-                requestQueue.add(getUserMessage3);
-            }
-
-        }, error -> {
-            conn = false;
-            connected = false;
-            logger.log(Level.WARNING,error.getMessage(),error);
-            requestQueue.add(getUserMessage3);
-        });
-
+    public void getLoginData(String url, int index) {
+        String useridUrl = url+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password;
+        RequestQueue requestQueue = Volley.newRequestQueue(DocLogin.this);
 
         StringRequest getUserMessage = new StringRequest(Request.Method.GET, useridUrl, response -> {
             conn = true;
@@ -976,21 +380,24 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
                 center_api = jsonObject.getString("p_center_api");
                 user_or_admin_flag = jsonObject.getString("p_admin_user_flag");
                 center_admin_user_id = jsonObject.getString("p_admin_user_id");
+                user_center_name = jsonObject.getString("p_center_name");
                 switch (is_available) {
                     case "1":
-//                    connected = true;
-//                    updateLayout();
-                        centerLists.add(new CenterList("CSTAR - LOCAL", center_api, center_doc_code,
+                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
                                 center_admin_user_id, user_or_admin_flag, new ArrayList<>()));
-                        requestQueue.add(getUserMessage2);
-                        System.out.println("1st Found : 1");
+                        connected = true;
+                        urls.get(index).setChecked(true);
+                        System.out.println(String.valueOf(index+1)+"st Found : 1");
+                        checkToGetLoginData();
                         break;
                     case "0":
-//                    connected = true;
-//                    updateLayout();
-                        prv_message = user_message;
-                        requestQueue.add(getUserMessage2);
-                        System.out.println("1st Found : 0");
+                        if (index != urls.size()-1) {
+                            prv_message = user_message;
+                        }
+                        connected = true;
+                        urls.get(index).setChecked(true);
+                        System.out.println(String.valueOf(index+1)+"st Found : 0");
+                        checkToGetLoginData();
                         break;
                     case "3":
                         String p_doc_list = jsonObject.getString("p_doc_list");
@@ -1007,10 +414,12 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
                             multipleUserLists.add(new MultipleUserList(dc, dn, dep_name,user_or_admin_flag,
                                     "","","",""));
                         }
-                        centerLists.add(new CenterList("CSTAR - LOCAL", center_api, center_doc_code,
+                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
                                 center_admin_user_id, user_or_admin_flag, multipleUserLists));
-                        requestQueue.add(getUserMessage2);
-                        System.out.println("1st Found : 3");
+                        connected = true;
+                        urls.get(index).setChecked(true);
+                        System.out.println(String.valueOf(index+1)+"st Found : 3");
+                        checkToGetLoginData();
                         break;
                     case "4":
                         String p_admin_list = jsonObject.getString("p_admin_list");
@@ -1030,10 +439,12 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
                             multipleUserLists1.add(new MultipleUserList("", "", "",
                                     user_or_admin_flag, usr_id,usr_fname,usr_lname,usr_name));
                         }
-                        centerLists.add(new CenterList("CSTAR - LOCAL", center_api, center_doc_code,
+                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
                                 center_admin_user_id, user_or_admin_flag, multipleUserLists1));
-                        requestQueue.add(getUserMessage2);
-                        System.out.println("1st Found : 4");
+                        connected = true;
+                        urls.get(index).setChecked(true);
+                        System.out.println(String.valueOf(index+1)+"st Found : 4");
+                        checkToGetLoginData();
                         break;
                     case "5":
                         String p_admin_list_5 = jsonObject.getString("p_admin_list");
@@ -1068,14 +479,18 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
                             multipleUserLists2.add(new MultipleUserList(dc, dn, dep_name,"1",
                                     "","","",""));
                         }
-                        centerLists.add(new CenterList("CSTAR - LOCAL", center_api, center_doc_code,
+                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
                                 center_admin_user_id, user_or_admin_flag, multipleUserLists2));
-                        requestQueue.add(getUserMessage2);
-                        System.out.println("1st Found : 5");
+                        connected = true;
+                        urls.get(index).setChecked(true);
+                        System.out.println(String.valueOf(index+1)+"st Found : 5");
+                        checkToGetLoginData();
                         break;
                     default:
-                        requestQueue.add(getUserMessage2);
-                        System.out.println("1st Found : 2");
+                        connected = true;
+                        urls.get(index).setChecked(true);
+                        System.out.println(String.valueOf(index+1)+"st Found : 2");
+                        checkToGetLoginData();
                         break;
                 }
 
@@ -1083,18 +498,713 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
             catch (JSONException e) {
                 connected = false;
                 logger.log(Level.WARNING,e.getMessage(),e);
-                requestQueue.add(getUserMessage2);
+                urls.get(index).setChecked(true);
+                checkToGetLoginData();
             }
 
         }, error -> {
             conn = false;
             connected = false;
             logger.log(Level.WARNING,error.getMessage(),error);
-            requestQueue.add(getUserMessage2);
+            urls.get(index).setChecked(true);
+            checkToGetLoginData();
         });
 
         requestQueue.add(getUserMessage);
     }
+
+//    public void loginCheck() {
+//        fullLayout.setVisibility(View.GONE);
+//        circularProgressIndicator.setVisibility(View.VISIBLE);
+//        user_message = "";
+//        conn = false;
+//        connected = false;
+//        loading = true;
+//        prv_message = "";
+//        centerLists = new ArrayList<>();
+//        center_api = "";
+//        center_doc_code = "";
+//        center_admin_user_id = "";
+//        user_or_admin_flag = "";
+//        user_center_name = "";
+//        System.out.println("START");
+//
+//        String useridUrl = "http://103.56.208.123:8001/apex/cstar_local/"+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password;
+//        String userIdUrl2 = "http://103.73.227.28:8080/cstar/cstar-ramp/"+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password;
+//        String userIdUrl3 = "http://202.4.109.126:8003/crps/crp_savar/"+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password;
+//        String userIdUrl4 = "http://144.48.119.59:8002/apex/crp_mirpur/"+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password;
+//        String userIdUrl5 = "http://103.73.227.28:8080/cstar/cstar_bsd/"+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password;
+//
+//        RequestQueue requestQueue = Volley.newRequestQueue(DocLogin.this);
+//
+//        StringRequest getUserMessage5 = new StringRequest(Request.Method.GET, userIdUrl5, response -> {
+//            conn = true;
+//            try {
+//                JSONObject jsonObject = new JSONObject(response);
+//                user_message = jsonObject.getString("is_online");
+//                is_available = jsonObject.getString("is_available");
+//                center_doc_code = jsonObject.getString("p_doc_code");
+//                center_api = jsonObject.getString("p_center_api");
+//                user_or_admin_flag = jsonObject.getString("p_admin_user_flag");
+//                center_admin_user_id = jsonObject.getString("p_admin_user_id");
+//                user_center_name = jsonObject.getString("p_center_name");
+//                switch (is_available) {
+//                    case "1":
+//                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
+//                                center_admin_user_id, user_or_admin_flag, new ArrayList<>()));
+//                        System.out.println("5th Found : 1");
+//                        connected = true;
+//                        updateLayout();
+//                        break;
+//                    case "0":
+//                        System.out.println("5th Found : 0");
+//                        connected = true;
+//                        updateLayout();
+//                        break;
+//                    case "3":
+//                        String p_doc_list = jsonObject.getString("p_doc_list");
+//                        JSONArray array = new JSONArray(p_doc_list);
+//                        ArrayList<MultipleUserList> multipleUserLists = new ArrayList<>();
+//                        for (int i = 0; i < array.length(); i++) {
+//                            JSONObject docInfo = array.getJSONObject(i);
+//                            String dc = docInfo.getString("doc_code")
+//                                    .equals("null") ? "" : docInfo.getString("doc_code");
+//                            String dn = docInfo.getString("doc_name")
+//                                    .equals("null") ? "" : docInfo.getString("doc_name");
+//                            String dep_name = docInfo.getString("depts_name")
+//                                    .equals("null") ? "" : docInfo.getString("depts_name");
+//                            multipleUserLists.add(new MultipleUserList(dc, dn, dep_name,user_or_admin_flag,
+//                                    "","","",""));
+//                        }
+//                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
+//                                center_admin_user_id, user_or_admin_flag, multipleUserLists));
+//                        System.out.println("5th Found : 3");
+//                        connected = true;
+//                        updateLayout();
+//                        break;
+//                    case "4":
+//                        String p_admin_list = jsonObject.getString("p_admin_list");
+//                        JSONArray admin_array = new JSONArray(p_admin_list);
+//                        ArrayList<MultipleUserList> multipleUserLists1 = new ArrayList<>();
+//                        for (int i = 0; i < admin_array.length(); i++) {
+//                            JSONObject adminInfo = admin_array.getJSONObject(i);
+//                            String usr_id = adminInfo.getString("usr_id")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_id");
+//                            String usr_name = adminInfo.getString("usr_name")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_name");
+//                            String usr_fname = adminInfo.getString("usr_fname")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
+//                            String usr_lname = adminInfo.getString("usr_lname")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
+//
+//                            multipleUserLists1.add(new MultipleUserList("", "", "",
+//                                    user_or_admin_flag, usr_id,usr_fname,usr_lname,usr_name));
+//                        }
+//                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
+//                                center_admin_user_id, user_or_admin_flag, multipleUserLists1));
+//                        connected = true;
+//                        updateLayout();
+//                        System.out.println("5th Found : 4");
+//                        break;
+//                    case "5":
+//                        String p_admin_list_5 = jsonObject.getString("p_admin_list");
+//                        JSONArray admin_array_5 = new JSONArray(p_admin_list_5);
+//                        String p_doc_list_5 = jsonObject.getString("p_doc_list");
+//                        JSONArray doc_array_5 = new JSONArray(p_doc_list_5);
+//                        ArrayList<MultipleUserList> multipleUserLists2 = new ArrayList<>();
+//
+//                        for (int i = 0; i < admin_array_5.length(); i++) {
+//                            JSONObject adminInfo = admin_array_5.getJSONObject(i);
+//                            String usr_id = adminInfo.getString("usr_id")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_id");
+//                            String usr_name = adminInfo.getString("usr_name")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_name");
+//                            String usr_fname = adminInfo.getString("usr_fname")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
+//                            String usr_lname = adminInfo.getString("usr_lname")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
+//
+//                            multipleUserLists2.add(new MultipleUserList("", "", "",
+//                                    "2", usr_id,usr_fname,usr_lname,usr_name));
+//                        }
+//
+//                        for (int i = 0; i < doc_array_5.length(); i++) {
+//                            JSONObject docInfo = doc_array_5.getJSONObject(i);
+//                            String dc = docInfo.getString("doc_code")
+//                                    .equals("null") ? "" : docInfo.getString("doc_code");
+//                            String dn = docInfo.getString("doc_name")
+//                                    .equals("null") ? "" : docInfo.getString("doc_name");
+//                            String dep_name = docInfo.getString("depts_name")
+//                                    .equals("null") ? "" : docInfo.getString("depts_name");
+//                            multipleUserLists2.add(new MultipleUserList(dc, dn, dep_name,"1",
+//                                    "","","",""));
+//                        }
+//                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
+//                                center_admin_user_id, user_or_admin_flag, multipleUserLists2));
+//                        connected = true;
+//                        updateLayout();
+//                        System.out.println("5th Found : 5");
+//                        break;
+//                    default:
+//                        connected = true;
+//                        updateLayout();
+//                        System.out.println("5th Found : 2");
+//                        break;
+//                }
+////                if (is_available.equals("1")) {
+//////                    connected = true;
+//////                    updateLayout();
+////                    centerLists.add(new CenterList("CSTAR - BASHUNDHARA",center_api, center_doc_code,new ArrayList<>()));
+////                    System.out.println("5th Found : 1");
+////                }
+////                else if (is_available.equals("3")) {
+////                    String p_doc_list = jsonObject.getString("p_doc_list");
+////                    JSONArray array = new JSONArray(p_doc_list);
+////                    ArrayList<MultipleUserList> multipleUserLists = new ArrayList<>();
+////                    for (int i = 0; i < array.length(); i++) {
+////                        JSONObject docInfo = array.getJSONObject(i);
+////                        String dc = docInfo.getString("doc_code")
+////                                .equals("null") ? "" : docInfo.getString("doc_code");
+////                        String dn = docInfo.getString("doc_name")
+////                                .equals("null") ? "" : docInfo.getString("doc_name");
+////                        String dep_name = docInfo.getString("depts_name")
+////                                .equals("null") ? "" : docInfo.getString("depts_name");
+////                        multipleUserLists.add(new MultipleUserList(dc,dn,dep_name,"1","","","",""));
+////                    }
+////                    centerLists.add(new CenterList("CSTAR - BASHUNDHARA",center_api, center_doc_code, center_admin_user_id, "1", multipleUserLists));
+////                    System.out.println("5th Found : 3");
+////                }
+////                System.out.println("5th Found : 2,0");
+////                connected = true;
+////                updateLayout();
+//            }
+//            catch (JSONException e) {
+//                connected = false;
+//                logger.log(Level.WARNING,e.getMessage(),e);
+//                updateLayout();
+//            }
+//        }, error -> {
+//            conn = false;
+//            connected = false;
+//            logger.log(Level.WARNING,error.getMessage(),error);
+//            updateLayout();
+//        });
+//
+//        StringRequest getUserMessage4 = new StringRequest(Request.Method.GET, userIdUrl4, response -> {
+//            conn = true;
+//            try {
+//                JSONObject jsonObject = new JSONObject(response);
+//                user_message = jsonObject.getString("is_online");
+//                is_available = jsonObject.getString("is_available");
+//                center_doc_code = jsonObject.getString("p_doc_code");
+//                center_api = jsonObject.getString("p_center_api");
+//                user_or_admin_flag = jsonObject.getString("p_admin_user_flag");
+//                center_admin_user_id = jsonObject.getString("p_admin_user_id");
+//                user_center_name = jsonObject.getString("p_center_name");
+//                switch (is_available) {
+//                    case "1":
+////                    connected = true;
+////                    updateLayout();
+//                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
+//                                center_admin_user_id, user_or_admin_flag, new ArrayList<>()));
+//                        requestQueue.add(getUserMessage5);
+//                        System.out.println("4th Found : 1");
+//                        break;
+//                    case "0":
+////                    connected = true;
+////                    updateLayout();
+//                        prv_message = user_message;
+//                        requestQueue.add(getUserMessage5);
+//                        System.out.println("4th Found : 0");
+//                        break;
+//                    case "3":
+//                        String p_doc_list = jsonObject.getString("p_doc_list");
+//                        JSONArray array = new JSONArray(p_doc_list);
+//                        ArrayList<MultipleUserList> multipleUserLists = new ArrayList<>();
+//                        for (int i = 0; i < array.length(); i++) {
+//                            JSONObject docInfo = array.getJSONObject(i);
+//                            String dc = docInfo.getString("doc_code")
+//                                    .equals("null") ? "" : docInfo.getString("doc_code");
+//                            String dn = docInfo.getString("doc_name")
+//                                    .equals("null") ? "" : docInfo.getString("doc_name");
+//                            String dep_name = docInfo.getString("depts_name")
+//                                    .equals("null") ? "" : docInfo.getString("depts_name");
+//                            multipleUserLists.add(new MultipleUserList(dc, dn, dep_name,user_or_admin_flag,
+//                                    "","","",""));
+//                        }
+//                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
+//                                center_admin_user_id, user_or_admin_flag, multipleUserLists));
+//                        requestQueue.add(getUserMessage5);
+//                        System.out.println("4th Found : 3");
+//                        break;
+//                    case "4":
+//                        String p_admin_list = jsonObject.getString("p_admin_list");
+//                        JSONArray admin_array = new JSONArray(p_admin_list);
+//                        ArrayList<MultipleUserList> multipleUserLists1 = new ArrayList<>();
+//                        for (int i = 0; i < admin_array.length(); i++) {
+//                            JSONObject adminInfo = admin_array.getJSONObject(i);
+//                            String usr_id = adminInfo.getString("usr_id")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_id");
+//                            String usr_name = adminInfo.getString("usr_name")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_name");
+//                            String usr_fname = adminInfo.getString("usr_fname")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
+//                            String usr_lname = adminInfo.getString("usr_lname")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
+//
+//                            multipleUserLists1.add(new MultipleUserList("", "", "",
+//                                    user_or_admin_flag, usr_id,usr_fname,usr_lname,usr_name));
+//                        }
+//                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
+//                                center_admin_user_id, user_or_admin_flag, multipleUserLists1));
+//                        requestQueue.add(getUserMessage5);
+//                        System.out.println("4th Found : 4");
+//                        break;
+//                    case "5":
+//                        String p_admin_list_5 = jsonObject.getString("p_admin_list");
+//                        JSONArray admin_array_5 = new JSONArray(p_admin_list_5);
+//                        String p_doc_list_5 = jsonObject.getString("p_doc_list");
+//                        JSONArray doc_array_5 = new JSONArray(p_doc_list_5);
+//                        ArrayList<MultipleUserList> multipleUserLists2 = new ArrayList<>();
+//
+//                        for (int i = 0; i < admin_array_5.length(); i++) {
+//                            JSONObject adminInfo = admin_array_5.getJSONObject(i);
+//                            String usr_id = adminInfo.getString("usr_id")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_id");
+//                            String usr_name = adminInfo.getString("usr_name")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_name");
+//                            String usr_fname = adminInfo.getString("usr_fname")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
+//                            String usr_lname = adminInfo.getString("usr_lname")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
+//
+//                            multipleUserLists2.add(new MultipleUserList("", "", "",
+//                                    "2", usr_id,usr_fname,usr_lname,usr_name));
+//                        }
+//
+//                        for (int i = 0; i < doc_array_5.length(); i++) {
+//                            JSONObject docInfo = doc_array_5.getJSONObject(i);
+//                            String dc = docInfo.getString("doc_code")
+//                                    .equals("null") ? "" : docInfo.getString("doc_code");
+//                            String dn = docInfo.getString("doc_name")
+//                                    .equals("null") ? "" : docInfo.getString("doc_name");
+//                            String dep_name = docInfo.getString("depts_name")
+//                                    .equals("null") ? "" : docInfo.getString("depts_name");
+//                            multipleUserLists2.add(new MultipleUserList(dc, dn, dep_name,"1",
+//                                    "","","",""));
+//                        }
+//                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
+//                                center_admin_user_id, user_or_admin_flag, multipleUserLists2));
+//                        requestQueue.add(getUserMessage5);
+//                        System.out.println("4th Found : 5");
+//                        break;
+//                    default:
+//                        requestQueue.add(getUserMessage5);
+//                        System.out.println("4th Found : 2");
+//                        break;
+//                }
+//
+//            }
+//            catch (JSONException e) {
+//                connected = false;
+//                logger.log(Level.WARNING,e.getMessage(),e);
+//                requestQueue.add(getUserMessage5);
+//            }
+//
+//        }, error -> {
+//            conn = false;
+//            connected = false;
+//            logger.log(Level.WARNING,error.getMessage(),error);
+//            requestQueue.add(getUserMessage5);
+//        });
+//
+//        StringRequest getUserMessage3 = new StringRequest(Request.Method.GET, userIdUrl3, response -> {
+//            conn = true;
+//            try {
+//                JSONObject jsonObject = new JSONObject(response);
+//                user_message = jsonObject.getString("is_online");
+//                is_available = jsonObject.getString("is_available");
+//                center_doc_code = jsonObject.getString("p_doc_code");
+//                center_api = jsonObject.getString("p_center_api");
+//                user_or_admin_flag = jsonObject.getString("p_admin_user_flag");
+//                center_admin_user_id = jsonObject.getString("p_admin_user_id");
+//                user_center_name = jsonObject.getString("p_center_name");
+//                switch (is_available) {
+//                    case "1":
+////                    connected = true;
+////                    updateLayout();
+//                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
+//                                center_admin_user_id, user_or_admin_flag, new ArrayList<>()));
+//                        requestQueue.add(getUserMessage4);
+//                        System.out.println("3rd Found : 1");
+//                        break;
+//                    case "0":
+////                    connected = true;
+////                    updateLayout();
+//                        prv_message = user_message;
+//                        requestQueue.add(getUserMessage4);
+//                        System.out.println("3rd Found : 0");
+//                        break;
+//                    case "3":
+//                        String p_doc_list = jsonObject.getString("p_doc_list");
+//                        JSONArray array = new JSONArray(p_doc_list);
+//                        ArrayList<MultipleUserList> multipleUserLists = new ArrayList<>();
+//                        for (int i = 0; i < array.length(); i++) {
+//                            JSONObject docInfo = array.getJSONObject(i);
+//                            String dc = docInfo.getString("doc_code")
+//                                    .equals("null") ? "" : docInfo.getString("doc_code");
+//                            String dn = docInfo.getString("doc_name")
+//                                    .equals("null") ? "" : docInfo.getString("doc_name");
+//                            String dep_name = docInfo.getString("depts_name")
+//                                    .equals("null") ? "" : docInfo.getString("depts_name");
+//                            multipleUserLists.add(new MultipleUserList(dc, dn, dep_name,user_or_admin_flag,
+//                                    "","","",""));
+//                        }
+//                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
+//                                center_admin_user_id, user_or_admin_flag, multipleUserLists));
+//                        requestQueue.add(getUserMessage4);
+//                        System.out.println("3rd Found : 3");
+//                        break;
+//                    case "4":
+//                        String p_admin_list = jsonObject.getString("p_admin_list");
+//                        JSONArray admin_array = new JSONArray(p_admin_list);
+//                        ArrayList<MultipleUserList> multipleUserLists1 = new ArrayList<>();
+//                        for (int i = 0; i < admin_array.length(); i++) {
+//                            JSONObject adminInfo = admin_array.getJSONObject(i);
+//                            String usr_id = adminInfo.getString("usr_id")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_id");
+//                            String usr_name = adminInfo.getString("usr_name")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_name");
+//                            String usr_fname = adminInfo.getString("usr_fname")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
+//                            String usr_lname = adminInfo.getString("usr_lname")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
+//
+//                            multipleUserLists1.add(new MultipleUserList("", "", "",
+//                                    user_or_admin_flag, usr_id,usr_fname,usr_lname,usr_name));
+//                        }
+//                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
+//                                center_admin_user_id, user_or_admin_flag, multipleUserLists1));
+//                        requestQueue.add(getUserMessage4);
+//                        System.out.println("3rd Found : 4");
+//                        break;
+//                    case "5":
+//                        String p_admin_list_5 = jsonObject.getString("p_admin_list");
+//                        JSONArray admin_array_5 = new JSONArray(p_admin_list_5);
+//                        String p_doc_list_5 = jsonObject.getString("p_doc_list");
+//                        JSONArray doc_array_5 = new JSONArray(p_doc_list_5);
+//                        ArrayList<MultipleUserList> multipleUserLists2 = new ArrayList<>();
+//
+//                        for (int i = 0; i < admin_array_5.length(); i++) {
+//                            JSONObject adminInfo = admin_array_5.getJSONObject(i);
+//                            String usr_id = adminInfo.getString("usr_id")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_id");
+//                            String usr_name = adminInfo.getString("usr_name")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_name");
+//                            String usr_fname = adminInfo.getString("usr_fname")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
+//                            String usr_lname = adminInfo.getString("usr_lname")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
+//
+//                            multipleUserLists2.add(new MultipleUserList("", "", "",
+//                                    "2", usr_id,usr_fname,usr_lname,usr_name));
+//                        }
+//
+//                        for (int i = 0; i < doc_array_5.length(); i++) {
+//                            JSONObject docInfo = doc_array_5.getJSONObject(i);
+//                            String dc = docInfo.getString("doc_code")
+//                                    .equals("null") ? "" : docInfo.getString("doc_code");
+//                            String dn = docInfo.getString("doc_name")
+//                                    .equals("null") ? "" : docInfo.getString("doc_name");
+//                            String dep_name = docInfo.getString("depts_name")
+//                                    .equals("null") ? "" : docInfo.getString("depts_name");
+//                            multipleUserLists2.add(new MultipleUserList(dc, dn, dep_name,"1",
+//                                    "","","",""));
+//                        }
+//                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
+//                                center_admin_user_id, user_or_admin_flag, multipleUserLists2));
+//                        requestQueue.add(getUserMessage4);
+//                        System.out.println("3rd Found : 5");
+//                        break;
+//                    default:
+//                        requestQueue.add(getUserMessage4);
+//                        System.out.println("3rd Found : 2");
+//                        break;
+//                }
+//
+//            }
+//            catch (JSONException e) {
+//                connected = false;
+//                logger.log(Level.WARNING,e.getMessage(),e);
+//                requestQueue.add(getUserMessage4);
+//            }
+//
+//        }, error -> {
+//            conn = false;
+//            connected = false;
+//            logger.log(Level.WARNING,error.getMessage(),error);
+//            requestQueue.add(getUserMessage4);
+//        });
+//
+//        StringRequest getUserMessage2 = new StringRequest(Request.Method.GET, userIdUrl2, response -> {
+//            conn = true;
+//            try {
+//                JSONObject jsonObject = new JSONObject(response);
+//                user_message = jsonObject.getString("is_online");
+//                is_available = jsonObject.getString("is_available");
+//                center_doc_code = jsonObject.getString("p_doc_code");
+//                center_api = jsonObject.getString("p_center_api");
+//                user_or_admin_flag = jsonObject.getString("p_admin_user_flag");
+//                center_admin_user_id = jsonObject.getString("p_admin_user_id");
+//                user_center_name = jsonObject.getString("p_center_name");
+//                switch (is_available) {
+//                    case "1":
+////                    connected = true;
+////                    updateLayout();
+//                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
+//                                center_admin_user_id, user_or_admin_flag, new ArrayList<>()));
+//                        requestQueue.add(getUserMessage3);
+//                        System.out.println("2nd Found : 1");
+//                        break;
+//                    case "0":
+////                    connected = true;
+////                    updateLayout();
+//                        prv_message = user_message;
+//                        requestQueue.add(getUserMessage3);
+//                        System.out.println("2nd Found : 0");
+//                        break;
+//                    case "3":
+//                        String p_doc_list = jsonObject.getString("p_doc_list");
+//                        JSONArray array = new JSONArray(p_doc_list);
+//                        ArrayList<MultipleUserList> multipleUserLists = new ArrayList<>();
+//                        for (int i = 0; i < array.length(); i++) {
+//                            JSONObject docInfo = array.getJSONObject(i);
+//                            String dc = docInfo.getString("doc_code")
+//                                    .equals("null") ? "" : docInfo.getString("doc_code");
+//                            String dn = docInfo.getString("doc_name")
+//                                    .equals("null") ? "" : docInfo.getString("doc_name");
+//                            String dep_name = docInfo.getString("depts_name")
+//                                    .equals("null") ? "" : docInfo.getString("depts_name");
+//                            multipleUserLists.add(new MultipleUserList(dc, dn, dep_name,user_or_admin_flag,
+//                                    "","","",""));
+//                        }
+//                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
+//                                center_admin_user_id, user_or_admin_flag, multipleUserLists));
+//                        requestQueue.add(getUserMessage3);
+//                        System.out.println("2nd Found : 3");
+//                        break;
+//                    case "4":
+//                        String p_admin_list = jsonObject.getString("p_admin_list");
+//                        JSONArray admin_array = new JSONArray(p_admin_list);
+//                        ArrayList<MultipleUserList> multipleUserLists1 = new ArrayList<>();
+//                        for (int i = 0; i < admin_array.length(); i++) {
+//                            JSONObject adminInfo = admin_array.getJSONObject(i);
+//                            String usr_id = adminInfo.getString("usr_id")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_id");
+//                            String usr_name = adminInfo.getString("usr_name")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_name");
+//                            String usr_fname = adminInfo.getString("usr_fname")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
+//                            String usr_lname = adminInfo.getString("usr_lname")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
+//
+//                            multipleUserLists1.add(new MultipleUserList("", "", "",
+//                                    user_or_admin_flag, usr_id,usr_fname,usr_lname,usr_name));
+//                        }
+//                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
+//                                center_admin_user_id, user_or_admin_flag, multipleUserLists1));
+//                        requestQueue.add(getUserMessage3);
+//                        System.out.println("2nd Found : 4");
+//                        break;
+//                    case "5":
+//                        String p_admin_list_5 = jsonObject.getString("p_admin_list");
+//                        JSONArray admin_array_5 = new JSONArray(p_admin_list_5);
+//                        String p_doc_list_5 = jsonObject.getString("p_doc_list");
+//                        JSONArray doc_array_5 = new JSONArray(p_doc_list_5);
+//                        ArrayList<MultipleUserList> multipleUserLists2 = new ArrayList<>();
+//
+//                        for (int i = 0; i < admin_array_5.length(); i++) {
+//                            JSONObject adminInfo = admin_array_5.getJSONObject(i);
+//                            String usr_id = adminInfo.getString("usr_id")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_id");
+//                            String usr_name = adminInfo.getString("usr_name")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_name");
+//                            String usr_fname = adminInfo.getString("usr_fname")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
+//                            String usr_lname = adminInfo.getString("usr_lname")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
+//
+//                            multipleUserLists2.add(new MultipleUserList("", "", "",
+//                                    "2", usr_id,usr_fname,usr_lname,usr_name));
+//                        }
+//
+//                        for (int i = 0; i < doc_array_5.length(); i++) {
+//                            JSONObject docInfo = doc_array_5.getJSONObject(i);
+//                            String dc = docInfo.getString("doc_code")
+//                                    .equals("null") ? "" : docInfo.getString("doc_code");
+//                            String dn = docInfo.getString("doc_name")
+//                                    .equals("null") ? "" : docInfo.getString("doc_name");
+//                            String dep_name = docInfo.getString("depts_name")
+//                                    .equals("null") ? "" : docInfo.getString("depts_name");
+//                            multipleUserLists2.add(new MultipleUserList(dc, dn, dep_name,"1",
+//                                    "","","",""));
+//                        }
+//                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
+//                                center_admin_user_id, user_or_admin_flag, multipleUserLists2));
+//                        requestQueue.add(getUserMessage3);
+//                        System.out.println("2nd Found : 5");
+//                        break;
+//                    default:
+//                        requestQueue.add(getUserMessage3);
+//                        System.out.println("2nd Found : 2");
+//                        break;
+//                }
+//
+//            }
+//            catch (JSONException e) {
+//                connected = false;
+//                logger.log(Level.WARNING,e.getMessage(),e);
+//                requestQueue.add(getUserMessage3);
+//            }
+//
+//        }, error -> {
+//            conn = false;
+//            connected = false;
+//            logger.log(Level.WARNING,error.getMessage(),error);
+//            requestQueue.add(getUserMessage3);
+//        });
+//
+//
+//        StringRequest getUserMessage = new StringRequest(Request.Method.GET, useridUrl, response -> {
+//            conn = true;
+//            try {
+//                JSONObject jsonObject = new JSONObject(response);
+//                user_message = jsonObject.getString("is_online");
+//                is_available = jsonObject.getString("is_available");
+//                center_doc_code = jsonObject.getString("p_doc_code");
+//                center_api = jsonObject.getString("p_center_api");
+//                user_or_admin_flag = jsonObject.getString("p_admin_user_flag");
+//                center_admin_user_id = jsonObject.getString("p_admin_user_id");
+//                user_center_name = jsonObject.getString("p_center_name");
+//                switch (is_available) {
+//                    case "1":
+////                    connected = true;
+////                    updateLayout();
+//                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
+//                                center_admin_user_id, user_or_admin_flag, new ArrayList<>()));
+//                        requestQueue.add(getUserMessage2);
+//                        System.out.println("1st Found : 1");
+//                        break;
+//                    case "0":
+////                    connected = true;
+////                    updateLayout();
+//                        prv_message = user_message;
+//                        requestQueue.add(getUserMessage2);
+//                        System.out.println("1st Found : 0");
+//                        break;
+//                    case "3":
+//                        String p_doc_list = jsonObject.getString("p_doc_list");
+//                        JSONArray array = new JSONArray(p_doc_list);
+//                        ArrayList<MultipleUserList> multipleUserLists = new ArrayList<>();
+//                        for (int i = 0; i < array.length(); i++) {
+//                            JSONObject docInfo = array.getJSONObject(i);
+//                            String dc = docInfo.getString("doc_code")
+//                                    .equals("null") ? "" : docInfo.getString("doc_code");
+//                            String dn = docInfo.getString("doc_name")
+//                                    .equals("null") ? "" : docInfo.getString("doc_name");
+//                            String dep_name = docInfo.getString("depts_name")
+//                                    .equals("null") ? "" : docInfo.getString("depts_name");
+//                            multipleUserLists.add(new MultipleUserList(dc, dn, dep_name,user_or_admin_flag,
+//                                    "","","",""));
+//                        }
+//                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
+//                                center_admin_user_id, user_or_admin_flag, multipleUserLists));
+//                        requestQueue.add(getUserMessage2);
+//                        System.out.println("1st Found : 3");
+//                        break;
+//                    case "4":
+//                        String p_admin_list = jsonObject.getString("p_admin_list");
+//                        JSONArray admin_array = new JSONArray(p_admin_list);
+//                        ArrayList<MultipleUserList> multipleUserLists1 = new ArrayList<>();
+//                        for (int i = 0; i < admin_array.length(); i++) {
+//                            JSONObject adminInfo = admin_array.getJSONObject(i);
+//                            String usr_id = adminInfo.getString("usr_id")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_id");
+//                            String usr_name = adminInfo.getString("usr_name")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_name");
+//                            String usr_fname = adminInfo.getString("usr_fname")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
+//                            String usr_lname = adminInfo.getString("usr_lname")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
+//
+//                            multipleUserLists1.add(new MultipleUserList("", "", "",
+//                                    user_or_admin_flag, usr_id,usr_fname,usr_lname,usr_name));
+//                        }
+//                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
+//                                center_admin_user_id, user_or_admin_flag, multipleUserLists1));
+//                        requestQueue.add(getUserMessage2);
+//                        System.out.println("1st Found : 4");
+//                        break;
+//                    case "5":
+//                        String p_admin_list_5 = jsonObject.getString("p_admin_list");
+//                        JSONArray admin_array_5 = new JSONArray(p_admin_list_5);
+//                        String p_doc_list_5 = jsonObject.getString("p_doc_list");
+//                        JSONArray doc_array_5 = new JSONArray(p_doc_list_5);
+//                        ArrayList<MultipleUserList> multipleUserLists2 = new ArrayList<>();
+//
+//                        for (int i = 0; i < admin_array_5.length(); i++) {
+//                            JSONObject adminInfo = admin_array_5.getJSONObject(i);
+//                            String usr_id = adminInfo.getString("usr_id")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_id");
+//                            String usr_name = adminInfo.getString("usr_name")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_name");
+//                            String usr_fname = adminInfo.getString("usr_fname")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
+//                            String usr_lname = adminInfo.getString("usr_lname")
+//                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
+//
+//                            multipleUserLists2.add(new MultipleUserList("", "", "",
+//                                    "2", usr_id,usr_fname,usr_lname,usr_name));
+//                        }
+//
+//                        for (int i = 0; i < doc_array_5.length(); i++) {
+//                            JSONObject docInfo = doc_array_5.getJSONObject(i);
+//                            String dc = docInfo.getString("doc_code")
+//                                    .equals("null") ? "" : docInfo.getString("doc_code");
+//                            String dn = docInfo.getString("doc_name")
+//                                    .equals("null") ? "" : docInfo.getString("doc_name");
+//                            String dep_name = docInfo.getString("depts_name")
+//                                    .equals("null") ? "" : docInfo.getString("depts_name");
+//                            multipleUserLists2.add(new MultipleUserList(dc, dn, dep_name,"1",
+//                                    "","","",""));
+//                        }
+//                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
+//                                center_admin_user_id, user_or_admin_flag, multipleUserLists2));
+//                        requestQueue.add(getUserMessage2);
+//                        System.out.println("1st Found : 5");
+//                        break;
+//                    default:
+//                        requestQueue.add(getUserMessage2);
+//                        System.out.println("1st Found : 2");
+//                        break;
+//                }
+//
+//            }
+//            catch (JSONException e) {
+//                connected = false;
+//                logger.log(Level.WARNING,e.getMessage(),e);
+//                requestQueue.add(getUserMessage2);
+//            }
+//
+//        }, error -> {
+//            conn = false;
+//            connected = false;
+//            logger.log(Level.WARNING,error.getMessage(),error);
+//            requestQueue.add(getUserMessage2);
+//        });
+//
+//        requestQueue.add(getUserMessage);
+//    }
 
     private void updateLayout() {
         if (!centerLists.isEmpty()) {
@@ -1129,7 +1239,7 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
                 }
             }
             else {
-                System.out.println("Center Found : "+centerLists.size());
+                System.out.println("Multi Center Found : "+centerLists.size());
                 json = gson.toJson(centerLists);
 
                 SelectCenterDialogue selectCenterDialogue = new SelectCenterDialogue(centerLists,DocLogin.this);
@@ -1203,7 +1313,10 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
                                 .setIcon(R.drawable.doc_diary_default)
                                 .setMessage("There is a network issue in the server. Please Try later.")
                                 .setPositiveButton("Retry", (dialog, which) -> {
-                                    loginCheck();
+                                    for (int i = 0; i < urls.size(); i++) {
+                                        urls.get(i).setChecked(false);
+                                    }
+                                    dynamicLoginCheck();
                                     dialog.dismiss();
                                 });
 
@@ -1242,7 +1355,10 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
                             .setIcon(R.drawable.doc_diary_default)
                             .setMessage("Server Problem or Internet Not Connected")
                             .setPositiveButton("Retry", (dialog, which) -> {
-                                loginCheck();
+                                for (int i = 0; i < urls.size(); i++) {
+                                    urls.get(i).setChecked(false);
+                                }
+                                dynamicLoginCheck();
                                 dialog.dismiss();
                             });
 
@@ -1371,8 +1487,10 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
 
                 Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
                 positive.setOnClickListener(v -> {
-
-                    loginCheck();
+                    for (int i = 0; i < urls.size(); i++) {
+                        urls.get(i).setChecked(false);
+                    }
+                    dynamicLoginCheck();
                     dialog.dismiss();
                 });
             }
@@ -1385,8 +1503,10 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
 
             Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
             positive.setOnClickListener(v -> {
-
-                loginCheck();
+                for (int i = 0; i < urls.size(); i++) {
+                    urls.get(i).setChecked(false);
+                }
+                dynamicLoginCheck();
                 dialog.dismiss();
             });
         }
@@ -1451,6 +1571,7 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
         circularProgressIndicator.setVisibility(View.GONE);
         loading = false;
     }
+
     public void restart(String msg) {
         try {
             ProcessPhoenix.triggerRebirth(getApplicationContext());
