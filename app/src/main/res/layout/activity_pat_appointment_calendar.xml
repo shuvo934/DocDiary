@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:weightSum="10"
+    android:id="@+id/pat_app_calendar_root"
     android:background="@color/light_green"
     tools:context=".patient_search.appointment_calendar.PatAppointmentCalendar">
 

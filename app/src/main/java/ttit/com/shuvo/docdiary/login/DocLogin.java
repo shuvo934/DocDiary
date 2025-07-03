@@ -306,6 +306,7 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
                 urls.add(new AllUrlList("http://202.4.109.126:8003/crps/crp_savar/",false));
                 urls.add(new AllUrlList("http://144.48.119.59:8002/apex/crp_mirpur/",false));
                 urls.add(new AllUrlList("http://103.73.227.28:8080/cstar/cstar_bsd/",false));
+                urls.add(new AllUrlList("http://103.56.208.123:8001/apex/btrf/",false));
                 Log.d("MyTag",e.toString());
             }
 
@@ -316,6 +317,7 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
                     urls.add(new AllUrlList("http://202.4.109.126:8003/crps/crp_savar/",false));
                     urls.add(new AllUrlList("http://144.48.119.59:8002/apex/crp_mirpur/",false));
                     urls.add(new AllUrlList("http://103.73.227.28:8080/cstar/cstar_bsd/",false));
+                    urls.add(new AllUrlList("http://103.56.208.123:8001/apex/btrf/",false));
                 }
                 else {
                     for (int i = 0; i < urls.size(); i++) {

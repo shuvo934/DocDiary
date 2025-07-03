@@ -1,337 +1,227 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout
-    android:id="@+id/hr_dashboard_drawer"
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".hr_accounts.dashboards.HumanResDashboard"
-    tools:openDrawer="end">
+    android:id="@+id/hr_dashboard_root"
+    android:background="@color/light_green"
+    tools:context=".hr_accounts.dashboards.HumanResDashboard">
 
-    <com.google.android.material.navigation.NavigationView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        app:headerLayout="@layout/hr_menu_header"
-        android:id="@+id/hr_menu_navigation"
-        app:menu="@menu/hr_menu"
-        android:background="@color/white"
-        app:itemTextColor="@color/default_text_color"
-        app:itemMaxLines="2"
-        app:itemTextAppearance="@style/CustomMenuTextFont"
-        android:scrollbars="vertical"
-        android:layout_gravity="end"
-        app:itemIconTint="@color/green_sea"/>
-
-    <RelativeLayout
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/hr_dashboard_drawer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        tools:openDrawer="end">
 
-        <LinearLayout
-            android:id="@+id/hr_dashboard_full_layout"
-            android:layout_width="match_parent"
+        <com.google.android.material.navigation.NavigationView
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentBottom="true"
-            android:background="@color/light_green">
+            app:headerLayout="@layout/hr_menu_header"
+            android:id="@+id/hr_menu_navigation"
+            app:menu="@menu/hr_menu"
+            android:background="@color/white"
+            app:itemTextColor="@color/default_text_color"
+            app:itemMaxLines="2"
+            app:itemTextAppearance="@style/CustomMenuTextFont"
+            android:scrollbars="vertical"
+            android:layout_gravity="end"
+            app:itemIconTint="@color/green_sea"/>
 
-            <RelativeLayout
-                android:id="@+id/app_bar_hr_dashboard"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/light_green"
-                android:padding="@dimen/_12sdp">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-                <ImageView
-                    android:layout_width="@dimen/_19sdp"
-                    android:layout_height="@dimen/_19sdp"
-                    android:id="@+id/back_logo_of_hr_dashboard"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="@dimen/_12sdp"
-                    android:src="@drawable/arrow_back"
-                    app:tint="@color/white"
-                    tools:ignore="ContentDescription" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_toEndOf="@+id/back_logo_of_hr_dashboard"
-                    android:layout_toStartOf="@+id/hr_menu_icon"
-                    android:fontFamily="@font/poppins_bold"
-                    android:text="@string/hr_dash_bar_name"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/_14sdp" />
-
-                <ImageView
-                    android:id="@+id/hr_menu_icon"
-                    android:layout_width="@dimen/_19sdp"
-                    android:layout_height="@dimen/_19sdp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginEnd="@dimen/_12sdp"
-                    android:src="@drawable/menu_24"
-                    app:tint="@color/white"
-                    tools:ignore="ContentDescription" />
-
-            </RelativeLayout>
-
-            <com.google.android.material.card.MaterialCardView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:cardElevation="3dp"
-                android:background="@color/white"
-                app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MaterialCardView.Cut">
+                android:orientation="vertical"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentBottom="true"
+                android:background="@color/light_green">
 
-                <ScrollView
+                <RelativeLayout
+                    android:id="@+id/app_bar_hr_dashboard"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scrollbars="none">
+                    android:layout_height="wrap_content"
+                    android:background="@color/light_green"
+                    android:padding="@dimen/_12sdp">
 
-                    <LinearLayout
+                    <ImageView
+                        android:layout_width="@dimen/_19sdp"
+                        android:layout_height="@dimen/_19sdp"
+                        android:id="@+id/back_logo_of_hr_dashboard"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="@dimen/_12sdp"
+                        android:src="@drawable/arrow_back"
+                        app:tint="@color/white"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="8dp"
+                        android:layout_toEndOf="@+id/back_logo_of_hr_dashboard"
+                        android:layout_toStartOf="@+id/hr_menu_icon"
+                        android:fontFamily="@font/poppins_bold"
+                        android:text="@string/hr_dash_bar_name"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/_14sdp" />
+
+                    <ImageView
+                        android:id="@+id/hr_menu_icon"
+                        android:layout_width="@dimen/_19sdp"
+                        android:layout_height="@dimen/_19sdp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="@dimen/_12sdp"
+                        android:src="@drawable/menu_24"
+                        app:tint="@color/white"
+                        tools:ignore="ContentDescription" />
+
+                </RelativeLayout>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:cardElevation="3dp"
+                    android:background="@color/white"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MaterialCardView.Cut">
+
+                    <ScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scrollbars="none">
 
                         <LinearLayout
+                            android:id="@+id/hr_dashboard_full_layout"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:weightSum="10"
-                            android:layout_marginTop="@dimen/_5sdp"
-                            android:orientation="horizontal">
-
-                            <androidx.cardview.widget.CardView
-                                android:layout_width="0dp"
-                                android:layout_weight="5"
-                                android:layout_height="match_parent"
-                                app:cardBackgroundColor="@color/white"
-                                app:cardElevation="3dp"
-                                android:layout_margin="5dp"
-                                app:cardCornerRadius="10dp">
-
-                                <RelativeLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="@dimen/_80sdp">
-
-                                    <ImageView
-                                        android:layout_width="match_parent"
-                                        android:layout_height="match_parent"
-                                        android:background="@drawable/background_png_dot"
-                                        android:backgroundTint="@color/clouds"
-                                        android:layout_centerVertical="true"
-                                        android:layout_centerHorizontal="true"
-                                        android:alpha=".5"
-                                        tools:ignore="ContentDescription" />
-
-                                    <LinearLayout
-                                        android:layout_width="match_parent"
-                                        android:layout_height="match_parent"
-                                        android:background="@drawable/border_design_2"
-                                        android:orientation="vertical">
-
-                                        <TextView
-                                            android:layout_width="match_parent"
-                                            android:layout_height="wrap_content"
-                                            android:text="DEPARTMENTS"
-                                            android:fontFamily="@font/poppins_bold"
-                                            android:textColor="@color/black"
-                                            android:textStyle="bold"
-                                            android:gravity="center"
-                                            android:layout_marginTop="@dimen/_5sdp"
-                                            android:textSize="@dimen/_10sdp"
-                                            tools:ignore="HardcodedText" />
-
-                                        <TextView
-                                            android:id="@+id/total_depts_count_in_hr"
-                                            android:layout_width="match_parent"
-                                            android:layout_height="match_parent"
-                                            android:layout_gravity="center"
-                                            android:fontFamily="@font/baloo"
-                                            android:gravity="center|top"
-                                            android:text="50"
-                                            android:textColor="@color/green_sea"
-                                            android:textSize="@dimen/_25sdp" />
-
-                                    </LinearLayout>
-
-                                </RelativeLayout>
-
-                            </androidx.cardview.widget.CardView>
-
-                            <androidx.cardview.widget.CardView
-                                android:layout_width="0dp"
-                                android:layout_weight="5"
-                                android:layout_height="match_parent"
-                                app:cardBackgroundColor="@color/white"
-                                app:cardElevation="3dp"
-                                android:layout_margin="5dp"
-                                app:cardCornerRadius="10dp">
-
-                                <RelativeLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="@dimen/_80sdp">
-
-                                    <ImageView
-                                        android:layout_width="match_parent"
-                                        android:layout_height="match_parent"
-                                        android:background="@drawable/background_png_dot"
-                                        android:backgroundTint="@color/clouds"
-                                        android:layout_centerVertical="true"
-                                        android:layout_centerHorizontal="true"
-                                        android:alpha=".5"
-                                        tools:ignore="ContentDescription" />
-
-                                    <LinearLayout
-                                        android:layout_width="match_parent"
-                                        android:layout_height="match_parent"
-                                        android:background="@drawable/border_design_2"
-                                        android:orientation="vertical">
-
-                                        <TextView
-                                            android:layout_width="match_parent"
-                                            android:layout_height="wrap_content"
-                                            android:text="EMPLOYEES"
-                                            android:fontFamily="@font/poppins_bold"
-                                            android:textColor="@color/black"
-                                            android:textStyle="bold"
-                                            android:gravity="center"
-                                            android:layout_marginTop="@dimen/_5sdp"
-                                            android:textSize="@dimen/_10sdp"
-                                            tools:ignore="HardcodedText" />
-
-                                        <TextView
-                                            android:id="@+id/total_employee_count_in_hr"
-                                            android:layout_width="match_parent"
-                                            android:layout_height="match_parent"
-                                            android:text="1000"
-                                            android:textColor="@color/green_sea"
-                                            android:textSize="@dimen/_25sdp"
-                                            android:gravity="center|top"
-                                            android:layout_gravity="center"
-                                            android:fontFamily="@font/baloo"/>
-
-                                    </LinearLayout>
-
-                                </RelativeLayout>
-
-                            </androidx.cardview.widget.CardView>
-
-                        </LinearLayout>
-
-                        <RelativeLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginBottom="8dp">
-
-                            <TextView
-                                android:id="@+id/text_view_att_graph_layout_start_hrd"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="ATTENDANCE"
-                                android:textSize="@dimen/_13sdp"
-                                android:layout_alignParentStart="true"
-                                android:layout_alignParentEnd="true"
-                                android:layout_alignParentTop="true"
-                                android:textColor="@color/blue_end"
-                                android:fontFamily="@font/poppins_bold"
-                                android:layout_marginTop="@dimen/_10sdp"
-                                android:layout_marginStart="@dimen/_5sdp"
-                                tools:ignore="HardcodedText" />
+                            android:orientation="vertical">
 
                             <LinearLayout
-                                android:id="@+id/att_tab_full_layout"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_alignParentStart="true"
-                                android:layout_alignParentEnd="true"
-                                android:layout_below="@+id/text_view_att_graph_layout_start_hrd"
-                                android:orientation="vertical">
-
-                                <com.google.android.material.tabs.TabLayout
-                                    android:id="@+id/hr_tab_layout"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    app:tabBackground="@drawable/tab_color_selector"
-                                    app:tabIndicator="@color/white"
-                                    app:tabMode="fixed"
-                                    android:layout_marginTop="7dp"
-                                    android:layout_marginStart="3dp"
-                                    android:layout_marginEnd="3dp"
-                                    app:tabIndicatorColor="@color/white"
-                                    app:tabSelectedTextColor="@color/white"
-                                    app:tabTextAppearance="@style/NavigationTabTextAppeareance">
-
-                                    <com.google.android.material.tabs.TabItem
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:id="@+id/today_hr_info_tab"
-                                        android:text="Today"/>
-                                    <com.google.android.material.tabs.TabItem
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:id="@+id/last_day_hr_info_tab"
-                                        android:text="Last Day"/>
-                                    <com.google.android.material.tabs.TabItem
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:id="@+id/last_week_hr_info_tab"
-                                        android:text="Last Week"/>
-                                    <com.google.android.material.tabs.TabItem
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:id="@+id/last_month_hr_info_tab"
-                                        android:text="Last Month"/>
-
-                                </com.google.android.material.tabs.TabLayout>
-
-                                <TextView
-                                    android:id="@+id/date_range_tab_text_att_hrm_dashboard"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="@dimen/_6sdp"
-                                    android:layout_marginTop="@dimen/_10sdp"
-                                    android:fontFamily="@font/archivo_bold"
-                                    android:text=""
-                                    android:textColor="@color/default_text_color"
-                                    android:textSize="@dimen/_12sdp"
-                                    android:textStyle="bold" />
+                                android:weightSum="10"
+                                android:layout_marginTop="@dimen/_5sdp"
+                                android:orientation="horizontal">
 
                                 <androidx.cardview.widget.CardView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="@dimen/_200sdp"
-                                    android:layout_marginTop="@dimen/_10sdp"
-                                    android:layout_marginStart="3dp"
-                                    android:layout_marginEnd="3dp"
-                                    android:layout_marginBottom="5dp"
-                                    app:cardElevation="2dp"
+                                    android:layout_width="0dp"
+                                    android:layout_weight="5"
+                                    android:layout_height="match_parent"
                                     app:cardBackgroundColor="@color/white"
+                                    app:cardElevation="3dp"
+                                    android:layout_margin="5dp"
                                     app:cardCornerRadius="10dp">
 
                                     <RelativeLayout
                                         android:layout_width="match_parent"
-                                        android:layout_height="match_parent"
-                                        android:orientation="vertical">
+                                        android:layout_height="@dimen/_80sdp">
 
-                                        <com.github.mikephil.charting.charts.PieChart
-                                            android:id="@+id/att_perc_hr_overview_pie_chart"
+                                        <ImageView
                                             android:layout_width="match_parent"
                                             android:layout_height="match_parent"
-                                            android:layout_alignParentStart="true"
-                                            android:layout_alignParentEnd="true"
-                                            android:layout_alignParentTop="true"
-                                            android:layout_alignParentBottom="true"
-                                            android:foreground="?attr/selectableItemBackground"
-                                            android:layout_marginTop="@dimen/_4sdp"
-                                            android:layout_marginBottom="@dimen/_4sdp"
-                                            android:layout_marginStart="@dimen/_4sdp"
-                                            android:layout_marginEnd="@dimen/_4sdp" />
+                                            android:background="@drawable/background_png_dot"
+                                            android:backgroundTint="@color/clouds"
+                                            android:layout_centerVertical="true"
+                                            android:layout_centerHorizontal="true"
+                                            android:alpha=".5"
+                                            tools:ignore="ContentDescription" />
 
+                                        <LinearLayout
+                                            android:layout_width="match_parent"
+                                            android:layout_height="match_parent"
+                                            android:background="@drawable/border_design_2"
+                                            android:orientation="vertical">
+
+                                            <TextView
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:text="DEPARTMENTS"
+                                                android:fontFamily="@font/poppins_bold"
+                                                android:textColor="@color/black"
+                                                android:textStyle="bold"
+                                                android:gravity="center"
+                                                android:layout_marginTop="@dimen/_5sdp"
+                                                android:textSize="@dimen/_10sdp"
+                                                tools:ignore="HardcodedText" />
+
+                                            <TextView
+                                                android:id="@+id/total_depts_count_in_hr"
+                                                android:layout_width="match_parent"
+                                                android:layout_height="match_parent"
+                                                android:layout_gravity="center"
+                                                android:fontFamily="@font/baloo"
+                                                android:gravity="center|top"
+                                                android:text="50"
+                                                android:textColor="@color/green_sea"
+                                                android:textSize="@dimen/_25sdp" />
+
+                                        </LinearLayout>
+
+                                    </RelativeLayout>
+
+                                </androidx.cardview.widget.CardView>
+
+                                <androidx.cardview.widget.CardView
+                                    android:layout_width="0dp"
+                                    android:layout_weight="5"
+                                    android:layout_height="match_parent"
+                                    app:cardBackgroundColor="@color/white"
+                                    app:cardElevation="3dp"
+                                    android:layout_margin="5dp"
+                                    app:cardCornerRadius="10dp">
+
+                                    <RelativeLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="@dimen/_80sdp">
+
+                                        <ImageView
+                                            android:layout_width="match_parent"
+                                            android:layout_height="match_parent"
+                                            android:background="@drawable/background_png_dot"
+                                            android:backgroundTint="@color/clouds"
+                                            android:layout_centerVertical="true"
+                                            android:layout_centerHorizontal="true"
+                                            android:alpha=".5"
+                                            tools:ignore="ContentDescription" />
+
+                                        <LinearLayout
+                                            android:layout_width="match_parent"
+                                            android:layout_height="match_parent"
+                                            android:background="@drawable/border_design_2"
+                                            android:orientation="vertical">
+
+                                            <TextView
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:text="EMPLOYEES"
+                                                android:fontFamily="@font/poppins_bold"
+                                                android:textColor="@color/black"
+                                                android:textStyle="bold"
+                                                android:gravity="center"
+                                                android:layout_marginTop="@dimen/_5sdp"
+                                                android:textSize="@dimen/_10sdp"
+                                                tools:ignore="HardcodedText" />
+
+                                            <TextView
+                                                android:id="@+id/total_employee_count_in_hr"
+                                                android:layout_width="match_parent"
+                                                android:layout_height="match_parent"
+                                                android:text="1000"
+                                                android:textColor="@color/green_sea"
+                                                android:textSize="@dimen/_25sdp"
+                                                android:gravity="center|top"
+                                                android:layout_gravity="center"
+                                                android:fontFamily="@font/baloo"/>
+
+                                        </LinearLayout>
 
                                     </RelativeLayout>
 
@@ -339,429 +229,821 @@
 
                             </LinearLayout>
 
-                            <com.google.android.material.progressindicator.CircularProgressIndicator
-                                android:id="@+id/progress_indicator_hr_dashboard_att_chart_tab_layout"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_margin="@dimen/_80sdp"
-                                android:layout_centerVertical="true"
-                                android:layout_centerHorizontal="true"
-                                android:indeterminate="true"
-                                android:layout_gravity="center"/>
-
-                            <ImageView
-                                android:id="@+id/hr_dashboard_att_chart_tab_refresh_button"
-                                android:layout_width="@dimen/_32sdp"
-                                android:layout_height="@dimen/_32sdp"
-                                android:layout_margin="@dimen/_80sdp"
-                                android:layout_centerVertical="true"
-                                android:layout_centerHorizontal="true"
-                                android:src="@drawable/refresh_24"
-                                tools:ignore="ContentDescription" />
-
-                        </RelativeLayout>
-
-                        <RelativeLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginBottom="8dp">
-
-                            <TextView
-                                android:id="@+id/text_view_leave_list_layout_start_hrd"
+                            <RelativeLayout
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="LEAVE"
-                                android:textSize="@dimen/_13sdp"
-                                android:layout_alignParentStart="true"
-                                android:layout_alignParentEnd="true"
-                                android:layout_alignParentTop="true"
-                                android:textColor="@color/blue_end"
-                                android:fontFamily="@font/poppins_bold"
-                                android:layout_marginTop="@dimen/_10sdp"
-                                android:layout_marginStart="@dimen/_5sdp"
-                                tools:ignore="HardcodedText" />
-
-                            <LinearLayout
-                                android:id="@+id/leave_tab_full_layout"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_alignParentStart="true"
-                                android:layout_alignParentEnd="true"
-                                android:layout_below="@+id/text_view_leave_list_layout_start_hrd"
-                                android:orientation="vertical">
-
-                                <com.google.android.material.tabs.TabLayout
-                                    android:id="@+id/hr_leave_tab_layout"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    app:tabBackground="@drawable/tab_color_selector"
-                                    app:tabIndicator="@color/white"
-                                    app:tabMode="fixed"
-                                    android:layout_marginTop="7dp"
-                                    android:layout_marginStart="3dp"
-                                    android:layout_marginEnd="3dp"
-                                    app:tabIndicatorColor="@color/white"
-                                    app:tabSelectedTextColor="@color/white"
-                                    app:tabTextAppearance="@style/NavigationTabTextAppeareance">
-
-                                    <com.google.android.material.tabs.TabItem
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:id="@+id/last_week_leave_hr_info_tab"
-                                        android:text="Last Week"/>
-                                    <com.google.android.material.tabs.TabItem
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:id="@+id/this_week_leave_hr_info_tab"
-                                        android:text="This Week"/>
-                                    <com.google.android.material.tabs.TabItem
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:id="@+id/next_week_leave_hr_info_tab"
-                                        android:text="Next Week"/>
-
-                                </com.google.android.material.tabs.TabLayout>
+                                android:layout_height="match_parent"
+                                android:layout_marginTop="8dp"
+                                android:layout_marginBottom="8dp">
 
                                 <TextView
-                                    android:id="@+id/date_range_tab_text_leave_hrm_dashboard"
+                                    android:id="@+id/text_view_att_graph_layout_start_hrd"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginStart="@dimen/_6sdp"
+                                    android:text="ATTENDANCE"
+                                    android:textSize="@dimen/_13sdp"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_alignParentTop="true"
+                                    android:textColor="@color/blue_end"
+                                    android:fontFamily="@font/poppins_bold"
                                     android:layout_marginTop="@dimen/_10sdp"
-                                    android:fontFamily="@font/archivo_bold"
-                                    android:text=""
-                                    android:textColor="@color/default_text_color"
-                                    android:textSize="@dimen/_12sdp"
-                                    android:textStyle="bold" />
+                                    android:layout_marginStart="@dimen/_5sdp"
+                                    tools:ignore="HardcodedText" />
 
-                                <androidx.cardview.widget.CardView
+                                <LinearLayout
+                                    android:id="@+id/att_tab_full_layout"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginTop="@dimen/_10sdp"
-                                    android:layout_marginStart="3dp"
-                                    android:layout_marginEnd="3dp"
-                                    android:layout_marginBottom="5dp"
-                                    app:cardElevation="2dp"
-                                    app:cardBackgroundColor="@color/white"
-                                    app:cardCornerRadius="@dimen/_8sdp">
+                                    android:layout_alignParentStart="true"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_below="@+id/text_view_att_graph_layout_start_hrd"
+                                    android:orientation="vertical">
 
-                                    <LinearLayout
+                                    <com.google.android.material.tabs.TabLayout
+                                        android:id="@+id/hr_tab_layout"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
-                                        android:orientation="vertical">
+                                        app:tabBackground="@drawable/tab_color_selector"
+                                        app:tabIndicator="@color/white"
+                                        app:tabMode="fixed"
+                                        android:layout_marginTop="7dp"
+                                        android:layout_marginStart="3dp"
+                                        android:layout_marginEnd="3dp"
+                                        app:tabIndicatorColor="@color/white"
+                                        app:tabSelectedTextColor="@color/white"
+                                        app:tabTextAppearance="@style/NavigationTabTextAppeareance">
 
-                                        <LinearLayout
-                                            android:layout_width="match_parent"
+                                        <com.google.android.material.tabs.TabItem
+                                            android:layout_width="wrap_content"
                                             android:layout_height="wrap_content"
-                                            android:weightSum="9.7"
-                                            android:orientation="horizontal">
+                                            android:id="@+id/today_hr_info_tab"
+                                            android:text="Today"/>
+                                        <com.google.android.material.tabs.TabItem
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:id="@+id/last_day_hr_info_tab"
+                                            android:text="Last Day"/>
+                                        <com.google.android.material.tabs.TabItem
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:id="@+id/last_week_hr_info_tab"
+                                            android:text="Last Week"/>
+                                        <com.google.android.material.tabs.TabItem
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:id="@+id/last_month_hr_info_tab"
+                                            android:text="Last Month"/>
 
-                                            <TextView
-                                                android:layout_width="0dp"
-                                                android:layout_height="match_parent"
-                                                android:layout_weight="2"
-                                                android:background="@color/deep_rose"
-                                                android:text="EMP NAME"
-                                                android:fontFamily="@font/patua_one"
-                                                android:textColor="@color/white"
-                                                android:padding="4dp"
-                                                android:layout_marginEnd="1dp"
-                                                android:gravity="center"
-                                                android:textSize="@dimen/_11sdp"
-                                                tools:ignore="HardcodedText" />
+                                    </com.google.android.material.tabs.TabLayout>
 
-                                            <LinearLayout
-                                                android:layout_width="0dp"
-                                                android:layout_height="match_parent"
-                                                android:layout_weight="1.1"
-                                                android:orientation="vertical"
-                                                android:background="@color/pencil_lead"
-                                                android:layout_marginStart="1dp"
-                                                android:layout_marginEnd="1dp">
+                                    <TextView
+                                        android:id="@+id/date_range_tab_text_att_hrm_dashboard"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="@dimen/_6sdp"
+                                        android:layout_marginTop="@dimen/_10sdp"
+                                        android:fontFamily="@font/archivo_bold"
+                                        android:text=""
+                                        android:textColor="@color/default_text_color"
+                                        android:textSize="@dimen/_12sdp"
+                                        android:textStyle="bold" />
 
-                                                <TextView
-                                                    android:layout_width="wrap_content"
-                                                    android:layout_height="wrap_content"
-                                                    android:background="@color/pencil_lead"
-                                                    android:text="SAT"
-                                                    android:fontFamily="@font/patua_one"
-                                                    android:textColor="@color/white"
-                                                    android:gravity="center"
-                                                    android:padding="@dimen/_3sdp"
-                                                    android:textSize="@dimen/_10sdp"/>
-
-                                                <TextView
-                                                    android:id="@+id/leave_date_week_calendar_first_day"
-                                                    android:layout_width="wrap_content"
-                                                    android:layout_height="wrap_content"
-                                                    android:background="@color/pencil_lead"
-                                                    android:text=""
-                                                    android:fontFamily="@font/archivo_bold"
-                                                    android:textColor="@color/white"
-                                                    android:padding="@dimen/_3sdp"
-                                                    android:textSize="@dimen/_7sdp"/>
-
-                                            </LinearLayout>
-
-                                            <LinearLayout
-                                                android:layout_width="0dp"
-                                                android:layout_height="match_parent"
-                                                android:layout_weight="1.1"
-                                                android:orientation="vertical"
-                                                android:background="@color/pencil_lead"
-                                                android:layout_marginStart="1dp"
-                                                android:layout_marginEnd="1dp">
-
-                                                <TextView
-                                                    android:layout_width="wrap_content"
-                                                    android:layout_height="wrap_content"
-                                                    android:background="@color/pencil_lead"
-                                                    android:text="SUN"
-                                                    android:fontFamily="@font/patua_one"
-                                                    android:textColor="@color/white"
-                                                    android:gravity="center"
-                                                    android:padding="@dimen/_3sdp"
-                                                    android:textSize="@dimen/_10sdp"/>
-
-                                                <TextView
-                                                    android:id="@+id/leave_date_week_calendar_second_day"
-                                                    android:layout_width="wrap_content"
-                                                    android:layout_height="wrap_content"
-                                                    android:background="@color/pencil_lead"
-                                                    android:text=""
-                                                    android:fontFamily="@font/archivo_bold"
-                                                    android:textColor="@color/white"
-                                                    android:padding="@dimen/_3sdp"
-                                                    android:textSize="@dimen/_7sdp"/>
-
-                                            </LinearLayout>
-
-                                            <LinearLayout
-                                                android:layout_width="0dp"
-                                                android:layout_height="match_parent"
-                                                android:layout_weight="1.1"
-                                                android:orientation="vertical"
-                                                android:background="@color/pencil_lead"
-                                                android:layout_marginStart="1dp"
-                                                android:layout_marginEnd="1dp">
-
-                                                <TextView
-                                                    android:layout_width="wrap_content"
-                                                    android:layout_height="wrap_content"
-                                                    android:background="@color/pencil_lead"
-                                                    android:text="MON"
-                                                    android:fontFamily="@font/patua_one"
-                                                    android:textColor="@color/white"
-                                                    android:gravity="center"
-                                                    android:padding="@dimen/_3sdp"
-                                                    android:textSize="@dimen/_10sdp"/>
-
-                                                <TextView
-                                                    android:id="@+id/leave_date_week_calendar_third_day"
-                                                    android:layout_width="wrap_content"
-                                                    android:layout_height="wrap_content"
-                                                    android:background="@color/pencil_lead"
-                                                    android:text=""
-                                                    android:fontFamily="@font/archivo_bold"
-                                                    android:textColor="@color/white"
-                                                    android:padding="@dimen/_3sdp"
-                                                    android:textSize="@dimen/_7sdp"/>
-
-                                            </LinearLayout>
-
-                                            <LinearLayout
-                                                android:layout_width="0dp"
-                                                android:layout_height="match_parent"
-                                                android:layout_weight="1.1"
-                                                android:orientation="vertical"
-                                                android:background="@color/pencil_lead"
-                                                android:layout_marginStart="1dp"
-                                                android:layout_marginEnd="1dp">
-
-                                                <TextView
-                                                    android:layout_width="wrap_content"
-                                                    android:layout_height="wrap_content"
-                                                    android:background="@color/pencil_lead"
-                                                    android:text="TUE"
-                                                    android:fontFamily="@font/patua_one"
-                                                    android:textColor="@color/white"
-                                                    android:gravity="center"
-                                                    android:padding="@dimen/_3sdp"
-                                                    android:textSize="@dimen/_10sdp"/>
-
-                                                <TextView
-                                                    android:id="@+id/leave_date_week_calendar_fourth_day"
-                                                    android:layout_width="wrap_content"
-                                                    android:layout_height="wrap_content"
-                                                    android:background="@color/pencil_lead"
-                                                    android:text=""
-                                                    android:fontFamily="@font/archivo_bold"
-                                                    android:textColor="@color/white"
-                                                    android:padding="@dimen/_3sdp"
-                                                    android:textSize="@dimen/_7sdp"/>
-
-                                            </LinearLayout>
-
-                                            <LinearLayout
-                                                android:layout_width="0dp"
-                                                android:layout_height="match_parent"
-                                                android:layout_weight="1.1"
-                                                android:orientation="vertical"
-                                                android:background="@color/pencil_lead"
-                                                android:layout_marginStart="1dp"
-                                                android:layout_marginEnd="1dp">
-
-                                                <TextView
-                                                    android:layout_width="wrap_content"
-                                                    android:layout_height="wrap_content"
-                                                    android:background="@color/pencil_lead"
-                                                    android:text="WED"
-                                                    android:fontFamily="@font/patua_one"
-                                                    android:textColor="@color/white"
-                                                    android:gravity="center"
-                                                    android:padding="@dimen/_3sdp"
-                                                    android:textSize="@dimen/_10sdp"/>
-
-                                                <TextView
-                                                    android:id="@+id/leave_date_week_calendar_fifth_day"
-                                                    android:layout_width="wrap_content"
-                                                    android:layout_height="wrap_content"
-                                                    android:background="@color/pencil_lead"
-                                                    android:text=""
-                                                    android:fontFamily="@font/archivo_bold"
-                                                    android:textColor="@color/white"
-                                                    android:padding="@dimen/_3sdp"
-                                                    android:textSize="@dimen/_7sdp"/>
-
-                                            </LinearLayout>
-
-                                            <LinearLayout
-                                                android:layout_width="0dp"
-                                                android:layout_height="match_parent"
-                                                android:layout_weight="1.1"
-                                                android:orientation="vertical"
-                                                android:background="@color/pencil_lead"
-                                                android:layout_marginStart="1dp"
-                                                android:layout_marginEnd="1dp">
-
-                                                <TextView
-                                                    android:layout_width="wrap_content"
-                                                    android:layout_height="wrap_content"
-                                                    android:background="@color/pencil_lead"
-                                                    android:text="THU"
-                                                    android:fontFamily="@font/patua_one"
-                                                    android:textColor="@color/white"
-                                                    android:gravity="center"
-                                                    android:padding="@dimen/_3sdp"
-                                                    android:textSize="@dimen/_10sdp"/>
-
-                                                <TextView
-                                                    android:id="@+id/leave_date_week_calendar_sixth_day"
-                                                    android:layout_width="wrap_content"
-                                                    android:layout_height="wrap_content"
-                                                    android:background="@color/pencil_lead"
-                                                    android:text=""
-                                                    android:fontFamily="@font/archivo_bold"
-                                                    android:textColor="@color/white"
-                                                    android:padding="@dimen/_3sdp"
-                                                    android:textSize="@dimen/_7sdp"/>
-
-                                            </LinearLayout>
-
-                                            <LinearLayout
-                                                android:layout_width="0dp"
-                                                android:layout_height="match_parent"
-                                                android:layout_weight="1.1"
-                                                android:orientation="vertical"
-                                                android:background="@color/pencil_lead"
-                                                android:layout_marginStart="1dp">
-
-                                                <TextView
-                                                    android:layout_width="wrap_content"
-                                                    android:layout_height="wrap_content"
-                                                    android:background="@color/pencil_lead"
-                                                    android:text="FRI"
-                                                    android:fontFamily="@font/patua_one"
-                                                    android:textColor="@color/white"
-                                                    android:gravity="center"
-                                                    android:padding="@dimen/_3sdp"
-                                                    android:textSize="@dimen/_10sdp"/>
-
-                                                <TextView
-                                                    android:id="@+id/leave_date_week_calendar_seventh_day"
-                                                    android:layout_width="wrap_content"
-                                                    android:layout_height="wrap_content"
-                                                    android:background="@color/pencil_lead"
-                                                    android:text=""
-                                                    android:fontFamily="@font/archivo_bold"
-                                                    android:textColor="@color/white"
-                                                    android:padding="@dimen/_3sdp"
-                                                    android:textSize="@dimen/_7sdp"/>
-
-                                            </LinearLayout>
-
-                                        </LinearLayout>
+                                    <androidx.cardview.widget.CardView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="@dimen/_200sdp"
+                                        android:layout_marginTop="@dimen/_10sdp"
+                                        android:layout_marginStart="3dp"
+                                        android:layout_marginEnd="3dp"
+                                        android:layout_marginBottom="5dp"
+                                        app:cardElevation="2dp"
+                                        app:cardBackgroundColor="@color/white"
+                                        app:cardCornerRadius="10dp">
 
                                         <RelativeLayout
                                             android:layout_width="match_parent"
                                             android:layout_height="match_parent"
                                             android:orientation="vertical">
 
-                                            <androidx.recyclerview.widget.RecyclerView
-                                                android:id="@+id/leave_employees_list_view"
+                                            <com.github.mikephil.charting.charts.PieChart
+                                                android:id="@+id/att_perc_hr_overview_pie_chart"
                                                 android:layout_width="match_parent"
                                                 android:layout_height="match_parent"
-                                                android:scrollbars="none"
-                                                android:descendantFocusability="beforeDescendants"
-                                                android:focusable="true"
-                                                android:focusableInTouchMode="true"/>
+                                                android:layout_alignParentStart="true"
+                                                android:layout_alignParentEnd="true"
+                                                android:layout_alignParentTop="true"
+                                                android:layout_alignParentBottom="true"
+                                                android:foreground="?attr/selectableItemBackground"
+                                                android:layout_marginTop="@dimen/_4sdp"
+                                                android:layout_marginBottom="@dimen/_4sdp"
+                                                android:layout_marginStart="@dimen/_4sdp"
+                                                android:layout_marginEnd="@dimen/_4sdp" />
 
 
                                         </RelativeLayout>
 
-                                        <TextView
-                                            android:id="@+id/no_leave_found_msg_leave_hrm_dashboard"
+                                    </androidx.cardview.widget.CardView>
+
+                                </LinearLayout>
+
+                                <com.google.android.material.progressindicator.CircularProgressIndicator
+                                    android:id="@+id/progress_indicator_hr_dashboard_att_chart_tab_layout"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_margin="@dimen/_80sdp"
+                                    android:layout_centerVertical="true"
+                                    android:layout_centerHorizontal="true"
+                                    android:indeterminate="true"
+                                    android:layout_gravity="center"/>
+
+                                <ImageView
+                                    android:id="@+id/hr_dashboard_att_chart_tab_refresh_button"
+                                    android:layout_width="@dimen/_32sdp"
+                                    android:layout_height="@dimen/_32sdp"
+                                    android:layout_margin="@dimen/_80sdp"
+                                    android:layout_centerVertical="true"
+                                    android:layout_centerHorizontal="true"
+                                    android:src="@drawable/refresh_24"
+                                    tools:ignore="ContentDescription" />
+
+                            </RelativeLayout>
+
+                            <RelativeLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginTop="8dp"
+                                android:layout_marginBottom="8dp">
+
+                                <TextView
+                                    android:id="@+id/text_view_leave_list_layout_start_hrd"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:text="LEAVE"
+                                    android:textSize="@dimen/_13sdp"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_alignParentTop="true"
+                                    android:textColor="@color/blue_end"
+                                    android:fontFamily="@font/poppins_bold"
+                                    android:layout_marginTop="@dimen/_10sdp"
+                                    android:layout_marginStart="@dimen/_5sdp"
+                                    tools:ignore="HardcodedText" />
+
+                                <LinearLayout
+                                    android:id="@+id/leave_tab_full_layout"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_below="@+id/text_view_leave_list_layout_start_hrd"
+                                    android:orientation="vertical">
+
+                                    <com.google.android.material.tabs.TabLayout
+                                        android:id="@+id/hr_leave_tab_layout"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        app:tabBackground="@drawable/tab_color_selector"
+                                        app:tabIndicator="@color/white"
+                                        app:tabMode="fixed"
+                                        android:layout_marginTop="7dp"
+                                        android:layout_marginStart="3dp"
+                                        android:layout_marginEnd="3dp"
+                                        app:tabIndicatorColor="@color/white"
+                                        app:tabSelectedTextColor="@color/white"
+                                        app:tabTextAppearance="@style/NavigationTabTextAppeareance">
+
+                                        <com.google.android.material.tabs.TabItem
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:id="@+id/last_week_leave_hr_info_tab"
+                                            android:text="Last Week"/>
+                                        <com.google.android.material.tabs.TabItem
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:id="@+id/this_week_leave_hr_info_tab"
+                                            android:text="This Week"/>
+                                        <com.google.android.material.tabs.TabItem
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:id="@+id/next_week_leave_hr_info_tab"
+                                            android:text="Next Week"/>
+
+                                    </com.google.android.material.tabs.TabLayout>
+
+                                    <TextView
+                                        android:id="@+id/date_range_tab_text_leave_hrm_dashboard"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="@dimen/_6sdp"
+                                        android:layout_marginTop="@dimen/_10sdp"
+                                        android:fontFamily="@font/archivo_bold"
+                                        android:text=""
+                                        android:textColor="@color/default_text_color"
+                                        android:textSize="@dimen/_12sdp"
+                                        android:textStyle="bold" />
+
+                                    <androidx.cardview.widget.CardView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="@dimen/_10sdp"
+                                        android:layout_marginStart="3dp"
+                                        android:layout_marginEnd="3dp"
+                                        android:layout_marginBottom="5dp"
+                                        app:cardElevation="2dp"
+                                        app:cardBackgroundColor="@color/white"
+                                        app:cardCornerRadius="@dimen/_8sdp">
+
+                                        <LinearLayout
                                             android:layout_width="match_parent"
                                             android:layout_height="wrap_content"
-                                            android:text="No one in Leave in this selected week"
-                                            android:gravity="center"
-                                            android:fontFamily="@font/poppins_medium"
-                                            android:layout_margin="5dp"
-                                            tools:ignore="HardcodedText" />
-
-                                        <androidx.cardview.widget.CardView
-                                            android:id="@+id/show_more_leave_details_button"
-                                            android:layout_width="match_parent"
-                                            android:layout_height="match_parent"
-                                            app:cardCornerRadius="@dimen/_8sdp"
-                                            android:layout_gravity="center"
-                                            android:layout_marginStart="@dimen/_4sdp"
-                                            android:layout_marginEnd="@dimen/_4sdp"
-                                            android:layout_marginTop="@dimen/_4sdp"
-                                            android:layout_marginBottom="@dimen/_4sdp"
-                                            app:cardElevation="@dimen/_2sdp"
-                                            android:foreground="?attr/selectableItemBackground"
-                                            app:cardBackgroundColor="@color/white">
+                                            android:orientation="vertical">
 
                                             <LinearLayout
                                                 android:layout_width="match_parent"
-                                                android:layout_height="match_parent"
-                                                android:layout_gravity="center"
-                                                android:gravity="center"
-                                                android:orientation="horizontal"
-                                                android:background="@drawable/border_design_2"
-                                                tools:ignore="UseCompoundDrawables">
+                                                android:layout_height="wrap_content"
+                                                android:weightSum="9.7"
+                                                android:orientation="horizontal">
 
                                                 <TextView
-                                                    android:layout_width="wrap_content"
-                                                    android:layout_height="wrap_content"
+                                                    android:layout_width="0dp"
+                                                    android:layout_height="match_parent"
+                                                    android:layout_weight="2"
+                                                    android:background="@color/deep_rose"
+                                                    android:text="EMP NAME"
+                                                    android:fontFamily="@font/patua_one"
+                                                    android:textColor="@color/white"
+                                                    android:padding="4dp"
+                                                    android:layout_marginEnd="1dp"
+                                                    android:gravity="center"
+                                                    android:textSize="@dimen/_11sdp"
+                                                    tools:ignore="HardcodedText" />
+
+                                                <LinearLayout
+                                                    android:layout_width="0dp"
+                                                    android:layout_height="match_parent"
+                                                    android:layout_weight="1.1"
+                                                    android:orientation="vertical"
+                                                    android:background="@color/pencil_lead"
+                                                    android:layout_marginStart="1dp"
+                                                    android:layout_marginEnd="1dp">
+
+                                                    <TextView
+                                                        android:layout_width="wrap_content"
+                                                        android:layout_height="wrap_content"
+                                                        android:background="@color/pencil_lead"
+                                                        android:text="SAT"
+                                                        android:fontFamily="@font/patua_one"
+                                                        android:textColor="@color/white"
+                                                        android:gravity="center"
+                                                        android:padding="@dimen/_3sdp"
+                                                        android:textSize="@dimen/_10sdp"/>
+
+                                                    <TextView
+                                                        android:id="@+id/leave_date_week_calendar_first_day"
+                                                        android:layout_width="wrap_content"
+                                                        android:layout_height="wrap_content"
+                                                        android:background="@color/pencil_lead"
+                                                        android:text=""
+                                                        android:fontFamily="@font/archivo_bold"
+                                                        android:textColor="@color/white"
+                                                        android:padding="@dimen/_3sdp"
+                                                        android:textSize="@dimen/_7sdp"/>
+
+                                                </LinearLayout>
+
+                                                <LinearLayout
+                                                    android:layout_width="0dp"
+                                                    android:layout_height="match_parent"
+                                                    android:layout_weight="1.1"
+                                                    android:orientation="vertical"
+                                                    android:background="@color/pencil_lead"
+                                                    android:layout_marginStart="1dp"
+                                                    android:layout_marginEnd="1dp">
+
+                                                    <TextView
+                                                        android:layout_width="wrap_content"
+                                                        android:layout_height="wrap_content"
+                                                        android:background="@color/pencil_lead"
+                                                        android:text="SUN"
+                                                        android:fontFamily="@font/patua_one"
+                                                        android:textColor="@color/white"
+                                                        android:gravity="center"
+                                                        android:padding="@dimen/_3sdp"
+                                                        android:textSize="@dimen/_10sdp"/>
+
+                                                    <TextView
+                                                        android:id="@+id/leave_date_week_calendar_second_day"
+                                                        android:layout_width="wrap_content"
+                                                        android:layout_height="wrap_content"
+                                                        android:background="@color/pencil_lead"
+                                                        android:text=""
+                                                        android:fontFamily="@font/archivo_bold"
+                                                        android:textColor="@color/white"
+                                                        android:padding="@dimen/_3sdp"
+                                                        android:textSize="@dimen/_7sdp"/>
+
+                                                </LinearLayout>
+
+                                                <LinearLayout
+                                                    android:layout_width="0dp"
+                                                    android:layout_height="match_parent"
+                                                    android:layout_weight="1.1"
+                                                    android:orientation="vertical"
+                                                    android:background="@color/pencil_lead"
+                                                    android:layout_marginStart="1dp"
+                                                    android:layout_marginEnd="1dp">
+
+                                                    <TextView
+                                                        android:layout_width="wrap_content"
+                                                        android:layout_height="wrap_content"
+                                                        android:background="@color/pencil_lead"
+                                                        android:text="MON"
+                                                        android:fontFamily="@font/patua_one"
+                                                        android:textColor="@color/white"
+                                                        android:gravity="center"
+                                                        android:padding="@dimen/_3sdp"
+                                                        android:textSize="@dimen/_10sdp"/>
+
+                                                    <TextView
+                                                        android:id="@+id/leave_date_week_calendar_third_day"
+                                                        android:layout_width="wrap_content"
+                                                        android:layout_height="wrap_content"
+                                                        android:background="@color/pencil_lead"
+                                                        android:text=""
+                                                        android:fontFamily="@font/archivo_bold"
+                                                        android:textColor="@color/white"
+                                                        android:padding="@dimen/_3sdp"
+                                                        android:textSize="@dimen/_7sdp"/>
+
+                                                </LinearLayout>
+
+                                                <LinearLayout
+                                                    android:layout_width="0dp"
+                                                    android:layout_height="match_parent"
+                                                    android:layout_weight="1.1"
+                                                    android:orientation="vertical"
+                                                    android:background="@color/pencil_lead"
+                                                    android:layout_marginStart="1dp"
+                                                    android:layout_marginEnd="1dp">
+
+                                                    <TextView
+                                                        android:layout_width="wrap_content"
+                                                        android:layout_height="wrap_content"
+                                                        android:background="@color/pencil_lead"
+                                                        android:text="TUE"
+                                                        android:fontFamily="@font/patua_one"
+                                                        android:textColor="@color/white"
+                                                        android:gravity="center"
+                                                        android:padding="@dimen/_3sdp"
+                                                        android:textSize="@dimen/_10sdp"/>
+
+                                                    <TextView
+                                                        android:id="@+id/leave_date_week_calendar_fourth_day"
+                                                        android:layout_width="wrap_content"
+                                                        android:layout_height="wrap_content"
+                                                        android:background="@color/pencil_lead"
+                                                        android:text=""
+                                                        android:fontFamily="@font/archivo_bold"
+                                                        android:textColor="@color/white"
+                                                        android:padding="@dimen/_3sdp"
+                                                        android:textSize="@dimen/_7sdp"/>
+
+                                                </LinearLayout>
+
+                                                <LinearLayout
+                                                    android:layout_width="0dp"
+                                                    android:layout_height="match_parent"
+                                                    android:layout_weight="1.1"
+                                                    android:orientation="vertical"
+                                                    android:background="@color/pencil_lead"
+                                                    android:layout_marginStart="1dp"
+                                                    android:layout_marginEnd="1dp">
+
+                                                    <TextView
+                                                        android:layout_width="wrap_content"
+                                                        android:layout_height="wrap_content"
+                                                        android:background="@color/pencil_lead"
+                                                        android:text="WED"
+                                                        android:fontFamily="@font/patua_one"
+                                                        android:textColor="@color/white"
+                                                        android:gravity="center"
+                                                        android:padding="@dimen/_3sdp"
+                                                        android:textSize="@dimen/_10sdp"/>
+
+                                                    <TextView
+                                                        android:id="@+id/leave_date_week_calendar_fifth_day"
+                                                        android:layout_width="wrap_content"
+                                                        android:layout_height="wrap_content"
+                                                        android:background="@color/pencil_lead"
+                                                        android:text=""
+                                                        android:fontFamily="@font/archivo_bold"
+                                                        android:textColor="@color/white"
+                                                        android:padding="@dimen/_3sdp"
+                                                        android:textSize="@dimen/_7sdp"/>
+
+                                                </LinearLayout>
+
+                                                <LinearLayout
+                                                    android:layout_width="0dp"
+                                                    android:layout_height="match_parent"
+                                                    android:layout_weight="1.1"
+                                                    android:orientation="vertical"
+                                                    android:background="@color/pencil_lead"
+                                                    android:layout_marginStart="1dp"
+                                                    android:layout_marginEnd="1dp">
+
+                                                    <TextView
+                                                        android:layout_width="wrap_content"
+                                                        android:layout_height="wrap_content"
+                                                        android:background="@color/pencil_lead"
+                                                        android:text="THU"
+                                                        android:fontFamily="@font/patua_one"
+                                                        android:textColor="@color/white"
+                                                        android:gravity="center"
+                                                        android:padding="@dimen/_3sdp"
+                                                        android:textSize="@dimen/_10sdp"/>
+
+                                                    <TextView
+                                                        android:id="@+id/leave_date_week_calendar_sixth_day"
+                                                        android:layout_width="wrap_content"
+                                                        android:layout_height="wrap_content"
+                                                        android:background="@color/pencil_lead"
+                                                        android:text=""
+                                                        android:fontFamily="@font/archivo_bold"
+                                                        android:textColor="@color/white"
+                                                        android:padding="@dimen/_3sdp"
+                                                        android:textSize="@dimen/_7sdp"/>
+
+                                                </LinearLayout>
+
+                                                <LinearLayout
+                                                    android:layout_width="0dp"
+                                                    android:layout_height="match_parent"
+                                                    android:layout_weight="1.1"
+                                                    android:orientation="vertical"
+                                                    android:background="@color/pencil_lead"
+                                                    android:layout_marginStart="1dp">
+
+                                                    <TextView
+                                                        android:layout_width="wrap_content"
+                                                        android:layout_height="wrap_content"
+                                                        android:background="@color/pencil_lead"
+                                                        android:text="FRI"
+                                                        android:fontFamily="@font/patua_one"
+                                                        android:textColor="@color/white"
+                                                        android:gravity="center"
+                                                        android:padding="@dimen/_3sdp"
+                                                        android:textSize="@dimen/_10sdp"/>
+
+                                                    <TextView
+                                                        android:id="@+id/leave_date_week_calendar_seventh_day"
+                                                        android:layout_width="wrap_content"
+                                                        android:layout_height="wrap_content"
+                                                        android:background="@color/pencil_lead"
+                                                        android:text=""
+                                                        android:fontFamily="@font/archivo_bold"
+                                                        android:textColor="@color/white"
+                                                        android:padding="@dimen/_3sdp"
+                                                        android:textSize="@dimen/_7sdp"/>
+
+                                                </LinearLayout>
+
+                                            </LinearLayout>
+
+                                            <RelativeLayout
+                                                android:layout_width="match_parent"
+                                                android:layout_height="match_parent"
+                                                android:orientation="vertical">
+
+                                                <androidx.recyclerview.widget.RecyclerView
+                                                    android:id="@+id/leave_employees_list_view"
+                                                    android:layout_width="match_parent"
+                                                    android:layout_height="match_parent"
+                                                    android:scrollbars="none"
+                                                    android:descendantFocusability="beforeDescendants"
+                                                    android:focusable="true"
+                                                    android:focusableInTouchMode="true"/>
+
+
+                                            </RelativeLayout>
+
+                                            <TextView
+                                                android:id="@+id/no_leave_found_msg_leave_hrm_dashboard"
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:text="No one in Leave in this selected week"
+                                                android:gravity="center"
+                                                android:fontFamily="@font/poppins_medium"
+                                                android:layout_margin="5dp"
+                                                tools:ignore="HardcodedText" />
+
+                                            <androidx.cardview.widget.CardView
+                                                android:id="@+id/show_more_leave_details_button"
+                                                android:layout_width="match_parent"
+                                                android:layout_height="match_parent"
+                                                app:cardCornerRadius="@dimen/_8sdp"
+                                                android:layout_gravity="center"
+                                                android:layout_marginStart="@dimen/_4sdp"
+                                                android:layout_marginEnd="@dimen/_4sdp"
+                                                android:layout_marginTop="@dimen/_4sdp"
+                                                android:layout_marginBottom="@dimen/_4sdp"
+                                                app:cardElevation="@dimen/_2sdp"
+                                                android:foreground="?attr/selectableItemBackground"
+                                                app:cardBackgroundColor="@color/white">
+
+                                                <LinearLayout
+                                                    android:layout_width="match_parent"
+                                                    android:layout_height="match_parent"
                                                     android:layout_gravity="center"
-                                                    android:fontFamily="@font/poppins_bold"
-                                                    android:text="SHOW MORE -->"
-                                                    android:textColor="@color/light_green"
-                                                    android:textSize="@dimen/_9sdp"
-                                                    android:textStyle="bold" />
+                                                    android:gravity="center"
+                                                    android:orientation="horizontal"
+                                                    android:background="@drawable/border_design_2"
+                                                    tools:ignore="UseCompoundDrawables">
+
+                                                    <TextView
+                                                        android:layout_width="wrap_content"
+                                                        android:layout_height="wrap_content"
+                                                        android:layout_gravity="center"
+                                                        android:fontFamily="@font/poppins_bold"
+                                                        android:text="SHOW MORE -->"
+                                                        android:textColor="@color/light_green"
+                                                        android:textSize="@dimen/_9sdp"
+                                                        android:textStyle="bold" />
+
+                                                </LinearLayout>
+
+                                            </androidx.cardview.widget.CardView>
+
+                                        </LinearLayout>
+
+                                    </androidx.cardview.widget.CardView>
+
+                                </LinearLayout>
+
+                                <com.google.android.material.progressindicator.CircularProgressIndicator
+                                    android:id="@+id/progress_indicator_hr_dashboard_leave_list_tab_layout"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_margin="@dimen/_80sdp"
+                                    android:layout_centerVertical="true"
+                                    android:layout_centerHorizontal="true"
+                                    android:indeterminate="true"
+                                    android:layout_gravity="center"/>
+
+                                <ImageView
+                                    android:id="@+id/hr_dashboard_leave_list_tab_refresh_button"
+                                    android:layout_width="@dimen/_32sdp"
+                                    android:layout_height="@dimen/_32sdp"
+                                    android:layout_margin="@dimen/_80sdp"
+                                    android:layout_centerVertical="true"
+                                    android:layout_centerHorizontal="true"
+                                    android:src="@drawable/refresh_24"
+                                    tools:ignore="ContentDescription" />
+
+                            </RelativeLayout>
+
+                            <RelativeLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginTop="8dp"
+                                android:layout_marginBottom="8dp">
+
+                                <LinearLayout
+                                    android:id="@+id/pay_roll_dashboard_full_layout"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="match_parent"
+                                    android:layout_alignParentStart="true"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_alignParentTop="true"
+                                    android:orientation="vertical">
+
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="@dimen/_10sdp"
+                                        android:layout_marginStart="@dimen/_5sdp"
+                                        android:orientation="horizontal"
+                                        android:weightSum="10">
+
+                                        <TextView
+                                            android:layout_width="0dp"
+                                            android:layout_height="wrap_content"
+                                            android:layout_weight="4"
+                                            android:text="PAYROLL"
+                                            android:textSize="@dimen/_13sdp"
+                                            android:layout_marginTop="@dimen/_2sdp"
+                                            android:textColor="@color/blue_end"
+                                            android:fontFamily="@font/poppins_bold"
+                                            tools:ignore="HardcodedText" />
+
+                                        <LinearLayout
+                                            android:layout_width="0dp"
+                                            android:layout_height="wrap_content"
+                                            android:layout_weight="6"
+                                            android:gravity="end|center"
+                                            android:layout_gravity="center"
+                                            android:orientation="horizontal"
+                                            tools:ignore="UseCompoundDrawables">
+
+                                            <TextView
+                                                android:id="@+id/select_month_for_pay_roll_dashboard"
+                                                android:layout_width="wrap_content"
+                                                android:layout_height="wrap_content"
+                                                android:text="MONTH: NOV-22"
+                                                android:gravity="end"
+                                                android:textColor="@color/light_green"
+                                                android:layout_marginStart="10dp"
+                                                android:textStyle="bold"
+                                                android:layout_marginTop="@dimen/_2sdp"
+                                                android:textSize="@dimen/_10sdp"
+                                                android:fontFamily="@font/poppins_medium" />
+
+                                            <ImageView
+                                                android:layout_width="@dimen/_16sdp"
+                                                android:layout_height="@dimen/_16sdp"
+                                                android:src="@drawable/arrow_drop_down_24"
+                                                app:tint="@color/light_rose"
+                                                android:layout_marginEnd="10dp"
+                                                tools:ignore="ContentDescription" />
+
+                                            <TextView
+                                                android:id="@+id/total_working_days_for_payroll_dashboard"
+                                                android:layout_width="wrap_content"
+                                                android:layout_height="wrap_content"
+                                                android:text="WD: 25"
+                                                android:gravity="end"
+                                                android:textColor="@color/green_sea"
+                                                android:layout_marginStart="@dimen/_4sdp"
+                                                android:textStyle="bold"
+                                                android:layout_marginTop="@dimen/_2sdp"
+                                                android:layout_marginEnd="@dimen/_4sdp"
+                                                android:textSize="@dimen/_10sdp"
+                                                android:fontFamily="@font/poppins_medium" />
+
+                                        </LinearLayout>
+
+                                    </LinearLayout>
+
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:orientation="horizontal"
+                                        android:weightSum="1">
+
+                                        <androidx.cardview.widget.CardView
+                                            android:layout_width="0dp"
+                                            android:layout_height="100dp"
+                                            android:layout_marginStart="@dimen/_4sdp"
+                                            android:layout_marginTop="@dimen/_8sdp"
+                                            android:layout_marginEnd="2.5dp"
+                                            android:layout_weight=".5"
+                                            android:layout_marginBottom="@dimen/_4sdp"
+                                            app:cardBackgroundColor="@color/white"
+                                            app:cardCornerRadius="@dimen/_8sdp"
+                                            app:cardElevation="@dimen/_2sdp">
+
+                                            <LinearLayout
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:orientation="horizontal"
+                                                android:gravity="center_vertical"
+                                                android:weightSum="1"
+                                                android:layout_gravity="center"
+                                                android:baselineAligned="false">
+
+                                                <RelativeLayout
+                                                    android:layout_width="0dp"
+                                                    android:layout_height="wrap_content"
+                                                    android:layout_weight=".2"
+                                                    android:layout_margin="2dp">
+
+                                                    <ImageView
+                                                        android:layout_width="35dp"
+                                                        android:layout_height="35dp"
+                                                        android:layout_centerHorizontal="true"
+                                                        android:layout_centerVertical="true"
+                                                        android:src="@drawable/circle"
+                                                        app:tint="#47C198"/>
+
+                                                    <ImageView
+                                                        android:layout_width="20dp"
+                                                        android:layout_height="20dp"
+                                                        android:layout_centerVertical="true"
+                                                        android:layout_centerHorizontal="true"
+                                                        android:src="@drawable/moving_24"/>
+
+                                                </RelativeLayout>
+
+                                                <LinearLayout
+                                                    android:layout_width="0dp"
+                                                    android:layout_height="wrap_content"
+                                                    android:orientation="vertical"
+                                                    android:layout_weight=".8"
+                                                    android:layout_margin="2dp">
+
+                                                    <TextView
+                                                        android:layout_width="match_parent"
+                                                        android:layout_height="wrap_content"
+                                                        android:text="Working Hours"
+                                                        android:layout_marginStart="@dimen/_4sdp"
+                                                        android:layout_marginBottom="@dimen/_2sdp"
+                                                        android:fontFamily="@font/archivo_bold"
+                                                        android:textColor="@android:color/darker_gray"
+                                                        android:textStyle="bold"
+                                                        tools:ignore="HardcodedText" />
+
+                                                    <TextView
+                                                        android:id="@+id/working_hours_total_payroll_dashboard"
+                                                        android:layout_width="match_parent"
+                                                        android:layout_height="wrap_content"
+                                                        android:fontFamily="@font/robotomedium"
+                                                        android:text=""
+                                                        android:layout_marginStart="@dimen/_4sdp"
+                                                        android:layout_marginTop="@dimen/_2sdp"
+                                                        android:textColor="@color/black"
+                                                        android:textSize="@dimen/_12sdp"
+                                                        android:textStyle="bold" />
+
+                                                </LinearLayout>
+
+                                            </LinearLayout>
+
+                                        </androidx.cardview.widget.CardView>
+
+                                        <androidx.cardview.widget.CardView
+                                            android:layout_width="0dp"
+                                            android:layout_height="100dp"
+                                            android:layout_marginTop="@dimen/_8sdp"
+                                            android:layout_marginStart="2.5dp"
+                                            android:layout_marginEnd="@dimen/_4sdp"
+                                            android:layout_marginBottom="@dimen/_4sdp"
+                                            android:layout_weight=".5"
+                                            app:cardBackgroundColor="@color/white"
+                                            app:cardCornerRadius="@dimen/_8sdp"
+                                            app:cardElevation="@dimen/_2sdp">
+
+                                            <LinearLayout
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:orientation="horizontal"
+                                                android:gravity="center_vertical"
+                                                android:layout_gravity="center"
+                                                android:weightSum="1"
+                                                android:baselineAligned="false">
+
+                                                <RelativeLayout
+                                                    android:layout_width="0dp"
+                                                    android:layout_height="wrap_content"
+                                                    android:layout_weight=".2"
+                                                    android:layout_margin="2dp">
+
+                                                    <ImageView
+                                                        android:layout_width="35dp"
+                                                        android:layout_height="35dp"
+                                                        android:layout_centerHorizontal="true"
+                                                        android:layout_centerVertical="true"
+                                                        android:src="@drawable/circle"
+                                                        app:tint="#4A6DE5"/>
+
+                                                    <ImageView
+                                                        android:layout_width="20dp"
+                                                        android:layout_height="20dp"
+                                                        android:layout_centerVertical="true"
+                                                        android:layout_centerHorizontal="true"
+                                                        android:src="@drawable/moving_24"/>
+
+                                                </RelativeLayout>
+
+                                                <LinearLayout
+                                                    android:layout_width="0dp"
+                                                    android:layout_height="wrap_content"
+                                                    android:orientation="vertical"
+                                                    android:layout_weight=".8"
+                                                    android:layout_margin="2dp">
+
+                                                    <TextView
+                                                        android:layout_width="match_parent"
+                                                        android:layout_height="wrap_content"
+                                                        android:text="Salary Generated"
+                                                        android:layout_marginStart="@dimen/_4sdp"
+                                                        android:layout_marginBottom="@dimen/_2sdp"
+                                                        android:fontFamily="@font/archivo_bold"
+                                                        android:textColor="@android:color/darker_gray"
+                                                        android:textStyle="bold"
+                                                        tools:ignore="HardcodedText" />
+
+                                                    <TextView
+                                                        android:id="@+id/salary_gen_total_payroll_dashboard"
+                                                        android:layout_width="match_parent"
+                                                        android:layout_height="wrap_content"
+                                                        android:fontFamily="@font/robotomedium"
+                                                        android:text=""
+                                                        android:layout_marginStart="@dimen/_4sdp"
+                                                        android:layout_marginTop="@dimen/_2sdp"
+                                                        android:textColor="@color/black"
+                                                        android:textSize="@dimen/_12sdp"
+                                                        android:textStyle="bold" />
+
+                                                </LinearLayout>
 
                                             </LinearLayout>
 
@@ -769,659 +1051,385 @@
 
                                     </LinearLayout>
 
-                                </androidx.cardview.widget.CardView>
-
-                            </LinearLayout>
-
-                            <com.google.android.material.progressindicator.CircularProgressIndicator
-                                android:id="@+id/progress_indicator_hr_dashboard_leave_list_tab_layout"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_margin="@dimen/_80sdp"
-                                android:layout_centerVertical="true"
-                                android:layout_centerHorizontal="true"
-                                android:indeterminate="true"
-                                android:layout_gravity="center"/>
-
-                            <ImageView
-                                android:id="@+id/hr_dashboard_leave_list_tab_refresh_button"
-                                android:layout_width="@dimen/_32sdp"
-                                android:layout_height="@dimen/_32sdp"
-                                android:layout_margin="@dimen/_80sdp"
-                                android:layout_centerVertical="true"
-                                android:layout_centerHorizontal="true"
-                                android:src="@drawable/refresh_24"
-                                tools:ignore="ContentDescription" />
-
-                        </RelativeLayout>
-
-                        <RelativeLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginBottom="8dp">
-
-                            <LinearLayout
-                                android:id="@+id/pay_roll_dashboard_full_layout"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:layout_alignParentStart="true"
-                                android:layout_alignParentEnd="true"
-                                android:layout_alignParentTop="true"
-                                android:orientation="vertical">
-
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginTop="@dimen/_10sdp"
-                                    android:layout_marginStart="@dimen/_5sdp"
-                                    android:orientation="horizontal"
-                                    android:weightSum="10">
-
-                                    <TextView
-                                        android:layout_width="0dp"
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
-                                        android:layout_weight="4"
-                                        android:text="PAYROLL"
-                                        android:textSize="@dimen/_13sdp"
-                                        android:layout_marginTop="@dimen/_2sdp"
-                                        android:textColor="@color/blue_end"
-                                        android:fontFamily="@font/poppins_bold"
-                                        tools:ignore="HardcodedText" />
+                                        android:orientation="horizontal"
+                                        android:weightSum="1">
+
+                                        <androidx.cardview.widget.CardView
+                                            android:layout_width="0dp"
+                                            android:layout_height="100dp"
+                                            android:layout_marginStart="@dimen/_4sdp"
+                                            android:layout_marginTop="@dimen/_4sdp"
+                                            android:layout_marginEnd="2.5dp"
+                                            android:layout_weight=".5"
+                                            android:layout_marginBottom="@dimen/_4sdp"
+                                            app:cardBackgroundColor="@color/white"
+                                            app:cardCornerRadius="@dimen/_8sdp"
+                                            app:cardElevation="@dimen/_2sdp">
+
+                                            <LinearLayout
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:orientation="horizontal"
+                                                android:gravity="center_vertical"
+                                                android:layout_gravity="center"
+                                                android:weightSum="1"
+                                                android:baselineAligned="false">
+
+                                                <RelativeLayout
+                                                    android:layout_width="0dp"
+                                                    android:layout_height="wrap_content"
+                                                    android:layout_weight=".2"
+                                                    android:layout_margin="2dp">
+
+                                                    <ImageView
+                                                        android:layout_width="35dp"
+                                                        android:layout_height="35dp"
+                                                        android:layout_centerHorizontal="true"
+                                                        android:layout_centerVertical="true"
+                                                        android:src="@drawable/circle"
+                                                        app:tint="#ffc048"/>
+
+                                                    <ImageView
+                                                        android:layout_width="20dp"
+                                                        android:layout_height="20dp"
+                                                        android:layout_centerVertical="true"
+                                                        android:layout_centerHorizontal="true"
+                                                        android:src="@drawable/moving_24"/>
+
+                                                </RelativeLayout>
+
+                                                <LinearLayout
+                                                    android:layout_width="0dp"
+                                                    android:layout_height="wrap_content"
+                                                    android:orientation="vertical"
+                                                    android:layout_weight=".8"
+                                                    android:layout_margin="2dp">
+
+                                                    <TextView
+                                                        android:layout_width="match_parent"
+                                                        android:layout_height="wrap_content"
+                                                        android:text="Refundable"
+                                                        android:layout_marginStart="@dimen/_4sdp"
+                                                        android:layout_marginBottom="@dimen/_2sdp"
+                                                        android:fontFamily="@font/archivo_bold"
+                                                        android:textColor="@android:color/darker_gray"
+                                                        android:textStyle="bold"
+                                                        tools:ignore="HardcodedText"/>
+
+                                                    <TextView
+                                                        android:id="@+id/refundable_total_payroll_dashboard"
+                                                        android:layout_width="match_parent"
+                                                        android:layout_height="wrap_content"
+                                                        android:fontFamily="@font/robotomedium"
+                                                        android:text=""
+                                                        android:layout_marginStart="@dimen/_4sdp"
+                                                        android:layout_marginTop="@dimen/_2sdp"
+                                                        android:textColor="@color/black"
+                                                        android:textSize="@dimen/_12sdp"
+                                                        android:textStyle="bold" />
+
+                                                </LinearLayout>
+
+                                            </LinearLayout>
+
+                                        </androidx.cardview.widget.CardView>
+
+                                        <androidx.cardview.widget.CardView
+                                            android:layout_width="0dp"
+                                            android:layout_height="100dp"
+                                            android:layout_marginTop="@dimen/_4sdp"
+                                            android:layout_marginStart="2.5dp"
+                                            android:layout_marginEnd="@dimen/_4sdp"
+                                            android:layout_marginBottom="@dimen/_4sdp"
+                                            android:layout_weight=".5"
+                                            app:cardBackgroundColor="@color/white"
+                                            app:cardCornerRadius="@dimen/_8sdp"
+                                            app:cardElevation="@dimen/_2sdp">
+
+                                            <LinearLayout
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:orientation="horizontal"
+                                                android:gravity="center_vertical"
+                                                android:layout_gravity="center"
+                                                android:weightSum="1"
+                                                android:baselineAligned="false">
+
+                                                <RelativeLayout
+                                                    android:layout_width="0dp"
+                                                    android:layout_height="wrap_content"
+                                                    android:layout_weight=".2"
+                                                    android:layout_margin="2dp">
+
+                                                    <ImageView
+                                                        android:layout_width="35dp"
+                                                        android:layout_height="35dp"
+                                                        android:layout_centerHorizontal="true"
+                                                        android:layout_centerVertical="true"
+                                                        android:src="@drawable/circle"
+                                                        app:tint="#7F8FA6"/>
+
+                                                    <ImageView
+                                                        android:layout_width="20dp"
+                                                        android:layout_height="20dp"
+                                                        android:layout_centerVertical="true"
+                                                        android:layout_centerHorizontal="true"
+                                                        android:src="@drawable/moving_24"/>
+
+                                                </RelativeLayout>
+
+                                                <LinearLayout
+                                                    android:layout_width="0dp"
+                                                    android:layout_height="wrap_content"
+                                                    android:orientation="vertical"
+                                                    android:layout_weight=".8"
+                                                    android:layout_margin="2dp">
+
+                                                    <TextView
+                                                        android:layout_width="match_parent"
+                                                        android:layout_height="wrap_content"
+                                                        android:text="Total Allowance"
+                                                        android:layout_marginStart="@dimen/_4sdp"
+                                                        android:layout_marginBottom="@dimen/_2sdp"
+                                                        android:fontFamily="@font/archivo_bold"
+                                                        android:textColor="@android:color/darker_gray"
+                                                        android:textStyle="bold"
+                                                        tools:ignore="HardcodedText"/>
+
+                                                    <TextView
+                                                        android:id="@+id/allowance_total_payroll_dashboard"
+                                                        android:layout_width="match_parent"
+                                                        android:layout_height="wrap_content"
+                                                        android:fontFamily="@font/robotomedium"
+                                                        android:text=""
+                                                        android:layout_marginStart="@dimen/_4sdp"
+                                                        android:layout_marginTop="@dimen/_2sdp"
+                                                        android:textColor="@color/black"
+                                                        android:textSize="@dimen/_12sdp"
+                                                        android:textStyle="bold" />
+
+                                                </LinearLayout>
+
+                                            </LinearLayout>
+
+                                        </androidx.cardview.widget.CardView>
+
+                                    </LinearLayout>
 
                                     <LinearLayout
-                                        android:layout_width="0dp"
+                                        android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
-                                        android:layout_weight="6"
-                                        android:gravity="end|center"
-                                        android:layout_gravity="center"
                                         android:orientation="horizontal"
-                                        tools:ignore="UseCompoundDrawables">
+                                        android:weightSum="1">
 
-                                        <TextView
-                                            android:id="@+id/select_month_for_pay_roll_dashboard"
-                                            android:layout_width="wrap_content"
-                                            android:layout_height="wrap_content"
-                                            android:text="MONTH: NOV-22"
-                                            android:gravity="end"
-                                            android:textColor="@color/light_green"
-                                            android:layout_marginStart="10dp"
-                                            android:textStyle="bold"
-                                            android:layout_marginTop="@dimen/_2sdp"
-                                            android:textSize="@dimen/_10sdp"
-                                            android:fontFamily="@font/poppins_medium" />
-
-                                        <ImageView
-                                            android:layout_width="@dimen/_16sdp"
-                                            android:layout_height="@dimen/_16sdp"
-                                            android:src="@drawable/arrow_drop_down_24"
-                                            app:tint="@color/light_rose"
-                                            android:layout_marginEnd="10dp"
-                                            tools:ignore="ContentDescription" />
-
-                                        <TextView
-                                            android:id="@+id/total_working_days_for_payroll_dashboard"
-                                            android:layout_width="wrap_content"
-                                            android:layout_height="wrap_content"
-                                            android:text="WD: 25"
-                                            android:gravity="end"
-                                            android:textColor="@color/green_sea"
+                                        <androidx.cardview.widget.CardView
+                                            android:layout_width="0dp"
+                                            android:layout_height="100dp"
                                             android:layout_marginStart="@dimen/_4sdp"
-                                            android:textStyle="bold"
-                                            android:layout_marginTop="@dimen/_2sdp"
+                                            android:layout_marginTop="@dimen/_4sdp"
+                                            android:layout_marginEnd="2.5dp"
+                                            android:layout_weight=".5"
+                                            android:layout_marginBottom="@dimen/_4sdp"
+                                            app:cardBackgroundColor="@color/white"
+                                            app:cardCornerRadius="@dimen/_8sdp"
+                                            app:cardElevation="@dimen/_2sdp">
+
+                                            <LinearLayout
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:orientation="horizontal"
+                                                android:gravity="center_vertical"
+                                                android:layout_gravity="center"
+                                                android:weightSum="1"
+                                                android:baselineAligned="false">
+
+                                                <RelativeLayout
+                                                    android:layout_width="0dp"
+                                                    android:layout_height="wrap_content"
+                                                    android:layout_weight=".2"
+                                                    android:layout_margin="2dp">
+
+                                                    <ImageView
+                                                        android:layout_width="35dp"
+                                                        android:layout_height="35dp"
+                                                        android:layout_centerHorizontal="true"
+                                                        android:layout_centerVertical="true"
+                                                        android:src="@drawable/circle"
+                                                        app:tint="#CC66BE"/>
+
+                                                    <ImageView
+                                                        android:layout_width="20dp"
+                                                        android:layout_height="20dp"
+                                                        android:layout_centerVertical="true"
+                                                        android:layout_centerHorizontal="true"
+                                                        android:src="@drawable/moving_24"/>
+
+                                                </RelativeLayout>
+
+                                                <LinearLayout
+                                                    android:layout_width="0dp"
+                                                    android:layout_height="wrap_content"
+                                                    android:orientation="vertical"
+                                                    android:layout_weight=".8"
+                                                    android:layout_margin="2dp">
+
+                                                    <TextView
+                                                        android:layout_width="match_parent"
+                                                        android:layout_height="wrap_content"
+                                                        android:text="Deduction"
+                                                        android:layout_marginStart="@dimen/_4sdp"
+                                                        android:layout_marginBottom="@dimen/_2sdp"
+                                                        android:fontFamily="@font/archivo_bold"
+                                                        android:textColor="@android:color/darker_gray"
+                                                        android:textStyle="bold"
+                                                        tools:ignore="HardcodedText"/>
+
+                                                    <TextView
+                                                        android:id="@+id/deduction_total_payroll_dashboard"
+                                                        android:layout_width="match_parent"
+                                                        android:layout_height="wrap_content"
+                                                        android:fontFamily="@font/robotomedium"
+                                                        android:text=""
+                                                        android:layout_marginStart="@dimen/_4sdp"
+                                                        android:layout_marginTop="@dimen/_2sdp"
+                                                        android:textColor="@color/black"
+                                                        android:textSize="@dimen/_12sdp"
+                                                        android:textStyle="bold" />
+
+                                                </LinearLayout>
+
+                                            </LinearLayout>
+
+                                        </androidx.cardview.widget.CardView>
+
+                                        <androidx.cardview.widget.CardView
+                                            android:layout_width="0dp"
+                                            android:layout_height="100dp"
+                                            android:layout_marginTop="@dimen/_4sdp"
+                                            android:layout_marginStart="2.5dp"
                                             android:layout_marginEnd="@dimen/_4sdp"
-                                            android:textSize="@dimen/_10sdp"
-                                            android:fontFamily="@font/poppins_medium" />
+                                            android:layout_marginBottom="@dimen/_4sdp"
+                                            android:layout_weight=".5"
+                                            app:cardBackgroundColor="@color/white"
+                                            app:cardCornerRadius="@dimen/_8sdp"
+                                            app:cardElevation="@dimen/_2sdp">
+
+                                            <LinearLayout
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:orientation="horizontal"
+                                                android:gravity="center_vertical"
+                                                android:layout_gravity="center"
+                                                android:weightSum="1"
+                                                android:baselineAligned="false">
+
+                                                <RelativeLayout
+                                                    android:layout_width="0dp"
+                                                    android:layout_height="wrap_content"
+                                                    android:layout_weight=".2"
+                                                    android:layout_margin="2dp">
+
+                                                    <ImageView
+                                                        android:layout_width="35dp"
+                                                        android:layout_height="35dp"
+                                                        android:layout_centerHorizontal="true"
+                                                        android:layout_centerVertical="true"
+                                                        android:src="@drawable/circle"
+                                                        app:tint="#ff7979"/>
+
+                                                    <ImageView
+                                                        android:layout_width="20dp"
+                                                        android:layout_height="20dp"
+                                                        android:layout_centerVertical="true"
+                                                        android:layout_centerHorizontal="true"
+                                                        android:src="@drawable/moving_24"/>
+
+                                                </RelativeLayout>
+
+                                                <LinearLayout
+                                                    android:layout_width="0dp"
+                                                    android:layout_height="wrap_content"
+                                                    android:orientation="vertical"
+                                                    android:layout_weight=".8"
+                                                    android:layout_margin="2dp">
+
+                                                    <TextView
+                                                        android:layout_width="match_parent"
+                                                        android:layout_height="wrap_content"
+                                                        android:text="Net Salary"
+                                                        android:layout_marginStart="@dimen/_4sdp"
+                                                        android:layout_marginBottom="@dimen/_2sdp"
+                                                        android:fontFamily="@font/archivo_bold"
+                                                        android:textColor="@android:color/darker_gray"
+                                                        android:textStyle="bold"
+                                                        tools:ignore="HardcodedText"/>
+
+                                                    <TextView
+                                                        android:id="@+id/net_payable_total_payroll_dashboard"
+                                                        android:layout_width="match_parent"
+                                                        android:layout_height="wrap_content"
+                                                        android:fontFamily="@font/robotomedium"
+                                                        android:text=""
+                                                        android:layout_marginStart="@dimen/_4sdp"
+                                                        android:layout_marginTop="@dimen/_2sdp"
+                                                        android:textColor="@color/black"
+                                                        android:textSize="@dimen/_12sdp"
+                                                        android:textStyle="bold" />
+
+                                                </LinearLayout>
+
+                                            </LinearLayout>
+
+                                        </androidx.cardview.widget.CardView>
 
                                     </LinearLayout>
 
                                 </LinearLayout>
 
-                                <LinearLayout
-                                    android:layout_width="match_parent"
+                                <com.google.android.material.progressindicator.CircularProgressIndicator
+                                    android:id="@+id/progress_indicator_hr_dashboard_payroll_layout"
+                                    android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:orientation="horizontal"
-                                    android:weightSum="1">
+                                    android:layout_margin="@dimen/_80sdp"
+                                    android:layout_centerVertical="true"
+                                    android:layout_centerHorizontal="true"
+                                    android:indeterminate="true"
+                                    android:layout_gravity="center"/>
 
-                                    <androidx.cardview.widget.CardView
-                                        android:layout_width="0dp"
-                                        android:layout_height="100dp"
-                                        android:layout_marginStart="@dimen/_4sdp"
-                                        android:layout_marginTop="@dimen/_8sdp"
-                                        android:layout_marginEnd="2.5dp"
-                                        android:layout_weight=".5"
-                                        android:layout_marginBottom="@dimen/_4sdp"
-                                        app:cardBackgroundColor="@color/white"
-                                        app:cardCornerRadius="@dimen/_8sdp"
-                                        app:cardElevation="@dimen/_2sdp">
+                                <ImageView
+                                    android:id="@+id/hr_dashboard_payroll_refresh_button"
+                                    android:layout_width="@dimen/_32sdp"
+                                    android:layout_height="@dimen/_32sdp"
+                                    android:layout_margin="@dimen/_80sdp"
+                                    android:layout_centerVertical="true"
+                                    android:layout_centerHorizontal="true"
+                                    android:src="@drawable/refresh_24"
+                                    tools:ignore="ContentDescription" />
 
-                                        <LinearLayout
-                                            android:layout_width="match_parent"
-                                            android:layout_height="wrap_content"
-                                            android:orientation="horizontal"
-                                            android:gravity="center_vertical"
-                                            android:weightSum="1"
-                                            android:layout_gravity="center"
-                                            android:baselineAligned="false">
+                            </RelativeLayout>
 
-                                            <RelativeLayout
-                                                android:layout_width="0dp"
-                                                android:layout_height="wrap_content"
-                                                android:layout_weight=".2"
-                                                android:layout_margin="2dp">
+                        </LinearLayout>
 
-                                                <ImageView
-                                                    android:layout_width="35dp"
-                                                    android:layout_height="35dp"
-                                                    android:layout_centerHorizontal="true"
-                                                    android:layout_centerVertical="true"
-                                                    android:src="@drawable/circle"
-                                                    app:tint="#47C198"/>
+                    </ScrollView>
 
-                                                <ImageView
-                                                    android:layout_width="20dp"
-                                                    android:layout_height="20dp"
-                                                    android:layout_centerVertical="true"
-                                                    android:layout_centerHorizontal="true"
-                                                    android:src="@drawable/moving_24"/>
+                </com.google.android.material.card.MaterialCardView>
 
-                                            </RelativeLayout>
+            </LinearLayout>
 
-                                            <LinearLayout
-                                                android:layout_width="0dp"
-                                                android:layout_height="wrap_content"
-                                                android:orientation="vertical"
-                                                android:layout_weight=".8"
-                                                android:layout_margin="2dp">
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/progress_indicator_hr_dashboard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"
+                android:indeterminate="true"
+                android:layout_gravity="center"/>
 
-                                                <TextView
-                                                    android:layout_width="match_parent"
-                                                    android:layout_height="wrap_content"
-                                                    android:text="Working Hours"
-                                                    android:layout_marginStart="@dimen/_4sdp"
-                                                    android:layout_marginBottom="@dimen/_2sdp"
-                                                    android:fontFamily="@font/archivo_bold"
-                                                    android:textColor="@android:color/darker_gray"
-                                                    android:textStyle="bold"
-                                                    tools:ignore="HardcodedText" />
+        </RelativeLayout>
 
-                                                <TextView
-                                                    android:id="@+id/working_hours_total_payroll_dashboard"
-                                                    android:layout_width="match_parent"
-                                                    android:layout_height="wrap_content"
-                                                    android:fontFamily="@font/robotomedium"
-                                                    android:text=""
-                                                    android:layout_marginStart="@dimen/_4sdp"
-                                                    android:layout_marginTop="@dimen/_2sdp"
-                                                    android:textColor="@color/black"
-                                                    android:textSize="@dimen/_12sdp"
-                                                    android:textStyle="bold" />
+    </androidx.drawerlayout.widget.DrawerLayout>
 
-                                            </LinearLayout>
-
-                                        </LinearLayout>
-
-                                    </androidx.cardview.widget.CardView>
-
-                                    <androidx.cardview.widget.CardView
-                                        android:layout_width="0dp"
-                                        android:layout_height="100dp"
-                                        android:layout_marginTop="@dimen/_8sdp"
-                                        android:layout_marginStart="2.5dp"
-                                        android:layout_marginEnd="@dimen/_4sdp"
-                                        android:layout_marginBottom="@dimen/_4sdp"
-                                        android:layout_weight=".5"
-                                        app:cardBackgroundColor="@color/white"
-                                        app:cardCornerRadius="@dimen/_8sdp"
-                                        app:cardElevation="@dimen/_2sdp">
-
-                                        <LinearLayout
-                                            android:layout_width="match_parent"
-                                            android:layout_height="wrap_content"
-                                            android:orientation="horizontal"
-                                            android:gravity="center_vertical"
-                                            android:layout_gravity="center"
-                                            android:weightSum="1"
-                                            android:baselineAligned="false">
-
-                                            <RelativeLayout
-                                                android:layout_width="0dp"
-                                                android:layout_height="wrap_content"
-                                                android:layout_weight=".2"
-                                                android:layout_margin="2dp">
-
-                                                <ImageView
-                                                    android:layout_width="35dp"
-                                                    android:layout_height="35dp"
-                                                    android:layout_centerHorizontal="true"
-                                                    android:layout_centerVertical="true"
-                                                    android:src="@drawable/circle"
-                                                    app:tint="#4A6DE5"/>
-
-                                                <ImageView
-                                                    android:layout_width="20dp"
-                                                    android:layout_height="20dp"
-                                                    android:layout_centerVertical="true"
-                                                    android:layout_centerHorizontal="true"
-                                                    android:src="@drawable/moving_24"/>
-
-                                            </RelativeLayout>
-
-                                            <LinearLayout
-                                                android:layout_width="0dp"
-                                                android:layout_height="wrap_content"
-                                                android:orientation="vertical"
-                                                android:layout_weight=".8"
-                                                android:layout_margin="2dp">
-
-                                                <TextView
-                                                    android:layout_width="match_parent"
-                                                    android:layout_height="wrap_content"
-                                                    android:text="Salary Generated"
-                                                    android:layout_marginStart="@dimen/_4sdp"
-                                                    android:layout_marginBottom="@dimen/_2sdp"
-                                                    android:fontFamily="@font/archivo_bold"
-                                                    android:textColor="@android:color/darker_gray"
-                                                    android:textStyle="bold"
-                                                    tools:ignore="HardcodedText" />
-
-                                                <TextView
-                                                    android:id="@+id/salary_gen_total_payroll_dashboard"
-                                                    android:layout_width="match_parent"
-                                                    android:layout_height="wrap_content"
-                                                    android:fontFamily="@font/robotomedium"
-                                                    android:text=""
-                                                    android:layout_marginStart="@dimen/_4sdp"
-                                                    android:layout_marginTop="@dimen/_2sdp"
-                                                    android:textColor="@color/black"
-                                                    android:textSize="@dimen/_12sdp"
-                                                    android:textStyle="bold" />
-
-                                            </LinearLayout>
-
-                                        </LinearLayout>
-
-                                    </androidx.cardview.widget.CardView>
-
-                                </LinearLayout>
-
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal"
-                                    android:weightSum="1">
-
-                                    <androidx.cardview.widget.CardView
-                                        android:layout_width="0dp"
-                                        android:layout_height="100dp"
-                                        android:layout_marginStart="@dimen/_4sdp"
-                                        android:layout_marginTop="@dimen/_4sdp"
-                                        android:layout_marginEnd="2.5dp"
-                                        android:layout_weight=".5"
-                                        android:layout_marginBottom="@dimen/_4sdp"
-                                        app:cardBackgroundColor="@color/white"
-                                        app:cardCornerRadius="@dimen/_8sdp"
-                                        app:cardElevation="@dimen/_2sdp">
-
-                                        <LinearLayout
-                                            android:layout_width="match_parent"
-                                            android:layout_height="wrap_content"
-                                            android:orientation="horizontal"
-                                            android:gravity="center_vertical"
-                                            android:layout_gravity="center"
-                                            android:weightSum="1"
-                                            android:baselineAligned="false">
-
-                                            <RelativeLayout
-                                                android:layout_width="0dp"
-                                                android:layout_height="wrap_content"
-                                                android:layout_weight=".2"
-                                                android:layout_margin="2dp">
-
-                                                <ImageView
-                                                    android:layout_width="35dp"
-                                                    android:layout_height="35dp"
-                                                    android:layout_centerHorizontal="true"
-                                                    android:layout_centerVertical="true"
-                                                    android:src="@drawable/circle"
-                                                    app:tint="#ffc048"/>
-
-                                                <ImageView
-                                                    android:layout_width="20dp"
-                                                    android:layout_height="20dp"
-                                                    android:layout_centerVertical="true"
-                                                    android:layout_centerHorizontal="true"
-                                                    android:src="@drawable/moving_24"/>
-
-                                            </RelativeLayout>
-
-                                            <LinearLayout
-                                                android:layout_width="0dp"
-                                                android:layout_height="wrap_content"
-                                                android:orientation="vertical"
-                                                android:layout_weight=".8"
-                                                android:layout_margin="2dp">
-
-                                                <TextView
-                                                    android:layout_width="match_parent"
-                                                    android:layout_height="wrap_content"
-                                                    android:text="Refundable"
-                                                    android:layout_marginStart="@dimen/_4sdp"
-                                                    android:layout_marginBottom="@dimen/_2sdp"
-                                                    android:fontFamily="@font/archivo_bold"
-                                                    android:textColor="@android:color/darker_gray"
-                                                    android:textStyle="bold"
-                                                    tools:ignore="HardcodedText"/>
-
-                                                <TextView
-                                                    android:id="@+id/refundable_total_payroll_dashboard"
-                                                    android:layout_width="match_parent"
-                                                    android:layout_height="wrap_content"
-                                                    android:fontFamily="@font/robotomedium"
-                                                    android:text=""
-                                                    android:layout_marginStart="@dimen/_4sdp"
-                                                    android:layout_marginTop="@dimen/_2sdp"
-                                                    android:textColor="@color/black"
-                                                    android:textSize="@dimen/_12sdp"
-                                                    android:textStyle="bold" />
-
-                                            </LinearLayout>
-
-                                        </LinearLayout>
-
-                                    </androidx.cardview.widget.CardView>
-
-                                    <androidx.cardview.widget.CardView
-                                        android:layout_width="0dp"
-                                        android:layout_height="100dp"
-                                        android:layout_marginTop="@dimen/_4sdp"
-                                        android:layout_marginStart="2.5dp"
-                                        android:layout_marginEnd="@dimen/_4sdp"
-                                        android:layout_marginBottom="@dimen/_4sdp"
-                                        android:layout_weight=".5"
-                                        app:cardBackgroundColor="@color/white"
-                                        app:cardCornerRadius="@dimen/_8sdp"
-                                        app:cardElevation="@dimen/_2sdp">
-
-                                        <LinearLayout
-                                            android:layout_width="match_parent"
-                                            android:layout_height="wrap_content"
-                                            android:orientation="horizontal"
-                                            android:gravity="center_vertical"
-                                            android:layout_gravity="center"
-                                            android:weightSum="1"
-                                            android:baselineAligned="false">
-
-                                            <RelativeLayout
-                                                android:layout_width="0dp"
-                                                android:layout_height="wrap_content"
-                                                android:layout_weight=".2"
-                                                android:layout_margin="2dp">
-
-                                                <ImageView
-                                                    android:layout_width="35dp"
-                                                    android:layout_height="35dp"
-                                                    android:layout_centerHorizontal="true"
-                                                    android:layout_centerVertical="true"
-                                                    android:src="@drawable/circle"
-                                                    app:tint="#7F8FA6"/>
-
-                                                <ImageView
-                                                    android:layout_width="20dp"
-                                                    android:layout_height="20dp"
-                                                    android:layout_centerVertical="true"
-                                                    android:layout_centerHorizontal="true"
-                                                    android:src="@drawable/moving_24"/>
-
-                                            </RelativeLayout>
-
-                                            <LinearLayout
-                                                android:layout_width="0dp"
-                                                android:layout_height="wrap_content"
-                                                android:orientation="vertical"
-                                                android:layout_weight=".8"
-                                                android:layout_margin="2dp">
-
-                                                <TextView
-                                                    android:layout_width="match_parent"
-                                                    android:layout_height="wrap_content"
-                                                    android:text="Total Allowance"
-                                                    android:layout_marginStart="@dimen/_4sdp"
-                                                    android:layout_marginBottom="@dimen/_2sdp"
-                                                    android:fontFamily="@font/archivo_bold"
-                                                    android:textColor="@android:color/darker_gray"
-                                                    android:textStyle="bold"
-                                                    tools:ignore="HardcodedText"/>
-
-                                                <TextView
-                                                    android:id="@+id/allowance_total_payroll_dashboard"
-                                                    android:layout_width="match_parent"
-                                                    android:layout_height="wrap_content"
-                                                    android:fontFamily="@font/robotomedium"
-                                                    android:text=""
-                                                    android:layout_marginStart="@dimen/_4sdp"
-                                                    android:layout_marginTop="@dimen/_2sdp"
-                                                    android:textColor="@color/black"
-                                                    android:textSize="@dimen/_12sdp"
-                                                    android:textStyle="bold" />
-
-                                            </LinearLayout>
-
-                                        </LinearLayout>
-
-                                    </androidx.cardview.widget.CardView>
-
-                                </LinearLayout>
-
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal"
-                                    android:weightSum="1">
-
-                                    <androidx.cardview.widget.CardView
-                                        android:layout_width="0dp"
-                                        android:layout_height="100dp"
-                                        android:layout_marginStart="@dimen/_4sdp"
-                                        android:layout_marginTop="@dimen/_4sdp"
-                                        android:layout_marginEnd="2.5dp"
-                                        android:layout_weight=".5"
-                                        android:layout_marginBottom="@dimen/_4sdp"
-                                        app:cardBackgroundColor="@color/white"
-                                        app:cardCornerRadius="@dimen/_8sdp"
-                                        app:cardElevation="@dimen/_2sdp">
-
-                                        <LinearLayout
-                                            android:layout_width="match_parent"
-                                            android:layout_height="wrap_content"
-                                            android:orientation="horizontal"
-                                            android:gravity="center_vertical"
-                                            android:layout_gravity="center"
-                                            android:weightSum="1"
-                                            android:baselineAligned="false">
-
-                                            <RelativeLayout
-                                                android:layout_width="0dp"
-                                                android:layout_height="wrap_content"
-                                                android:layout_weight=".2"
-                                                android:layout_margin="2dp">
-
-                                                <ImageView
-                                                    android:layout_width="35dp"
-                                                    android:layout_height="35dp"
-                                                    android:layout_centerHorizontal="true"
-                                                    android:layout_centerVertical="true"
-                                                    android:src="@drawable/circle"
-                                                    app:tint="#CC66BE"/>
-
-                                                <ImageView
-                                                    android:layout_width="20dp"
-                                                    android:layout_height="20dp"
-                                                    android:layout_centerVertical="true"
-                                                    android:layout_centerHorizontal="true"
-                                                    android:src="@drawable/moving_24"/>
-
-                                            </RelativeLayout>
-
-                                            <LinearLayout
-                                                android:layout_width="0dp"
-                                                android:layout_height="wrap_content"
-                                                android:orientation="vertical"
-                                                android:layout_weight=".8"
-                                                android:layout_margin="2dp">
-
-                                                <TextView
-                                                    android:layout_width="match_parent"
-                                                    android:layout_height="wrap_content"
-                                                    android:text="Deduction"
-                                                    android:layout_marginStart="@dimen/_4sdp"
-                                                    android:layout_marginBottom="@dimen/_2sdp"
-                                                    android:fontFamily="@font/archivo_bold"
-                                                    android:textColor="@android:color/darker_gray"
-                                                    android:textStyle="bold"
-                                                    tools:ignore="HardcodedText"/>
-
-                                                <TextView
-                                                    android:id="@+id/deduction_total_payroll_dashboard"
-                                                    android:layout_width="match_parent"
-                                                    android:layout_height="wrap_content"
-                                                    android:fontFamily="@font/robotomedium"
-                                                    android:text=""
-                                                    android:layout_marginStart="@dimen/_4sdp"
-                                                    android:layout_marginTop="@dimen/_2sdp"
-                                                    android:textColor="@color/black"
-                                                    android:textSize="@dimen/_12sdp"
-                                                    android:textStyle="bold" />
-
-                                            </LinearLayout>
-
-                                        </LinearLayout>
-
-                                    </androidx.cardview.widget.CardView>
-
-                                    <androidx.cardview.widget.CardView
-                                        android:layout_width="0dp"
-                                        android:layout_height="100dp"
-                                        android:layout_marginTop="@dimen/_4sdp"
-                                        android:layout_marginStart="2.5dp"
-                                        android:layout_marginEnd="@dimen/_4sdp"
-                                        android:layout_marginBottom="@dimen/_4sdp"
-                                        android:layout_weight=".5"
-                                        app:cardBackgroundColor="@color/white"
-                                        app:cardCornerRadius="@dimen/_8sdp"
-                                        app:cardElevation="@dimen/_2sdp">
-
-                                        <LinearLayout
-                                            android:layout_width="match_parent"
-                                            android:layout_height="wrap_content"
-                                            android:orientation="horizontal"
-                                            android:gravity="center_vertical"
-                                            android:layout_gravity="center"
-                                            android:weightSum="1"
-                                            android:baselineAligned="false">
-
-                                            <RelativeLayout
-                                                android:layout_width="0dp"
-                                                android:layout_height="wrap_content"
-                                                android:layout_weight=".2"
-                                                android:layout_margin="2dp">
-
-                                                <ImageView
-                                                    android:layout_width="35dp"
-                                                    android:layout_height="35dp"
-                                                    android:layout_centerHorizontal="true"
-                                                    android:layout_centerVertical="true"
-                                                    android:src="@drawable/circle"
-                                                    app:tint="#ff7979"/>
-
-                                                <ImageView
-                                                    android:layout_width="20dp"
-                                                    android:layout_height="20dp"
-                                                    android:layout_centerVertical="true"
-                                                    android:layout_centerHorizontal="true"
-                                                    android:src="@drawable/moving_24"/>
-
-                                            </RelativeLayout>
-
-                                            <LinearLayout
-                                                android:layout_width="0dp"
-                                                android:layout_height="wrap_content"
-                                                android:orientation="vertical"
-                                                android:layout_weight=".8"
-                                                android:layout_margin="2dp">
-
-                                                <TextView
-                                                    android:layout_width="match_parent"
-                                                    android:layout_height="wrap_content"
-                                                    android:text="Net Salary"
-                                                    android:layout_marginStart="@dimen/_4sdp"
-                                                    android:layout_marginBottom="@dimen/_2sdp"
-                                                    android:fontFamily="@font/archivo_bold"
-                                                    android:textColor="@android:color/darker_gray"
-                                                    android:textStyle="bold"
-                                                    tools:ignore="HardcodedText"/>
-
-                                                <TextView
-                                                    android:id="@+id/net_payable_total_payroll_dashboard"
-                                                    android:layout_width="match_parent"
-                                                    android:layout_height="wrap_content"
-                                                    android:fontFamily="@font/robotomedium"
-                                                    android:text=""
-                                                    android:layout_marginStart="@dimen/_4sdp"
-                                                    android:layout_marginTop="@dimen/_2sdp"
-                                                    android:textColor="@color/black"
-                                                    android:textSize="@dimen/_12sdp"
-                                                    android:textStyle="bold" />
-
-                                            </LinearLayout>
-
-                                        </LinearLayout>
-
-                                    </androidx.cardview.widget.CardView>
-
-                                </LinearLayout>
-
-                            </LinearLayout>
-
-                            <com.google.android.material.progressindicator.CircularProgressIndicator
-                                android:id="@+id/progress_indicator_hr_dashboard_payroll_layout"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_margin="@dimen/_80sdp"
-                                android:layout_centerVertical="true"
-                                android:layout_centerHorizontal="true"
-                                android:indeterminate="true"
-                                android:layout_gravity="center"/>
-
-                            <ImageView
-                                android:id="@+id/hr_dashboard_payroll_refresh_button"
-                                android:layout_width="@dimen/_32sdp"
-                                android:layout_height="@dimen/_32sdp"
-                                android:layout_margin="@dimen/_80sdp"
-                                android:layout_centerVertical="true"
-                                android:layout_centerHorizontal="true"
-                                android:src="@drawable/refresh_24"
-                                tools:ignore="ContentDescription" />
-
-                        </RelativeLayout>
-
-                    </LinearLayout>
-
-                </ScrollView>
-
-            </com.google.android.material.card.MaterialCardView>
-
-        </LinearLayout>
-
-        <com.google.android.material.progressindicator.CircularProgressIndicator
-            android:id="@+id/progress_indicator_hr_dashboard"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"
-            android:indeterminate="true"
-            android:layout_gravity="center"/>
-
-    </RelativeLayout>
-
-</androidx.drawerlayout.widget.DrawerLayout>
+</LinearLayout>

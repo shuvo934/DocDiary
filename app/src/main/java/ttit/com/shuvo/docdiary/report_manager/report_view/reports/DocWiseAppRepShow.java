@@ -3,6 +3,7 @@ package ttit.com.shuvo.docdiary.report_manager.report_view.reports;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -16,6 +17,11 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -79,16 +85,30 @@ public class DocWiseAppRepShow extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Window window = getWindow();
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        window.setStatusBarColor(ContextCompat.getColor(DocWiseAppRepShow.this,R.color.clouds));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) { // Android 14 (API 34) or Android 15 (API 35)
+            WindowCompat.setDecorFitsSystemWindows(window, false);
+            window.setStatusBarColor(ContextCompat.getColor(this, R.color.clouds));
+            WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(window, window.getDecorView());
+            controller.setAppearanceLightStatusBars(true);
+            controller.setAppearanceLightNavigationBars(false);
+        } else {
+            // Safe legacy approach for Android < 14
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(ContextCompat.getColor(this, R.color.clouds));
+        }
         setContentView(R.layout.activity_doc_wise_app_rep_show);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.doc_app_rep_root), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
 
         close = findViewById(R.id.close_logo_of_doc_wise_app_app_made_report_show);
         appbarName = findViewById(R.id.doc_wise_app_app_made_report_show_app_bar_text);
         pdfShow = findViewById(R.id.doc_wise_app_pdf_report_show_report);
 
-        if (pre_url_api.contains("cstar")) {
+        if (pre_url_api.contains("cstar") || pre_url_api.contains("btrf")) {
             pdfShow.setVisibility(View.VISIBLE);
         }
         else {

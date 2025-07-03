@@ -5,6 +5,9 @@ import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -140,7 +143,11 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pat_prescription_v);
-
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.pat_presc_v_root), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
         fullLayoutPatPSV = findViewById(R.id.pat_prescription_v_full_layout);
         circularProgressIndicatorPatPSV = findViewById(R.id.progress_indicator_pat_prescription_v);
         circularProgressIndicatorPatPSV.setVisibility(View.GONE);

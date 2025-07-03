@@ -4,6 +4,9 @@ import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -82,6 +85,11 @@ public class PatAppointmentCalendar extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pat_appointment_calendar);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.pat_app_calendar_root), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
         backButton = findViewById(R.id.back_logo_of_pat_appointment_cal);
         calendarView = findViewById(R.id.calendarView_pat_appointment_cal);
         patientName = findViewById(R.id.pat_appointment_cal_patient_name);

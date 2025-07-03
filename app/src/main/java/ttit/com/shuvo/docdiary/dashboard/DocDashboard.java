@@ -10,6 +10,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -289,10 +294,24 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Window window = getWindow();
-        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        window.setStatusBarColor(ContextCompat.getColor(DocDashboard.this,R.color.clouds));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) { // Android 14 (API 34) or Android 15 (API 35)
+            WindowCompat.setDecorFitsSystemWindows(window, false);
+            window.setStatusBarColor(ContextCompat.getColor(this, R.color.clouds));
+            WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(window, window.getDecorView());
+            controller.setAppearanceLightStatusBars(true);
+            controller.setAppearanceLightNavigationBars(false);
+        } else {
+            // Safe legacy approach for Android < 14
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(ContextCompat.getColor(this, R.color.clouds));
+        }
         setContentView(R.layout.activity_doc_dashboard);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.dashboard_root), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
 
         reviewManager = ReviewManagerFactory.create(this);
         fullLayout = findViewById(R.id.doc_dashboard_full_layout);
@@ -3289,10 +3308,12 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                 .equals("null") ? "0" :adminInfo.getString("acc_dashboard");
                         String hr_acc_active_flag = adminInfo.getString("hr_acc_active_flag")
                                 .equals("null") ? "0" :adminInfo.getString("hr_acc_active_flag");
+                        String is_pay_mode_active = adminInfo.getString("is_pay_mode_active")
+                                .equals("null") ? "0" :adminInfo.getString("is_pay_mode_active");
 
                         adminInfoLists.add(new AdminInfoList(admin_usr_id, usr_name,usr_fname,usr_lname,
                                 usr_email,usr_contact,all_access_flag, admin_center_name, hr_payment_active, hr_appointment_active,
-                                acc_payment_active,acc_appointment_active,hr_dashboard,acc_dashboard,hr_acc_active_flag));
+                                acc_payment_active,acc_appointment_active,hr_dashboard,acc_dashboard,hr_acc_active_flag, is_pay_mode_active));
 
                         if (Integer.parseInt(all_access_flag) == 1) {
                             admin_usr_name = "";

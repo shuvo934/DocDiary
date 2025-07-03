@@ -16,11 +16,12 @@ public class AdminInfoList {
     private String hr_dashboard;
     private String acc_dashboard;
     private String hr_acc_active_flag;
+    private String is_pay_mode_active;
 
     public AdminInfoList(String usr_id, String usr_name, String usr_fname, String usr_lname, String usr_email,
                          String usr_contact, String all_access_flag, String admin_center_name, String hr_payment_active,
                          String hr_appointment_active, String acc_payment_active, String acc_appointment_active,
-                         String hr_dashboard, String acc_dashboard, String hr_acc_active_flag) {
+                         String hr_dashboard, String acc_dashboard, String hr_acc_active_flag, String is_pay_mode_active) {
         this.usr_id = usr_id;
         this.usr_name = usr_name;
         this.usr_fname = usr_fname;
@@ -36,6 +37,7 @@ public class AdminInfoList {
         this.hr_dashboard = hr_dashboard;
         this.acc_dashboard = acc_dashboard;
         this.hr_acc_active_flag = hr_acc_active_flag;
+        this.is_pay_mode_active = is_pay_mode_active;
     }
 
     public String getUsr_id() {
@@ -156,5 +158,13 @@ public class AdminInfoList {
 
     public void setHr_acc_active_flag(String hr_acc_active_flag) {
         this.hr_acc_active_flag = hr_acc_active_flag;
+    }
+
+    public String getIs_pay_mode_active() {
+        return is_pay_mode_active;
+    }
+
+    public void setIs_pay_mode_active(String is_pay_mode_active) {
+        this.is_pay_mode_active = is_pay_mode_active;
     }
 }

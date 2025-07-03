@@ -21,6 +21,9 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -130,6 +133,11 @@ public class AttendanceUpdateReqApproval extends AppCompatActivity implements At
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_attendance_update_req_approval);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.att_up_req_apr_root), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
 
         fullLayout = findViewById(R.id.att_up_approval_full_layout);
         circularProgressIndicator = findViewById(R.id.progress_indicator_att_up_approval);

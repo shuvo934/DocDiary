@@ -7,6 +7,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.cardview.widget.CardView;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -163,6 +166,7 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
     String out_prm_id = "";
     String out_prm_code = "";
     int previousTabPosition = 0;
+    String isPayMode = "";
 
     Logger logger = Logger.getLogger(AddPayment.class.getName());
     
@@ -170,6 +174,11 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_payment);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.add_pay_root), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
         fullLayout = findViewById(R.id.add_payment_full_layout);
         circularProgressIndicator = findViewById(R.id.progress_indicator_add_payment);
         circularProgressIndicator.setVisibility(View.GONE);
@@ -246,6 +255,7 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
                 restart("Could Not Get Doctor Data. Please Restart the App.");
             }
             else {
+                isPayMode = adminInfoLists.get(0).getIs_pay_mode_active();
                 if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) == 1) {
                     usr_name = "";
                     int ct = paymentTab.getTabCount();
@@ -512,7 +522,7 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
 
         addPayment.setOnClickListener(v -> {
             if (!addedServiceLists.isEmpty()) {
-                if (pre_url_api.contains("cstar")) {
+                if (isPayMode.equals("1")) {
                     selectedPaymentMethodLists = new ArrayList<>();
                     ArrayList<ServiceAmountIdList> serviceAmountIdLists = new ArrayList<>();
                     String service_amount_pay = "";
@@ -555,7 +565,7 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
 
         updatePayment.setOnClickListener(v -> {
             if (!updatedServiceLists.isEmpty()) {
-                if (pre_url_api.contains("cstar")) {
+                if (isPayMode.equals("1")) {
                     ArrayList<ServiceAmountIdList> serviceAmountIdLists = new ArrayList<>();
                     String service_amount_pay = "";
                     double sva = 0.0;
@@ -820,7 +830,7 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
                 headers.put("P_PRM_USER", adminInfoLists.get(0).getUsr_name());
                 headers.put("P_INSERT_TYPE_FLAG","3");
                 double paid_amnt = 0.0;
-                if (pre_url_api.contains("cstar")) {
+                if (isPayMode.equals("1")) {
                     for (int i = 0; i < selectedPaymentMethodLists.size(); i++) {
                         paid_amnt = paid_amnt + Double.parseDouble(selectedPaymentMethodLists.get(i).getMethod_amount());
                     }
@@ -857,7 +867,7 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
         if (allUpdated) {
             conn = true;
             connected = true;
-            if (pre_url_api.contains("cstar")) {
+            if (isPayMode.equals("1")) {
                 checkToInsertPaymentMethod();
             }
             else {
@@ -1274,7 +1284,7 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
                     }
                 }
 
-                if (pre_url_api.contains("cstar")) {
+                if (isPayMode.equals("1")) {
                     requestQueue.add(paymentModeReq);
                 }
                 else {
@@ -1424,7 +1434,7 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
         if (allUpdated) {
             conn = true;
             connected = true;
-            if (pre_url_api.contains("cstar")) {
+            if (isPayMode.equals("1")) {
                 checkToUpdatePaymentMethod();
             }
             else {

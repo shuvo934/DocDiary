@@ -4,6 +4,9 @@ import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -28,6 +31,11 @@ public class ReportManager extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_report_manager);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.report_manager_root), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
 
         backButton = findViewById(R.id.back_logo_of_report_manager);
         paymentRcvReport = findViewById(R.id.payment_rcv_report_card_view);
@@ -68,7 +76,7 @@ public class ReportManager extends AppCompatActivity {
             startActivity(intent);
         });
 
-        if (pre_url_api.contains("cstar")) {
+        if (pre_url_api.contains("cstar") || pre_url_api.contains("btrf")) {
             paymentRcvRgReport.setVisibility(View.VISIBLE);
         }
         else {

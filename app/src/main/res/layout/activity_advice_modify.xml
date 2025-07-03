@@ -4,7 +4,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/adv_mod_root"
+    android:background="@color/clouds"
     tools:context=".appt_schedule.prescription.fragments.addinfo.AdviceModify">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
+        android:background="@color/white">
+
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/pat_advice_modify_full_layout"
@@ -14,6 +27,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="true"
+        android:background="@color/white"
         android:orientation="vertical">
 
         <RelativeLayout

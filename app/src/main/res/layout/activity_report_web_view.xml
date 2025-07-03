@@ -2,8 +2,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rep_web_view_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/clouds"
     tools:context=".report_manager.report_view.reports.web_view.ReportWebView">
 
     <RelativeLayout

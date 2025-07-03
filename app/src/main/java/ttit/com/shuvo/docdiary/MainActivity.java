@@ -2,6 +2,7 @@ package ttit.com.shuvo.docdiary;
 
 import static com.google.android.play.core.install.model.AppUpdateType.IMMEDIATE;
 
+import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -21,9 +22,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -65,44 +63,78 @@ public class MainActivity extends AppCompatActivity {
                     });
 
     private ActivityResultLauncher<String> cameraPermResultLauncher;
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            hideSystemUI();
-        }
-    }
 
-    private void hideSystemUI() {
-        // Enables regular immersive mode.
-        // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
-        // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-        View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_IMMERSIVE
-                        // Set the content to appear under the system bars so that the
-                        // content doesn't resize when the system bars hide and show.
-                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        // Hide the nav bar and status bar
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
-    }
-
-    private void showSystemUI() {
-        View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-    }
+    private final ActivityResultLauncher<String[]> storageResultLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
+                System.out.println("OnActivityResult: " +result);
+                boolean allGranted = true;
+                for (String key: result.keySet()) {
+                    allGranted = allGranted && Boolean.TRUE.equals(result.get(key));
+                }
+                if (allGranted) {
+                    System.out.println("HOLA1");
+                    enableCameraPermission();
+                }
+                else {
+//            if (Build.VERSION.SDK_INT < 33) {
+//                if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+//                        || !ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+//                    showDialog("Storage Permission!", "This app needs the storage permission to function. Please Allow that permission from settings.", "Go to Settings", (dialogInterface, i) -> {
+//                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:"+ getPackageName()));
+//                        startActivity(intent);
+//                        perm = true;
+//                    });
+//                }
+//                else {
+//                    System.out.println("HOLA2");
+//                    enableFileAccess();
+//                }
+//            }
+//            else if (Build.VERSION.SDK_INT == 33) {
+//                if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_MEDIA_IMAGES)) {
+//                    showDialog("Photos and Videos Permission!", "This app needs the photos and videos permission to function. Please Allow that permission from settings.", "Go to Settings", (dialogInterface, i) -> {
+//                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:"+ getPackageName()));
+//                        startActivity(intent);
+//                        perm = true;
+//                    });
+//                }
+//                else {
+//                    System.out.println("HOLA3");
+//                    enableFileAccess();
+//                }
+//            }
+//            else {
+//                if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_MEDIA_IMAGES)) {
+//                    showDialog("Photos and Videos Permission!", "This app needs the photos and videos permission to function. Don't Select Limited Access. Please Allow all from permission settings.", "Go to Settings", (dialogInterface, i) -> {
+//                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:"+ getPackageName()));
+//                        startActivity(intent);
+//                        perm = true;
+//                    });
+//                }
+//                else {
+//                    System.out.println("HOLA4");
+//                    enableFileAccess();
+//                }
+//            }
+                    if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                            || !ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        showDialog("Storage Permission!", "This app needs the storage permission to function. Please Allow that permission from settings.", "Go to Settings", (dialogInterface, i) -> {
+                            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:"+ getPackageName()));
+                            startActivity(intent);
+                            perm = true;
+                        });
+                    }
+                    else {
+                        System.out.println("HOLA2");
+                        enableFileAccess();
+                    }
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
         appUpdateManager = AppUpdateManagerFactory.create(MainActivity.this);
         sharedPreferences = getSharedPreferences(LOGIN_ACTIVITY_FILE, MODE_PRIVATE);
@@ -192,7 +224,6 @@ public class MainActivity extends AppCompatActivity {
                 intent = new Intent(MainActivity.this, DocLogin.class);
             }
             startActivity(intent);
-            showSystemUI();
             finish();
         }, 1000);
     }
@@ -225,10 +256,8 @@ public class MainActivity extends AppCompatActivity {
                         || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
 
                     Log.i("Ekhane", "3");
-                    showDialog("Storage Permission!", "This app needs the storage permission for functioning.", "OK", (dialogInterface, i) -> {
-                        storageResultLauncher.launch(new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                                android.Manifest.permission.WRITE_EXTERNAL_STORAGE});
-                    });
+                    showDialog("Storage Permission!", "This app needs the storage permission for functioning.", "OK", (dialogInterface, i) -> storageResultLauncher.launch(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE}));
                 }
                 else {
                     Log.i("Ekhane", "4");
@@ -290,73 +319,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private final ActivityResultLauncher<String[]> storageResultLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
-        System.out.println("OnActivityResult: " +result);
-        boolean allGranted = true;
-        for (String key: result.keySet()) {
-            allGranted = allGranted && result.get(key);
-        }
-        if (allGranted) {
-            System.out.println("HOLA1");
-            enableCameraPermission();
-        }
-        else {
-//            if (Build.VERSION.SDK_INT < 33) {
-//                if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-//                        || !ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-//                    showDialog("Storage Permission!", "This app needs the storage permission to function. Please Allow that permission from settings.", "Go to Settings", (dialogInterface, i) -> {
-//                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:"+ getPackageName()));
-//                        startActivity(intent);
-//                        perm = true;
-//                    });
-//                }
-//                else {
-//                    System.out.println("HOLA2");
-//                    enableFileAccess();
-//                }
-//            }
-//            else if (Build.VERSION.SDK_INT == 33) {
-//                if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_MEDIA_IMAGES)) {
-//                    showDialog("Photos and Videos Permission!", "This app needs the photos and videos permission to function. Please Allow that permission from settings.", "Go to Settings", (dialogInterface, i) -> {
-//                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:"+ getPackageName()));
-//                        startActivity(intent);
-//                        perm = true;
-//                    });
-//                }
-//                else {
-//                    System.out.println("HOLA3");
-//                    enableFileAccess();
-//                }
-//            }
-//            else {
-//                if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_MEDIA_IMAGES)) {
-//                    showDialog("Photos and Videos Permission!", "This app needs the photos and videos permission to function. Don't Select Limited Access. Please Allow all from permission settings.", "Go to Settings", (dialogInterface, i) -> {
-//                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:"+ getPackageName()));
-//                        startActivity(intent);
-//                        perm = true;
-//                    });
-//                }
-//                else {
-//                    System.out.println("HOLA4");
-//                    enableFileAccess();
-//                }
-//            }
-            if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                    || !ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                showDialog("Storage Permission!", "This app needs the storage permission to function. Please Allow that permission from settings.", "Go to Settings", (dialogInterface, i) -> {
-                    Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:"+ getPackageName()));
-                    startActivity(intent);
-                    perm = true;
-                });
-            }
-            else {
-                System.out.println("HOLA2");
-                enableFileAccess();
-            }
-        }
-    });
-
     private void enableCameraPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -368,9 +330,7 @@ public class MainActivity extends AppCompatActivity {
             Log.i("Ekhane", "14");
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
                 Log.i("Ekhane", "15");
-                showDialog("Camera Permission!", "This app needs the Camera permission for functioning.", "OK", (dialogInterface, i) -> {
-                    cameraPermResultLauncher.launch(Manifest.permission.CAMERA);
-                });
+                showDialog("Camera Permission!", "This app needs the Camera permission for functioning.", "OK", (dialogInterface, i) -> cameraPermResultLauncher.launch(Manifest.permission.CAMERA));
             }
             else {
                 Log.i("Ekhane", "16");
