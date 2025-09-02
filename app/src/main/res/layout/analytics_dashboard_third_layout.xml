@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/_8sdp"
+    android:layout_marginBottom="@dimen/_4sdp"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        android:id="@+id/onl_pat_portal_pay_status_text_altd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ONLINE PAYMENT STATUS"
+        android:gravity="center"
+        android:textSize="@dimen/_11sdp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:textColor="@color/green_sea"
+        android:fontFamily="@font/poppins_bold"
+        android:layout_marginTop="@dimen/_4sdp"
+        android:layout_marginStart="@dimen/_5sdp"
+        android:layout_marginEnd="@dimen/_5sdp"
+        tools:ignore="HardcodedText" />
+
+    <LinearLayout
+        android:id="@+id/onl_pat_portal_pay_status_full_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/onl_pat_portal_pay_status_text_altd"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:id="@+id/date_range_text_onl_pat_portal_pay_altd_lay"
+            android:layout_width="match_parent"
+            android:foreground="?attr/selectableItemBackground"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/date_range_text_onl_pat_portal_pay_altd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_6sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:fontFamily="@font/archivo_bold"
+                android:layout_centerVertical="true"
+                android:layout_alignParentStart="true"
+                android:text=""
+                android:textColor="@color/default_text_color"
+                android:textSize="@dimen/_12sdp"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:layout_centerVertical="true"
+                app:tint="@color/green_sea"
+                android:layout_toEndOf="@+id/date_range_text_onl_pat_portal_pay_altd"
+                android:src="@drawable/arrow_drop_down_24"
+                tools:ignore="ContentDescription" />
+
+        </RelativeLayout>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardBackgroundColor="@color/white"
+            app:cardElevation="@dimen/_2sdp"
+            android:layout_margin="@dimen/_4sdp"
+            app:cardCornerRadius="@dimen/_8sdp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/design_new_4"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="TOTAL PAYMENT INITIALIZE"
+                    android:fontFamily="@font/poppins_bold"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:layout_marginTop="@dimen/_5sdp"
+                    android:textSize="@dimen/_11sdp"
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:id="@+id/total_pay_init_count_alt_dash"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:fontFamily="@font/baloo"
+                    android:gravity="center|top"
+                    android:text=""
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_25sdp" />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="15"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:orientation="horizontal">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="0dp"
+                android:layout_weight="5"
+                android:layout_height="match_parent"
+                app:cardBackgroundColor="@color/white"
+                app:cardElevation="@dimen/_2sdp"
+                android:layout_margin="@dimen/_4sdp"
+                app:cardCornerRadius="@dimen/_8sdp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/design_new"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="COMPLETED"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:textSize="@dimen/_10sdp"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/total_pay_complete_count_alt_dash"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:fontFamily="@font/baloo"
+                        android:gravity="center|top"
+                        android:text=""
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/_25sdp" />
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="0dp"
+                android:layout_weight="5"
+                android:layout_height="match_parent"
+                app:cardBackgroundColor="@color/disabled"
+                app:cardElevation="@dimen/_2sdp"
+                android:layout_margin="@dimen/_4sdp"
+                app:cardCornerRadius="@dimen/_8sdp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/design_new_3"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="FAILED"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:textSize="@dimen/_10sdp"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/total_pay_failed_count_alt_dash"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text=""
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/_25sdp"
+                        android:gravity="center|top"
+                        android:layout_gravity="center"
+                        android:fontFamily="@font/baloo"/>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="0dp"
+                android:layout_weight="5"
+                android:layout_height="match_parent"
+                app:cardBackgroundColor="@color/disabled"
+                app:cardElevation="@dimen/_2sdp"
+                android:layout_margin="@dimen/_4sdp"
+                app:cardCornerRadius="@dimen/_8sdp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/border_design_1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="NO RESULT"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:textSize="@dimen/_10sdp"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/total_pay_not_init_count_alt_dash"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text=""
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/_25sdp"
+                        android:gravity="center|top"
+                        android:layout_gravity="center"
+                        android:fontFamily="@font/baloo"/>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_230sdp"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginStart="3dp"
+            android:layout_marginEnd="3dp"
+            android:layout_marginBottom="5dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/white"
+            app:cardCornerRadius="10dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/pay_initialize_status_overview_linechart"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginBottom="@dimen/_4sdp"
+                    android:layout_marginStart="@dimen/_2sdp"
+                    android:layout_marginEnd="@dimen/_2sdp" />
+
+            </RelativeLayout>
+
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progress_indicator_onl_pat_pay_init_stat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/_80sdp"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:indeterminate="true"
+        android:layout_gravity="center"/>
+
+    <ImageView
+        android:id="@+id/onl_pat_pay_init_stat_chart_refresh_button"
+        android:layout_width="@dimen/_32sdp"
+        android:layout_height="@dimen/_32sdp"
+        android:layout_margin="@dimen/_80sdp"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/refresh_24"
+        tools:ignore="ContentDescription" />
+
+</RelativeLayout>

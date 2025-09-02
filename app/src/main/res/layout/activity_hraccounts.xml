@@ -28,6 +28,7 @@
             tools:ignore="ContentDescription" />
 
         <TextView
+            android:id="@+id/hr_acc_alt_bar_name_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
@@ -178,17 +179,64 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/_8sdp"
-                        android:weightSum="1"
                         android:layout_gravity="center"
                         android:gravity="center"
                         android:orientation="horizontal">
+
+                        <com.google.android.material.card.MaterialCardView
+                            android:id="@+id/analytics_menu"
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/_100sdp"
+                            app:cardCornerRadius="@dimen/_8sdp"
+                            android:layout_weight=".5"
+                            android:layout_marginTop="@dimen/_12sdp"
+                            android:layout_marginBottom="@dimen/_12sdp"
+                            android:layout_marginStart="@dimen/_8sdp"
+                            android:layout_marginEnd="@dimen/_8sdp"
+                            app:cardElevation="@dimen/_5sdp"
+                            android:layout_gravity="center"
+                            app:cardBackgroundColor="@color/white">
+
+                            <ImageView
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:src="@drawable/data_analytics"
+                                app:tint="@color/light_green"
+                                android:layout_marginTop="@dimen/_8sdp"
+                                android:layout_marginBottom="@dimen/_8sdp"
+                                android:alpha=".07"/>
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:layout_gravity="center"
+                                android:background="@drawable/border_design_2"
+                                android:orientation="vertical">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="@dimen/_4sdp"
+                                    android:layout_marginEnd="@dimen/_4sdp"
+                                    android:padding="@dimen/_12sdp"
+                                    android:fontFamily="@font/poppins_bold"
+                                    android:gravity="center"
+                                    android:text="Analytics Dashboard"
+                                    android:textColor="@color/green_sea"
+                                    android:textSize="@dimen/_11sdp"
+                                    tools:ignore="HardcodedText" />
+
+                            </LinearLayout>
+
+                        </com.google.android.material.card.MaterialCardView>
 
                         <com.google.android.material.card.MaterialCardView
                             android:id="@+id/report_menu"
                             android:layout_width="0dp"
                             android:layout_height="@dimen/_100sdp"
                             app:cardCornerRadius="@dimen/_8sdp"
-                            android:layout_weight="1"
+                            android:layout_weight=".5"
                             android:layout_marginTop="@dimen/_12sdp"
                             android:layout_marginBottom="@dimen/_12sdp"
                             android:layout_marginStart="@dimen/_8sdp"

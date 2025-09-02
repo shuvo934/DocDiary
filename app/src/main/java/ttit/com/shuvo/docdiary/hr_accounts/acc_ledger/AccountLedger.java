@@ -181,8 +181,8 @@ public class AccountLedger extends AppCompatActivity {
 
         // Getting Date
         Date c = Calendar.getInstance().getTime();
-        SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yy", Locale.getDefault());
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM-yy",Locale.getDefault());
+        SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM-yy",Locale.ENGLISH);
 
         if (firstDate.isEmpty()) {
             firstDate = simpleDateFormat.format(c);
@@ -262,7 +262,7 @@ public class AccountLedger extends AppCompatActivity {
                         Date bDate = null;
                         Date eDate = null;
 
-                        SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy", Locale.getDefault());
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
 
                         try {
                             bDate = sdf.parse(firstDate);
@@ -364,7 +364,7 @@ public class AccountLedger extends AppCompatActivity {
                         Date bDate = null;
                         Date eDate = null;
 
-                        SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy", Locale.getDefault());
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
 
                         try {
                             bDate = sdf.parse(firstDate);

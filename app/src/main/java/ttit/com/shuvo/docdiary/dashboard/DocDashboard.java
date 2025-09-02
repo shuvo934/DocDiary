@@ -43,6 +43,7 @@ import android.widget.Toast;
 
 import com.androchef.happytimer.countdowntimer.HappyTimer;
 import com.androchef.happytimer.countdowntimer.NormalCountDownView;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -63,6 +64,7 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
@@ -256,6 +258,15 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     LinearLayout chartTabFullLayout;
     int chartTabPosition = 0;
 
+    LinearLayout payAppointmentTypeLay;
+    MaterialCardView allPayAppCard;
+    TextView allPayAppText;
+    MaterialCardView offlinePayAppCard;
+    TextView offPayAppText;
+    MaterialCardView onlinePayAppCard;
+    TextView onPayAppText;
+    int pay_app_type = 0;
+
     LineChart paymentChart;
     ArrayList<PaymentChartList> paymentChartLists;
     LinearLayout monthSelectionLayPayment;
@@ -285,6 +296,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     CircularProgressIndicator appointChartCircularProgressIndicator;
     ImageView appointChartRefresh;
     AlertDialog yearDialogAppoint;
+
     Logger logger = Logger.getLogger(DocDashboard.class.getName());
     Bitmap selectedBitmap;
     ReviewManager reviewManager;
@@ -365,6 +377,14 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         chartTabFullLayout = findViewById(R.id.month_year_app_pay_tab_selected_full_layout);
         chartTabRefresh = findViewById(R.id.chart_tab_refresh_button);
         chartTabRefresh.setVisibility(View.GONE);
+
+        payAppointmentTypeLay = findViewById(R.id.layout_of_type_of_pay_appoint);
+        allPayAppCard = findViewById(R.id.all_type_pay_appoint_data);
+        allPayAppText = findViewById(R.id.all_type_pay_app_text);
+        offlinePayAppCard = findViewById(R.id.offline_pay_appoint_data);
+        offPayAppText = findViewById(R.id.offline_pay_app_text);
+        onlinePayAppCard = findViewById(R.id.online_pay_appoint_data);
+        onPayAppText = findViewById(R.id.online_pay_app_text);
 
         monthSelectionLayPayment = findViewById(R.id.month_selection_layout_for_payment_graph);
         monthSelectionPayment = findViewById(R.id.select_month_for_payment_graph);
@@ -582,7 +602,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 }
                 else {
                     if (tab.getPosition() == 0) {
-                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM-yy",Locale.getDefault());
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM-yy",Locale.ENGLISH);
                         monthSelectionLayPayment.setVisibility(View.VISIBLE);
                         yearSelectionLayPayment.setVisibility(View.GONE);
                         monthSelectionLayAppoint.setVisibility(View.VISIBLE);
@@ -595,7 +615,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                         monthSelectionAppoint.setText(ms);
 
                         Date c = Calendar.getInstance().getTime();
-                        SimpleDateFormat format = new SimpleDateFormat("MMM-yy",Locale.getDefault());
+                        SimpleDateFormat format = new SimpleDateFormat("MMM-yy",Locale.ENGLISH);
 
                         String normalDate = format.format(c);
                         paymentChartFirstDate = "01-"+normalDate;
@@ -608,7 +628,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                         calendar1.add(Calendar.DATE, -1);
                         Date lastDayOfMonth = calendar1.getTime();
 
-                        SimpleDateFormat sdff = new SimpleDateFormat("dd",Locale.getDefault());
+                        SimpleDateFormat sdff = new SimpleDateFormat("dd",Locale.ENGLISH);
                         String llll = sdff.format(lastDayOfMonth);
                         paymentChartLastDate =  llll+ "-" + normalDate;
                         appointChartLastDate =  llll+ "-" + normalDate;
@@ -617,7 +637,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                         getChartData();
                     }
                     else {
-                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy",Locale.getDefault());
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy",Locale.ENGLISH);
                         monthSelectionLayPayment.setVisibility(View.GONE);
                         yearSelectionLayPayment.setVisibility(View.VISIBLE);
                         monthSelectionLayAppoint.setVisibility(View.GONE);
@@ -652,6 +672,51 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 if (!chartTabUpdateNeeded) {
                     chartTabUpdateNeeded = true;
                 }
+            }
+        });
+
+        allPayAppCard.setOnClickListener(v -> {
+            allPayAppCard.setCardBackgroundColor(getColor(R.color.green_sea));
+            allPayAppText.setTextColor(getColor(R.color.white));
+
+            offlinePayAppCard.setCardBackgroundColor(getColor(R.color.primaryColor_alpha));
+            offPayAppText.setTextColor(getColor(R.color.green_sea));
+
+            onlinePayAppCard.setCardBackgroundColor(getColor(R.color.primaryColor_alpha));
+            onPayAppText.setTextColor(getColor(R.color.green_sea));
+            if (pay_app_type != 0) {
+                pay_app_type = 0;
+                chartTabDataInit();
+            }
+        });
+
+        offlinePayAppCard.setOnClickListener(v -> {
+            allPayAppCard.setCardBackgroundColor(getColor(R.color.primaryColor_alpha));
+            allPayAppText.setTextColor(getColor(R.color.green_sea));
+
+            offlinePayAppCard.setCardBackgroundColor(getColor(R.color.green_sea));
+            offPayAppText.setTextColor(getColor(R.color.white));
+
+            onlinePayAppCard.setCardBackgroundColor(getColor(R.color.primaryColor_alpha));
+            onPayAppText.setTextColor(getColor(R.color.green_sea));
+            if (pay_app_type != 1) {
+                pay_app_type = 1;
+                chartTabDataInit();
+            }
+        });
+
+        onlinePayAppCard.setOnClickListener(v -> {
+            allPayAppCard.setCardBackgroundColor(getColor(R.color.primaryColor_alpha));
+            allPayAppText.setTextColor(getColor(R.color.green_sea));
+
+            offlinePayAppCard.setCardBackgroundColor(getColor(R.color.primaryColor_alpha));
+            offPayAppText.setTextColor(getColor(R.color.green_sea));
+
+            onlinePayAppCard.setCardBackgroundColor(getColor(R.color.green_sea));
+            onPayAppText.setTextColor(getColor(R.color.white));
+            if (pay_app_type != 2) {
+                pay_app_type = 2;
+                chartTabDataInit();
             }
         });
 
@@ -1222,6 +1287,65 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         initData();
     }
 
+    private void chartTabDataInit() {
+        SimpleDateFormat simpleDateFormat;
+        if (chartTabPosition == 0) {
+            simpleDateFormat = new SimpleDateFormat("MMM-yy", Locale.ENGLISH);
+            monthSelectionLayPayment.setVisibility(View.VISIBLE);
+            yearSelectionLayPayment.setVisibility(View.GONE);
+            monthSelectionLayAppoint.setVisibility(View.VISIBLE);
+            yearSelectionLayAppoint.setVisibility(View.GONE);
+            Date dd = Calendar.getInstance().getTime();
+            String mo_name = simpleDateFormat.format(dd);
+            mo_name = mo_name.toUpperCase(Locale.ENGLISH);
+            String ms = "MONTH: " + mo_name;
+            monthSelectionPayment.setText(ms);
+            monthSelectionAppoint.setText(ms);
+
+            Date c = Calendar.getInstance().getTime();
+            SimpleDateFormat format = new SimpleDateFormat("MMM-yy",Locale.ENGLISH);
+
+            String normalDate = format.format(c);
+            paymentChartFirstDate = "01-"+normalDate;
+            appointChartFirstDate = "01-"+normalDate;
+
+            Calendar calendar1 = Calendar.getInstance();
+
+            calendar1.set(Calendar.DAY_OF_MONTH, 1);
+            calendar1.add(Calendar.MONTH, 1);
+            calendar1.add(Calendar.DATE, -1);
+            Date lastDayOfMonth = calendar1.getTime();
+
+            SimpleDateFormat sdff = new SimpleDateFormat("dd",Locale.ENGLISH);
+            String llll = sdff.format(lastDayOfMonth);
+            paymentChartLastDate =  llll+ "-" + normalDate;
+            appointChartLastDate =  llll+ "-" + normalDate;
+
+        }
+        else {
+            simpleDateFormat = new SimpleDateFormat("yyyy", Locale.ENGLISH);
+            monthSelectionLayPayment.setVisibility(View.GONE);
+            yearSelectionLayPayment.setVisibility(View.VISIBLE);
+            monthSelectionLayAppoint.setVisibility(View.GONE);
+            yearSelectionLayAppoint.setVisibility(View.VISIBLE);
+            Date dd = Calendar.getInstance().getTime();
+            String mo_name = simpleDateFormat.format(dd);
+            mo_name = mo_name.toUpperCase(Locale.ENGLISH);
+            String ms = "YEAR: " + mo_name;
+            yearSelectionPayment.setText(ms);
+            yearSelectionAppoint.setText(ms);
+
+            String short_year = mo_name.substring(mo_name.length()-2);
+
+            paymentChartFirstDate = "01-JAN-"+short_year;
+            paymentChartLastDate = "31-DEC-"+short_year;
+            appointChartFirstDate = "01-JAN-"+short_year;
+            appointChartLastDate = "31-DEC-"+short_year;
+
+        }
+        getChartData();
+    }
+
     ActivityResultLauncher<PickVisualMediaRequest> pickMedia =
             registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
                 if (uri != null) {
@@ -1636,6 +1760,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                             tabRefresh.setVisibility(View.GONE);
                             graphicalViewLayout.setVisibility(View.GONE);
                             chartTabCircularProgressIndicator.setVisibility(View.GONE);
+                            pay_app_type = 0;
                             conn = false;
                             connected = false;
                             getAdminDashboardData();
@@ -3257,6 +3382,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         admin_fl_flag = "0";
         mob_app_access_flag = "0";
         adminAvailable = false;
+        pay_app_type = 0;
 
         String adminDataUrl = pre_url_api+"doc_dashboard/getAdminData?p_usr_id="+admin_usr_id;
 //        String flagUpdateUrl = pre_url_api+"login/updateAdminFLFlag";
@@ -3310,10 +3436,15 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                 .equals("null") ? "0" :adminInfo.getString("hr_acc_active_flag");
                         String is_pay_mode_active = adminInfo.getString("is_pay_mode_active")
                                 .equals("null") ? "0" :adminInfo.getString("is_pay_mode_active");
+                        String is_pay_appoint_type_active = adminInfo.getString("is_pay_appoint_type_active")
+                                .equals("null") ? "0" :adminInfo.getString("is_pay_appoint_type_active");
+                        String analytics_dashboard = adminInfo.getString("analytics_dashboard")
+                                .equals("null") ? "0" :adminInfo.getString("analytics_dashboard");
 
                         adminInfoLists.add(new AdminInfoList(admin_usr_id, usr_name,usr_fname,usr_lname,
                                 usr_email,usr_contact,all_access_flag, admin_center_name, hr_payment_active, hr_appointment_active,
-                                acc_payment_active,acc_appointment_active,hr_dashboard,acc_dashboard,hr_acc_active_flag, is_pay_mode_active));
+                                acc_payment_active,acc_appointment_active,hr_dashboard,acc_dashboard,hr_acc_active_flag, is_pay_mode_active,
+                                is_pay_appoint_type_active, analytics_dashboard));
 
                         if (Integer.parseInt(all_access_flag) == 1) {
                             admin_usr_name = "";
@@ -3401,6 +3532,11 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 //            requestQueue.add(adminDataReq);
 //            System.out.println("USER NOT SWITCHED");
 //        }
+        adminDataReq.setRetryPolicy(new DefaultRetryPolicy(
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 10,
+                0,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        ));
         requestQueue.add(adminDataReq);
     }
 
@@ -3466,7 +3602,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
     public void getAdminDashboardData() {
         Date c = Calendar.getInstance().getTime();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM-yy",Locale.getDefault());
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM-yy",Locale.ENGLISH);
 
         String normalDate = simpleDateFormat.format(c);
         String firstDate = "01-"+normalDate;
@@ -3478,7 +3614,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         calendar1.add(Calendar.DATE, -1);
         Date lastDayOfMonth = calendar1.getTime();
 
-        SimpleDateFormat sdff = new SimpleDateFormat("dd",Locale.getDefault());
+        SimpleDateFormat sdff = new SimpleDateFormat("dd",Locale.ENGLISH);
         String llll = sdff.format(lastDayOfMonth);
         String lastDate =  llll+ "-" + normalDate;
 
@@ -3723,6 +3859,30 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             }
         });
 
+        adminPicReq.setRetryPolicy(new DefaultRetryPolicy(
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 10,
+                0,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        ));
+
+        appointChartMonthReq.setRetryPolicy(new DefaultRetryPolicy(
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 10,
+                0,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        ));
+
+        payChartMonthReq.setRetryPolicy(new DefaultRetryPolicy(
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 10,
+                0,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        ));
+
+        adminPayAppReq.setRetryPolicy(new DefaultRetryPolicy(
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 10,
+                0,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        ));
+
         requestQueue.add(adminPayAppReq);
     }
 
@@ -3786,6 +3946,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                             tabLayout.setVisibility(View.VISIBLE);
                             tabRefresh.setVisibility(View.GONE);
                             graphicalViewLayout.setVisibility(View.VISIBLE);
+                            payAppointmentTypeLay.setVisibility(View.GONE);
                             chartTabLayout.setVisibility(View.VISIBLE);
                             chartTabFullLayout.setVisibility(View.VISIBLE);
                             chartTabRefresh.setVisibility(View.GONE);
@@ -3853,7 +4014,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                         bottomNavigationView.getMenu().findItem(R.id.admin_payment_menu).setVisible(true);
                                         bottomNavigationView.getMenu().findItem(R.id.admin_appointment_schedule_menu).setVisible(true);
                                         if (adminInfoLists.get(0).getHr_acc_active_flag().equals("1")) {
-                                            bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("HR & Accounts");
+                                            bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("Management Portal");
                                         }
                                         else {
                                             bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("Reports");
@@ -3863,6 +4024,13 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                         bottomNavigationView.getMenu().findItem(R.id.admin_payment_menu).setVisible(true);
                                         bottomNavigationView.getMenu().findItem(R.id.admin_appointment_schedule_menu).setVisible(true);
                                         bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("Reports");
+                                    }
+
+                                    if (Integer.parseInt(adminInfoLists.get(0).getIs_pay_appoint_type_active()) == 1) {
+                                        payAppointmentTypeLay.setVisibility(View.VISIBLE);
+                                    }
+                                    else {
+                                        payAppointmentTypeLay.setVisibility(View.GONE);
                                     }
                                 }
                             }
@@ -3916,7 +4084,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                             chartTabUpdateNeeded = false;
                             chartTabLayout.selectTab(chartTabAt);
 
-                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM-yy",Locale.getDefault());
+                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM-yy",Locale.ENGLISH);
                             monthSelectionLayPayment.setVisibility(View.VISIBLE);
                             yearSelectionLayPayment.setVisibility(View.GONE);
                             graphPaymentTotalLay.setVisibility(View.VISIBLE);
@@ -3925,6 +4093,15 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                             mo_name = mo_name.toUpperCase(Locale.ENGLISH);
                             String ms = "MONTH: " + mo_name;
                             monthSelectionPayment.setText(ms);
+
+                            allPayAppCard.setCardBackgroundColor(getColor(R.color.green_sea));
+                            allPayAppText.setTextColor(getColor(R.color.white));
+
+                            offlinePayAppCard.setCardBackgroundColor(getColor(R.color.primaryColor_alpha));
+                            offPayAppText.setTextColor(getColor(R.color.green_sea));
+
+                            onlinePayAppCard.setCardBackgroundColor(getColor(R.color.primaryColor_alpha));
+                            onPayAppText.setTextColor(getColor(R.color.green_sea));
 
                             // chart
                             MyMarkerView mv = new MyMarkerView(getApplicationContext(), R.layout.custom_marker_view);
@@ -4227,6 +4404,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 tabLayout.setVisibility(View.VISIBLE);
                 tabRefresh.setVisibility(View.GONE);
                 graphicalViewLayout.setVisibility(View.VISIBLE);
+                payAppointmentTypeLay.setVisibility(View.GONE);
                 chartTabLayout.setVisibility(View.VISIBLE);
                 chartTabFullLayout.setVisibility(View.VISIBLE);
                 chartTabRefresh.setVisibility(View.GONE);
@@ -4287,7 +4465,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                 chartTabPosition = 0;
 
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM-yy",Locale.getDefault());
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM-yy",Locale.ENGLISH);
                 monthSelectionLayPayment.setVisibility(View.VISIBLE);
                 yearSelectionLayPayment.setVisibility(View.GONE);
                 graphPaymentTotalLay.setVisibility(View.VISIBLE);
@@ -4296,6 +4474,32 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 mo_name = mo_name.toUpperCase(Locale.ENGLISH);
                 String ms = "MONTH: " + mo_name;
                 monthSelectionPayment.setText(ms);
+
+                if (adminInfoLists == null) {
+                    restart("Could Not Get Doctor Data. Please Restart the App.");
+                }
+                else {
+                    if (adminInfoLists.isEmpty()) {
+                        restart("Could Not Get Doctor Data. Please Restart the App.");
+                    }
+                    else {
+                        if (Integer.parseInt(adminInfoLists.get(0).getIs_pay_appoint_type_active()) == 1) {
+                            payAppointmentTypeLay.setVisibility(View.VISIBLE);
+                        }
+                        else {
+                            payAppointmentTypeLay.setVisibility(View.GONE);
+                        }
+                    }
+                }
+
+                allPayAppCard.setCardBackgroundColor(getColor(R.color.green_sea));
+                allPayAppText.setTextColor(getColor(R.color.white));
+
+                offlinePayAppCard.setCardBackgroundColor(getColor(R.color.primaryColor_alpha));
+                offPayAppText.setTextColor(getColor(R.color.green_sea));
+
+                onlinePayAppCard.setCardBackgroundColor(getColor(R.color.primaryColor_alpha));
+                onPayAppText.setTextColor(getColor(R.color.green_sea));
 
                 // chart
                 MyMarkerView mv = new MyMarkerView(getApplicationContext(), R.layout.custom_marker_view);
@@ -4503,6 +4707,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     tabRefresh.setVisibility(View.GONE);
                     graphicalViewLayout.setVisibility(View.GONE);
                     chartTabCircularProgressIndicator.setVisibility(View.GONE);
+                    pay_app_type = 0;
                     conn = false;
                     connected = false;
                     loading = true;
@@ -4575,6 +4780,12 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             parsing_message = error.getLocalizedMessage();
             updateTabLayoutAdmin();
         });
+
+        adminPayAppReq.setRetryPolicy(new DefaultRetryPolicy(
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 10,
+                0,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        ));
 
         requestQueue.add(adminPayAppReq);
     }
@@ -4668,6 +4879,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
     public void getChartData() {
         chartTabFullLayout.setVisibility(View.GONE);
+        payAppointmentTypeLay.setVisibility(View.GONE);
         chartTabCircularProgressIndicator.setVisibility(View.VISIBLE);
         chartTabLayout.setVisibility(View.GONE);
         chartTabRefresh.setVisibility(View.GONE);
@@ -4709,8 +4921,22 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         RequestQueue requestQueue = Volley.newRequestQueue(DocDashboard.this);
 
         if (chartTabPosition == 0) {
-            paymentChartUrl = pre_url_api + "doc_dashboard/getPaymentDataMonthly?begin_date="+paymentChartFirstDate+"&end_date="+paymentChartLastDate+"&user_id="+admin_usr_name;
-            appointChartUrl = pre_url_api + "doc_dashboard/getAppointDataMonthly?begin_date="+appointChartFirstDate+"&end_date="+appointChartLastDate;
+            if (pay_app_type == 0) {
+                paymentChartUrl = pre_url_api + "doc_dashboard/getPaymentDataMonthly?begin_date="+paymentChartFirstDate+"&end_date="+paymentChartLastDate+"&user_id="+admin_usr_name;
+                appointChartUrl = pre_url_api + "doc_dashboard/getAppointDataMonthly?begin_date="+appointChartFirstDate+"&end_date="+appointChartLastDate;
+            }
+            else if (pay_app_type == 1) {
+                paymentChartUrl = pre_url_api + "doc_dashboard/getPaymentDataOfflineMonthly?begin_date="+paymentChartFirstDate+"&end_date="+paymentChartLastDate+"&user_id="+admin_usr_name;
+                appointChartUrl = pre_url_api + "doc_dashboard/getAppointDataOfflineMonthly?begin_date="+appointChartFirstDate+"&end_date="+appointChartLastDate;
+            }
+            else if (pay_app_type == 2){
+                paymentChartUrl = pre_url_api + "doc_dashboard/getPaymentDataOnlineMonthly?begin_date="+paymentChartFirstDate+"&end_date="+paymentChartLastDate+"&user_id="+admin_usr_name;
+                appointChartUrl = pre_url_api + "doc_dashboard/getAppointDataOnlineMonthly?begin_date="+appointChartFirstDate+"&end_date="+appointChartLastDate;
+            }
+            else {
+                paymentChartUrl = pre_url_api + "doc_dashboard/getPaymentDataMonthly?begin_date="+paymentChartFirstDate+"&end_date="+paymentChartLastDate+"&user_id="+admin_usr_name;
+                appointChartUrl = pre_url_api + "doc_dashboard/getAppointDataMonthly?begin_date="+appointChartFirstDate+"&end_date="+appointChartLastDate;
+            }
 
             StringRequest appChartReq = new StringRequest(Request.Method.GET, appointChartUrl, response -> {
                 conn = true;
@@ -4791,11 +5017,37 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 updateChartTabLayout();
             });
 
+            appChartReq.setRetryPolicy(new DefaultRetryPolicy(
+                    DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 10,
+                    0,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            ));
+
+            payChartReq.setRetryPolicy(new DefaultRetryPolicy(
+                    DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 10,
+                    0,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            ));
+
             requestQueue.add(payChartReq);
         }
         else {
-            paymentChartUrl = pre_url_api + "doc_dashboard/getPaymentDataYearly?begin_date="+paymentChartFirstDate+"&end_date="+paymentChartLastDate+"&user_id="+admin_usr_name;
-            appointChartUrl = pre_url_api + "doc_dashboard/getAppointDataYearly?begin_date="+appointChartFirstDate+"&end_date="+appointChartLastDate;
+            if (pay_app_type == 0) {
+                paymentChartUrl = pre_url_api + "doc_dashboard/getPaymentDataYearly?begin_date=" + paymentChartFirstDate + "&end_date=" + paymentChartLastDate + "&user_id=" + admin_usr_name;
+                appointChartUrl = pre_url_api + "doc_dashboard/getAppointDataYearly?begin_date=" + appointChartFirstDate + "&end_date=" + appointChartLastDate;
+            }
+            else if (pay_app_type == 1) {
+                paymentChartUrl = pre_url_api + "doc_dashboard/getPaymentDataOfflineYearly?begin_date=" + paymentChartFirstDate + "&end_date=" + paymentChartLastDate + "&user_id=" + admin_usr_name;
+                appointChartUrl = pre_url_api + "doc_dashboard/getAppointDataOfflineYearly?begin_date=" + appointChartFirstDate + "&end_date=" + appointChartLastDate;
+            }
+            else if (pay_app_type == 2) {
+                paymentChartUrl = pre_url_api + "doc_dashboard/getPaymentDataOnlineYearly?begin_date=" + paymentChartFirstDate + "&end_date=" + paymentChartLastDate + "&user_id=" + admin_usr_name;
+                appointChartUrl = pre_url_api + "doc_dashboard/getAppointDataOnlineYearly?begin_date=" + appointChartFirstDate + "&end_date=" + appointChartLastDate;
+            }
+            else {
+                paymentChartUrl = pre_url_api + "doc_dashboard/getPaymentDataYearly?begin_date=" + paymentChartFirstDate + "&end_date=" + paymentChartLastDate + "&user_id=" + admin_usr_name;
+                appointChartUrl = pre_url_api + "doc_dashboard/getAppointDataYearly?begin_date=" + appointChartFirstDate + "&end_date=" + appointChartLastDate;
+            }
 
             StringRequest appChartReq = new StringRequest(Request.Method.GET, appointChartUrl, response -> {
                 conn = true;
@@ -4876,6 +5128,18 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 updateChartTabLayout();
             });
 
+            appChartReq.setRetryPolicy(new DefaultRetryPolicy(
+                    DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 10,
+                    0,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            ));
+
+            payChartReq.setRetryPolicy(new DefaultRetryPolicy(
+                    DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 10,
+                    0,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            ));
+
             requestQueue.add(payChartReq);
         }
     }
@@ -4884,6 +5148,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         if (conn) {
             if (connected) {
                 chartTabFullLayout.setVisibility(View.VISIBLE);
+                payAppointmentTypeLay.setVisibility(View.GONE);
                 chartTabCircularProgressIndicator.setVisibility(View.GONE);
                 chartTabLayout.setVisibility(View.VISIBLE);
                 chartTabRefresh.setVisibility(View.GONE);
@@ -4895,6 +5160,23 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 graphAppointmentTotalLay.setVisibility(View.VISIBLE);
                 conn = false;
                 connected = false;
+
+                if (adminInfoLists == null) {
+                    restart("Could Not Get Doctor Data. Please Restart the App.");
+                }
+                else {
+                    if (adminInfoLists.isEmpty()) {
+                        restart("Could Not Get Doctor Data. Please Restart the App.");
+                    }
+                    else {
+                        if (Integer.parseInt(adminInfoLists.get(0).getIs_pay_appoint_type_active()) == 1) {
+                            payAppointmentTypeLay.setVisibility(View.VISIBLE);
+                        }
+                        else {
+                            payAppointmentTypeLay.setVisibility(View.GONE);
+                        }
+                    }
+                }
 
                 MyMarkerView mv = new MyMarkerView(getApplicationContext(), R.layout.custom_marker_view);
                 mv.setChartView(paymentChart);
@@ -5119,7 +5401,18 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         String paymentChartUrl;
 
         if (chartTabPosition == 0) {
-            paymentChartUrl = pre_url_api + "doc_dashboard/getPaymentDataMonthly?begin_date="+paymentChartFirstDate+"&end_date="+paymentChartLastDate+"&user_id="+admin_usr_name;
+            if (pay_app_type == 0) {
+                paymentChartUrl = pre_url_api + "doc_dashboard/getPaymentDataMonthly?begin_date="+paymentChartFirstDate+"&end_date="+paymentChartLastDate+"&user_id="+admin_usr_name;
+            }
+            else if (pay_app_type == 1) {
+                paymentChartUrl = pre_url_api + "doc_dashboard/getPaymentDataOfflineMonthly?begin_date="+paymentChartFirstDate+"&end_date="+paymentChartLastDate+"&user_id="+admin_usr_name;
+            }
+            else if (pay_app_type == 2) {
+                paymentChartUrl = pre_url_api + "doc_dashboard/getPaymentDataOnlineMonthly?begin_date="+paymentChartFirstDate+"&end_date="+paymentChartLastDate+"&user_id="+admin_usr_name;
+            }
+            else {
+                paymentChartUrl = pre_url_api + "doc_dashboard/getPaymentDataMonthly?begin_date="+paymentChartFirstDate+"&end_date="+paymentChartLastDate+"&user_id="+admin_usr_name;
+            }
 
             StringRequest payChartReq = new StringRequest(Request.Method.GET, paymentChartUrl, response -> {
                 conn = true;
@@ -5161,10 +5454,28 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 updatePaymentChartLayout();
             });
 
+            payChartReq.setRetryPolicy(new DefaultRetryPolicy(
+                    DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 10,
+                    0,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            ));
+
             requestQueue.add(payChartReq);
         }
         else {
-            paymentChartUrl = pre_url_api + "doc_dashboard/getPaymentDataYearly?begin_date="+paymentChartFirstDate+"&end_date="+paymentChartLastDate+"&user_id="+admin_usr_name;
+            if (pay_app_type == 0) {
+                paymentChartUrl = pre_url_api + "doc_dashboard/getPaymentDataYearly?begin_date="+paymentChartFirstDate+"&end_date="+paymentChartLastDate+"&user_id="+admin_usr_name;
+            }
+            else if (pay_app_type == 1) {
+                paymentChartUrl = pre_url_api + "doc_dashboard/getPaymentDataOfflineYearly?begin_date="+paymentChartFirstDate+"&end_date="+paymentChartLastDate+"&user_id="+admin_usr_name;
+            }
+            else if (pay_app_type == 2) {
+                paymentChartUrl = pre_url_api + "doc_dashboard/getPaymentDataOnlineYearly?begin_date="+paymentChartFirstDate+"&end_date="+paymentChartLastDate+"&user_id="+admin_usr_name;
+            }
+            else {
+                paymentChartUrl = pre_url_api + "doc_dashboard/getPaymentDataYearly?begin_date="+paymentChartFirstDate+"&end_date="+paymentChartLastDate+"&user_id="+admin_usr_name;
+            }
+
             StringRequest payChartReq = new StringRequest(Request.Method.GET, paymentChartUrl, response -> {
                 conn = true;
                 try {
@@ -5204,6 +5515,12 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 parsing_message = error.getLocalizedMessage();
                 updatePaymentChartLayout();
             });
+
+            payChartReq.setRetryPolicy(new DefaultRetryPolicy(
+                    DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 10,
+                    0,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            ));
 
             requestQueue.add(payChartReq);
         }
@@ -5383,8 +5700,18 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         String appointChartUrl;
 
         if (chartTabPosition == 0) {
-
-            appointChartUrl = pre_url_api + "doc_dashboard/getAppointDataMonthly?begin_date="+appointChartFirstDate+"&end_date="+appointChartLastDate;
+            if (pay_app_type == 0) {
+                appointChartUrl = pre_url_api + "doc_dashboard/getAppointDataMonthly?begin_date="+appointChartFirstDate+"&end_date="+appointChartLastDate;
+            }
+            else if (pay_app_type == 1) {
+                appointChartUrl = pre_url_api + "doc_dashboard/getAppointDataOfflineMonthly?begin_date="+appointChartFirstDate+"&end_date="+appointChartLastDate;
+            }
+            else if (pay_app_type == 2){
+                appointChartUrl = pre_url_api + "doc_dashboard/getAppointDataOnlineMonthly?begin_date="+appointChartFirstDate+"&end_date="+appointChartLastDate;
+            }
+            else {
+                appointChartUrl = pre_url_api + "doc_dashboard/getAppointDataMonthly?begin_date="+appointChartFirstDate+"&end_date="+appointChartLastDate;
+            }
 
             StringRequest appointChartReq = new StringRequest(Request.Method.GET, appointChartUrl, response -> {
                 conn = true;
@@ -5426,10 +5753,27 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 updateAppointChartLayout();
             });
 
+            appointChartReq.setRetryPolicy(new DefaultRetryPolicy(
+                    DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 10,
+                    0,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            ));
+
             requestQueue.add(appointChartReq);
         }
         else {
-            appointChartUrl = pre_url_api + "doc_dashboard/getAppointDataYearly?begin_date="+appointChartFirstDate+"&end_date="+appointChartLastDate;
+            if (pay_app_type == 0) {
+                appointChartUrl = pre_url_api + "doc_dashboard/getAppointDataYearly?begin_date="+appointChartFirstDate+"&end_date="+appointChartLastDate;
+            }
+            else if (pay_app_type == 1) {
+                appointChartUrl = pre_url_api + "doc_dashboard/getAppointDataOfflineYearly?begin_date=" + appointChartFirstDate + "&end_date=" + appointChartLastDate;
+            }
+            else if (pay_app_type == 2) {
+                appointChartUrl = pre_url_api + "doc_dashboard/getAppointDataOnlineYearly?begin_date=" + appointChartFirstDate + "&end_date=" + appointChartLastDate;
+            }
+            else {
+                appointChartUrl = pre_url_api + "doc_dashboard/getAppointDataYearly?begin_date=" + appointChartFirstDate + "&end_date=" + appointChartLastDate;
+            }
 
             StringRequest appointChartReq = new StringRequest(Request.Method.GET, appointChartUrl, response -> {
                 conn = true;
@@ -5470,6 +5814,12 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 parsing_message = error.getLocalizedMessage();
                 updateAppointChartLayout();
             });
+
+            appointChartReq.setRetryPolicy(new DefaultRetryPolicy(
+                    DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 10,
+                    0,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            ));
 
             requestQueue.add(appointChartReq);
         }

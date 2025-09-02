@@ -49,7 +49,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
     @NonNull
     @Override
     public TLHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(myContext).inflate(R.layout.appt_view_with_time_line, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.appt_view_with_time_line, parent, false);
         return new TLHolder(view, viewType);
     }
 

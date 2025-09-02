@@ -17,11 +17,14 @@ public class AdminInfoList {
     private String acc_dashboard;
     private String hr_acc_active_flag;
     private String is_pay_mode_active;
+    private String is_pay_appoint_type_active;
+    private String analytics_dashboard;
 
     public AdminInfoList(String usr_id, String usr_name, String usr_fname, String usr_lname, String usr_email,
                          String usr_contact, String all_access_flag, String admin_center_name, String hr_payment_active,
                          String hr_appointment_active, String acc_payment_active, String acc_appointment_active,
-                         String hr_dashboard, String acc_dashboard, String hr_acc_active_flag, String is_pay_mode_active) {
+                         String hr_dashboard, String acc_dashboard, String hr_acc_active_flag, String is_pay_mode_active,
+                         String is_pay_appoint_type_active, String analytics_dashboard) {
         this.usr_id = usr_id;
         this.usr_name = usr_name;
         this.usr_fname = usr_fname;
@@ -38,6 +41,8 @@ public class AdminInfoList {
         this.acc_dashboard = acc_dashboard;
         this.hr_acc_active_flag = hr_acc_active_flag;
         this.is_pay_mode_active = is_pay_mode_active;
+        this.is_pay_appoint_type_active = is_pay_appoint_type_active;
+        this.analytics_dashboard = analytics_dashboard;
     }
 
     public String getUsr_id() {
@@ -166,5 +171,21 @@ public class AdminInfoList {
 
     public void setIs_pay_mode_active(String is_pay_mode_active) {
         this.is_pay_mode_active = is_pay_mode_active;
+    }
+
+    public String getIs_pay_appoint_type_active() {
+        return is_pay_appoint_type_active;
+    }
+
+    public void setIs_pay_appoint_type_active(String is_pay_appoint_type_active) {
+        this.is_pay_appoint_type_active = is_pay_appoint_type_active;
+    }
+
+    public String getAnalytics_dashboard() {
+        return analytics_dashboard;
+    }
+
+    public void setAnalytics_dashboard(String analytics_dashboard) {
+        this.analytics_dashboard = analytics_dashboard;
     }
 }

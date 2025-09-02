@@ -264,8 +264,8 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
 
         // Getting date
         Date c = Calendar.getInstance().getTime();
-        SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yy", Locale.getDefault());
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM-yy",Locale.getDefault());
+        SimpleDateFormat df = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM-yy",Locale.ENGLISH);
 
         firstDate = simpleDateFormat.format(c);
         firstDate = "01-"+firstDate;
@@ -341,7 +341,7 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
                         Date bDate = null;
                         Date eDate = null;
 
-                        SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy", Locale.getDefault());
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
 
                         try {
                             bDate = sdf.parse(firstDate);
@@ -436,7 +436,7 @@ public class ReportView extends AppCompatActivity implements DepartmentSelectLis
                         Date bDate = null;
                         Date eDate = null;
 
-                        SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy", Locale.getDefault());
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
 
                         try {
                             bDate = sdf.parse(firstDate);

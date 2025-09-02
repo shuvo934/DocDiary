@@ -8,20 +8,116 @@
     android:orientation="vertical"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <TextView
+    <RelativeLayout
         android:id="@+id/text_view_grpah_layout_start"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="OVERVIEW"
-        android:textSize="@dimen/_13sdp"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:textColor="@color/blue_end"
-        android:fontFamily="@font/poppins_bold"
-        android:layout_marginTop="@dimen/_10sdp"
-        android:layout_marginStart="@dimen/_5sdp"
-        tools:ignore="HardcodedText" />
+        android:layout_alignParentTop="true">
+
+        <TextView
+            android:id="@+id/text_view_graph_ovv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="OVERVIEW"
+            android:textSize="@dimen/_13sdp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:textColor="@color/blue_end"
+            android:fontFamily="@font/poppins_bold"
+            android:layout_marginTop="@dimen/_10sdp"
+            android:layout_marginStart="@dimen/_5sdp"
+            tools:ignore="HardcodedText" />
+
+        <LinearLayout
+            android:id="@+id/layout_of_type_of_pay_appoint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:orientation="horizontal">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/all_type_pay_appoint_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginEnd="@dimen/_5sdp"
+                app:cardCornerRadius="@dimen/_9sdp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/green_sea">
+
+                <TextView
+                    android:id="@+id/all_type_pay_app_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="All"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:textSize="@dimen/_8sdp"
+                    android:textColor="@color/white"
+                    android:paddingStart="@dimen/_8sdp"
+                    android:paddingEnd="@dimen/_8sdp"
+                    android:paddingTop="@dimen/_1sdp"
+                    tools:ignore="HardcodedText" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/offline_pay_appoint_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginEnd="@dimen/_5sdp"
+                app:cardCornerRadius="@dimen/_9sdp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/primaryColor_alpha">
+
+                <TextView
+                    android:id="@+id/offline_pay_app_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Offline"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:textSize="@dimen/_8sdp"
+                    android:textColor="@color/green_sea"
+                    android:paddingStart="@dimen/_8sdp"
+                    android:paddingEnd="@dimen/_8sdp"
+                    android:paddingTop="@dimen/_1sdp"
+                    tools:ignore="HardcodedText" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/online_pay_appoint_data"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginEnd="@dimen/_5sdp"
+                app:cardCornerRadius="@dimen/_9sdp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="@color/primaryColor_alpha">
+
+                <TextView
+                    android:id="@+id/online_pay_app_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Online"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:textSize="@dimen/_8sdp"
+                    android:textColor="@color/green_sea"
+                    android:paddingStart="@dimen/_8sdp"
+                    android:paddingEnd="@dimen/_8sdp"
+                    android:paddingTop="@dimen/_1sdp"
+                    tools:ignore="HardcodedText" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+
+
+
+    </RelativeLayout>
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/month_year_app_pay_tab_layout"
