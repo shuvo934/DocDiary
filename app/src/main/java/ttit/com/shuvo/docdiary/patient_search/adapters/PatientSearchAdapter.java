@@ -192,6 +192,7 @@ public class PatientSearchAdapter extends RecyclerView.Adapter<PatientSearchAdap
                     Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
                     positive.setOnClickListener(v1 -> {
                         dialog.dismiss();
+                        needToUpdatePatList = false;
                         Intent callIntent = new Intent(Intent.ACTION_DIAL);
                         callIntent.setData(Uri.parse("tel:"+number));
                         activity.startActivity(callIntent);

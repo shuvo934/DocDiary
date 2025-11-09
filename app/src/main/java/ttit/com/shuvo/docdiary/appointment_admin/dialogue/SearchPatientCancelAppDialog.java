@@ -85,11 +85,13 @@ public class SearchPatientCancelAppDialog extends AppCompatDialogFragment implem
     AppCompatActivity activity;
     Context mContext;
     boolean firstGetter = true;
+    boolean isAdmin;
 
     Logger logger = Logger.getLogger("SearchPatCancelAppDialog");
 
-    public SearchPatientCancelAppDialog(Context context) {
+    public SearchPatientCancelAppDialog(Context context, boolean isAdmin) {
         this.mContext = context;
+        this.isAdmin = isAdmin;
     }
 
     private PatAppCancelCallBackListener patAppCancelCallBackListener;
@@ -329,7 +331,11 @@ public class SearchPatientCancelAppDialog extends AppCompatDialogFragment implem
 
         fiftyPatLists = new ArrayList<>();
 
-        String url = pre_url_api+"appointmentModify/getFiftyPatientListForCancelApp";
+        String admin_t = "false";
+        if (isAdmin) {
+            admin_t = "true";
+        }
+        String url = pre_url_api+"appointmentModify/getFiftyPatientListForCancelAppNew?is_admin="+admin_t;
 
         RequestQueue requestQueue = Volley.newRequestQueue(mContext);
 
@@ -337,7 +343,7 @@ public class SearchPatientCancelAppDialog extends AppCompatDialogFragment implem
             conn = true;
             try {
                 JSONObject jsonObject = new JSONObject(response);
-                String items = jsonObject.getString("items");
+                String items = jsonObject.getString("pat_list");
                 JSONArray array = new JSONArray(items);
                 for (int i = 0; i < array.length(); i++) {
                     JSONObject docInfo = array.getJSONObject(i);
@@ -441,7 +447,12 @@ public class SearchPatientCancelAppDialog extends AppCompatDialogFragment implem
 
         patientForAppointLists = new ArrayList<>();
 
-        String url = pre_url_api+"appointmentModify/getPatListForCancelAppBySearch?ph_pat="+searchingName;
+        String admin_t = "false";
+        if (isAdmin) {
+            admin_t = "true";
+        }
+
+        String url = pre_url_api+"appointmentModify/getPatListForCancelAppBySearch?ph_pat="+searchingName+"&is_admin="+admin_t;
 
         RequestQueue requestQueue = Volley.newRequestQueue(mContext);
 

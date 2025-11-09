@@ -35,4 +35,5 @@
     <string name="le_approve_bar_name">Leave Approval</string>
     <string name="lv_bal_bar_name">Leave Balance</string>
     <string name="analytics_dash_bar_name">Analytics Dashboard</string>
+    <string name="pat_app_hist_bar_name">Appointment History</string>
 </resources>

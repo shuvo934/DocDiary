@@ -171,6 +171,7 @@ public class PatientSearchAdmin extends AppCompatActivity {
             selectYear.setText(yy1);
 
             selected_year = String.valueOf(selectedYear);
+            getData();
 
         },today.get(Calendar.YEAR),today.get(Calendar.MONTH));
 
@@ -315,11 +316,6 @@ public class PatientSearchAdmin extends AppCompatActivity {
         }
     }
 
-//    @Override
-//    public void onBackPressed() {
-//
-//    }
-
     public void getData() {
         fullLayout.setVisibility(View.GONE);
         circularProgressIndicator.setVisibility(View.VISIBLE);
@@ -329,7 +325,7 @@ public class PatientSearchAdmin extends AppCompatActivity {
 
         hundredPatLists = new ArrayList<>();
 
-        String url = pre_url_api+"patient_search/getHundredPatList";
+        String url = pre_url_api+"patient_search/getHundredPatListNew?p_year="+selected_year;
 
         RequestQueue requestQueue = Volley.newRequestQueue(PatientSearchAdmin.this);
 
@@ -356,11 +352,11 @@ public class PatientSearchAdmin extends AppCompatActivity {
                             .equals("null") ? "0" : docInfo.getString("pph_progress");
                     String pat_cell = docInfo.getString("pat_cell")
                             .equals("null") ? "" :docInfo.getString("pat_cell");
-                    String pyear = docInfo.getString("pyear")
-                            .equals("null") ? "" : docInfo.getString("pyear");
+//                    String pyear = docInfo.getString("pyear")
+//                            .equals("null") ? "" : docInfo.getString("pyear");
 
                     hundredPatLists.add(new PatientSearchList(pat_id,pat_name,dd_thana_name,ph_id,
-                            sub_code,pph_progress,pyear,pat_cell,perm));
+                            sub_code,pph_progress,"",pat_cell,perm));
                 }
 
                 connected = true;

@@ -1,5 +1,6 @@
 package ttit.com.shuvo.docdiary.appt_schedule.adapters;
 
+import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.userInfoLists;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -33,6 +34,7 @@ import java.util.Locale;
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.arraylists.ApptScheduleInfoList;
 import ttit.com.shuvo.docdiary.appt_schedule.health_rank.HealthProgress;
+import ttit.com.shuvo.docdiary.appt_schedule.pat_history.PatientAppointmentHistory;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
 
 public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHolder> {
@@ -40,6 +42,9 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
     private final ArrayList<ApptScheduleInfoList> mCategory;
 
     private final Context myContext;
+
+    boolean patAppHisAvailable = userInfoLists != null && userInfoLists.get(0).getPat_app_history().equals("1");
+    boolean patUpcomingAppHist = userInfoLists != null && userInfoLists.get(0).getUpcoming_pat_history().equals("1");
 
     public TimeLineAdapter(ArrayList<ApptScheduleInfoList> mCategory, Context myContext) {
         this.mCategory = mCategory;
@@ -60,13 +65,20 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
         holder.timeOfAppt.setText(schedule.getTime());
         String status = schedule.getApptStatus();
         String pmm = schedule.getPmm_for_prescription();
+        String pt;
         if (pmm.equals("1")) {
-            String pt = "Prescription";
-            holder.prescription.setText(pt);
+            pt = "Prescription";
         }
         else {
-            String pt = "Create Prescription";
-            holder.prescription.setText(pt);
+            pt = "Create Prescription";
+        }
+        holder.prescription.setText(pt);
+
+        if (patAppHisAvailable) {
+            holder.patAppHistory.setVisibility(View.VISIBLE);
+        }
+        else {
+            holder.patAppHistory.setVisibility(View.GONE);
         }
 
         String appt_date = schedule.getAppointment_date();
@@ -92,6 +104,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
             holder.hpMissing.setVisibility(View.GONE);
             holder.progressAddCheck.setVisibility(View.GONE);
             holder.addProgress.setVisibility(View.GONE);
+            holder.patAppHistory.setVisibility(View.GONE);
 
             holder.materialCardView.setCardBackgroundColor(myContext.getColor(R.color.progress_back_color));
             holder.materialCardView.setCardElevation(3);
@@ -177,6 +190,9 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
                                 holder.addProgress.setText(vpt);
                             }
                         }
+                        if (patAppHisAvailable) {
+                            holder.patAppHistory.setVisibility(View.VISIBLE);
+                        }
                     }
                     else {
                         if (pph_prog.equals("0")) {
@@ -189,6 +205,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
                             holder.addProgress.setText(vpt);
                             holder.addProgress.setVisibility(View.VISIBLE);
                         }
+                        holder.patAppHistory.setVisibility(View.GONE);
                     }
 
                     if (pph_prog.equals("0")) {
@@ -231,6 +248,26 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
                     String pph_prog = schedule.getPph_progress();
                     String vpt = "VIEW PROGRESS";
                     holder.addProgress.setText(vpt);
+                    SimpleDateFormat sss = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
+                    String nnn = sss.format(nowDate);
+                    nnn = nnn.toUpperCase();
+                    String adm_date = schedule.getAdm_date();
+                    if (!patUpcomingAppHist) {
+                        if (nnn.equals(adm_date)) {
+                            if (patAppHisAvailable) {
+                                holder.patAppHistory.setVisibility(View.VISIBLE);
+                            }
+                        }
+                        else {
+                            holder.patAppHistory.setVisibility(View.GONE);
+                        }
+                    }
+                    else {
+                        if (patAppHisAvailable) {
+                            holder.patAppHistory.setVisibility(View.VISIBLE);
+                        }
+                    }
+
 
                     if (pph_prog.equals("0")) {
                         holder.hpLayout.setVisibility(View.GONE);
@@ -292,6 +329,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
                 String pph_prog = schedule.getPph_progress();
                 String vpt = "VIEW PROGRESS";
                 holder.addProgress.setText(vpt);
+                holder.patAppHistory.setVisibility(View.GONE);
 
                 if (pph_prog.equals("0")) {
                     holder.hpLayout.setVisibility(View.GONE);
@@ -342,6 +380,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
             holder.progressAddCheck.setVisibility(View.GONE);
             holder.addProgress.setVisibility(View.GONE);
             holder.pat_name.setText(schedule.getApptStatus());
+            holder.patAppHistory.setVisibility(View.GONE);
 
             holder.videoLinkNotice.setVisibility(View.GONE);
             holder.videoCallButton.setVisibility(View.GONE);
@@ -399,6 +438,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
         TextView hpMissing;
         ImageView progressAddCheck;
         MaterialButton addProgress;
+        MaterialButton patAppHistory;
 
         public TLHolder(@NonNull View itemView,int viewType) {
             super(itemView);
@@ -420,6 +460,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
             hpMissing = itemView.findViewById(R.id.text_timeline_hp_not_found);
             progressAddCheck = itemView.findViewById(R.id.check_image_of_progress_added_in_timeline);
             addProgress = itemView.findViewById(R.id.patient_add_health_progress_timeline);
+            patAppHistory = itemView.findViewById(R.id.patient_appointment_history);
 
             videoCallButton.setOnClickListener(v -> {
                 AppCompatActivity activity = (AppCompatActivity) v.getContext();
@@ -463,6 +504,15 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
                 intent.putExtra("PRD_ID",mCategory.get(getAdapterPosition()).getAd_prd_id());
                 intent.putExtra("AD_ID",mCategory.get(getAdapterPosition()).getAd_id());
                 intent.putExtra("FROM_PSV",false);
+                activity.startActivity(intent);
+            });
+
+            patAppHistory.setOnClickListener(v -> {
+                AppCompatActivity activity = (AppCompatActivity) v.getContext();
+                Intent intent = new Intent(myContext, PatientAppointmentHistory.class);
+                intent.putExtra("P_NAME",mCategory.get(getAdapterPosition()).getPatientName());
+                intent.putExtra("P_CODE",mCategory.get(getAdapterPosition()).getPatient_code());
+                intent.putExtra("P_PH_ID",mCategory.get(getAdapterPosition()).getApptStatus());
                 activity.startActivity(intent);
             });
 

@@ -41,14 +41,20 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputLayout;
+import com.jakewharton.processphoenix.ProcessPhoenix;
 import com.rosemaryapp.amazingspinner.AmazingSpinner;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -154,6 +160,12 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
 
     public static ArrayList<SavedAppointmentDateTimeList> appointmentDateTimeLists;
     int previousTabPosition = 0;
+
+    boolean isAdmin = false;
+
+    String allowed_qty = "0";
+    String taken_service_qty = "0";
+    boolean validationCheck = false;
     
     Logger logger = Logger.getLogger(AppointmentModify.class.getName());
     
@@ -284,6 +296,17 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
         timeLayoutManager = new LinearLayoutManager(getApplicationContext());
         appTimeView.setLayoutManager(timeLayoutManager);
 
+        if (adminInfoLists == null) {
+            restart("Could Not Get Doctor Data. Please Restart the App.");
+        }
+        else {
+            if (adminInfoLists.isEmpty()) {
+                restart("Could Not Get Doctor Data. Please Restart the App.");
+            } else {
+                isAdmin = Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) == 1;
+            }
+        }
+
         appointmentTab.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -396,7 +419,7 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
         });
 
         searchPatientCanc.setOnClickListener(v -> {
-            SearchPatientCancelAppDialog searchPatientCancelAppDialog = new SearchPatientCancelAppDialog(AppointmentModify.this);
+            SearchPatientCancelAppDialog searchPatientCancelAppDialog = new SearchPatientCancelAppDialog(AppointmentModify.this, isAdmin);
             searchPatientCancelAppDialog.show(getSupportFragmentManager(),"PAT_CANCEL");
         });
 
@@ -545,6 +568,7 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
 
                 appointmentDateTimeLists = new ArrayList<>();
                 resetAppTimeSchView();
+                getScheduleLimitData();
             }
         });
 
@@ -722,16 +746,57 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
             else {
                 if (!selected_service_qty.isEmpty()) {
 
-                    Intent intent = new Intent(AppointmentModify.this, AddSchedule.class);
-                    intent.putExtra("P_DOC_ID",selected_doc_id);
-                    intent.putExtra("P_PFN_ID",selected_pfn_id);
-                    intent.putExtra("P_DEPTS_ID",selected_depts_id);
-                    intent.putExtra("P_PH_ID",selected_pat_ph_id);
-                    intent.putExtra("P_PRM_ID",selected_prm_id);
-                    intent.putExtra("P_PRD_ID",selected_prd_id);
-                    intent.putExtra("P_UPDATE",false);
+                    if (validationCheck) {
+                        boolean ok;
 
-                    startActivity(intent);
+                        if (allowed_qty.equals("0")) {
+                            ok = true;
+                        }
+                        else {
+                            int tot = appointmentDateTimeLists.size();
+                            int exact = tot + Integer.parseInt(taken_service_qty);
+                            ok = exact < Integer.parseInt(allowed_qty);
+                        }
+
+                        if (ok) {
+                            Intent intent = new Intent(AppointmentModify.this, AddSchedule.class);
+                            intent.putExtra("P_DOC_ID", selected_doc_id);
+                            intent.putExtra("P_PFN_ID", selected_pfn_id);
+                            intent.putExtra("P_DEPTS_ID", selected_depts_id);
+                            intent.putExtra("P_PH_ID", selected_pat_ph_id);
+                            intent.putExtra("P_PRM_ID", selected_prm_id);
+                            intent.putExtra("P_PRD_ID", selected_prd_id);
+                            intent.putExtra("P_UPDATE", false);
+
+                            startActivity(intent);
+                        }
+                        else {
+                            MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AppointmentModify.this);
+                            alertDialogBuilder.setTitle("Appointment Limit Reached!")
+                                    .setMessage("Appointment Schedule limit reached. You can have up to "+allowed_qty+" upcoming appointments. Please complete or cancel an existing appointment before scheduling a new one.")
+                                    .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+
+                            AlertDialog alert = alertDialogBuilder.create();
+                            alert.setCancelable(false);
+                            alert.setCanceledOnTouchOutside(false);
+                            alert.show();
+                        }
+                    }
+                    else {
+                        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AppointmentModify.this);
+                        alertDialogBuilder.setTitle("Error!")
+                                .setMessage("Could Not Find Service Limit Data. Please Try again")
+                                .setPositiveButton("Retry", (dialog, which) -> {
+                                    getScheduleLimitData();
+                                    dialog.dismiss();
+                                })
+                                .setNegativeButton("Cancel",(dialog, which) -> dialog.dismiss());
+
+                        AlertDialog alert = alertDialogBuilder.create();
+                        alert.setCancelable(false);
+                        alert.setCanceledOnTouchOutside(false);
+                        alert.show();
+                    }
                 }
                 else {
                     Toast.makeText(this, "Service Quantity is Empty", Toast.LENGTH_SHORT).show();
@@ -746,7 +811,16 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
                     if (!selected_prm_id.isEmpty()) {
                         if (!selected_pfn_id.isEmpty()) {
                             if (!appointmentDateTimeLists.isEmpty()) {
-                                insertAppointment();
+                                MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AppointmentModify.this);
+                                alertDialogBuilder.setTitle("Save Appointment!")
+                                        .setMessage("Do you want to save this appointment?")
+                                        .setPositiveButton("Yes", (dialog, which) -> {
+                                            insertAppointment();
+                                            dialog.dismiss();
+                                        })
+                                        .setNegativeButton("No", (dialog, which) -> dialog.dismiss());
+                                AlertDialog alert = alertDialogBuilder.create();
+                                alert.show();
                             }
                             else {
                                 Toast.makeText(this, "Please Select Appointment Time to Save.", Toast.LENGTH_SHORT).show();
@@ -786,7 +860,52 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
                     if (!selected_pfn_id.isEmpty()) {
                         if (!selected_ad_id.isEmpty()) {
                             if (!appTimeLists.isEmpty()) {
-                                updateAppointmentToCancel();
+                                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy hh:mm a", Locale.ENGLISH);
+                                String appt_date = selected_adm_date;
+                                Calendar calendar = Calendar.getInstance();
+                                if (!isAdmin) {
+                                    calendar.add(Calendar.DAY_OF_MONTH,1);
+                                }
+                                System.out.println(calendar.getTime());
+                                Date nowDate = calendar.getTime();
+                                boolean cancelNotEligible = false;
+                                for (int i = 0; i < appTimeLists.size(); i++) {
+                                    appt_date = appt_date + " " + appTimeLists.get(i);
+
+                                    Date appDate;
+                                    try {
+                                        appDate = simpleDateFormat.parse(appt_date);
+                                    } catch (ParseException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                    if (appDate != null) {
+                                        if (appDate.before(nowDate)) {
+                                            cancelNotEligible = true;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AppointmentModify.this);
+                                if (!cancelNotEligible) {
+                                    alertDialogBuilder.setTitle("Cancel Appointment!")
+                                            .setMessage("Do you want to cancel this appointment?")
+                                            .setPositiveButton("Yes", (dialog, which) -> {
+                                                updateAppointmentToCancel();
+                                                dialog.dismiss();
+                                            })
+                                            .setNegativeButton("No", (dialog, which) -> dialog.dismiss());
+                                    AlertDialog alert = alertDialogBuilder.create();
+                                    alert.show();
+
+                                }
+                                else {
+                                    alertDialogBuilder.setTitle("Unable to Cancel Appointment!")
+                                            .setMessage("This appointment can no longer be cancelled as the allowed cancellation time has expired.")
+                                            .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+                                    AlertDialog alert = alertDialogBuilder.create();
+                                    alert.show();
+                                }
                             }
                             else {
                                 Toast.makeText(this, "No Time Schedule Found for this Date.", Toast.LENGTH_SHORT).show();
@@ -1540,6 +1659,8 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
                     selectService.setText(selected_service_name);
                     serviceSelectErrMsg.setVisibility(View.GONE);
                     serviceQty.setText(selected_service_qty);
+
+                    getScheduleLimitData();
                 }
                 else {
                     selectServiceLay.setEnabled(true);
@@ -1587,6 +1708,102 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
                     serviceSelectErrMsg.setVisibility(View.VISIBLE);
                     dialog.dismiss();
                 });
+
+        AlertDialog alert = alertDialogBuilder.create();
+        alert.setCancelable(false);
+        alert.setCanceledOnTouchOutside(false);
+        alert.show();
+    }
+
+    public void getScheduleLimitData() {
+        fullLayout.setVisibility(View.GONE);
+        circularProgressIndicator.setVisibility(View.VISIBLE);
+        conn = false;
+        connected = false;
+        loading = true;
+
+        allowed_qty = "0";
+        taken_service_qty = "0";
+        validationCheck = false;
+
+        String validationUrl = pre_url_api+"appointmentModify/checkSchLimitValidation?p_ph_id="+selected_pat_ph_id+"&p_depts_id="+selected_depts_id+"&p_pfn_id="+selected_pfn_id;
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        StringRequest schValidReq = new StringRequest(Request.Method.GET, validationUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                allowed_qty = jsonObject.getString("allowed_qty")
+                        .equals("null") ? "0" : jsonObject.getString("allowed_qty");
+                taken_service_qty = jsonObject.getString("taken_service_qty")
+                        .equals("null") ? "0" : jsonObject.getString("taken_service_qty");
+
+
+                connected = true;
+                validationCheck = true;
+                updateScheduleLimit();
+            }
+            catch (Exception e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateScheduleLimit();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateScheduleLimit();
+        });
+
+        schValidReq.setRetryPolicy(new DefaultRetryPolicy(
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 4,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        ));
+
+        requestQueue.add(schValidReq);
+    }
+
+    private void updateScheduleLimit() {
+        loading = false;
+        if(conn) {
+            if (connected) {
+                fullLayout.setVisibility(View.VISIBLE);
+                circularProgressIndicator.setVisibility(View.GONE);
+                conn = false;
+                connected = false;
+            }
+            else {
+                alertMessageSchLimit();
+            }
+        }
+        else {
+            alertMessageSchLimit();
+        }
+    }
+
+    public void alertMessageSchLimit() {
+        fullLayout.setVisibility(View.VISIBLE);
+        circularProgressIndicator.setVisibility(View.GONE);
+        if (parsing_message != null) {
+            if (parsing_message.isEmpty() || parsing_message.equals("null")) {
+                parsing_message = "Server problem or Internet not connected";
+            }
+        }
+        else {
+            parsing_message = "Server problem or Internet not connected";
+        }
+        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AppointmentModify.this);
+        alertDialogBuilder.setTitle("Error!")
+                .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
+                .setPositiveButton("Retry", (dialog, which) -> {
+                    getScheduleLimitData();
+                    dialog.dismiss();
+                })
+                .setNegativeButton("Cancel",(dialog, which) -> dialog.dismiss());
 
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
@@ -2395,5 +2612,15 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
         alert.setCancelable(false);
         alert.setCanceledOnTouchOutside(false);
         alert.show();
+    }
+
+    public void restart(String msg) {
+        try {
+            ProcessPhoenix.triggerRebirth(getApplicationContext());
+        }
+        catch (Exception e) {
+            Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_SHORT).show();
+            System.exit(0);
+        }
     }
 }

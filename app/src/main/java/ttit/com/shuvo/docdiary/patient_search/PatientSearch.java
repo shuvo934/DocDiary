@@ -1,6 +1,7 @@
 package ttit.com.shuvo.docdiary.patient_search;
 
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
+import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.userInfoLists;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
@@ -79,6 +80,11 @@ public class PatientSearch extends AppCompatActivity {
     private Boolean loading = false;
     String parsing_message = "";
 
+    String deptd_id = "";
+    String doc_id = "";
+    boolean all_presc = false;
+    boolean head_deptd = false;
+
     Logger logger = Logger.getLogger(PatientSearch.class.getName());
 
     @Override
@@ -112,6 +118,20 @@ public class PatientSearch extends AppCompatActivity {
 
         patientSearchLists = new ArrayList<>();
         filteredList = new ArrayList<>();
+
+        if (userInfoLists == null) {
+            restart("Could Not Get Doctor Data. Please Restart the App.");
+        }
+        else {
+            if (userInfoLists.isEmpty()) {
+                restart("Could Not Get Doctor Data. Please Restart the App.");
+            } else {
+                all_presc = Integer.parseInt(userInfoLists.get(0).getAll_presc()) == 1;
+                doc_id = userInfoLists.get(0).getDoc_id();
+                deptd_id = userInfoLists.get(0).getDeptd_id();
+                head_deptd = Integer.parseInt(userInfoLists.get(0).getDoc_head_flag()) == 1;
+            }
+        }
 
         backButton.setOnClickListener(v -> finish());
 
@@ -251,11 +271,6 @@ public class PatientSearch extends AppCompatActivity {
         }
     }
 
-//    @Override
-//    public void onBackPressed() {
-//
-//    }
-
     public void getData() {
         fullLayout.setVisibility(View.GONE);
         circularProgressIndicator.setVisibility(View.VISIBLE);
@@ -265,7 +280,19 @@ public class PatientSearch extends AppCompatActivity {
 
         patientSearchLists = new ArrayList<>();
 
-        String url = pre_url_api+"patient_search/getPatientList?p_year="+selected_year;
+        String url;
+        if (all_presc) {
+            url = pre_url_api+"patient_search/getPatientList?p_year="+selected_year;
+        }
+        else {
+            if (head_deptd) {
+                url = pre_url_api+"patient_search/getPatientListNew?p_year="+selected_year+"&p_doc_id=&p_deptd_id="+deptd_id;
+            }
+            else {
+                url = pre_url_api + "patient_search/getPatientListNew?p_year="+selected_year+"&p_doc_id="+doc_id+"&p_deptd_id="+deptd_id;
+            }
+        }
+
 
         RequestQueue requestQueue = Volley.newRequestQueue(PatientSearch.this);
 

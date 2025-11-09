@@ -83,6 +83,7 @@ public class AnalyticsDashboard extends AppCompatActivity {
 
     TextView allLoginCount;
     TextView unqLoginCount;
+    String total_unq_login = "";
 
     LineChart appLoginChart;
     ArrayList<LoginChartList> appLoginChartLists;
@@ -103,6 +104,7 @@ public class AnalyticsDashboard extends AppCompatActivity {
 
     TextView opasAllLoginCount;
     TextView opasUnqLoginCount;
+    String total_opas_unq_login = "";
 
     LineChart opasLoginChart;
     ArrayList<LoginChartList> opasLoginChartLists;
@@ -788,6 +790,7 @@ public class AnalyticsDashboard extends AppCompatActivity {
         connected = false;
 
         appLoginChartLists = new ArrayList<>();
+        total_unq_login = "0";
         ArrayList<ILineDataSet> dataSets = new ArrayList<>();
         LineData data1 = new LineData(dataSets);
         appLoginChart.setData(data1);
@@ -799,6 +802,7 @@ public class AnalyticsDashboard extends AppCompatActivity {
         appLoginChart.fitScreen();
 
         opasLoginChartLists = new ArrayList<>();
+        total_opas_unq_login = "0";
         ArrayList<ILineDataSet> dataSets1 = new ArrayList<>();
         LineData data2 = new LineData(dataSets1);
         opasLoginChart.setData(data2);
@@ -854,7 +858,9 @@ public class AnalyticsDashboard extends AppCompatActivity {
         opasPayChartLastDate = date_now;
 
         String loginStatusUrl = pre_url_api+"analytic_dashboard/getAppLoginStatus?begin_date="+appLoginChartFirstDate+"&end_date="+appLoginChartLastDate;
+        String loginTotUnqUrl = pre_url_api+"analytic_dashboard/getTotalUnqLogin?begin_date="+appLoginChartFirstDate+"&end_date="+appLoginChartLastDate+"&p_log_type=3";
         String opasStatusUrl = pre_url_api+"analytic_dashboard/getOPASLoginStatus?begin_date="+opasLoginChartFirstDate+"&end_date="+opasLoginChartLastDate;
+        String loginTotOpasUnqUrl = pre_url_api+"analytic_dashboard/getTotalUnqLogin?begin_date="+opasLoginChartFirstDate+"&end_date="+opasLoginChartLastDate+"&p_log_type=1";
         String opasAppInitUrl = pre_url_api+"analytic_dashboard/getAppInitCountStatus?begin_date="+opasAppSchFirstDate+"&end_date="+opasAppSchLastDate;
         String opasAppSchUrl = pre_url_api+"analytic_dashboard/getAppSchCountStatus?begin_date="+opasAppSchFirstDate+"&end_date="+opasAppSchLastDate;
         String opasPayUrl = pre_url_api+"analytic_dashboard/getOPASPayStatus?begin_date="+opasPayChartFirstDate+"&end_date="+opasPayChartLastDate;
@@ -986,6 +992,39 @@ public class AnalyticsDashboard extends AppCompatActivity {
             updateInterface();
         });
 
+        StringRequest loginOpasUnqReq = new StringRequest(Request.Method.GET, loginTotOpasUnqUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject docInfo = array.getJSONObject(i);
+
+                        total_opas_unq_login = docInfo.getString("total_unq_amount")
+                                .equals("null") ? "0" : docInfo.getString("total_unq_amount");
+
+                    }
+                }
+
+                requestQueue.add(opasAppInitReq);
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateInterface();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateInterface();
+        });
+
         StringRequest opasStatusReq = new StringRequest(Request.Method.GET, opasStatusUrl, response -> {
             conn = true;
             try {
@@ -1009,7 +1048,45 @@ public class AnalyticsDashboard extends AppCompatActivity {
                     }
                 }
 
-                requestQueue.add(opasAppInitReq);
+                requestQueue.add(loginOpasUnqReq);
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateInterface();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateInterface();
+        });
+
+        StringRequest loginTotUnqReq = new StringRequest(Request.Method.GET, loginTotUnqUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject docInfo = array.getJSONObject(i);
+
+                        total_unq_login = docInfo.getString("total_unq_amount")
+                                .equals("null") ? "0" : docInfo.getString("total_unq_amount");
+                    }
+                }
+
+                if (isPatOnlineActive) {
+                    requestQueue.add(opasStatusReq);
+                }
+                else {
+                    connected = true;
+                    updateInterface();
+                }
             }
             catch (JSONException e) {
                 connected = false;
@@ -1048,13 +1125,7 @@ public class AnalyticsDashboard extends AppCompatActivity {
                     }
                 }
 
-                if (isPatOnlineActive) {
-                    requestQueue.add(opasStatusReq);
-                }
-                else {
-                    connected = true;
-                    updateInterface();
-                }
+                requestQueue.add(loginTotUnqReq);
             }
             catch (JSONException e) {
                 connected = false;
@@ -1114,7 +1185,7 @@ public class AnalyticsDashboard extends AppCompatActivity {
                 ArrayList<String> dateName = new ArrayList<>();
 
                 int total_count = 0;
-                int unique_count = 0;
+//                int unique_count = 0;
 
                 if (appLoginChartLists.size() == 1) {
                     totalCountValue.add(new Entry(0,0, "0"));
@@ -1132,9 +1203,9 @@ public class AnalyticsDashboard extends AppCompatActivity {
                     if (!appLoginChartLists.get(0).getTotCount().isEmpty()) {
                         total_count = total_count + Integer.parseInt(appLoginChartLists.get(0).getTotCount());
                     }
-                    if (!appLoginChartLists.get(0).getUniqueCount().isEmpty()) {
-                        unique_count = unique_count + Integer.parseInt(appLoginChartLists.get(0).getUniqueCount());
-                    }
+//                    if (!appLoginChartLists.get(0).getUniqueCount().isEmpty()) {
+//                        unique_count = unique_count + Integer.parseInt(appLoginChartLists.get(0).getUniqueCount());
+//                    }
                 }
                 else {
                     for (int i = 0; i < appLoginChartLists.size(); i++) {
@@ -1144,14 +1215,14 @@ public class AnalyticsDashboard extends AppCompatActivity {
                         if (!appLoginChartLists.get(i).getTotCount().isEmpty()) {
                             total_count = total_count + Integer.parseInt(appLoginChartLists.get(i).getTotCount());
                         }
-                        if (!appLoginChartLists.get(i).getUniqueCount().isEmpty()) {
-                            unique_count = unique_count + Integer.parseInt(appLoginChartLists.get(i).getUniqueCount());
-                        }
+//                        if (!appLoginChartLists.get(i).getUniqueCount().isEmpty()) {
+//                            unique_count = unique_count + Integer.parseInt(appLoginChartLists.get(i).getUniqueCount());
+//                        }
                     }
                 }
 
                 allLoginCount.setText(String.valueOf(total_count));
-                unqLoginCount.setText(String.valueOf(unique_count));
+                unqLoginCount.setText(String.valueOf(total_unq_login));
 
                 appLoginChart.animateXY(1000,1000);
                 if (appLoginChartLists.size() > 3) {
@@ -1215,7 +1286,7 @@ public class AnalyticsDashboard extends AppCompatActivity {
                     ArrayList<String> dateNameOpas = new ArrayList<>();
 
                     int total_count_opas = 0;
-                    int unique_count_opas = 0;
+//                    int unique_count_opas = 0;
 
                     if (opasLoginChartLists.size() == 1) {
                         totalCountValueOpas.add(new Entry(0, 0, "0"));
@@ -1233,9 +1304,9 @@ public class AnalyticsDashboard extends AppCompatActivity {
                         if (!opasLoginChartLists.get(0).getTotCount().isEmpty()) {
                             total_count_opas = total_count_opas + Integer.parseInt(opasLoginChartLists.get(0).getTotCount());
                         }
-                        if (!opasLoginChartLists.get(0).getUniqueCount().isEmpty()) {
-                            unique_count_opas = unique_count_opas + Integer.parseInt(opasLoginChartLists.get(0).getUniqueCount());
-                        }
+//                        if (!opasLoginChartLists.get(0).getUniqueCount().isEmpty()) {
+//                            unique_count_opas = unique_count_opas + Integer.parseInt(opasLoginChartLists.get(0).getUniqueCount());
+//                        }
                     }
                     else {
                         for (int i = 0; i < opasLoginChartLists.size(); i++) {
@@ -1245,14 +1316,14 @@ public class AnalyticsDashboard extends AppCompatActivity {
                             if (!opasLoginChartLists.get(i).getTotCount().isEmpty()) {
                                 total_count_opas = total_count_opas + Integer.parseInt(opasLoginChartLists.get(i).getTotCount());
                             }
-                            if (!opasLoginChartLists.get(i).getUniqueCount().isEmpty()) {
-                                unique_count_opas = unique_count_opas + Integer.parseInt(opasLoginChartLists.get(i).getUniqueCount());
-                            }
+//                            if (!opasLoginChartLists.get(i).getUniqueCount().isEmpty()) {
+//                                unique_count_opas = unique_count_opas + Integer.parseInt(opasLoginChartLists.get(i).getUniqueCount());
+//                            }
                         }
                     }
 
                     opasAllLoginCount.setText(String.valueOf(total_count_opas));
-                    opasUnqLoginCount.setText(String.valueOf(unique_count_opas));
+                    opasUnqLoginCount.setText(String.valueOf(total_opas_unq_login));
 
                     opasLoginChart.animateXY(1000, 1000);
                     if (opasLoginChartLists.size() > 3) {
@@ -1782,6 +1853,7 @@ public class AnalyticsDashboard extends AppCompatActivity {
         connected = false;
 
         appLoginChartLists = new ArrayList<>();
+        total_unq_login = "0";
         ArrayList<ILineDataSet> dataSets = new ArrayList<>();
         LineData data1 = new LineData(dataSets);
         appLoginChart.setData(data1);
@@ -1793,8 +1865,43 @@ public class AnalyticsDashboard extends AppCompatActivity {
         appLoginChart.fitScreen();
 
         String loginStatusUrl = pre_url_api+"analytic_dashboard/getAppLoginStatus?begin_date="+appLoginChartFirstDate+"&end_date="+appLoginChartLastDate;
+        String loginTotUnqUrl = pre_url_api+"analytic_dashboard/getTotalUnqLogin?begin_date="+appLoginChartFirstDate+"&end_date="+appLoginChartLastDate+"&p_log_type=3";
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        StringRequest loginTotUnqReq = new StringRequest(Request.Method.GET, loginTotUnqUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject docInfo = array.getJSONObject(i);
+
+                        total_unq_login = docInfo.getString("total_unq_amount")
+                                .equals("null") ? "0" : docInfo.getString("total_unq_amount");
+
+                    }
+                }
+
+                connected = true;
+                updateAppLoginLayout();
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateAppLoginLayout();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateAppLoginLayout();
+        });
 
         StringRequest loginStatusReq = new StringRequest(Request.Method.GET, loginStatusUrl, response -> {
             conn = true;
@@ -1819,8 +1926,7 @@ public class AnalyticsDashboard extends AppCompatActivity {
                     }
                 }
 
-                connected = true;
-                updateAppLoginLayout();
+                requestQueue.add(loginTotUnqReq);
             }
             catch (JSONException e) {
                 connected = false;
@@ -1857,7 +1963,7 @@ public class AnalyticsDashboard extends AppCompatActivity {
                 ArrayList<String> dateName = new ArrayList<>();
 
                 int total_count = 0;
-                int unique_count = 0;
+//                int unique_count = 0;
 
                 if (appLoginChartLists.size() == 1) {
                     totalCountValue.add(new Entry(0,0, "0"));
@@ -1875,9 +1981,9 @@ public class AnalyticsDashboard extends AppCompatActivity {
                     if (!appLoginChartLists.get(0).getTotCount().isEmpty()) {
                         total_count = total_count + Integer.parseInt(appLoginChartLists.get(0).getTotCount());
                     }
-                    if (!appLoginChartLists.get(0).getUniqueCount().isEmpty()) {
-                        unique_count = unique_count + Integer.parseInt(appLoginChartLists.get(0).getUniqueCount());
-                    }
+//                    if (!appLoginChartLists.get(0).getUniqueCount().isEmpty()) {
+//                        unique_count = unique_count + Integer.parseInt(appLoginChartLists.get(0).getUniqueCount());
+//                    }
                 }
                 else {
                     for (int i = 0; i < appLoginChartLists.size(); i++) {
@@ -1887,14 +1993,14 @@ public class AnalyticsDashboard extends AppCompatActivity {
                         if (!appLoginChartLists.get(i).getTotCount().isEmpty()) {
                             total_count = total_count + Integer.parseInt(appLoginChartLists.get(i).getTotCount());
                         }
-                        if (!appLoginChartLists.get(i).getUniqueCount().isEmpty()) {
-                            unique_count = unique_count + Integer.parseInt(appLoginChartLists.get(i).getUniqueCount());
-                        }
+//                        if (!appLoginChartLists.get(i).getUniqueCount().isEmpty()) {
+//                            unique_count = unique_count + Integer.parseInt(appLoginChartLists.get(i).getUniqueCount());
+//                        }
                     }
                 }
 
                 allLoginCount.setText(String.valueOf(total_count));
-                unqLoginCount.setText(String.valueOf(unique_count));
+                unqLoginCount.setText(String.valueOf(total_unq_login));
 
                 appLoginChart.animateXY(1000,1000);
                 if (appLoginChartLists.size() > 3) {
@@ -1994,6 +2100,7 @@ public class AnalyticsDashboard extends AppCompatActivity {
         connected = false;
 
         opasLoginChartLists = new ArrayList<>();
+        total_opas_unq_login = "0";
         ArrayList<ILineDataSet> dataSets1 = new ArrayList<>();
         LineData data2 = new LineData(dataSets1);
         opasLoginChart.setData(data2);
@@ -2005,8 +2112,43 @@ public class AnalyticsDashboard extends AppCompatActivity {
         opasLoginChart.fitScreen();
 
         String opasStatusUrl = pre_url_api+"analytic_dashboard/getOPASLoginStatus?begin_date="+opasLoginChartFirstDate+"&end_date="+opasLoginChartLastDate;
+        String loginTotOpasUnqUrl = pre_url_api+"analytic_dashboard/getTotalUnqLogin?begin_date="+opasLoginChartFirstDate+"&end_date="+opasLoginChartLastDate+"&p_log_type=1";
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        StringRequest loginOpasUnqReq = new StringRequest(Request.Method.GET, loginTotOpasUnqUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject docInfo = array.getJSONObject(i);
+
+                        total_opas_unq_login = docInfo.getString("total_unq_amount")
+                                .equals("null") ? "0" : docInfo.getString("total_unq_amount");
+
+                    }
+                }
+
+                connected = true;
+                updateOpasLoginLayout();
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateOpasLoginLayout();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateOpasLoginLayout();
+        });
 
         StringRequest opasStatusReq = new StringRequest(Request.Method.GET, opasStatusUrl, response -> {
             conn = true;
@@ -2031,8 +2173,7 @@ public class AnalyticsDashboard extends AppCompatActivity {
                     }
                 }
 
-                connected = true;
-                updateOpasLoginLayout();
+                requestQueue.add(loginOpasUnqReq);
             }
             catch (JSONException e) {
                 connected = false;
@@ -2069,7 +2210,7 @@ public class AnalyticsDashboard extends AppCompatActivity {
                 ArrayList<String> dateNameOpas = new ArrayList<>();
 
                 int total_count_opas = 0;
-                int unique_count_opas = 0;
+//                int unique_count_opas = 0;
 
                 if (opasLoginChartLists.size() == 1) {
                     totalCountValueOpas.add(new Entry(0,0, "0"));
@@ -2087,9 +2228,9 @@ public class AnalyticsDashboard extends AppCompatActivity {
                     if (!opasLoginChartLists.get(0).getTotCount().isEmpty()) {
                         total_count_opas = total_count_opas + Integer.parseInt(opasLoginChartLists.get(0).getTotCount());
                     }
-                    if (!opasLoginChartLists.get(0).getUniqueCount().isEmpty()) {
-                        unique_count_opas = unique_count_opas + Integer.parseInt(opasLoginChartLists.get(0).getUniqueCount());
-                    }
+//                    if (!opasLoginChartLists.get(0).getUniqueCount().isEmpty()) {
+//                        unique_count_opas = unique_count_opas + Integer.parseInt(opasLoginChartLists.get(0).getUniqueCount());
+//                    }
                 }
                 else {
                     for (int i = 0; i < opasLoginChartLists.size(); i++) {
@@ -2099,14 +2240,14 @@ public class AnalyticsDashboard extends AppCompatActivity {
                         if (!opasLoginChartLists.get(i).getTotCount().isEmpty()) {
                             total_count_opas = total_count_opas + Integer.parseInt(opasLoginChartLists.get(i).getTotCount());
                         }
-                        if (!opasLoginChartLists.get(i).getUniqueCount().isEmpty()) {
-                            unique_count_opas = unique_count_opas + Integer.parseInt(opasLoginChartLists.get(i).getUniqueCount());
-                        }
+//                        if (!opasLoginChartLists.get(i).getUniqueCount().isEmpty()) {
+//                            unique_count_opas = unique_count_opas + Integer.parseInt(opasLoginChartLists.get(i).getUniqueCount());
+//                        }
                     }
                 }
 
                 opasAllLoginCount.setText(String.valueOf(total_count_opas));
-                opasUnqLoginCount.setText(String.valueOf(unique_count_opas));
+                opasUnqLoginCount.setText(String.valueOf(total_opas_unq_login));
 
                 opasLoginChart.animateXY(1000,1000);
                 if (opasLoginChartLists.size() > 3) {

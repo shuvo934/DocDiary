@@ -16,8 +16,16 @@ public class UserInfoList {
     private String doc_video_link_enable_flag;
     private String doc_center_name;
     private String deptd_id;
+    private String pat_app_history;
+    private String upcoming_pat_history;
+    private String pat_pres_view;
+    private String all_presc;
+    private String doc_head_flag;
 
-    public UserInfoList(String doc_name, String doc_id, String doc_code, String depts_name, String deptd_name, String deptm_name, String desig_name, String docd_eff_date, String docd_status, String depts_id, String desig_id,String doc_video_link, String doc_video_link_enable_flag, String doc_center_name, String deptd_id) {
+    public UserInfoList(String doc_name, String doc_id, String doc_code, String depts_name, String deptd_name, String deptm_name, String desig_name,
+                        String docd_eff_date, String docd_status, String depts_id, String desig_id,String doc_video_link,
+                        String doc_video_link_enable_flag, String doc_center_name, String deptd_id, String pat_app_history, String upcoming_pat_history,
+                        String pat_pres_view, String all_presc, String doc_head_flag) {
         this.doc_name = doc_name;
         this.doc_id = doc_id;
         this.doc_code = doc_code;
@@ -33,6 +41,11 @@ public class UserInfoList {
         this.doc_video_link_enable_flag = doc_video_link_enable_flag;
         this.doc_center_name = doc_center_name;
         this.deptd_id = deptd_id;
+        this.pat_app_history = pat_app_history;
+        this.upcoming_pat_history = upcoming_pat_history;
+        this.pat_pres_view = pat_pres_view;
+        this.all_presc = all_presc;
+        this.doc_head_flag = doc_head_flag;
     }
 
     public String getDoc_name() {
@@ -153,5 +166,45 @@ public class UserInfoList {
 
     public void setDeptd_id(String deptd_id) {
         this.deptd_id = deptd_id;
+    }
+
+    public String getPat_app_history() {
+        return pat_app_history;
+    }
+
+    public void setPat_app_history(String pat_app_history) {
+        this.pat_app_history = pat_app_history;
+    }
+
+    public String getUpcoming_pat_history() {
+        return upcoming_pat_history;
+    }
+
+    public void setUpcoming_pat_history(String upcoming_pat_history) {
+        this.upcoming_pat_history = upcoming_pat_history;
+    }
+
+    public String getPat_pres_view() {
+        return pat_pres_view;
+    }
+
+    public void setPat_pres_view(String pat_pres_view) {
+        this.pat_pres_view = pat_pres_view;
+    }
+
+    public String getAll_presc() {
+        return all_presc;
+    }
+
+    public void setAll_presc(String all_presc) {
+        this.all_presc = all_presc;
+    }
+
+    public String getDoc_head_flag() {
+        return doc_head_flag;
+    }
+
+    public void setDoc_head_flag(String doc_head_flag) {
+        this.doc_head_flag = doc_head_flag;
     }
 }

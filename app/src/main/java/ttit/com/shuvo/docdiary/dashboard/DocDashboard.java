@@ -1919,9 +1919,18 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                     .equals("null") ? "0" :docInfo.getString("doc_deptd_head_flag");
                             doc_manager_flag = docInfo.getString("doc_manager_flag")
                                     .equals("null") ? "0" :docInfo.getString("doc_manager_flag");
+                            String pat_app_history = docInfo.getString("pat_app_history")
+                                    .equals("null") ? "0" :docInfo.getString("pat_app_history");
+                            String upcoming_pat_history = docInfo.getString("upcoming_pat_history")
+                                    .equals("null") ? "0" :docInfo.getString("upcoming_pat_history");
+                            String pat_pres_view = docInfo.getString("pat_pres_view")
+                                    .equals("null") ? "0" :docInfo.getString("pat_pres_view");
+                            String all_presc = docInfo.getString("all_presc")
+                                    .equals("null") ? "0" :docInfo.getString("all_presc");
 
                             userInfoLists.add(new UserInfoList(doc_name,nn_doc_id,doc_code,depts_name,deptd_name,deptm_name,
-                                    desig_name,doc_eff_date,doc_status,depts_id,desig_id,doc_video_link,doc_video_link_enable_flag,doc_center_name,deptd_id));
+                                    desig_name,doc_eff_date,doc_status,depts_id,desig_id,doc_video_link,doc_video_link_enable_flag,
+                                    doc_center_name,deptd_id,pat_app_history,upcoming_pat_history,pat_pres_view,all_presc,doc_head_flag));
                             doc_fl_flag = docInfo.getString("fl_flag")
                                     .equals("null") ? "0" :docInfo.getString("fl_flag");
 
@@ -2722,6 +2731,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                             else {
                                 docImage.setImageResource(R.drawable.doctor);
                             }
+
+                            bottomNavigationView.getMenu().findItem(R.id.patient_search_menu).setVisible(userInfoLists.get(0).getPat_pres_view().equals("1"));
 
                             first_flag = 1;
                         }

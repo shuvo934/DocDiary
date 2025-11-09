@@ -32,6 +32,12 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".appt_schedule.pat_history.PatientAppointmentHistory"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity" />
+        <activity
             android:name=".hr_accounts.dashboards.AnalyticsDashboard"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:exported="false"
