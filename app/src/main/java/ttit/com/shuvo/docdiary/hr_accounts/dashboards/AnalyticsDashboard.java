@@ -19,15 +19,21 @@ import androidx.core.graphics.Insets;
 import androidx.core.util.Pair;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
@@ -56,8 +62,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
+import ttit.com.shuvo.docdiary.hr_accounts.dashboards.adapters.CardWisePayAdapter;
 import ttit.com.shuvo.docdiary.hr_accounts.dashboards.arraylists.LoginChartList;
 import ttit.com.shuvo.docdiary.hr_accounts.dashboards.arraylists.OpasAppointChartList;
+import ttit.com.shuvo.docdiary.hr_accounts.dashboards.arraylists.OpasPayCardWiseList;
 import ttit.com.shuvo.docdiary.hr_accounts.dashboards.arraylists.OpasPayChartList;
 import ttit.com.shuvo.docdiary.hr_accounts.dashboards.extra.NormalMarker;
 
@@ -151,6 +159,14 @@ public class AnalyticsDashboard extends AppCompatActivity {
 
     LineChart opasPayChart;
     ArrayList<OpasPayChartList> opasPayChartLists;
+
+    BarChart opasPayCardChart;
+    ArrayList<OpasPayCardWiseList> opasPayCardLists;
+
+    RecyclerView recyclerView;
+    RecyclerView.LayoutManager layoutManager;
+    CardWisePayAdapter cardWisePayAdapter;
+
     CircularProgressIndicator opasPayChartCircularProgressIndicator;
     ImageView opasPayChartRefresh;
 
@@ -245,6 +261,12 @@ public class AnalyticsDashboard extends AppCompatActivity {
         opasPayNACount = findViewById(R.id.total_pay_not_init_count_alt_dash);
 
         opasPayChart = findViewById(R.id.pay_initialize_status_overview_linechart);
+        opasPayCardChart = findViewById(R.id.pay_status_card_by_overview_barchart);
+
+        recyclerView = findViewById(R.id.card_wise_payment_status_recyclerview);
+        recyclerView.setHasFixedSize(true);
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
 
         opasPayChartCircularProgressIndicator = findViewById(R.id.progress_indicator_onl_pat_pay_init_stat);
         opasPayChartCircularProgressIndicator.setVisibility(View.GONE);
@@ -276,12 +298,14 @@ public class AnalyticsDashboard extends AppCompatActivity {
         opasAppInitChartLists = new ArrayList<>();
         opasAppSchChartLists = new ArrayList<>();
         opasPayChartLists = new ArrayList<>();
+        opasPayCardLists = new ArrayList<>();
 
         LineChartInit(appLoginChart);
         LineChartInit(opasLoginChart);
         LineChartInit(opasAppInitChart);
         LineChartInit(opasAppSchChart);
         LineChartInit(opasPayChart);
+        BarChartInit();
 
         backButton.setOnClickListener(view -> {
             if (loading) {
@@ -765,6 +789,27 @@ public class AnalyticsDashboard extends AppCompatActivity {
         lineChart.getXAxis().setLabelRotationAngle(45);
     }
 
+    public void BarChartInit() {
+        opasPayCardChart.getDescription().setEnabled(false);
+        opasPayCardChart.setPinchZoom(false);
+        opasPayCardChart.getAxisLeft().setDrawGridLines(false);
+        opasPayCardChart.getAxisLeft().setAxisMinimum(0);
+
+        opasPayCardChart.getLegend().setStackSpace(20);
+        opasPayCardChart.getLegend().setYOffset(10);
+        opasPayCardChart.getLegend().setHorizontalAlignment(Legend.LegendHorizontalAlignment.CENTER);
+        opasPayCardChart.setExtraOffsets(0,0,0,20);
+
+        // zoom and touch
+        opasPayCardChart.setScaleEnabled(true);
+        opasPayCardChart.setTouchEnabled(true);
+        opasPayCardChart.setDoubleTapToZoomEnabled(false);
+        opasPayCardChart.setHighlightPerTapEnabled(true);
+        opasPayCardChart.setHighlightPerDragEnabled(false);
+
+        opasPayCardChart.getAxisRight().setEnabled(false);
+    }
+
     public void getDashboardData() {
         fullLayout.setVisibility(View.GONE);
         circularProgressIndicator.setVisibility(View.VISIBLE);
@@ -846,6 +891,14 @@ public class AnalyticsDashboard extends AppCompatActivity {
         opasPayChart.invalidate();
         opasPayChart.fitScreen();
 
+        opasPayCardLists = new ArrayList<>();
+        BarData cardData = new BarData();
+        opasPayCardChart.setData(cardData);
+        opasPayCardChart.getData().clearValues();
+        opasPayCardChart.notifyDataSetChanged();
+        opasPayCardChart.clear();
+        opasPayCardChart.invalidate();
+
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
         String date_now = dateFormat.format(Calendar.getInstance().getTime());
         appLoginChartFirstDate = date_now;
@@ -864,8 +917,53 @@ public class AnalyticsDashboard extends AppCompatActivity {
         String opasAppInitUrl = pre_url_api+"analytic_dashboard/getAppInitCountStatus?begin_date="+opasAppSchFirstDate+"&end_date="+opasAppSchLastDate;
         String opasAppSchUrl = pre_url_api+"analytic_dashboard/getAppSchCountStatus?begin_date="+opasAppSchFirstDate+"&end_date="+opasAppSchLastDate;
         String opasPayUrl = pre_url_api+"analytic_dashboard/getOPASPayStatus?begin_date="+opasPayChartFirstDate+"&end_date="+opasPayChartLastDate;
+        String opasPayCardUrl = pre_url_api+"analytic_dashboard/getOPASCardPayStatus?begin_date="+opasPayChartFirstDate+"&end_date="+opasPayChartLastDate;
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        StringRequest opasPayCardReq = new StringRequest(Request.Method.GET, opasPayCardUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject docInfo = array.getJSONObject(i);
+
+                        String name = docInfo.getString("card_name")
+                                .equals("null") ? "" : docInfo.getString("card_name");
+                        String ap_c = docInfo.getString("all_pay_count")
+                                .equals("null") ? "0" : docInfo.getString("all_pay_count");
+                        String cp_c = docInfo.getString("c_pay_count")
+                                .equals("null") ? "0" : docInfo.getString("c_pay_count");
+                        String fp_c = docInfo.getString("f_pay_count")
+                                .equals("null") ? "0" : docInfo.getString("f_pay_count");
+                        String np_c = docInfo.getString("na_pay_count")
+                                .equals("null") ? "0" : docInfo.getString("na_pay_count");
+
+                        opasPayCardLists.add(new OpasPayCardWiseList(name,ap_c,cp_c,fp_c,np_c));
+
+                    }
+                }
+
+                connected = true;
+                updateInterface();
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateInterface();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateInterface();
+        });
 
         StringRequest opasPayReq = new StringRequest(Request.Method.GET, opasPayUrl, response -> {
             conn = true;
@@ -894,8 +992,7 @@ public class AnalyticsDashboard extends AppCompatActivity {
                     }
                 }
 
-                connected = true;
-                updateInterface();
+                requestQueue.add(opasPayCardReq);
             }
             catch (JSONException e) {
                 connected = false;
@@ -1769,6 +1866,8 @@ public class AnalyticsDashboard extends AppCompatActivity {
                     opasPayChart.setData(data1_opas_pay_init);
                     opasPayChart.getData().setHighlightEnabled(true);
                     opasPayChart.invalidate();
+
+                    setPayCardChart();
                 }
 
                 loading = false;
@@ -2771,9 +2870,62 @@ public class AnalyticsDashboard extends AppCompatActivity {
         opasPayChart.invalidate();
         opasPayChart.fitScreen();
 
+        opasPayCardLists = new ArrayList<>();
+        BarData cardData = new BarData();
+        opasPayCardChart.setData(cardData);
+        opasPayCardChart.getData().clearValues();
+        opasPayCardChart.notifyDataSetChanged();
+        opasPayCardChart.clear();
+        opasPayCardChart.invalidate();
+
         String opasPayUrl = pre_url_api+"analytic_dashboard/getOPASPayStatus?begin_date="+opasPayChartFirstDate+"&end_date="+opasPayChartLastDate;
+        String opasPayCardUrl = pre_url_api+"analytic_dashboard/getOPASCardPayStatus?begin_date="+opasPayChartFirstDate+"&end_date="+opasPayChartLastDate;
 
         RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        StringRequest opasPayCardReq = new StringRequest(Request.Method.GET, opasPayCardUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject docInfo = array.getJSONObject(i);
+
+                        String name = docInfo.getString("card_name")
+                                .equals("null") ? "" : docInfo.getString("card_name");
+                        String ap_c = docInfo.getString("all_pay_count")
+                                .equals("null") ? "0" : docInfo.getString("all_pay_count");
+                        String cp_c = docInfo.getString("c_pay_count")
+                                .equals("null") ? "0" : docInfo.getString("c_pay_count");
+                        String fp_c = docInfo.getString("f_pay_count")
+                                .equals("null") ? "0" : docInfo.getString("f_pay_count");
+                        String np_c = docInfo.getString("na_pay_count")
+                                .equals("null") ? "0" : docInfo.getString("na_pay_count");
+
+                        opasPayCardLists.add(new OpasPayCardWiseList(name,ap_c,cp_c,fp_c,np_c));
+
+                    }
+                }
+
+                connected = true;
+                updateOpasPayLayout();
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateOpasPayLayout();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateOpasPayLayout();
+        });
 
         StringRequest opasPayReq = new StringRequest(Request.Method.GET, opasPayUrl, response -> {
             conn = true;
@@ -2802,8 +2954,7 @@ public class AnalyticsDashboard extends AppCompatActivity {
                     }
                 }
 
-                connected = true;
-                updateOpasPayLayout();
+                requestQueue.add(opasPayCardReq);
             }
             catch (JSONException e) {
                 connected = false;
@@ -2978,6 +3129,8 @@ public class AnalyticsDashboard extends AppCompatActivity {
                 opasPayChart.getData().setHighlightEnabled(true);
                 opasPayChart.invalidate();
 
+                setPayCardChart();
+
                 loading = false;
             }
             else {
@@ -2987,6 +3140,96 @@ public class AnalyticsDashboard extends AppCompatActivity {
         else {
             alertMessage6();
         }
+    }
+
+    public void setPayCardChart() {
+        ArrayList<String> cardList = new ArrayList<>();
+        ArrayList<BarEntry> confirmPayByCard = new ArrayList<>();
+        ArrayList<BarEntry> failedPayByCard = new ArrayList<>();
+        ArrayList<BarEntry> naPayByCard = new ArrayList<>();
+
+        for (int i = 0; i < opasPayCardLists.size(); i++) {
+            cardList.add(opasPayCardLists.get(i).getCard_name());
+            confirmPayByCard.add(new BarEntry(i, Float.parseFloat(opasPayCardLists.get(i).getC_pay_count()), i));
+            failedPayByCard.add(new BarEntry(i, Float.parseFloat(opasPayCardLists.get(i).getF_pay_count()), i));
+            naPayByCard.add(new BarEntry(i, Float.parseFloat(opasPayCardLists.get(i).getNa_pay_count()), i));
+        }
+
+        XAxis xAxis = opasPayCardChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setDrawGridLines(false);
+        xAxis.setCenterAxisLabels(true);
+        xAxis.setAxisMinimum(0);
+        xAxis.setAxisMaximum(opasPayCardLists.size());
+        xAxis.setGranularity(1);
+
+        BarDataSet set1 = new BarDataSet(confirmPayByCard, "Completed");
+        set1.setColor(getColor(R.color.light_green));
+        set1.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return String.valueOf((int) Math.floor(value));
+            }
+        });
+
+        BarDataSet set2 = new BarDataSet(failedPayByCard, "Failed");
+        set2.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return String.valueOf((int) Math.floor(value));
+            }
+        });
+        set2.setColor(getColor(R.color.light_rose));
+
+        BarDataSet set3 = new BarDataSet(naPayByCard, "No Result");
+        set3.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return String.valueOf((int) Math.floor(value));
+            }
+        });
+        set3.setColor(getColor(R.color.disabled));
+
+        float groupSpace = 0.19f;
+        float barSpace = 0.02f;
+
+        BarData cardChartData = new BarData(set1, set2, set3);
+
+        if (opasPayCardLists.size() > 10) {
+            cardChartData.setValueTextSize(8);
+            opasPayCardChart.getXAxis().setLabelRotationAngle(90);
+        }
+        else if (opasPayCardLists.size() >= 5) {
+            cardChartData.setValueTextSize(11);
+            opasPayCardChart.getXAxis().setLabelRotationAngle(45);
+        }
+        else {
+            cardChartData.setValueTextSize(12);
+            opasPayCardChart.getXAxis().setLabelRotationAngle(0);
+        }
+        cardChartData.setBarWidth(0.25f); // set the width of each bar
+        opasPayCardChart.animateY(1000);
+        opasPayCardChart.setData(cardChartData);
+        opasPayCardChart.groupBars(0, groupSpace, barSpace); // perform the "explicit" grouping
+        opasPayCardChart.invalidate();
+
+        xAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getAxisLabel(float value, AxisBase axis) {
+                if (value < 0 || value >= cardList.size()) {
+                    return null;
+                } else {
+                    System.out.println(value);
+                    System.out.println(axis);
+                    System.out.println(cardList.get((int) value));
+                    return (cardList.get((int) value));
+                }
+
+            }
+        });
+
+        cardWisePayAdapter = new CardWisePayAdapter(opasPayCardLists, AnalyticsDashboard.this);
+        recyclerView.setAdapter(cardWisePayAdapter);
     }
 
     public void alertMessage6() {

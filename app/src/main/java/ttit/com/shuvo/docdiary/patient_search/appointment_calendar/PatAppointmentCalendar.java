@@ -310,20 +310,20 @@ public class PatAppointmentCalendar extends AppCompatActivity {
                             } catch (ParseException e) {
                                 throw new RuntimeException(e);
                             }
-                            assert date != null;
 
-                            if (insertedDate != null) {
-                                if (insertedDate.equals(date)) {
-                                    z = 0;
+                            if (date != null) {
+                                if (insertedDate != null) {
+                                    if (insertedDate.equals(date)) {
+                                        z = 0;
+                                    } else {
+                                        z = 1;
+                                    }
                                 }
-                                else {
-                                    z = 1;
-                                }
-                            }
 
-                            if (z == 1) {
-                                insertedDate = date;
-                                listOfTimeDates.add(date);
+                                if (z == 1) {
+                                    insertedDate = date;
+                                    listOfTimeDates.add(date);
+                                }
                             }
                         }
 
@@ -569,35 +569,58 @@ public class PatAppointmentCalendar extends AppCompatActivity {
 
                     Calendar testStartdates = Calendar.getInstance();
                     testStartdates.set(Calendar.DAY_OF_MONTH,1);
+                    testStartdates.set(Calendar.HOUR_OF_DAY, 0);
+                    testStartdates.set(Calendar.MINUTE, 0);
+                    testStartdates.set(Calendar.SECOND, 0);
+                    testStartdates.set(Calendar.MILLISECOND, 0);
 
                     Calendar testEndDates = Calendar.getInstance();
                     testEndDates.add(Calendar.MONTH,2);
                     testEndDates.set(Calendar.DAY_OF_MONTH,testEndDates.getActualMaximum(Calendar.DAY_OF_MONTH));
+                    testEndDates.set(Calendar.HOUR_OF_DAY, 0);
+                    testEndDates.set(Calendar.MINUTE, 0);
+                    testEndDates.set(Calendar.SECOND, 0);
+                    testEndDates.set(Calendar.MILLISECOND, 0);
 
                     SimpleDateFormat dayNameFormat3 = new SimpleDateFormat("EEE", Locale.ENGLISH);
-                    do {
-                        String text;
-                        Calendar ddc = Calendar.getInstance();
-                        if (testStartdates.getTime().equals(startDates.getTime())) {
-                            text = dayNameFormat3.format(testStartdates.getTime());
-                            if (text.contains("Fri")) {
-                                ddc.setTime(testStartdates.getTime());
-                                CalendarDay calendarDay = new CalendarDay(ddc);
-                                calendarDay.setLabelColor(R.color.red_dark);
-                                events.add(calendarDay);
-                            }
-                        }
 
-                        testStartdates.add(Calendar.DAY_OF_MONTH,1);
-                        text = dayNameFormat3.format(testStartdates.getTime());
+                    while (!testStartdates.after(testEndDates)) {
+
+                        Calendar ddc = (Calendar) testStartdates.clone();
+                        String text = dayNameFormat3.format(testStartdates.getTime());
+
                         if (text.contains("Fri")) {
-                            ddc.setTime(testStartdates.getTime());
                             CalendarDay calendarDay = new CalendarDay(ddc);
                             calendarDay.setLabelColor(R.color.red_dark);
                             events.add(calendarDay);
                         }
+
+                        testStartdates.add(Calendar.DAY_OF_MONTH, 1);
                     }
-                    while (!testStartdates.getTime().equals(testEndDates.getTime()));
+
+//                    do {
+//                        String text;
+//                        Calendar ddc = Calendar.getInstance();
+//                        if (testStartdates.getTime().equals(startDates.getTime())) {
+//                            text = dayNameFormat3.format(testStartdates.getTime());
+//                            if (text.contains("Fri")) {
+//                                ddc.setTime(testStartdates.getTime());
+//                                CalendarDay calendarDay = new CalendarDay(ddc);
+//                                calendarDay.setLabelColor(R.color.red_dark);
+//                                events.add(calendarDay);
+//                            }
+//                        }
+//
+//                        testStartdates.add(Calendar.DAY_OF_MONTH,1);
+//                        text = dayNameFormat3.format(testStartdates.getTime());
+//                        if (text.contains("Fri")) {
+//                            ddc.setTime(testStartdates.getTime());
+//                            CalendarDay calendarDay = new CalendarDay(ddc);
+//                            calendarDay.setLabelColor(R.color.red_dark);
+//                            events.add(calendarDay);
+//                        }
+//                    }
+//                    while (!testStartdates.getTime().equals(testEndDates.getTime()));
 
                     calendarView.setCalendarDays(events);
 
