@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,7 +40,9 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.LargeValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
+import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.datepicker.DateValidatorPointBackward;
 import com.google.android.material.datepicker.MaterialDatePicker;
@@ -62,9 +65,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
+import ttit.com.shuvo.docdiary.hr_accounts.dashboards.adapters.CardWiseErrorAdapter;
 import ttit.com.shuvo.docdiary.hr_accounts.dashboards.adapters.CardWisePayAdapter;
 import ttit.com.shuvo.docdiary.hr_accounts.dashboards.arraylists.LoginChartList;
 import ttit.com.shuvo.docdiary.hr_accounts.dashboards.arraylists.OpasAppointChartList;
+import ttit.com.shuvo.docdiary.hr_accounts.dashboards.arraylists.OpasCardWiseErrorList;
 import ttit.com.shuvo.docdiary.hr_accounts.dashboards.arraylists.OpasPayCardWiseList;
 import ttit.com.shuvo.docdiary.hr_accounts.dashboards.arraylists.OpasPayChartList;
 import ttit.com.shuvo.docdiary.hr_accounts.dashboards.extra.NormalMarker;
@@ -72,6 +77,7 @@ import ttit.com.shuvo.docdiary.hr_accounts.dashboards.extra.NormalMarker;
 
 public class AnalyticsDashboard extends AppCompatActivity {
 
+    ScrollView scrollView;
     LinearLayout fullLayout;
     CircularProgressIndicator circularProgressIndicator;
     ImageView backButton;
@@ -162,10 +168,17 @@ public class AnalyticsDashboard extends AppCompatActivity {
 
     BarChart opasPayCardChart;
     ArrayList<OpasPayCardWiseList> opasPayCardLists;
+    ArrayList<OpasCardWiseErrorList> opasCardWiseErrorLists;
 
     RecyclerView recyclerView;
     RecyclerView.LayoutManager layoutManager;
     CardWisePayAdapter cardWisePayAdapter;
+
+    LinearLayout afterItemSelect;
+    TextView cardErrorText;
+    RecyclerView errorView;
+    RecyclerView.LayoutManager errLayoutManager;
+    CardWiseErrorAdapter cardWiseErrorAdapter;
 
     CircularProgressIndicator opasPayChartCircularProgressIndicator;
     ImageView opasPayChartRefresh;
@@ -182,6 +195,7 @@ public class AnalyticsDashboard extends AppCompatActivity {
             return insets;
         });
 
+        scrollView = findViewById(R.id.analytics_dashboard_scrollview);
         fullLayout = findViewById(R.id.analytics_dashboard_full_layout);
         circularProgressIndicator = findViewById(R.id.progress_indicator_analytics_dashboard);
         circularProgressIndicator.setVisibility(View.GONE);
@@ -268,6 +282,14 @@ public class AnalyticsDashboard extends AppCompatActivity {
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
+        afterItemSelect = findViewById(R.id.after_item_selecting_layout);
+        afterItemSelect.setVisibility(View.GONE);
+        cardErrorText = findViewById(R.id.card_wise_error_summary_text);
+        errorView = findViewById(R.id.card_wise_result_status_recyclerview);
+        errorView.setHasFixedSize(true);
+        errLayoutManager = new LinearLayoutManager(this);
+        errorView.setLayoutManager(errLayoutManager);
+
         opasPayChartCircularProgressIndicator = findViewById(R.id.progress_indicator_onl_pat_pay_init_stat);
         opasPayChartCircularProgressIndicator.setVisibility(View.GONE);
         opasPayChartRefresh = findViewById(R.id.onl_pat_pay_init_stat_chart_refresh_button);
@@ -299,6 +321,7 @@ public class AnalyticsDashboard extends AppCompatActivity {
         opasAppSchChartLists = new ArrayList<>();
         opasPayChartLists = new ArrayList<>();
         opasPayCardLists = new ArrayList<>();
+        opasCardWiseErrorLists = new ArrayList<>();
 
         LineChartInit(appLoginChart);
         LineChartInit(opasLoginChart);
@@ -306,6 +329,29 @@ public class AnalyticsDashboard extends AppCompatActivity {
         LineChartInit(opasAppSchChart);
         LineChartInit(opasPayChart);
         BarChartInit();
+
+        opasPayCardChart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
+            @Override
+            public void onValueSelected(Entry e, Highlight h) {
+                float value = e.getY();
+                BarEntry br = (BarEntry) e;
+                float ss = br.getX();
+                String selectedCardName = opasPayCardLists.get((int)ss).getCard_name();
+
+                int i = h.getDataSetIndex();
+                String label = opasPayCardChart.getBarData().getDataSetByIndex(i).getLabel();
+                if (i != 0 && value > 0) {
+                    String cardText = selectedCardName + " - " + label + " Status\nTotal : " + (int) value;
+                    cardErrorText.setText(cardText);
+                    getCardErrorStatus(i, selectedCardName);
+                }
+            }
+
+            @Override
+            public void onNothingSelected() {
+                afterItemSelect.setVisibility(View.GONE);
+            }
+        });
 
         backButton.setOnClickListener(view -> {
             if (loading) {
@@ -337,12 +383,8 @@ public class AnalyticsDashboard extends AppCompatActivity {
                     logger.log(Level.WARNING, e.getMessage(), e);
                 }
                 if (s_date != null && e_date != null) {
-                    System.out.println(s_date);
-                    System.out.println(e_date);
                     selectedStartDate = s_date.getTime(); //+ 21600000;
                     selectedEndDate = e_date.getTime(); // + 21600000;
-                    System.out.println(selectedStartDate);
-                    System.out.println(selectedEndDate);
                 }
                 if (selectedStartDate != null && selectedEndDate != null) {
                     builder.setSelection(new Pair<>(selectedStartDate, selectedEndDate));
@@ -359,8 +401,6 @@ public class AnalyticsDashboard extends AppCompatActivity {
                 if (selection != null && selection.first != null && selection.second != null) {
                     selectedStartDate = selection.first;  // Save selected start date
                     selectedEndDate = selection.second;
-                    System.out.println(selectedStartDate);
-                    System.out.println(selectedEndDate);// Save selected end date
                     SimpleDateFormat sdf = new SimpleDateFormat("dd-MMMM-yy", Locale.ENGLISH);
                     sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
                     String startDate = sdf.format(selection.first);
@@ -407,12 +447,8 @@ public class AnalyticsDashboard extends AppCompatActivity {
                     logger.log(Level.WARNING, e.getMessage(), e);
                 }
                 if (s_date != null && e_date != null) {
-                    System.out.println(s_date);
-                    System.out.println(e_date);
                     opasSelectedStartDate = s_date.getTime(); //+ 21600000;
                     opasSelectedEndDate = e_date.getTime(); // + 21600000;
-                    System.out.println(opasSelectedStartDate);
-                    System.out.println(opasSelectedEndDate);
                 }
                 if (opasSelectedStartDate != null && opasSelectedEndDate != null) {
                     builder.setSelection(new Pair<>(opasSelectedStartDate, opasSelectedEndDate));
@@ -429,8 +465,6 @@ public class AnalyticsDashboard extends AppCompatActivity {
                 if (selection != null && selection.first != null && selection.second != null) {
                     opasSelectedStartDate = selection.first;  // Save selected start date
                     opasSelectedEndDate = selection.second;
-                    System.out.println(opasSelectedStartDate);
-                    System.out.println(opasSelectedEndDate);// Save selected end date
                     SimpleDateFormat sdf = new SimpleDateFormat("dd-MMMM-yy", Locale.ENGLISH);
                     sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
                     String startDate = sdf.format(selection.first);
@@ -477,12 +511,8 @@ public class AnalyticsDashboard extends AppCompatActivity {
                     logger.log(Level.WARNING, e.getMessage(), e);
                 }
                 if (s_date != null && e_date != null) {
-                    System.out.println(s_date);
-                    System.out.println(e_date);
                     opasAppSchSelectedStartDate = s_date.getTime(); //+ 21600000;
                     opasAppSchSelectedEndDate = e_date.getTime(); // + 21600000;
-                    System.out.println(opasAppSchSelectedStartDate);
-                    System.out.println(opasAppSchSelectedEndDate);
                 }
                 if (opasAppSchSelectedStartDate != null && opasAppSchSelectedEndDate != null) {
                     builder.setSelection(new Pair<>(opasAppSchSelectedStartDate, opasAppSchSelectedEndDate));
@@ -499,8 +529,6 @@ public class AnalyticsDashboard extends AppCompatActivity {
                 if (selection != null && selection.first != null && selection.second != null) {
                     opasAppSchSelectedStartDate = selection.first;  // Save selected start date
                     opasAppSchSelectedEndDate = selection.second;
-                    System.out.println(opasAppSchSelectedStartDate);
-                    System.out.println(opasAppSchSelectedEndDate);// Save selected end date
                     SimpleDateFormat sdf = new SimpleDateFormat("dd-MMMM-yy", Locale.ENGLISH);
                     sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
                     String startDate = sdf.format(selection.first);
@@ -547,12 +575,8 @@ public class AnalyticsDashboard extends AppCompatActivity {
                     logger.log(Level.WARNING, e.getMessage(), e);
                 }
                 if (s_date != null && e_date != null) {
-                    System.out.println(s_date);
-                    System.out.println(e_date);
                     opasPaySelectedStartDate = s_date.getTime(); //+ 21600000;
                     opasPaySelectedEndDate = e_date.getTime(); // + 21600000;
-                    System.out.println(opasPaySelectedStartDate);
-                    System.out.println(opasPaySelectedEndDate);
                 }
                 if (opasPaySelectedStartDate != null && opasPaySelectedEndDate != null) {
                     builder.setSelection(new Pair<>(opasPaySelectedStartDate, opasPaySelectedEndDate));
@@ -569,8 +593,6 @@ public class AnalyticsDashboard extends AppCompatActivity {
                 if (selection != null && selection.first != null && selection.second != null) {
                     opasPaySelectedStartDate = selection.first;  // Save selected start date
                     opasPaySelectedEndDate = selection.second;
-                    System.out.println(opasPaySelectedStartDate);
-                    System.out.println(opasPaySelectedEndDate);// Save selected end date
                     SimpleDateFormat sdf = new SimpleDateFormat("dd-MMMM-yy", Locale.ENGLISH);
                     sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
                     String startDate = sdf.format(selection.first);
@@ -803,6 +825,7 @@ public class AnalyticsDashboard extends AppCompatActivity {
         // zoom and touch
         opasPayCardChart.setScaleEnabled(true);
         opasPayCardChart.setTouchEnabled(true);
+        opasPayCardChart.setClickable(true);
         opasPayCardChart.setDoubleTapToZoomEnabled(false);
         opasPayCardChart.setHighlightPerTapEnabled(true);
         opasPayCardChart.setHighlightPerDragEnabled(false);
@@ -2855,6 +2878,7 @@ public class AnalyticsDashboard extends AppCompatActivity {
         opasPayFullLayout.setVisibility(View.GONE);
         opasPayChartCircularProgressIndicator.setVisibility(View.VISIBLE);
         opasPayChartRefresh.setVisibility(View.GONE);
+        afterItemSelect.setVisibility(View.GONE);
         loading = true;
         conn = false;
         connected = false;
@@ -3209,24 +3233,21 @@ public class AnalyticsDashboard extends AppCompatActivity {
         }
         cardChartData.setBarWidth(0.25f); // set the width of each bar
         opasPayCardChart.animateY(1000);
-        opasPayCardChart.setData(cardChartData);
-        opasPayCardChart.groupBars(0, groupSpace, barSpace); // perform the "explicit" grouping
-        opasPayCardChart.invalidate();
 
         xAxis.setValueFormatter(new ValueFormatter() {
             @Override
             public String getAxisLabel(float value, AxisBase axis) {
-                if (value < 0 || value >= cardList.size()) {
-                    return null;
-                } else {
-                    System.out.println(value);
-                    System.out.println(axis);
-                    System.out.println(cardList.get((int) value));
-                    return (cardList.get((int) value));
+                int index = Math.round(value);
+                if (index >= 0 && index < cardList.size()) {
+                    return cardList.get(index) != null ? cardList.get(index) : "";
                 }
-
+                return "";
             }
         });
+
+        opasPayCardChart.setData(cardChartData);
+        opasPayCardChart.groupBars(0, groupSpace, barSpace);
+        opasPayCardChart.invalidate();
 
         cardWisePayAdapter = new CardWisePayAdapter(opasPayCardLists, AnalyticsDashboard.this);
         recyclerView.setAdapter(cardWisePayAdapter);
@@ -3236,6 +3257,134 @@ public class AnalyticsDashboard extends AppCompatActivity {
         opasPayFullLayout.setVisibility(View.GONE);
         opasPayChartCircularProgressIndicator.setVisibility(View.GONE);
         opasPayChartRefresh.setVisibility(View.VISIBLE);
+        if (parsing_message != null) {
+            if (parsing_message.isEmpty() || parsing_message.equals("null")) {
+                parsing_message = "Server problem or Internet not connected";
+            }
+        }
+        else {
+            parsing_message = "Server problem or Internet not connected";
+        }
+
+        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AnalyticsDashboard.this);
+        alertDialogBuilder.setTitle("Error!")
+                .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
+                .setPositiveButton("OK", (dialog, which) -> {
+                    loading = false;
+                    dialog.dismiss();
+                });
+
+        AlertDialog alert = alertDialogBuilder.create();
+        alert.setCancelable(false);
+        alert.setCanceledOnTouchOutside(false);
+        try {
+            alert.show();
+        }
+        catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
+    }
+
+    public void getCardErrorStatus(int type, String selectedCardName) {
+        opasPayFullLayout.setVisibility(View.GONE);
+        opasPayChartCircularProgressIndicator.setVisibility(View.VISIBLE);
+        opasPayChartRefresh.setVisibility(View.GONE);
+        loading = true;
+        conn = false;
+        connected = false;
+
+        opasCardWiseErrorLists = new ArrayList<>();
+
+        String url;
+        if (type == 1) {
+            url = pre_url_api+"analytic_dashboard/getCardWiseFailedResult?begin_date="+opasPayChartFirstDate+"&end_date="+opasPayChartLastDate+"&card_name="+selectedCardName;
+        }
+        else if (type == 2) {
+            url = pre_url_api+"analytic_dashboard/getCardWiseNRResult?begin_date="+opasPayChartFirstDate+"&end_date="+opasPayChartLastDate+"&card_name="+selectedCardName;
+        }
+        else {
+            url = "";
+        }
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject docInfo = array.getJSONObject(i);
+
+                        String r_type = docInfo.getString("result_type")
+                                .equals("null") ? "Not Available" : docInfo.getString("result_type");
+                        String r_desc = docInfo.getString("result_desc")
+                                .equals("null") ? "Not Available" : docInfo.getString("result_desc");
+                        String f_c = docInfo.getString("failed_count")
+                                .equals("null") ? "0" : docInfo.getString("failed_count");
+
+                        opasCardWiseErrorLists.add(new OpasCardWiseErrorList(r_type, r_desc, f_c));
+
+                    }
+                }
+
+                connected = true;
+                updateErrorLayout();
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                updateErrorLayout();
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            updateErrorLayout();
+        });
+
+        requestQueue.add(stringRequest);
+    }
+
+    private void updateErrorLayout() {
+        if (conn) {
+            if (connected) {
+                opasPayFullLayout.setVisibility(View.VISIBLE);
+                opasPayChartCircularProgressIndicator.setVisibility(View.GONE);
+                opasPayChartRefresh.setVisibility(View.GONE);
+                conn = false;
+                connected = false;
+
+                if (opasCardWiseErrorLists.isEmpty()) {
+                    Toast.makeText(getApplicationContext(),"No Data Found", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    afterItemSelect.setVisibility(View.VISIBLE);
+                    cardWiseErrorAdapter = new CardWiseErrorAdapter(opasCardWiseErrorLists, AnalyticsDashboard.this);
+                    errorView.setAdapter(cardWiseErrorAdapter);
+                    scrollView.post(() -> scrollView.fullScroll(View.FOCUS_DOWN));
+                }
+
+                loading = false;
+            }
+            else {
+                alertMessage7();
+            }
+        }
+        else {
+            alertMessage7();
+        }
+    }
+
+    public void alertMessage7() {
+        opasPayFullLayout.setVisibility(View.VISIBLE);
+        opasPayChartCircularProgressIndicator.setVisibility(View.GONE);
+        opasPayChartRefresh.setVisibility(View.GONE);
         if (parsing_message != null) {
             if (parsing_message.isEmpty() || parsing_message.equals("null")) {
                 parsing_message = "Server problem or Internet not connected";

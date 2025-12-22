@@ -73,6 +73,7 @@
                 app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MaterialCardView.Cut">
 
                 <ScrollView
+                    android:id="@+id/analytics_dashboard_scrollview"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scrollbars="none">

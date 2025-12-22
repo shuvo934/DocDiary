@@ -101,6 +101,7 @@ public class PatAppointmentCalendar extends AppCompatActivity {
         backButton.setOnClickListener(v -> finish());
 
         Calendar firstMonthCalender = Calendar.getInstance();
+        firstMonthCalender.add(Calendar.MONTH, -1);
         SimpleDateFormat month_format = new SimpleDateFormat("MMM-yy", Locale.ENGLISH);
         first_month = month_format.format(firstMonthCalender.getTime());
         first_month = first_month.toUpperCase();
@@ -114,6 +115,7 @@ public class PatAppointmentCalendar extends AppCompatActivity {
         last_month = last_date +"-" + last_month;
 
         startDates = Calendar.getInstance();
+        startDates.add(Calendar.MONTH, -1);
         startDates.set(Calendar.DAY_OF_MONTH,1);
         startDates.set(Calendar.HOUR_OF_DAY,0);
         startDates.set(Calendar.MINUTE,0);
@@ -568,6 +570,7 @@ public class PatAppointmentCalendar extends AppCompatActivity {
                     }
 
                     Calendar testStartdates = Calendar.getInstance();
+                    testStartdates.add(Calendar.MONTH, -1);
                     testStartdates.set(Calendar.DAY_OF_MONTH,1);
                     testStartdates.set(Calendar.HOUR_OF_DAY, 0);
                     testStartdates.set(Calendar.MINUTE, 0);

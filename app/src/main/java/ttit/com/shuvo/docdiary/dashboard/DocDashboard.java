@@ -24,7 +24,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
-import android.media.ExifInterface;
+import androidx.exifinterface.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -187,7 +187,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     String next_schedule = "";
     String patient_name = "";
     String doc_id = "";
-    String doc_fl_flag = "";
+    String doc_fl_flag = "0";
+    String doc_mob_app_access_flag = "";
     String doc_head_flag = "";
     String doc_manager_flag = "";
     int progress_track = 100;
@@ -247,6 +248,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     ArrayList<CenterList> centerLists;
     boolean tabUpdateNeeded = false;
 
+    String admin_expiry_date = "";
+    String admin_first_login_flag = "";
     String admin_fl_flag = "0";
     String mob_app_access_flag = "0";
     private Boolean adminAvailable = false;
@@ -1408,8 +1411,10 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
             byte[] buffer = new byte[1024];
             int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, bytesRead);
+            if (inputStream != null) {
+                while ((bytesRead = inputStream.read(buffer)) != -1) {
+                    outputStream.write(buffer, 0, bytesRead);
+                }
             }
 
             return file.getAbsolutePath(); // Now you have the file path
@@ -1463,7 +1468,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         try (FileOutputStream fos = new FileOutputStream(file)) {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.log(Level.WARNING,e.getMessage(),e);
         }
         return FileProvider.getUriForFile(context, "ttit.com.shuvo.docdiary.fileProvider", file);
     }
@@ -1797,6 +1802,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         connected = false;
         userAvailable = false;
         userInfoLists = new ArrayList<>();
+        doc_fl_flag = "0";
         expiry_date = "";
         doctor_status = "";
         doc_head_flag = "0";
@@ -1816,7 +1822,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
         String docDataUrl = pre_url_api+"doc_dashboard/getDocData?doc_code="+doc_code;
         String expiryDateUrl = pre_url_api+"doc_dashboard/updateDocExpDate";
-//        String flagUpdateUrl = pre_url_api+"login/updateFLFlag";
 
         RequestQueue requestQueue = Volley.newRequestQueue(DocDashboard.this);
 
@@ -1933,6 +1938,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                     doc_center_name,deptd_id,pat_app_history,upcoming_pat_history,pat_pres_view,all_presc,doc_head_flag));
                             doc_fl_flag = docInfo.getString("fl_flag")
                                     .equals("null") ? "0" :docInfo.getString("fl_flag");
+                            doc_mob_app_access_flag = docInfo.getString("access_flag")
+                                    .equals("null") ? "0" :docInfo.getString("access_flag");
 
                             userAvailable = true;
                         }
@@ -1955,15 +1962,19 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                         updateInterface();
                     }
                     else {
-                        if (first_login_flag.equals("1")) {
-                            loginLogInsert();
-                            System.out.println("FFF");
-                        } else {
-                            if (expiry_date.isEmpty()) {
-                                expiry_date = dateFormat.format(mmm);
+                        if (doc_mob_app_access_flag.equals("1")) {
+                            if (first_login_flag.equals("1")) {
+                                loginLogInsert();
+                            } else {
+                                if (expiry_date.isEmpty()) {
+                                    expiry_date = dateFormat.format(mmm);
+                                }
+                                requestQueue.add(expDateUpdate);
                             }
-                            requestQueue.add(expDateUpdate);
-                            System.out.println("GGG");
+                        }
+                        else {
+                            connected = true;
+                            updateInterface();
                         }
                     }
                 }
@@ -1986,50 +1997,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             updateInterface();
         });
 
-//        StringRequest flagUpdateReq = new StringRequest(Request.Method.POST, flagUpdateUrl, response -> {
-//            conn = true;
-//            try {
-//                JSONObject jsonObject = new JSONObject(response);
-//                String string_out = jsonObject.getString("string_out");
-//                if (string_out.equals("Successfully Created")) {
-//                    requestQueue.add(docDataReq);
-//                }
-//                else {
-//                    System.out.println(string_out);
-//                    parsing_message = string_out;
-//                    connected = false;
-//                    updateInterface();
-//                }
-//            }
-//            catch (JSONException e) {
-//                logger.log(Level.WARNING,e.getMessage(),e);
-//                connected = false;
-//                parsing_message = e.getLocalizedMessage();
-//                updateInterface();
-//            }
-//        }, error -> {
-//            logger.log(Level.WARNING,error.getMessage(),error);
-//            conn = false;
-//            connected = false;
-//            parsing_message = error.getLocalizedMessage();
-//            updateInterface();
-//        }) {
-//            @Override
-//            public Map<String, String> getHeaders() {
-//                Map<String, String> headers = new HashMap<>();
-//                headers.put("P_DOC_CODE", doc_code);
-//                return headers;
-//            }
-//        };
-
-//        if (user_switch) {
-//            requestQueue.add(flagUpdateReq);
-//            System.out.println("USER SWITCHED");
-//        }
-//        else {
-//            requestQueue.add(docDataReq);
-//            System.out.println("USER NOT SWITCHED");
-//        }
         requestQueue.add(docDataReq);
     }
 
@@ -2048,7 +2015,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 }
                 else {
                     parsing_message = string_out;
-                    System.out.println(string_out);
                     connected = false;
                     updateInterface();
                 }
@@ -2108,6 +2074,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 restart("Could Not Get Doctor Data. Please Restart the App.");
             }
         }
+        String docFlUrl = pre_url_api+"doc_dashboard/getDocFLFlag?p_doc_id="+doc_id;
         String docDataUrl = pre_url_api+"doc_dashboard/getMeetingSchedule?doc_id="+doc_id+"&time_now="+time_now;
         String docMeetingUrl = pre_url_api+"doc_dashboard/getMeetingCount?doc_id="+doc_id+"&first_date="+date_now+"&end_date="+date_now;
         String docScheduleUrl = pre_url_api+"doc_dashboard/getScheduleCount?doc_id="+doc_id+"&first_date="+date_now+"&end_date="+date_now;
@@ -2352,7 +2319,66 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             }
         });
 
-        requestQueue.add(docSchReq);
+        StringRequest docFlReq = new StringRequest(Request.Method.GET, docFlUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject docInfo = array.getJSONObject(i);
+
+                        doc_fl_flag = docInfo.getString("fl_flag")
+                                .equals("null") ? "0" :docInfo.getString("fl_flag");
+
+                    }
+                }
+
+                if (doc_fl_flag.equals("1")) {
+                    connected = true;
+                    if (first_flag == 0) {
+                        updateInterface();
+                    }
+                    else {
+                        updateLayout();
+                    }
+                }
+                else {
+                    requestQueue.add(docSchReq);
+                }
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                if (first_flag == 0) {
+                    updateInterface();
+                }
+                else {
+                    updateLayout();
+                }
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            if (first_flag == 0) {
+                updateInterface();
+            }
+            else {
+                updateLayout();
+            }
+        });
+
+        if (first_flag == 0) {
+            requestQueue.add(docSchReq);
+        }
+        else {
+            requestQueue.add(docFlReq);
+        }
 
     }
 
@@ -2405,19 +2431,325 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                         }
                     }
                     else {
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
-                        Date exp_date;
-                        Date now_date = Calendar.getInstance().getTime();
-                        String nnn_date = dateFormat.format(now_date);
-                        try {
-                            exp_date = dateFormat.parse(expiry_date);
-                            now_date = dateFormat.parse(nnn_date);
-                        } catch (ParseException e) {
-                            throw new RuntimeException(e);
+                        if (doc_mob_app_access_flag.equals("1")) {
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
+                            Date exp_date;
+                            Date now_date = Calendar.getInstance().getTime();
+                            String nnn_date = dateFormat.format(now_date);
+                            try {
+                                exp_date = dateFormat.parse(expiry_date);
+                                now_date = dateFormat.parse(nnn_date);
+                            } catch (ParseException e) {
+                                throw new RuntimeException(e);
+                            }
+                            assert exp_date != null;
+                            assert now_date != null;
+                            if (exp_date.getTime() < now_date.getTime()) {
+                                fullLayout.setVisibility(View.GONE);
+                                progressBarCard.setVisibility(View.GONE);
+                                bottomNavigationView.setVisibility(View.GONE);
+                                circularProgressIndicator.setVisibility(View.GONE);
+                                tabFullLayout.setVisibility(View.GONE);
+                                tabFullLayoutAdmin.setVisibility(View.GONE);
+                                tabCircularProgressIndicator.setVisibility(View.GONE);
+                                tabLayout.setVisibility(View.GONE);
+                                tabRefresh.setVisibility(View.GONE);
+                                graphicalViewLayout.setVisibility(View.GONE);
+                                chartTabCircularProgressIndicator.setVisibility(View.GONE);
+
+                                MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
+                                alertDialogBuilder.setTitle("Date Expired!")
+                                        .setMessage("Your access to the app is expired on: " + expiry_date + ".\n" +
+                                                "To gain access to the app, Please contact with the administrator")
+                                        .setPositiveButton("OK", (dialog, which) -> {
+
+                                            SharedPreferences.Editor editor1 = sharedPreferences.edit();
+                                            editor1.remove(DOC_USER_CODE);
+                                            editor1.remove(DOC_USER_PASSWORD);
+                                            editor1.remove(DOC_DATA_API);
+                                            editor1.remove(DOC_ALL_ID);
+                                            editor1.remove(ADMIN_USR_ID);
+                                            editor1.remove(ADMIN_OR_USER_FLAG);
+                                            editor1.remove(LOGIN_TF);
+                                            editor1.apply();
+                                            editor1.commit();
+                                            dialog.dismiss();
+                                            finish();
+                                        });
+
+                                AlertDialog alert = alertDialogBuilder.create();
+                                alert.setCancelable(false);
+                                alert.setCanceledOnTouchOutside(false);
+                                try {
+                                    alert.show();
+                                } catch (Exception e) {
+                                    restart("App is paused for a long time. Please Start the app again.");
+                                }
+                            }
+                            else {
+                                fullLayout.setVisibility(View.VISIBLE);
+                                progressBarCard.setVisibility(View.VISIBLE);
+                                bottomNavigationView.setVisibility(View.VISIBLE);
+                                circularProgressIndicator.setVisibility(View.GONE);
+                                tabFullLayout.setVisibility(View.VISIBLE);
+                                tabFullLayoutAdmin.setVisibility(View.GONE);
+                                tabCircularProgressIndicator.setVisibility(View.GONE);
+                                tabLayout.setVisibility(View.VISIBLE);
+                                tabRefresh.setVisibility(View.GONE);
+                                graphicalViewLayout.setVisibility(View.GONE);
+                                chartTabCircularProgressIndicator.setVisibility(View.GONE);
+
+                                conn = false;
+                                connected = false;
+                                userAvailable = false;
+
+                                progress_track_flag_value = 0;
+                                String doc_center = "";
+                                if (userInfoLists == null) {
+                                    restart("Could Not Get Doctor Data. Please Restart the App.");
+                                } else {
+                                    if (userInfoLists.isEmpty()) {
+                                        restart("Could Not Get Doctor Data. Please Restart the App.");
+                                    } else {
+                                        doc_id = userInfoLists.get(0).getDoc_id();
+                                        String dd = userInfoLists.get(0).getDoc_name();
+                                        dd = dd.length() < 3 ? dd : dd.substring(0, 3);
+                                        dd = dd.toLowerCase();
+
+                                        String doc_name;
+                                        if (dd.contains("dr.")) {
+                                            doc_name = userInfoLists.get(0).getDoc_name();
+                                        } else {
+                                            doc_name = "Dr. " + userInfoLists.get(0).getDoc_name();
+                                        }
+                                        docName.setText(doc_name);
+
+                                        doc_center = userInfoLists.get(0).getDoc_center_name();
+                                    }
+                                }
+
+                                if (doc_center.isEmpty()) {
+                                    docCenterName.setVisibility(View.GONE);
+                                } else {
+                                    docCenterName.setVisibility(View.VISIBLE);
+                                    doc_center = "(" + doc_center + ")";
+                                    docCenterName.setText(doc_center);
+                                }
+                                if (doc_manager_flag.equals("1")) {
+                                    allDoctorAppointment.setVisibility(View.VISIBLE);
+                                    doctorReports.setVisibility(View.VISIBLE);
+                                    unitDoctor.setVisibility(View.GONE);
+                                } else {
+                                    allDoctorAppointment.setVisibility(View.GONE);
+                                    doctorReports.setVisibility(View.GONE);
+                                    if (doc_head_flag.equals("1")) {
+                                        unitDoctor.setVisibility(View.VISIBLE);
+                                    } else {
+                                        unitDoctor.setVisibility(View.GONE);
+                                    }
+                                }
+
+                                SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.ENGLISH);
+                                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm a", Locale.ENGLISH);
+                                SimpleDateFormat only_date_format = new SimpleDateFormat("dd", Locale.ENGLISH);
+                                SimpleDateFormat full_date_format = new SimpleDateFormat("dd MMM, yy", Locale.ENGLISH);
+                                SimpleDateFormat full_date_format_range = new SimpleDateFormat("dd MMMM, yy", Locale.ENGLISH);
+
+
+                                if (!last_schedule.isEmpty() && !next_schedule.isEmpty()) {
+                                    String nt = "Next Meeting";
+                                    nextMeetingText.setText(nt);
+                                    meetingTime.setVisibility(View.VISIBLE);
+                                    patientName.setVisibility(View.VISIBLE);
+                                    timerIcon.setVisibility(View.VISIBLE);
+                                    normalCountDownView.setVisibility(View.VISIBLE);
+                                    Date prv_meeting_date;
+                                    try {
+                                        prv_meeting_date = sdf.parse(last_schedule);
+                                    } catch (ParseException e) {
+                                        throw new RuntimeException(e);
+                                    }
+
+                                    Date to_Date = Calendar.getInstance().getTime();
+
+                                    Date next_meeting_date;
+                                    try {
+                                        next_meeting_date = sdf.parse(next_schedule);
+                                    } catch (ParseException e) {
+                                        throw new RuntimeException(e);
+                                    }
+
+
+                                    assert next_meeting_date != null;
+                                    assert prv_meeting_date != null;
+                                    total_seconds = (int) ((next_meeting_date.getTime() - prv_meeting_date.getTime()) / 1000);
+
+                                    System.out.println("total_seconds: " + total_seconds);
+
+                                    int remaining_seconds = (int) ((next_meeting_date.getTime() - to_Date.getTime()) / 1000);
+
+                                    System.out.println("remaining_seconds: " + remaining_seconds);
+
+                                    progress_track = (100 * remaining_seconds) / total_seconds;
+
+                                    if (progress_track < 0) {
+                                        progress_track = 0;
+                                    }
+
+                                    System.out.println("progress_track: " + progress_track);
+
+                                    String time = simpleDateFormat.format(next_meeting_date);
+                                    String date = only_date_format.format(next_meeting_date);
+                                    String n_date = only_date_format.format(Calendar.getInstance().getTime());
+                                    String full_date = full_date_format.format(next_meeting_date);
+
+                                    if (date.equals(n_date)) {
+
+                                        if (time.startsWith("0")) {
+                                            time = time.substring(1);
+                                        }
+
+                                        String at = "At  " + time;
+                                        meetingTime.setText(at);
+                                    } else {
+                                        String tt = "At  " + time + "\nIn  " + full_date;
+                                        meetingTime.setText(tt);
+                                    }
+
+                                    horizontalProgressView.setProgressCompat(progress_track, true);
+                                    normalCountDownView.stopTimer();
+
+                                    int mm = remaining_seconds / 60;
+                                    int hh = mm / 60;
+                                    normalCountDownView.setShowHour(hh != 0);
+
+                                    normalCountDownView.setShowMinutes(mm != 0);
+
+                                    normalCountDownView.initTimer(remaining_seconds, HappyTimer.Type.COUNT_DOWN);
+                                    normalCountDownView.startTimer();
+
+                                    String text;
+                                    if (patient_name.isEmpty()) {
+                                        text = "No Name Found";
+                                    } else {
+                                        text = "With " + patient_name;
+                                    }
+                                    patientName.setText(text);
+                                } else if (last_schedule.isEmpty() && !next_schedule.isEmpty()) {
+                                    String nt = "Next Meeting";
+                                    nextMeetingText.setText(nt);
+                                    meetingTime.setVisibility(View.VISIBLE);
+                                    patientName.setVisibility(View.VISIBLE);
+                                    timerIcon.setVisibility(View.VISIBLE);
+                                    normalCountDownView.setVisibility(View.VISIBLE);
+
+                                    Date to_Date = Calendar.getInstance().getTime();
+
+                                    Date next_meeting_date;
+                                    try {
+                                        next_meeting_date = sdf.parse(next_schedule);
+                                    } catch (ParseException e) {
+                                        throw new RuntimeException(e);
+                                    }
+
+
+                                    assert next_meeting_date != null;
+
+                                    total_seconds = (int) ((next_meeting_date.getTime() - to_Date.getTime()) / 1000);
+
+                                    System.out.println("total_seconds: " + total_seconds);
+
+                                    int remaining_seconds = (int) ((next_meeting_date.getTime() - to_Date.getTime()) / 1000);
+
+                                    System.out.println("remaining_seconds: " + remaining_seconds);
+
+                                    progress_track = (100 * remaining_seconds) / total_seconds;
+
+                                    if (progress_track < 0) {
+                                        progress_track = 0;
+                                    }
+
+                                    System.out.println("progress_track: " + progress_track);
+
+                                    String time = simpleDateFormat.format(next_meeting_date);
+                                    String date = only_date_format.format(next_meeting_date);
+                                    String n_date = only_date_format.format(Calendar.getInstance().getTime());
+                                    String full_date = full_date_format.format(next_meeting_date);
+
+                                    if (date.equals(n_date)) {
+                                        String mt = "At " + time;
+                                        meetingTime.setText(mt);
+                                    } else {
+                                        String tt = "At " + time + "\nIn " + full_date;
+                                        meetingTime.setText(tt);
+                                    }
+
+                                    horizontalProgressView.setProgressCompat(progress_track, true);
+                                    normalCountDownView.stopTimer();
+
+                                    int mm = remaining_seconds / 60;
+                                    int hh = mm / 60;
+                                    normalCountDownView.setShowHour(hh != 0);
+
+                                    normalCountDownView.setShowMinutes(mm != 0);
+
+                                    normalCountDownView.initTimer(remaining_seconds, HappyTimer.Type.COUNT_DOWN);
+                                    normalCountDownView.startTimer();
+
+                                    String text;
+                                    if (patient_name.isEmpty()) {
+                                        text = "No Name Found";
+                                    } else {
+                                        text = "With " + patient_name;
+                                    }
+                                    patientName.setText(text);
+                                } else {
+                                    String nt = "No Upcoming Meeting Available";
+                                    nextMeetingText.setText(nt);
+                                    meetingTime.setVisibility(View.GONE);
+                                    patientName.setVisibility(View.GONE);
+                                    timerIcon.setVisibility(View.GONE);
+                                    normalCountDownView.setVisibility(View.GONE);
+                                    progress_track = 0;
+                                    horizontalProgressView.setProgressCompat(progress_track, true);
+
+                                }
+
+                                Date dateRangCc = Calendar.getInstance().getTime();
+                                String date_range_text = full_date_format_range.format(dateRangCc);
+                                dateRangeText.setText(date_range_text);
+
+                                total.setText(String.valueOf(total_meeting));
+                                completed.setText(String.valueOf(completed_meeting));
+                                remaining.setText(String.valueOf(remaining_meeting));
+                                totalSchedule.setText(String.valueOf(total_schedule));
+                                blockedSchedule.setText(String.valueOf(blocked_schedule));
+
+                                getGreetingText();
+
+                                TabLayout.Tab tabAt = tabLayout.getTabAt(0);
+                                tabUpdateNeeded = false;
+                                tabLayout.selectTab(tabAt);
+
+                                if (imageFound) {
+                                    try {
+                                        Glide.with(getApplicationContext())
+                                                .load(bitmap)
+                                                .fitCenter()
+                                                .into(docImage);
+                                    } catch (Exception e) {
+                                        restart("App is paused for a long time. Please Start the app again.");
+                                    }
+                                } else {
+                                    docImage.setImageResource(R.drawable.doctor);
+                                }
+
+                                bottomNavigationView.getMenu().findItem(R.id.patient_search_menu).setVisible(userInfoLists.get(0).getPat_pres_view().equals("1"));
+
+                                first_flag = 1;
+                            }
                         }
-                        assert exp_date != null;
-                        assert now_date != null;
-                        if (exp_date.getTime() < now_date.getTime()) {
+                        else {
                             fullLayout.setVisibility(View.GONE);
                             progressBarCard.setVisibility(View.GONE);
                             bottomNavigationView.setVisibility(View.GONE);
@@ -2431,11 +2763,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                             chartTabCircularProgressIndicator.setVisibility(View.GONE);
 
                             MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
-                            alertDialogBuilder.setTitle("Date Expired!")
-                                    .setMessage("Your access to the app is expired on: "+expiry_date+".\n" +
-                                            "To gain access to the app, Please contact with the administrator")
-                                    .setPositiveButton("OK", (dialog, which) -> {
-
+                            alertDialogBuilder.setTitle("Access Denied!")
+                                    .setMessage("You have no permission to access this app. Please contact with administrator to access this app.")                                    .setPositiveButton("OK", (dialog, which) -> {
                                         SharedPreferences.Editor editor1 = sharedPreferences.edit();
                                         editor1.remove(DOC_USER_CODE);
                                         editor1.remove(DOC_USER_PASSWORD);
@@ -2447,7 +2776,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                         editor1.apply();
                                         editor1.commit();
                                         dialog.dismiss();
-                                        System.exit(0);
+                                        finish();
                                     });
 
                             AlertDialog alert = alertDialogBuilder.create();
@@ -2459,282 +2788,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                             catch (Exception e) {
                                 restart("App is paused for a long time. Please Start the app again.");
                             }
-                        }
-                        else {
-                            fullLayout.setVisibility(View.VISIBLE);
-                            progressBarCard.setVisibility(View.VISIBLE);
-                            bottomNavigationView.setVisibility(View.VISIBLE);
-                            circularProgressIndicator.setVisibility(View.GONE);
-                            tabFullLayout.setVisibility(View.VISIBLE);
-                            tabFullLayoutAdmin.setVisibility(View.GONE);
-                            tabCircularProgressIndicator.setVisibility(View.GONE);
-                            tabLayout.setVisibility(View.VISIBLE);
-                            tabRefresh.setVisibility(View.GONE);
-                            graphicalViewLayout.setVisibility(View.GONE);
-                            chartTabCircularProgressIndicator.setVisibility(View.GONE);
-
-                            conn = false;
-                            connected = false;
-                            userAvailable = false;
-
-                            progress_track_flag_value = 0;
-                            String doc_center = "";
-                            if (userInfoLists == null) {
-                                restart("Could Not Get Doctor Data. Please Restart the App.");
-                            }
-                            else {
-                                if (userInfoLists.isEmpty()) {
-                                    restart("Could Not Get Doctor Data. Please Restart the App.");
-                                }
-                                else {
-                                    doc_id = userInfoLists.get(0).getDoc_id();
-                                    String dd = userInfoLists.get(0).getDoc_name();
-                                    dd = dd.length() < 3 ? dd : dd.substring(0, 3);
-                                    dd = dd.toLowerCase();
-
-                                    String doc_name;
-                                    if (dd.contains("dr.")) {
-                                        doc_name = userInfoLists.get(0).getDoc_name();
-                                    }
-                                    else {
-                                        doc_name = "Dr. "+userInfoLists.get(0).getDoc_name();
-                                    }
-                                    docName.setText(doc_name);
-
-                                    doc_center = userInfoLists.get(0).getDoc_center_name();
-                                }
-                            }
-
-                            if (doc_center.isEmpty()) {
-                                docCenterName.setVisibility(View.GONE);
-                            }
-                            else {
-                                docCenterName.setVisibility(View.VISIBLE);
-                                doc_center = "("+doc_center+")";
-                                docCenterName.setText(doc_center);
-                            }
-                            if (doc_manager_flag.equals("1")) {
-                                allDoctorAppointment.setVisibility(View.VISIBLE);
-                                doctorReports.setVisibility(View.VISIBLE);
-                                unitDoctor.setVisibility(View.GONE);
-                            }
-                            else {
-                                allDoctorAppointment.setVisibility(View.GONE);
-                                doctorReports.setVisibility(View.GONE);
-                                if (doc_head_flag.equals("1")) {
-                                    unitDoctor.setVisibility(View.VISIBLE);
-                                }
-                                else {
-                                    unitDoctor.setVisibility(View.GONE);
-                                }
-                            }
-
-                            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.ENGLISH);
-                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm a", Locale.ENGLISH);
-                            SimpleDateFormat only_date_format = new SimpleDateFormat("dd", Locale.ENGLISH);
-                            SimpleDateFormat full_date_format = new SimpleDateFormat("dd MMM, yy", Locale.ENGLISH);
-                            SimpleDateFormat full_date_format_range = new SimpleDateFormat("dd MMMM, yy", Locale.ENGLISH);
-
-
-                            if (!last_schedule.isEmpty() && !next_schedule.isEmpty()) {
-                                String nt = "Next Meeting";
-                                nextMeetingText.setText(nt);
-                                meetingTime.setVisibility(View.VISIBLE);
-                                patientName.setVisibility(View.VISIBLE);
-                                timerIcon.setVisibility(View.VISIBLE);
-                                normalCountDownView.setVisibility(View.VISIBLE);
-                                Date prv_meeting_date;
-                                try {
-                                    prv_meeting_date = sdf.parse(last_schedule);
-                                } catch (ParseException e) {
-                                    throw new RuntimeException(e);
-                                }
-
-                                Date to_Date = Calendar.getInstance().getTime();
-
-                                Date next_meeting_date;
-                                try {
-                                    next_meeting_date = sdf.parse(next_schedule);
-                                } catch (ParseException e) {
-                                    throw new RuntimeException(e);
-                                }
-
-
-                                assert next_meeting_date != null;
-                                assert prv_meeting_date != null;
-                                total_seconds = (int) ((next_meeting_date.getTime() - prv_meeting_date.getTime())/1000);
-
-                                System.out.println("total_seconds: "+total_seconds);
-
-                                int remaining_seconds = (int) ((next_meeting_date.getTime()- to_Date.getTime())/1000);
-
-                                System.out.println("remaining_seconds: "+remaining_seconds);
-
-                                progress_track = (100 * remaining_seconds) / total_seconds;
-
-                                if (progress_track < 0) {
-                                    progress_track = 0;
-                                }
-
-                                System.out.println("progress_track: "+progress_track);
-
-                                String time = simpleDateFormat.format(next_meeting_date);
-                                String date = only_date_format.format(next_meeting_date);
-                                String n_date = only_date_format.format(Calendar.getInstance().getTime());
-                                String full_date = full_date_format.format(next_meeting_date);
-
-                                if (date.equals(n_date)) {
-
-                                    if (time.startsWith("0")) {
-                                        time = time.substring(1);
-                                    }
-
-                                    String at = "At  "+time;
-                                    meetingTime.setText(at);
-                                }
-                                else {
-                                    String  tt = "At  " + time +"\nIn  "+ full_date;
-                                    meetingTime.setText(tt);
-                                }
-
-                                horizontalProgressView.setProgressCompat(progress_track,true);
-                                normalCountDownView.stopTimer();
-
-                                int mm = remaining_seconds / 60;
-                                int hh = mm / 60;
-                                normalCountDownView.setShowHour(hh != 0);
-
-                                normalCountDownView.setShowMinutes(mm != 0);
-
-                                normalCountDownView.initTimer(remaining_seconds, HappyTimer.Type.COUNT_DOWN);
-                                normalCountDownView.startTimer();
-
-                                String text;
-                                if (patient_name.isEmpty()) {
-                                    text = "No Name Found";
-                                }
-                                else {
-                                    text = "With " + patient_name;
-                                }
-                                patientName.setText(text);
-                            }
-                            else if (last_schedule.isEmpty() && !next_schedule.isEmpty()) {
-                                String nt = "Next Meeting";
-                                nextMeetingText.setText(nt);
-                                meetingTime.setVisibility(View.VISIBLE);
-                                patientName.setVisibility(View.VISIBLE);
-                                timerIcon.setVisibility(View.VISIBLE);
-                                normalCountDownView.setVisibility(View.VISIBLE);
-
-                                Date to_Date = Calendar.getInstance().getTime();
-
-                                Date next_meeting_date;
-                                try {
-                                    next_meeting_date = sdf.parse(next_schedule);
-                                } catch (ParseException e) {
-                                    throw new RuntimeException(e);
-                                }
-
-
-                                assert next_meeting_date != null;
-
-                                total_seconds = (int) ((next_meeting_date.getTime() - to_Date.getTime())/1000);
-
-                                System.out.println("total_seconds: "+total_seconds);
-
-                                int remaining_seconds = (int) ((next_meeting_date.getTime()- to_Date.getTime())/1000);
-
-                                System.out.println("remaining_seconds: "+remaining_seconds);
-
-                                progress_track = (100 * remaining_seconds) / total_seconds;
-
-                                if (progress_track < 0) {
-                                    progress_track = 0;
-                                }
-
-                                System.out.println("progress_track: "+progress_track);
-
-                                String time = simpleDateFormat.format(next_meeting_date);
-                                String date = only_date_format.format(next_meeting_date);
-                                String n_date = only_date_format.format(Calendar.getInstance().getTime());
-                                String full_date = full_date_format.format(next_meeting_date);
-
-                                if (date.equals(n_date)) {
-                                    String mt = "At "+time;
-                                    meetingTime.setText(mt);
-                                }
-                                else {
-                                    String  tt = "At " + time +"\nIn "+ full_date;
-                                    meetingTime.setText(tt);
-                                }
-
-                                horizontalProgressView.setProgressCompat(progress_track,true);
-                                normalCountDownView.stopTimer();
-
-                                int mm = remaining_seconds / 60;
-                                int hh = mm / 60;
-                                normalCountDownView.setShowHour(hh != 0);
-
-                                normalCountDownView.setShowMinutes(mm != 0);
-
-                                normalCountDownView.initTimer(remaining_seconds, HappyTimer.Type.COUNT_DOWN);
-                                normalCountDownView.startTimer();
-
-                                String text;
-                                if (patient_name.isEmpty()) {
-                                    text = "No Name Found";
-                                }
-                                else {
-                                    text = "With " + patient_name;
-                                }
-                                patientName.setText(text);
-                            }
-                            else  {
-                                String nt = "No Upcoming Meeting Available";
-                                nextMeetingText.setText(nt);
-                                meetingTime.setVisibility(View.GONE);
-                                patientName.setVisibility(View.GONE);
-                                timerIcon.setVisibility(View.GONE);
-                                normalCountDownView.setVisibility(View.GONE);
-                                progress_track = 0;
-                                horizontalProgressView.setProgressCompat(progress_track,true);
-
-                            }
-
-                            Date dateRangCc = Calendar.getInstance().getTime();
-                            String date_range_text = full_date_format_range.format(dateRangCc);
-                            dateRangeText.setText(date_range_text);
-
-                            total.setText(String.valueOf(total_meeting));
-                            completed.setText(String.valueOf(completed_meeting));
-                            remaining.setText(String.valueOf(remaining_meeting));
-                            totalSchedule.setText(String.valueOf(total_schedule));
-                            blockedSchedule.setText(String.valueOf(blocked_schedule));
-
-                            getGreetingText();
-
-                            TabLayout.Tab tabAt = tabLayout.getTabAt(0);
-                            tabUpdateNeeded = false;
-                            tabLayout.selectTab(tabAt);
-
-                            if (imageFound) {
-                                try {
-                                    Glide.with(getApplicationContext())
-                                            .load(bitmap)
-                                            .fitCenter()
-                                            .into(docImage);
-                                }
-                                catch (Exception e) {
-                                    restart("App is paused for a long time. Please Start the app again.");
-                                }
-                            }
-                            else {
-                                docImage.setImageResource(R.drawable.doctor);
-                            }
-
-                            bottomNavigationView.getMenu().findItem(R.id.patient_search_menu).setVisible(userInfoLists.get(0).getPat_pres_view().equals("1"));
-
-                            first_flag = 1;
                         }
                     }
                 }
@@ -2775,7 +2828,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                 editor1.apply();
                                 editor1.commit();
                                 dialog.dismiss();
-                                System.exit(0);
+                                finish();
                             });
 
                     AlertDialog alert = alertDialogBuilder.create();
@@ -2849,228 +2902,265 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     private void updateLayout() {
         if (conn) {
             if (connected) {
-                fullLayout.setVisibility(View.VISIBLE);
-                progressBarCard.setVisibility(View.VISIBLE);
-                bottomNavigationView.setVisibility(View.VISIBLE);
-                circularProgressIndicator.setVisibility(View.GONE);
-                tabFullLayout.setVisibility(View.VISIBLE);
-                tabFullLayoutAdmin.setVisibility(View.GONE);
-                tabCircularProgressIndicator.setVisibility(View.GONE);
-                tabLayout.setVisibility(View.VISIBLE);
-                tabRefresh.setVisibility(View.GONE);
-                graphicalViewLayout.setVisibility(View.GONE);
-                chartTabCircularProgressIndicator.setVisibility(View.GONE);
-                conn = false;
-                connected = false;
+                if (doc_fl_flag.equals("1")) {
+                    fullLayout.setVisibility(View.GONE);
+                    progressBarCard.setVisibility(View.GONE);
+                    bottomNavigationView.setVisibility(View.GONE);
+                    circularProgressIndicator.setVisibility(View.GONE);
+                    tabFullLayout.setVisibility(View.GONE);
+                    tabFullLayoutAdmin.setVisibility(View.GONE);
+                    tabCircularProgressIndicator.setVisibility(View.GONE);
+                    tabLayout.setVisibility(View.GONE);
+                    tabRefresh.setVisibility(View.GONE);
+                    graphicalViewLayout.setVisibility(View.GONE);
+                    chartTabCircularProgressIndicator.setVisibility(View.GONE);
 
-                progress_track_flag_value = 0;
+                    MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
+                    alertDialogBuilder.setTitle("Forced Log Out!")
+                            .setMessage("You are forced to log out from the app for server maintenance. We are sorry for the disturbance. Please Login again to continue the app.")
+                            .setPositiveButton("OK", (dialog, which) -> {
+                                SharedPreferences.Editor editor1 = sharedPreferences.edit();
+                                editor1.remove(DOC_USER_CODE);
+                                editor1.remove(DOC_USER_PASSWORD);
+                                editor1.remove(DOC_DATA_API);
+                                editor1.remove(DOC_ALL_ID);
+                                editor1.remove(ADMIN_USR_ID);
+                                editor1.remove(ADMIN_OR_USER_FLAG);
+                                editor1.remove(LOGIN_TF);
+                                editor1.apply();
+                                editor1.commit();
 
-                SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.ENGLISH);
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm a", Locale.ENGLISH);
-                SimpleDateFormat only_date_format = new SimpleDateFormat("dd", Locale.ENGLISH);
-                SimpleDateFormat full_date_format = new SimpleDateFormat("dd MMM, yy", Locale.ENGLISH);
-                SimpleDateFormat full_date_format_range = new SimpleDateFormat("dd MMMM, yy", Locale.ENGLISH);
+                                Intent intent = new Intent(DocDashboard.this, DocLogin.class);
+                                startActivity(intent);
+                                finish();
+                            });
 
-
-                if (!last_schedule.isEmpty() && !next_schedule.isEmpty()) {
-                    String nt = "Next Meeting";
-                    nextMeetingText.setText(nt);
-                    meetingTime.setVisibility(View.VISIBLE);
-                    patientName.setVisibility(View.VISIBLE);
-                    timerIcon.setVisibility(View.VISIBLE);
-                    normalCountDownView.setVisibility(View.VISIBLE);
-                    Date prv_meeting_date;
+                    AlertDialog alert = alertDialogBuilder.create();
+                    alert.setCancelable(false);
+                    alert.setCanceledOnTouchOutside(false);
                     try {
-                        prv_meeting_date = sdf.parse(last_schedule);
-                    } catch (ParseException e) {
-                        throw new RuntimeException(e);
-                    }
-
-                    Date to_Date = Calendar.getInstance().getTime();
-
-                    Date next_meeting_date;
-                    try {
-                        next_meeting_date = sdf.parse(next_schedule);
-                    } catch (ParseException e) {
-                        throw new RuntimeException(e);
-                    }
-
-
-                    assert next_meeting_date != null;
-                    assert prv_meeting_date != null;
-                    total_seconds = (int) ((next_meeting_date.getTime() - prv_meeting_date.getTime())/1000);
-
-                    System.out.println("total_seconds: "+total_seconds);
-
-                    int remaining_seconds = (int) ((next_meeting_date.getTime()- to_Date.getTime())/1000);
-
-                    System.out.println("remaining_seconds: "+remaining_seconds);
-
-                    progress_track = (100 * remaining_seconds) / total_seconds;
-
-                    if (progress_track < 0) {
-                        progress_track = 0;
-                    }
-
-                    System.out.println("progress_track: "+progress_track);
-
-                    String time = simpleDateFormat.format(next_meeting_date);
-                    String date = only_date_format.format(next_meeting_date);
-                    String n_date = only_date_format.format(Calendar.getInstance().getTime());
-                    String full_date = full_date_format.format(next_meeting_date);
-
-                    if (date.equals(n_date)) {
-
-                        if (time.startsWith("0")) {
-                            time = time.substring(1);
-                        }
-
-                        String mt = "At  "+time;
-                        meetingTime.setText(mt);
-                    }
-                    else {
-                        String  tt = "At  " + time +"\nIn  "+ full_date;
-                        meetingTime.setText(tt);
-                    }
-
-                    horizontalProgressView.setProgressCompat(progress_track,true);
-                    normalCountDownView.stopTimer();
-
-                    int mm = remaining_seconds / 60;
-                    int hh = mm / 60;
-                    normalCountDownView.setShowHour(hh != 0);
-
-                    normalCountDownView.setShowMinutes(mm != 0);
-
-                    normalCountDownView.initTimer(remaining_seconds, HappyTimer.Type.COUNT_DOWN);
-                    normalCountDownView.startTimer();
-
-                    String text;
-                    if (patient_name.isEmpty()) {
-                        text = "No Name Found";
-                    }
-                    else {
-                        text = "With " + patient_name;
-                    }
-                    patientName.setText(text);
-                }
-                else if (last_schedule.isEmpty() && !next_schedule.isEmpty()) {
-                    String nt = "Next Meeting";
-                    nextMeetingText.setText(nt);
-                    meetingTime.setVisibility(View.VISIBLE);
-                    patientName.setVisibility(View.VISIBLE);
-                    timerIcon.setVisibility(View.VISIBLE);
-                    normalCountDownView.setVisibility(View.VISIBLE);
-
-                    Date to_Date = Calendar.getInstance().getTime();
-
-                    Date next_meeting_date;
-                    try {
-                        next_meeting_date = sdf.parse(next_schedule);
-                    } catch (ParseException e) {
-                        throw new RuntimeException(e);
-                    }
-
-
-                    assert next_meeting_date != null;
-
-                    total_seconds = (int) ((next_meeting_date.getTime() - to_Date.getTime())/1000);
-
-                    System.out.println("total_seconds: "+total_seconds);
-
-                    int remaining_seconds = (int) ((next_meeting_date.getTime()- to_Date.getTime())/1000);
-
-                    System.out.println("remaining_seconds: "+remaining_seconds);
-
-                    progress_track = (100 * remaining_seconds) / total_seconds;
-
-                    if (progress_track < 0) {
-                        progress_track = 0;
-                    }
-
-                    System.out.println("progress_track: "+progress_track);
-
-                    String time = simpleDateFormat.format(next_meeting_date);
-                    String date = only_date_format.format(next_meeting_date);
-                    String n_date = only_date_format.format(Calendar.getInstance().getTime());
-                    String full_date = full_date_format.format(next_meeting_date);
-
-                    if (date.equals(n_date)) {
-                        String mt = "At "+time;
-                        meetingTime.setText(mt);
-                    }
-                    else {
-                        String  tt = "At " + time +"\nIn "+ full_date;
-                        meetingTime.setText(tt);
-                    }
-
-                    horizontalProgressView.setProgressCompat(progress_track,true);
-                    normalCountDownView.stopTimer();
-
-                    int mm = remaining_seconds / 60;
-                    int hh = mm / 60;
-                    normalCountDownView.setShowHour(hh != 0);
-
-                    normalCountDownView.setShowMinutes(mm != 0);
-
-                    normalCountDownView.initTimer(remaining_seconds, HappyTimer.Type.COUNT_DOWN);
-                    normalCountDownView.startTimer();
-
-                    String text;
-                    if (patient_name.isEmpty()) {
-                        text = "No Name Found";
-                    }
-                    else {
-                        text = "With " + patient_name;
-                    }
-                    patientName.setText(text);
-                }
-                else  {
-                    String nt = "No Upcoming Meeting Available";
-                    nextMeetingText.setText(nt);
-                    meetingTime.setVisibility(View.GONE);
-                    patientName.setVisibility(View.GONE);
-                    timerIcon.setVisibility(View.GONE);
-                    normalCountDownView.setVisibility(View.GONE);
-                    progress_track = 0;
-                    horizontalProgressView.setProgressCompat(progress_track,true);
-
-                }
-
-                Date dateRangCc = Calendar.getInstance().getTime();
-                String date_range_text = full_date_format_range.format(dateRangCc);
-                dateRangeText.setText(date_range_text);
-
-                total.setText(String.valueOf(total_meeting));
-                completed.setText(String.valueOf(completed_meeting));
-                remaining.setText(String.valueOf(remaining_meeting));
-                totalSchedule.setText(String.valueOf(total_schedule));
-                blockedSchedule.setText(String.valueOf(blocked_schedule));
-
-                getGreetingText();
-
-                TabLayout.Tab tabAt = tabLayout.getTabAt(0);
-                tabUpdateNeeded = false;
-                tabLayout.selectTab(tabAt);
-
-                if (imageFound) {
-                    try {
-                        Glide.with(getApplicationContext())
-                                .load(bitmap)
-                                .fitCenter()
-                                .into(docImage);
+                        alert.show();
                     }
                     catch (Exception e) {
                         restart("App is paused for a long time. Please Start the app again.");
                     }
                 }
                 else {
-                    docImage.setImageResource(R.drawable.doctor);
-                }
+                    fullLayout.setVisibility(View.VISIBLE);
+                    progressBarCard.setVisibility(View.VISIBLE);
+                    bottomNavigationView.setVisibility(View.VISIBLE);
+                    circularProgressIndicator.setVisibility(View.GONE);
+                    tabFullLayout.setVisibility(View.VISIBLE);
+                    tabFullLayoutAdmin.setVisibility(View.GONE);
+                    tabCircularProgressIndicator.setVisibility(View.GONE);
+                    tabLayout.setVisibility(View.VISIBLE);
+                    tabRefresh.setVisibility(View.GONE);
+                    graphicalViewLayout.setVisibility(View.GONE);
+                    chartTabCircularProgressIndicator.setVisibility(View.GONE);
+                    conn = false;
+                    connected = false;
 
-                askUserForReview();
-                first_flag = 1;
-                loading = false;
+                    progress_track_flag_value = 0;
+
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.ENGLISH);
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm a", Locale.ENGLISH);
+                    SimpleDateFormat only_date_format = new SimpleDateFormat("dd", Locale.ENGLISH);
+                    SimpleDateFormat full_date_format = new SimpleDateFormat("dd MMM, yy", Locale.ENGLISH);
+                    SimpleDateFormat full_date_format_range = new SimpleDateFormat("dd MMMM, yy", Locale.ENGLISH);
+
+
+                    if (!last_schedule.isEmpty() && !next_schedule.isEmpty()) {
+                        String nt = "Next Meeting";
+                        nextMeetingText.setText(nt);
+                        meetingTime.setVisibility(View.VISIBLE);
+                        patientName.setVisibility(View.VISIBLE);
+                        timerIcon.setVisibility(View.VISIBLE);
+                        normalCountDownView.setVisibility(View.VISIBLE);
+                        Date prv_meeting_date;
+                        try {
+                            prv_meeting_date = sdf.parse(last_schedule);
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        Date to_Date = Calendar.getInstance().getTime();
+
+                        Date next_meeting_date;
+                        try {
+                            next_meeting_date = sdf.parse(next_schedule);
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
+                        }
+
+
+                        assert next_meeting_date != null;
+                        assert prv_meeting_date != null;
+                        total_seconds = (int) ((next_meeting_date.getTime() - prv_meeting_date.getTime()) / 1000);
+
+                        System.out.println("total_seconds: " + total_seconds);
+
+                        int remaining_seconds = (int) ((next_meeting_date.getTime() - to_Date.getTime()) / 1000);
+
+                        System.out.println("remaining_seconds: " + remaining_seconds);
+
+                        progress_track = (100 * remaining_seconds) / total_seconds;
+
+                        if (progress_track < 0) {
+                            progress_track = 0;
+                        }
+
+                        System.out.println("progress_track: " + progress_track);
+
+                        String time = simpleDateFormat.format(next_meeting_date);
+                        String date = only_date_format.format(next_meeting_date);
+                        String n_date = only_date_format.format(Calendar.getInstance().getTime());
+                        String full_date = full_date_format.format(next_meeting_date);
+
+                        if (date.equals(n_date)) {
+
+                            if (time.startsWith("0")) {
+                                time = time.substring(1);
+                            }
+
+                            String mt = "At  " + time;
+                            meetingTime.setText(mt);
+                        } else {
+                            String tt = "At  " + time + "\nIn  " + full_date;
+                            meetingTime.setText(tt);
+                        }
+
+                        horizontalProgressView.setProgressCompat(progress_track, true);
+                        normalCountDownView.stopTimer();
+
+                        int mm = remaining_seconds / 60;
+                        int hh = mm / 60;
+                        normalCountDownView.setShowHour(hh != 0);
+
+                        normalCountDownView.setShowMinutes(mm != 0);
+
+                        normalCountDownView.initTimer(remaining_seconds, HappyTimer.Type.COUNT_DOWN);
+                        normalCountDownView.startTimer();
+
+                        String text;
+                        if (patient_name.isEmpty()) {
+                            text = "No Name Found";
+                        } else {
+                            text = "With " + patient_name;
+                        }
+                        patientName.setText(text);
+                    } else if (last_schedule.isEmpty() && !next_schedule.isEmpty()) {
+                        String nt = "Next Meeting";
+                        nextMeetingText.setText(nt);
+                        meetingTime.setVisibility(View.VISIBLE);
+                        patientName.setVisibility(View.VISIBLE);
+                        timerIcon.setVisibility(View.VISIBLE);
+                        normalCountDownView.setVisibility(View.VISIBLE);
+
+                        Date to_Date = Calendar.getInstance().getTime();
+
+                        Date next_meeting_date;
+                        try {
+                            next_meeting_date = sdf.parse(next_schedule);
+                        } catch (ParseException e) {
+                            throw new RuntimeException(e);
+                        }
+
+
+                        assert next_meeting_date != null;
+
+                        total_seconds = (int) ((next_meeting_date.getTime() - to_Date.getTime()) / 1000);
+
+                        System.out.println("total_seconds: " + total_seconds);
+
+                        int remaining_seconds = (int) ((next_meeting_date.getTime() - to_Date.getTime()) / 1000);
+
+                        System.out.println("remaining_seconds: " + remaining_seconds);
+
+                        progress_track = (100 * remaining_seconds) / total_seconds;
+
+                        if (progress_track < 0) {
+                            progress_track = 0;
+                        }
+
+                        System.out.println("progress_track: " + progress_track);
+
+                        String time = simpleDateFormat.format(next_meeting_date);
+                        String date = only_date_format.format(next_meeting_date);
+                        String n_date = only_date_format.format(Calendar.getInstance().getTime());
+                        String full_date = full_date_format.format(next_meeting_date);
+
+                        if (date.equals(n_date)) {
+                            String mt = "At " + time;
+                            meetingTime.setText(mt);
+                        } else {
+                            String tt = "At " + time + "\nIn " + full_date;
+                            meetingTime.setText(tt);
+                        }
+
+                        horizontalProgressView.setProgressCompat(progress_track, true);
+                        normalCountDownView.stopTimer();
+
+                        int mm = remaining_seconds / 60;
+                        int hh = mm / 60;
+                        normalCountDownView.setShowHour(hh != 0);
+
+                        normalCountDownView.setShowMinutes(mm != 0);
+
+                        normalCountDownView.initTimer(remaining_seconds, HappyTimer.Type.COUNT_DOWN);
+                        normalCountDownView.startTimer();
+
+                        String text;
+                        if (patient_name.isEmpty()) {
+                            text = "No Name Found";
+                        } else {
+                            text = "With " + patient_name;
+                        }
+                        patientName.setText(text);
+                    } else {
+                        String nt = "No Upcoming Meeting Available";
+                        nextMeetingText.setText(nt);
+                        meetingTime.setVisibility(View.GONE);
+                        patientName.setVisibility(View.GONE);
+                        timerIcon.setVisibility(View.GONE);
+                        normalCountDownView.setVisibility(View.GONE);
+                        progress_track = 0;
+                        horizontalProgressView.setProgressCompat(progress_track, true);
+
+                    }
+
+                    Date dateRangCc = Calendar.getInstance().getTime();
+                    String date_range_text = full_date_format_range.format(dateRangCc);
+                    dateRangeText.setText(date_range_text);
+
+                    total.setText(String.valueOf(total_meeting));
+                    completed.setText(String.valueOf(completed_meeting));
+                    remaining.setText(String.valueOf(remaining_meeting));
+                    totalSchedule.setText(String.valueOf(total_schedule));
+                    blockedSchedule.setText(String.valueOf(blocked_schedule));
+
+                    getGreetingText();
+
+                    TabLayout.Tab tabAt = tabLayout.getTabAt(0);
+                    tabUpdateNeeded = false;
+                    tabLayout.selectTab(tabAt);
+
+                    if (imageFound) {
+                        try {
+                            Glide.with(getApplicationContext())
+                                    .load(bitmap)
+                                    .fitCenter()
+                                    .into(docImage);
+                        } catch (Exception e) {
+                            restart("App is paused for a long time. Please Start the app again.");
+                        }
+                    } else {
+                        docImage.setImageResource(R.drawable.doctor);
+                    }
+
+                    askUserForReview();
+                    first_flag = 1;
+                    loading = false;
+                }
             }
             else {
                 alertMessage2();
@@ -3392,11 +3482,60 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         adminInfoLists = new ArrayList<>();
         admin_fl_flag = "0";
         mob_app_access_flag = "0";
+        admin_expiry_date = "";
+        admin_first_login_flag ="1";
         adminAvailable = false;
         pay_app_type = 0;
 
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
+
+        Calendar calendarcc = Calendar.getInstance();
+        calendarcc.add(Calendar.MONTH,3);
+        Date mmm = calendarcc.getTime();
+
+        if (admin_expiry_date.isEmpty()) {
+            admin_expiry_date = dateFormat.format(mmm);
+        }
+
         String adminDataUrl = pre_url_api+"doc_dashboard/getAdminData?p_usr_id="+admin_usr_id;
-//        String flagUpdateUrl = pre_url_api+"login/updateAdminFLFlag";
+        String expiryDateUrl = pre_url_api+"doc_dashboard/updateUSRExpDate";
+
+        StringRequest expDateUpdate = new StringRequest(Request.Method.POST, expiryDateUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String string_out = jsonObject.getString("string_out");
+                if (string_out.equals("Successfully Created")) {
+                    adminLoginLogInsert();
+                }
+                else {
+                    parsing_message = string_out;
+                    System.out.println(string_out);
+                    connected = false;
+                    updateAdminInterface();
+                }
+            }
+            catch (JSONException e) {
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                connected = false;
+                updateAdminInterface();
+            }
+        }, error -> {
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            conn = false;
+            connected = false;
+            updateAdminInterface();
+        }) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("P_DATE",admin_expiry_date);
+                headers.put("P_USR_ID",admin_usr_id);
+                return  headers;
+            }
+        };
 
         RequestQueue requestQueue = Volley.newRequestQueue(DocDashboard.this);
 
@@ -3423,8 +3562,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                 .equals("null") ? "" :adminInfo.getString("usr_contact");
                         mob_app_access_flag = adminInfo.getString("usr_mob_app_access")
                                 .equals("null") ? "0" :adminInfo.getString("usr_mob_app_access");
-//                        String usr_mob_app_analytic_access = adminInfo.getString("usr_mob_app_analytic_access")
-//                                .equals("null") ? "0" :adminInfo.getString("usr_mob_app_analytic_access");
+                        String analytics_dashboard = adminInfo.getString("usr_mob_app_analytic_access")
+                                .equals("null") ? "0" :adminInfo.getString("usr_mob_app_analytic_access");
                         admin_fl_flag = adminInfo.getString("usr_mob_forced_log_out_flag")
                                 .equals("null") ? "0" :adminInfo.getString("usr_mob_forced_log_out_flag");
                         String admin_center_name = adminInfo.getString("admin_center_name")
@@ -3449,8 +3588,11 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                 .equals("null") ? "0" :adminInfo.getString("is_pay_mode_active");
                         String is_pay_appoint_type_active = adminInfo.getString("is_pay_appoint_type_active")
                                 .equals("null") ? "0" :adminInfo.getString("is_pay_appoint_type_active");
-                        String analytics_dashboard = adminInfo.getString("analytics_dashboard")
-                                .equals("null") ? "0" :adminInfo.getString("analytics_dashboard");
+                        admin_expiry_date = adminInfo.getString("exp_date")
+                                .equals("null") ? "" :adminInfo.getString("exp_date");
+
+                        admin_first_login_flag = adminInfo.getString("usr_app_first_login_flag")
+                                .equals("null") ? "0" :adminInfo.getString("usr_app_first_login_flag");
 
                         adminInfoLists.add(new AdminInfoList(admin_usr_id, usr_name,usr_fname,usr_lname,
                                 usr_email,usr_contact,all_access_flag, admin_center_name, hr_payment_active, hr_appointment_active,
@@ -3477,7 +3619,20 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                         updateAdminInterface();
                     }
                     else {
-                        adminLoginLogInsert();
+                        if (mob_app_access_flag.equals("1")) {
+                            if (admin_first_login_flag.equals("1")) {
+                                adminLoginLogInsert();
+                            } else {
+                                if (admin_expiry_date.isEmpty()) {
+                                    admin_expiry_date = dateFormat.format(mmm);
+                                }
+                                requestQueue.add(expDateUpdate);
+                            }
+                        }
+                        else {
+                            connected = true;
+                            updateAdminInterface();
+                        }
                     }
                 }
                 else {
@@ -3499,50 +3654,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             updateAdminInterface();
         });
 
-//        StringRequest adminFlagUpdateReq = new StringRequest(Request.Method.POST, flagUpdateUrl, response -> {
-//            conn = true;
-//            try {
-//                JSONObject jsonObject = new JSONObject(response);
-//                String string_out = jsonObject.getString("string_out");
-//                if (string_out.equals("Successfully Created")) {
-//                    requestQueue.add(adminDataReq);
-//                }
-//                else {
-//                    System.out.println(string_out);
-//                    parsing_message = string_out;
-//                    connected = false;
-//                    updateAdminInterface();
-//                }
-//            }
-//            catch (JSONException e) {
-//                logger.log(Level.WARNING,e.getMessage(),e);
-//                connected = false;
-//                parsing_message = e.getLocalizedMessage();
-//                updateAdminInterface();
-//            }
-//        }, error -> {
-//            logger.log(Level.WARNING,error.getMessage(),error);
-//            conn = false;
-//            connected = false;
-//            parsing_message = error.getLocalizedMessage();
-//            updateAdminInterface();
-//        }) {
-//            @Override
-//            public Map<String, String> getHeaders() {
-//                Map<String, String> headers = new HashMap<>();
-//                headers.put("P_USR_ID", admin_usr_id);
-//                return headers;
-//            }
-//        };
-
-//        if (user_switch) {
-//            requestQueue.add(adminFlagUpdateReq);
-//            System.out.println("USER SWITCHED");
-//        }
-//        else {
-//            requestQueue.add(adminDataReq);
-//            System.out.println("USER NOT SWITCHED");
-//        }
         adminDataReq.setRetryPolicy(new DefaultRetryPolicy(
                 DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 10,
                 0,
@@ -3661,6 +3772,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
         String date_now = dateFormat.format(Calendar.getInstance().getTime());
 
+        String adminFLFlagUrl = pre_url_api+"doc_dashboard/getAdminFLFlag?p_usr_id="+admin_usr_id;
         String adminPicUrl = pre_url_api+"doc_dashboard/getAdminPic?p_usr_id="+admin_usr_id;
         String adminAppPayUrl = pre_url_api + "doc_dashboard/getAdminAppPayCount?begin_date="+date_now+"&end_date="+date_now+"&user_id="+admin_usr_name;
         String paymentChartMonthUrl = pre_url_api + "doc_dashboard/getPaymentDataMonthly?begin_date="+firstDate+"&end_date="+lastDate+"&user_id="+admin_usr_name;
@@ -3870,6 +3982,60 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             }
         });
 
+        StringRequest adminFlReq = new StringRequest(Request.Method.GET, adminFLFlagUrl, response -> {
+            conn = true;
+            try {
+                JSONObject jsonObject = new JSONObject(response);
+                String items = jsonObject.getString("items");
+                String count = jsonObject.getString("count");
+                if (!count.equals("0")) {
+                    JSONArray array = new JSONArray(items);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject info = array.getJSONObject(i);
+
+                        admin_fl_flag = info.getString("fl_flag")
+                                .equals("null") ? "0" :info.getString("fl_flag");
+
+                    }
+                }
+
+                if (admin_fl_flag.equals("1")) {
+                    connected = true;
+                    if (first_flag == 0) {
+                        updateAdminInterface();
+                    }
+                    else {
+                        updateAdminLayout();
+                    }
+                }
+                else {
+                    requestQueue.add(adminPayAppReq);
+                }
+            }
+            catch (JSONException e) {
+                connected = false;
+                logger.log(Level.WARNING,e.getMessage(),e);
+                parsing_message = e.getLocalizedMessage();
+                if (first_flag == 0) {
+                    updateAdminInterface();
+                }
+                else {
+                    updateAdminLayout();
+                }
+            }
+        }, error -> {
+            conn = false;
+            connected = false;
+            logger.log(Level.WARNING,error.getMessage(),error);
+            parsing_message = error.getLocalizedMessage();
+            if (first_flag == 0) {
+                updateAdminInterface();
+            }
+            else {
+                updateAdminLayout();
+            }
+        });
+
         adminPicReq.setRetryPolicy(new DefaultRetryPolicy(
                 DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 10,
                 0,
@@ -3894,7 +4060,12 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         ));
 
-        requestQueue.add(adminPayAppReq);
+        if (first_flag == 0) {
+            requestQueue.add(adminPayAppReq);
+        }
+        else {
+            requestQueue.add(adminFlReq);
+        }
     }
 
     public void updateAdminInterface() {
@@ -3947,314 +4118,357 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     }
                     else {
                         if (mob_app_access_flag.equals("1")) {
-                            fullLayout.setVisibility(View.VISIBLE);
-                            progressBarCard.setVisibility(View.GONE);
-                            bottomNavigationView.setVisibility(View.VISIBLE);
-                            circularProgressIndicator.setVisibility(View.GONE);
-                            tabFullLayout.setVisibility(View.GONE);
-                            tabFullLayoutAdmin.setVisibility(View.VISIBLE);
-                            tabCircularProgressIndicator.setVisibility(View.GONE);
-                            tabLayout.setVisibility(View.VISIBLE);
-                            tabRefresh.setVisibility(View.GONE);
-                            graphicalViewLayout.setVisibility(View.VISIBLE);
-                            payAppointmentTypeLay.setVisibility(View.GONE);
-                            chartTabLayout.setVisibility(View.VISIBLE);
-                            chartTabFullLayout.setVisibility(View.VISIBLE);
-                            chartTabRefresh.setVisibility(View.GONE);
-                            chartTabCircularProgressIndicator.setVisibility(View.GONE);
-                            paymentChartCircularProgressIndicator.setVisibility(View.GONE);
-                            paymentChartRefresh.setVisibility(View.GONE);
-                            appointChartCircularProgressIndicator.setVisibility(View.GONE);
-                            appointChartRefresh.setVisibility(View.GONE);
-
-                            unitDoctor.setVisibility(View.GONE);
-                            allDoctorAppointment.setVisibility(View.GONE);
-                            doctorReports.setVisibility(View.GONE);
-
-                            conn = false;
-                            connected = false;
-                            adminAvailable = false;
-
-                            chartTabPosition = 0;
-
-                            getGreetingText();
-
-                            String doc_center = "";
-                            if (adminInfoLists == null) {
-                                restart("Could Not Get Doctor Data. Please Restart the App.");
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
+                            Date exp_date;
+                            Date now_date = Calendar.getInstance().getTime();
+                            String nnn_date = dateFormat.format(now_date);
+                            try {
+                                exp_date = dateFormat.parse(admin_expiry_date);
+                                now_date = dateFormat.parse(nnn_date);
+                            } catch (ParseException e) {
+                                throw new RuntimeException(e);
                             }
-                            else {
-                                if (adminInfoLists.isEmpty()) {
-                                    restart("Could Not Get Doctor Data. Please Restart the App.");
-                                }
-                                else {
-                                    if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) == 1) {
-                                        admin_usr_name = "";
-                                    }
-                                    else {
-                                        admin_usr_name = adminInfoLists.get(0).getUsr_name();
-                                    }
-                                    admin_usr_id = adminInfoLists.get(0).getUsr_id();
-                                    String dd = adminInfoLists.get(0).getUsr_fname() + " " + adminInfoLists.get(0).getUsr_lname();
+                            assert exp_date != null;
+                            assert now_date != null;
+                            if (exp_date.getTime() < now_date.getTime()) {
+                                fullLayout.setVisibility(View.GONE);
+                                progressBarCard.setVisibility(View.GONE);
+                                bottomNavigationView.setVisibility(View.GONE);
+                                circularProgressIndicator.setVisibility(View.GONE);
+                                tabFullLayout.setVisibility(View.GONE);
+                                tabFullLayoutAdmin.setVisibility(View.GONE);
+                                tabCircularProgressIndicator.setVisibility(View.GONE);
+                                tabLayout.setVisibility(View.GONE);
+                                tabRefresh.setVisibility(View.GONE);
+                                graphicalViewLayout.setVisibility(View.GONE);
+                                chartTabCircularProgressIndicator.setVisibility(View.GONE);
 
-                                    docName.setText(dd);
+                                MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
+                                alertDialogBuilder.setTitle("Date Expired!")
+                                        .setMessage("Your access to the app is expired on: " + admin_expiry_date + ".\n" +
+                                                "To gain access to the app, Please contact with the administrator")
+                                        .setPositiveButton("OK", (dialog, which) -> {
 
-                                    doc_center = adminInfoLists.get(0).getAdmin_center_name();
+                                            SharedPreferences.Editor editor1 = sharedPreferences.edit();
+                                            editor1.remove(DOC_USER_CODE);
+                                            editor1.remove(DOC_USER_PASSWORD);
+                                            editor1.remove(DOC_DATA_API);
+                                            editor1.remove(DOC_ALL_ID);
+                                            editor1.remove(ADMIN_USR_ID);
+                                            editor1.remove(ADMIN_OR_USER_FLAG);
+                                            editor1.remove(LOGIN_TF);
+                                            editor1.apply();
+                                            editor1.commit();
+                                            dialog.dismiss();
+                                            finish();
+                                        });
 
-                                    if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) == 2) {
-                                        bottomNavigationView.getMenu().findItem(R.id.admin_payment_menu).setVisible(adminInfoLists.get(0).getHr_payment_active().equals("1"));
-                                        bottomNavigationView.getMenu().findItem(R.id.admin_appointment_schedule_menu).setVisible(adminInfoLists.get(0).getHr_appointment_active().equals("1"));
-                                        if (adminInfoLists.get(0).getHr_acc_active_flag().equals("1")) {
-                                            bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("HR & Reports");
-                                        }
-                                        else {
-                                            bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("Reports");
-                                        }
-                                    }
-                                    else if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) == 3) {
-                                        bottomNavigationView.getMenu().findItem(R.id.admin_payment_menu).setVisible(adminInfoLists.get(0).getAcc_payment_active().equals("1"));
-                                        bottomNavigationView.getMenu().findItem(R.id.admin_appointment_schedule_menu).setVisible(adminInfoLists.get(0).getAcc_appointment_active().equals("1"));
-                                        if (adminInfoLists.get(0).getHr_acc_active_flag().equals("1")) {
-                                            bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("Accounts & Reports");
-                                        }
-                                        else {
-                                            bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("Reports");
-                                        }
-                                    }
-                                    else if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) == 1) {
-                                        bottomNavigationView.getMenu().findItem(R.id.admin_payment_menu).setVisible(true);
-                                        bottomNavigationView.getMenu().findItem(R.id.admin_appointment_schedule_menu).setVisible(true);
-                                        if (adminInfoLists.get(0).getHr_acc_active_flag().equals("1")) {
-                                            bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("Management Portal");
-                                        }
-                                        else {
-                                            bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("Reports");
-                                        }
-                                    }
-                                    else {
-                                        bottomNavigationView.getMenu().findItem(R.id.admin_payment_menu).setVisible(true);
-                                        bottomNavigationView.getMenu().findItem(R.id.admin_appointment_schedule_menu).setVisible(true);
-                                        bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("Reports");
-                                    }
-
-                                    if (Integer.parseInt(adminInfoLists.get(0).getIs_pay_appoint_type_active()) == 1) {
-                                        payAppointmentTypeLay.setVisibility(View.VISIBLE);
-                                    }
-                                    else {
-                                        payAppointmentTypeLay.setVisibility(View.GONE);
-                                    }
-                                }
-                            }
-
-                            if (doc_center.isEmpty()) {
-                                docCenterName.setVisibility(View.GONE);
-                            }
-                            else {
-                                docCenterName.setVisibility(View.VISIBLE);
-                                doc_center = "("+doc_center+")";
-                                docCenterName.setText(doc_center);
-                            }
-
-                            SimpleDateFormat full_date_format_range = new SimpleDateFormat("dd MMMM, yy", Locale.ENGLISH);
-
-                            Date dateRangCc = Calendar.getInstance().getTime();
-                            String date_range_text = full_date_format_range.format(dateRangCc);
-                            dateRangeTextAdmin.setText(date_range_text);
-
-                            TabLayout.Tab tabAt = tabLayout.getTabAt(0);
-                            tabUpdateNeeded = false;
-                            tabLayout.selectTab(tabAt);
-
-                            totalAppointmentAdmin.setText(total_appointment_admin);
-                            cancelAppointmentAdmin.setText(cancel_appointment_admin);
-                            totalPaymentCount.setText(total_payment_count);
-
-                            DecimalFormat formatter = new DecimalFormat("###,##,##,###");
-
-                            int p_amnt = Integer.parseInt(total_payment_amount);
-                            String formatted = formatter.format(p_amnt);
-                            String p_a = "৳ " + formatted ;
-                            totalPaymentAmount.setText(p_a);
-
-                            if (imageFound) {
+                                AlertDialog alert = alertDialogBuilder.create();
+                                alert.setCancelable(false);
+                                alert.setCanceledOnTouchOutside(false);
                                 try {
-                                    Glide.with(getApplicationContext())
-                                            .load(bitmap)
-                                            .fitCenter()
-                                            .into(docImage);
-                                }
-                                catch (Exception e) {
+                                    alert.show();
+                                } catch (Exception e) {
                                     restart("App is paused for a long time. Please Start the app again.");
                                 }
                             }
                             else {
-                                docImage.setImageResource(R.drawable.profile);
+                                fullLayout.setVisibility(View.VISIBLE);
+                                progressBarCard.setVisibility(View.GONE);
+                                bottomNavigationView.setVisibility(View.VISIBLE);
+                                circularProgressIndicator.setVisibility(View.GONE);
+                                tabFullLayout.setVisibility(View.GONE);
+                                tabFullLayoutAdmin.setVisibility(View.VISIBLE);
+                                tabCircularProgressIndicator.setVisibility(View.GONE);
+                                tabLayout.setVisibility(View.VISIBLE);
+                                tabRefresh.setVisibility(View.GONE);
+                                graphicalViewLayout.setVisibility(View.VISIBLE);
+                                payAppointmentTypeLay.setVisibility(View.GONE);
+                                chartTabLayout.setVisibility(View.VISIBLE);
+                                chartTabFullLayout.setVisibility(View.VISIBLE);
+                                chartTabRefresh.setVisibility(View.GONE);
+                                chartTabCircularProgressIndicator.setVisibility(View.GONE);
+                                paymentChartCircularProgressIndicator.setVisibility(View.GONE);
+                                paymentChartRefresh.setVisibility(View.GONE);
+                                appointChartCircularProgressIndicator.setVisibility(View.GONE);
+                                appointChartRefresh.setVisibility(View.GONE);
+
+                                unitDoctor.setVisibility(View.GONE);
+                                allDoctorAppointment.setVisibility(View.GONE);
+                                doctorReports.setVisibility(View.GONE);
+
+                                conn = false;
+                                connected = false;
+                                adminAvailable = false;
+
+                                chartTabPosition = 0;
+
+                                getGreetingText();
+
+                                String doc_center = "";
+                                if (adminInfoLists == null) {
+                                    restart("Could Not Get Doctor Data. Please Restart the App.");
+                                } else {
+                                    if (adminInfoLists.isEmpty()) {
+                                        restart("Could Not Get Doctor Data. Please Restart the App.");
+                                    } else {
+                                        if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) == 1) {
+                                            admin_usr_name = "";
+                                        } else {
+                                            admin_usr_name = adminInfoLists.get(0).getUsr_name();
+                                        }
+                                        admin_usr_id = adminInfoLists.get(0).getUsr_id();
+                                        String dd = adminInfoLists.get(0).getUsr_fname() + " " + adminInfoLists.get(0).getUsr_lname();
+
+                                        docName.setText(dd);
+
+                                        doc_center = adminInfoLists.get(0).getAdmin_center_name();
+
+                                        if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) == 2) {
+                                            bottomNavigationView.getMenu().findItem(R.id.admin_payment_menu).setVisible(adminInfoLists.get(0).getHr_payment_active().equals("1"));
+                                            bottomNavigationView.getMenu().findItem(R.id.admin_appointment_schedule_menu).setVisible(adminInfoLists.get(0).getHr_appointment_active().equals("1"));
+                                            if (adminInfoLists.get(0).getHr_acc_active_flag().equals("1")) {
+                                                bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("HR & Reports");
+                                            } else {
+                                                bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("Reports");
+                                            }
+                                        } else if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) == 3) {
+                                            bottomNavigationView.getMenu().findItem(R.id.admin_payment_menu).setVisible(adminInfoLists.get(0).getAcc_payment_active().equals("1"));
+                                            bottomNavigationView.getMenu().findItem(R.id.admin_appointment_schedule_menu).setVisible(adminInfoLists.get(0).getAcc_appointment_active().equals("1"));
+                                            if (adminInfoLists.get(0).getHr_acc_active_flag().equals("1")) {
+                                                bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("Accounts & Reports");
+                                            } else {
+                                                bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("Reports");
+                                            }
+                                        } else if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) == 1) {
+                                            bottomNavigationView.getMenu().findItem(R.id.admin_payment_menu).setVisible(true);
+                                            bottomNavigationView.getMenu().findItem(R.id.admin_appointment_schedule_menu).setVisible(true);
+                                            if (adminInfoLists.get(0).getHr_acc_active_flag().equals("1")) {
+                                                bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("Management Portal");
+                                            } else {
+                                                bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("Reports");
+                                            }
+                                        } else {
+                                            bottomNavigationView.getMenu().findItem(R.id.admin_payment_menu).setVisible(true);
+                                            bottomNavigationView.getMenu().findItem(R.id.admin_appointment_schedule_menu).setVisible(true);
+                                            bottomNavigationView.getMenu().findItem(R.id.admin_hr_account_menu).setTitle("Reports");
+                                        }
+
+                                        if (Integer.parseInt(adminInfoLists.get(0).getIs_pay_appoint_type_active()) == 1) {
+                                            payAppointmentTypeLay.setVisibility(View.VISIBLE);
+                                        } else {
+                                            payAppointmentTypeLay.setVisibility(View.GONE);
+                                        }
+                                    }
+                                }
+
+                                if (doc_center.isEmpty()) {
+                                    docCenterName.setVisibility(View.GONE);
+                                } else {
+                                    docCenterName.setVisibility(View.VISIBLE);
+                                    doc_center = "(" + doc_center + ")";
+                                    docCenterName.setText(doc_center);
+                                }
+
+                                SimpleDateFormat full_date_format_range = new SimpleDateFormat("dd MMMM, yy", Locale.ENGLISH);
+
+                                Date dateRangCc = Calendar.getInstance().getTime();
+                                String date_range_text = full_date_format_range.format(dateRangCc);
+                                dateRangeTextAdmin.setText(date_range_text);
+
+                                TabLayout.Tab tabAt = tabLayout.getTabAt(0);
+                                tabUpdateNeeded = false;
+                                tabLayout.selectTab(tabAt);
+
+                                totalAppointmentAdmin.setText(total_appointment_admin);
+                                cancelAppointmentAdmin.setText(cancel_appointment_admin);
+                                totalPaymentCount.setText(total_payment_count);
+
+                                DecimalFormat formatter = new DecimalFormat("###,##,##,###");
+
+                                int p_amnt = Integer.parseInt(total_payment_amount);
+                                String formatted = formatter.format(p_amnt);
+                                String p_a = "৳ " + formatted;
+                                totalPaymentAmount.setText(p_a);
+
+                                if (imageFound) {
+                                    try {
+                                        Glide.with(getApplicationContext())
+                                                .load(bitmap)
+                                                .fitCenter()
+                                                .into(docImage);
+                                    } catch (Exception e) {
+                                        restart("App is paused for a long time. Please Start the app again.");
+                                    }
+                                } else {
+                                    docImage.setImageResource(R.drawable.profile);
+                                }
+
+                                TabLayout.Tab chartTabAt = chartTabLayout.getTabAt(0);
+                                chartTabUpdateNeeded = false;
+                                chartTabLayout.selectTab(chartTabAt);
+
+                                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM-yy", Locale.ENGLISH);
+                                monthSelectionLayPayment.setVisibility(View.VISIBLE);
+                                yearSelectionLayPayment.setVisibility(View.GONE);
+                                graphPaymentTotalLay.setVisibility(View.VISIBLE);
+                                Date dd = Calendar.getInstance().getTime();
+                                String mo_name = simpleDateFormat.format(dd);
+                                mo_name = mo_name.toUpperCase(Locale.ENGLISH);
+                                String ms = "MONTH: " + mo_name;
+                                monthSelectionPayment.setText(ms);
+
+                                allPayAppCard.setCardBackgroundColor(getColor(R.color.green_sea));
+                                allPayAppText.setTextColor(getColor(R.color.white));
+
+                                offlinePayAppCard.setCardBackgroundColor(getColor(R.color.primaryColor_alpha));
+                                offPayAppText.setTextColor(getColor(R.color.green_sea));
+
+                                onlinePayAppCard.setCardBackgroundColor(getColor(R.color.primaryColor_alpha));
+                                onPayAppText.setTextColor(getColor(R.color.green_sea));
+
+                                // chart
+                                MyMarkerView mv = new MyMarkerView(getApplicationContext(), R.layout.custom_marker_view);
+                                mv.setChartView(paymentChart);
+                                paymentChart.setMarker(mv);
+
+                                ArrayList<Entry> amountValue = new ArrayList<>();
+                                ArrayList<Entry> returnValue = new ArrayList<>();
+                                ArrayList<String> monthName = new ArrayList<>();
+
+                                double payment_rcv = 0.0;
+                                double payment_rtn = 0.0;
+
+                                for (int i = 0; i < paymentChartLists.size(); i++) {
+                                    amountValue.add(new Entry(i, Float.parseFloat(paymentChartLists.get(i).getPaymentAmount()), paymentChartLists.get(i).getId()));
+                                    returnValue.add(new Entry(i, Float.parseFloat(paymentChartLists.get(i).getPatymentReturn()), paymentChartLists.get(i).getId()));
+                                    monthName.add(paymentChartLists.get(i).getDateMonth());
+                                    if (!paymentChartLists.get(i).getPaymentAmount().isEmpty()) {
+                                        payment_rcv = payment_rcv + Double.parseDouble(paymentChartLists.get(i).getPaymentAmount());
+                                    }
+                                    if (!paymentChartLists.get(i).getPatymentReturn().isEmpty()) {
+                                        payment_rtn = payment_rtn + Double.parseDouble(paymentChartLists.get(i).getPatymentReturn());
+                                    }
+                                }
+                                String prcv = formatter.format(payment_rcv);
+                                String prtn = formatter.format(payment_rtn);
+                                prcv = "৳ " + prcv;
+                                prtn = "৳ " + prtn;
+                                totalPaymentRcvGraph.setText(prcv);
+                                totalPaymentRtnGraph.setText(prtn);
+
+                                paymentChart.animateXY(1000, 1000);
+
+                                LineDataSet lineDataSet = new LineDataSet(amountValue, "Payment Receive");
+                                lineDataSet.setValueFormatter(new LargeValueFormatter());
+                                lineDataSet.setCircleColor(getColor(R.color.light_green));
+                                lineDataSet.setCircleRadius(3f);
+                                lineDataSet.setLineWidth(2f);
+                                lineDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+                                lineDataSet.setColor(getColor(R.color.green_sea));
+                                lineDataSet.setDrawFilled(false);
+                                lineDataSet.setValueTextSize(9f);
+
+                                lineDataSet.setDrawCircleHole(true);
+                                lineDataSet.setValueTextColor(R.color.default_text_color);
+                                lineDataSet.setValueTextSize(8f);
+
+                                LineDataSet lineDataSet1 = new LineDataSet(returnValue, "Payment Return");
+                                lineDataSet1.setValueFormatter(new LargeValueFormatter());
+                                lineDataSet1.setCircleColor(getColor(R.color.red_dark));
+                                lineDataSet1.setCircleRadius(3f);
+                                lineDataSet1.setLineWidth(2f);
+                                lineDataSet1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+                                lineDataSet1.setColor(getColor(R.color.blue_end));
+                                lineDataSet1.setDrawFilled(false);
+                                lineDataSet1.setValueTextSize(9f);
+                                lineDataSet1.setDrawCircleHole(true);
+                                lineDataSet1.setValueTextColor(R.color.default_text_color);
+                                lineDataSet1.setValueTextSize(8f);
+
+                                ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+                                dataSets.add(lineDataSet);
+                                dataSets.add(lineDataSet1);
+
+                                LineData data1 = new LineData(dataSets);
+
+                                paymentChart.getXAxis().setValueFormatter(new MyAxisValueFormatter(monthName));
+                                paymentChart.setData(data1);
+                                paymentChart.getData().setHighlightEnabled(true);
+                                paymentChart.invalidate();
+
+                                monthSelectionLayAppoint.setVisibility(View.VISIBLE);
+                                yearSelectionLayAppoint.setVisibility(View.GONE);
+                                graphAppointmentTotalLay.setVisibility(View.VISIBLE);
+                                monthSelectionAppoint.setText(ms);
+
+                                // Apointment Chart
+                                AppointMarkerView view = new AppointMarkerView(getApplicationContext(), R.layout.custom_marker_view);
+                                view.setChartView(appointmentChart);
+                                appointmentChart.setMarker(view);
+
+                                ArrayList<Entry> totalAppValue = new ArrayList<>();
+                                ArrayList<Entry> cancelAppValue = new ArrayList<>();
+                                ArrayList<String> dateMonthName = new ArrayList<>();
+
+                                int totapp = 0;
+                                int totcanapp = 0;
+                                for (int i = 0; i < appointmentChartLists.size(); i++) {
+                                    totalAppValue.add(new Entry(i, Float.parseFloat(appointmentChartLists.get(i).getTotal_app()), appointmentChartLists.get(i).getId()));
+                                    cancelAppValue.add(new Entry(i, Float.parseFloat(appointmentChartLists.get(i).getCancel_app()), appointmentChartLists.get(i).getId()));
+                                    dateMonthName.add(appointmentChartLists.get(i).getDateMonth());
+                                    if (!appointmentChartLists.get(i).getTotal_app().isEmpty()) {
+                                        totapp = totapp + Integer.parseInt(appointmentChartLists.get(i).getTotal_app());
+                                    }
+                                    if (!appointmentChartLists.get(i).getCancel_app().isEmpty()) {
+                                        totcanapp = totcanapp + Integer.parseInt(appointmentChartLists.get(i).getCancel_app());
+                                    }
+                                }
+                                totalAppointmentGraph.setText(String.valueOf(totapp));
+                                totalCancelAppointmentGraph.setText(String.valueOf(totcanapp));
+
+                                appointmentChart.animateXY(1000, 1000);
+
+                                LineDataSet lineDataSet2 = new LineDataSet(totalAppValue, "Total Appointment");
+                                lineDataSet2.setValueFormatter(new LargeValueFormatter());
+                                lineDataSet2.setCircleColor(getColor(R.color.light_green));
+                                lineDataSet2.setCircleRadius(3f);
+                                lineDataSet2.setLineWidth(2f);
+                                lineDataSet2.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+                                lineDataSet2.setColor(getColor(R.color.green_sea));
+                                lineDataSet2.setDrawFilled(false);
+                                lineDataSet2.setValueTextSize(9f);
+
+                                lineDataSet2.setDrawCircleHole(true);
+                                lineDataSet2.setValueTextColor(R.color.default_text_color);
+                                lineDataSet2.setValueTextSize(8f);
+
+                                LineDataSet lineDataSet3 = new LineDataSet(cancelAppValue, "Cancel Appointment");
+                                lineDataSet3.setValueFormatter(new LargeValueFormatter());
+                                lineDataSet3.setCircleColor(getColor(R.color.back_color));
+                                lineDataSet3.setCircleRadius(3f);
+                                lineDataSet3.setLineWidth(2f);
+                                lineDataSet3.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+                                lineDataSet3.setColor(getColor(R.color.disabled));
+                                lineDataSet3.setDrawFilled(false);
+                                lineDataSet3.setValueTextSize(9f);
+                                lineDataSet3.setDrawCircleHole(true);
+                                lineDataSet3.setValueTextColor(R.color.default_text_color);
+                                lineDataSet3.setValueTextSize(8f);
+
+                                ArrayList<ILineDataSet> dataSets1 = new ArrayList<>();
+                                dataSets1.add(lineDataSet2);
+                                dataSets1.add(lineDataSet3);
+
+                                LineData data2 = new LineData(dataSets1);
+
+                                appointmentChart.getXAxis().setValueFormatter(new MyAxisValueFormatter(dateMonthName));
+                                appointmentChart.setData(data2);
+                                appointmentChart.getData().setHighlightEnabled(true);
+                                appointmentChart.invalidate();
+
+                                first_flag = 1;
                             }
-
-                            TabLayout.Tab chartTabAt = chartTabLayout.getTabAt(0);
-                            chartTabUpdateNeeded = false;
-                            chartTabLayout.selectTab(chartTabAt);
-
-                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM-yy",Locale.ENGLISH);
-                            monthSelectionLayPayment.setVisibility(View.VISIBLE);
-                            yearSelectionLayPayment.setVisibility(View.GONE);
-                            graphPaymentTotalLay.setVisibility(View.VISIBLE);
-                            Date dd = Calendar.getInstance().getTime();
-                            String mo_name = simpleDateFormat.format(dd);
-                            mo_name = mo_name.toUpperCase(Locale.ENGLISH);
-                            String ms = "MONTH: " + mo_name;
-                            monthSelectionPayment.setText(ms);
-
-                            allPayAppCard.setCardBackgroundColor(getColor(R.color.green_sea));
-                            allPayAppText.setTextColor(getColor(R.color.white));
-
-                            offlinePayAppCard.setCardBackgroundColor(getColor(R.color.primaryColor_alpha));
-                            offPayAppText.setTextColor(getColor(R.color.green_sea));
-
-                            onlinePayAppCard.setCardBackgroundColor(getColor(R.color.primaryColor_alpha));
-                            onPayAppText.setTextColor(getColor(R.color.green_sea));
-
-                            // chart
-                            MyMarkerView mv = new MyMarkerView(getApplicationContext(), R.layout.custom_marker_view);
-                            mv.setChartView(paymentChart);
-                            paymentChart.setMarker(mv);
-
-                            ArrayList<Entry> amountValue = new ArrayList<>();
-                            ArrayList<Entry> returnValue = new ArrayList<>();
-                            ArrayList<String> monthName = new ArrayList<>();
-
-                            double payment_rcv = 0.0;
-                            double payment_rtn = 0.0;
-
-                            for (int i = 0; i < paymentChartLists.size(); i++) {
-                                amountValue.add(new Entry(i,Float.parseFloat(paymentChartLists.get(i).getPaymentAmount()), paymentChartLists.get(i).getId()));
-                                returnValue.add(new Entry(i,Float.parseFloat(paymentChartLists.get(i).getPatymentReturn()),paymentChartLists.get(i).getId()));
-                                monthName.add(paymentChartLists.get(i).getDateMonth());
-                                if (!paymentChartLists.get(i).getPaymentAmount().isEmpty()) {
-                                    payment_rcv = payment_rcv + Double.parseDouble(paymentChartLists.get(i).getPaymentAmount());
-                                }
-                                if (!paymentChartLists.get(i).getPatymentReturn().isEmpty()) {
-                                    payment_rtn = payment_rtn + Double.parseDouble(paymentChartLists.get(i).getPatymentReturn());
-                                }
-                            }
-                            String prcv = formatter.format(payment_rcv);
-                            String prtn = formatter.format(payment_rtn);
-                            prcv = "৳ " + prcv ;
-                            prtn = "৳ " + prtn ;
-                            totalPaymentRcvGraph.setText(prcv);
-                            totalPaymentRtnGraph.setText(prtn);
-
-                            paymentChart.animateXY(1000,1000);
-
-                            LineDataSet lineDataSet = new LineDataSet(amountValue,"Payment Receive");
-                            lineDataSet.setValueFormatter(new LargeValueFormatter());
-                            lineDataSet.setCircleColor(getColor(R.color.light_green));
-                            lineDataSet.setCircleRadius(3f);
-                            lineDataSet.setLineWidth(2f);
-                            lineDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-                            lineDataSet.setColor(getColor(R.color.green_sea));
-                            lineDataSet.setDrawFilled(false);
-                            lineDataSet.setValueTextSize(9f);
-
-                            lineDataSet.setDrawCircleHole(true);
-                            lineDataSet.setValueTextColor(R.color.default_text_color);
-                            lineDataSet.setValueTextSize(8f);
-
-                            LineDataSet lineDataSet1 = new LineDataSet(returnValue,"Payment Return");
-                            lineDataSet1.setValueFormatter(new LargeValueFormatter());
-                            lineDataSet1.setCircleColor(getColor(R.color.red_dark));
-                            lineDataSet1.setCircleRadius(3f);
-                            lineDataSet1.setLineWidth(2f);
-                            lineDataSet1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-                            lineDataSet1.setColor(getColor(R.color.blue_end));
-                            lineDataSet1.setDrawFilled(false);
-                            lineDataSet1.setValueTextSize(9f);
-                            lineDataSet1.setDrawCircleHole(true);
-                            lineDataSet1.setValueTextColor(R.color.default_text_color);
-                            lineDataSet1.setValueTextSize(8f);
-
-                            ArrayList<ILineDataSet> dataSets = new ArrayList<>();
-                            dataSets.add(lineDataSet);
-                            dataSets.add(lineDataSet1);
-
-                            LineData data1 = new LineData(dataSets);
-
-                            paymentChart.getXAxis().setValueFormatter(new MyAxisValueFormatter(monthName));
-                            paymentChart.setData(data1);
-                            paymentChart.getData().setHighlightEnabled(true);
-                            paymentChart.invalidate();
-
-                            monthSelectionLayAppoint.setVisibility(View.VISIBLE);
-                            yearSelectionLayAppoint.setVisibility(View.GONE);
-                            graphAppointmentTotalLay.setVisibility(View.VISIBLE);
-                            monthSelectionAppoint.setText(ms);
-
-                            // Apointment Chart
-                            AppointMarkerView view = new AppointMarkerView(getApplicationContext(), R.layout.custom_marker_view);
-                            view.setChartView(appointmentChart);
-                            appointmentChart.setMarker(view);
-
-                            ArrayList<Entry> totalAppValue = new ArrayList<>();
-                            ArrayList<Entry> cancelAppValue = new ArrayList<>();
-                            ArrayList<String> dateMonthName = new ArrayList<>();
-
-                            int totapp = 0;
-                            int totcanapp = 0;
-                            for (int i = 0; i < appointmentChartLists.size(); i++) {
-                                totalAppValue.add(new Entry(i,Float.parseFloat(appointmentChartLists.get(i).getTotal_app()), appointmentChartLists.get(i).getId()));
-                                cancelAppValue.add(new Entry(i,Float.parseFloat(appointmentChartLists.get(i).getCancel_app()),appointmentChartLists.get(i).getId()));
-                                dateMonthName.add(appointmentChartLists.get(i).getDateMonth());
-                                if (!appointmentChartLists.get(i).getTotal_app().isEmpty()) {
-                                    totapp = totapp + Integer.parseInt(appointmentChartLists.get(i).getTotal_app());
-                                }
-                                if (!appointmentChartLists.get(i).getCancel_app().isEmpty()) {
-                                    totcanapp = totcanapp + Integer.parseInt(appointmentChartLists.get(i).getCancel_app());
-                                }
-                            }
-                            totalAppointmentGraph.setText(String.valueOf(totapp));
-                            totalCancelAppointmentGraph.setText(String.valueOf(totcanapp));
-
-                            appointmentChart.animateXY(1000,1000);
-
-                            LineDataSet lineDataSet2 = new LineDataSet(totalAppValue,"Total Appointment");
-                            lineDataSet2.setValueFormatter(new LargeValueFormatter());
-                            lineDataSet2.setCircleColor(getColor(R.color.light_green));
-                            lineDataSet2.setCircleRadius(3f);
-                            lineDataSet2.setLineWidth(2f);
-                            lineDataSet2.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-                            lineDataSet2.setColor(getColor(R.color.green_sea));
-                            lineDataSet2.setDrawFilled(false);
-                            lineDataSet2.setValueTextSize(9f);
-
-                            lineDataSet2.setDrawCircleHole(true);
-                            lineDataSet2.setValueTextColor(R.color.default_text_color);
-                            lineDataSet2.setValueTextSize(8f);
-
-                            LineDataSet lineDataSet3 = new LineDataSet(cancelAppValue,"Cancel Appointment");
-                            lineDataSet3.setValueFormatter(new LargeValueFormatter());
-                            lineDataSet3.setCircleColor(getColor(R.color.back_color));
-                            lineDataSet3.setCircleRadius(3f);
-                            lineDataSet3.setLineWidth(2f);
-                            lineDataSet3.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-                            lineDataSet3.setColor(getColor(R.color.disabled));
-                            lineDataSet3.setDrawFilled(false);
-                            lineDataSet3.setValueTextSize(9f);
-                            lineDataSet3.setDrawCircleHole(true);
-                            lineDataSet3.setValueTextColor(R.color.default_text_color);
-                            lineDataSet3.setValueTextSize(8f);
-
-                            ArrayList<ILineDataSet> dataSets1 = new ArrayList<>();
-                            dataSets1.add(lineDataSet2);
-                            dataSets1.add(lineDataSet3);
-
-                            LineData data2 = new LineData(dataSets1);
-
-                            appointmentChart.getXAxis().setValueFormatter(new MyAxisValueFormatter(dateMonthName));
-                            appointmentChart.setData(data2);
-                            appointmentChart.getData().setHighlightEnabled(true);
-                            appointmentChart.invalidate();
-
-                            first_flag = 1;
                         }
                         else {
                             fullLayout.setVisibility(View.GONE);
@@ -4272,7 +4486,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                             MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
                             alertDialogBuilder.setTitle("Access Denied!")
-                                    .setMessage("You have not permission to access this app. Please contact with administrator to access this app.")
+                                    .setMessage("You have no permission to access this app. Please contact with administrator to access this app.")
                                     .setPositiveButton("OK", (dialog, which) -> {
                                         SharedPreferences.Editor editor1 = sharedPreferences.edit();
                                         editor1.remove(DOC_USER_CODE);
@@ -4285,7 +4499,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                         editor1.apply();
                                         editor1.commit();
                                         dialog.dismiss();
-                                        System.exit(0);
+                                        finish();
                                     });
 
                             AlertDialog alert = alertDialogBuilder.create();
@@ -4330,7 +4544,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                 editor1.apply();
                                 editor1.commit();
                                 dialog.dismiss();
-                                System.exit(0);
+                                finish();
                             });
 
                     AlertDialog alert = alertDialogBuilder.create();
@@ -4405,271 +4619,310 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     public void updateAdminLayout() {
         if (conn) {
             if (connected) {
-                fullLayout.setVisibility(View.VISIBLE);
-                progressBarCard.setVisibility(View.GONE);
-                bottomNavigationView.setVisibility(View.VISIBLE);
-                circularProgressIndicator.setVisibility(View.GONE);
-                tabFullLayout.setVisibility(View.GONE);
-                tabFullLayoutAdmin.setVisibility(View.VISIBLE);
-                tabCircularProgressIndicator.setVisibility(View.GONE);
-                tabLayout.setVisibility(View.VISIBLE);
-                tabRefresh.setVisibility(View.GONE);
-                graphicalViewLayout.setVisibility(View.VISIBLE);
-                payAppointmentTypeLay.setVisibility(View.GONE);
-                chartTabLayout.setVisibility(View.VISIBLE);
-                chartTabFullLayout.setVisibility(View.VISIBLE);
-                chartTabRefresh.setVisibility(View.GONE);
-                chartTabCircularProgressIndicator.setVisibility(View.GONE);
-                paymentChartCircularProgressIndicator.setVisibility(View.GONE);
-                paymentChartRefresh.setVisibility(View.GONE);
-                appointChartCircularProgressIndicator.setVisibility(View.GONE);
-                appointChartRefresh.setVisibility(View.GONE);
+                if (admin_fl_flag.equals("1")) {
+                    fullLayout.setVisibility(View.GONE);
+                    progressBarCard.setVisibility(View.GONE);
+                    bottomNavigationView.setVisibility(View.GONE);
+                    circularProgressIndicator.setVisibility(View.GONE);
+                    tabFullLayout.setVisibility(View.GONE);
+                    tabFullLayoutAdmin.setVisibility(View.GONE);
+                    tabCircularProgressIndicator.setVisibility(View.GONE);
+                    tabLayout.setVisibility(View.GONE);
+                    tabRefresh.setVisibility(View.GONE);
+                    graphicalViewLayout.setVisibility(View.GONE);
+                    chartTabCircularProgressIndicator.setVisibility(View.GONE);
 
-                unitDoctor.setVisibility(View.GONE);
-                allDoctorAppointment.setVisibility(View.GONE);
-                doctorReports.setVisibility(View.GONE);
+                    MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
+                    alertDialogBuilder.setTitle("Forced Log Out!")
+                            .setMessage("You are forced to log out from the app for server maintenance. We are sorry for the disturbance. Please Login again to continue the app.")
+                            .setPositiveButton("OK", (dialog, which) -> {
+                                SharedPreferences.Editor editor1 = sharedPreferences.edit();
+                                editor1.remove(DOC_USER_CODE);
+                                editor1.remove(DOC_USER_PASSWORD);
+                                editor1.remove(DOC_DATA_API);
+                                editor1.remove(DOC_ALL_ID);
+                                editor1.remove(ADMIN_USR_ID);
+                                editor1.remove(ADMIN_OR_USER_FLAG);
+                                editor1.remove(LOGIN_TF);
+                                editor1.apply();
+                                editor1.commit();
 
-                conn = false;
-                connected = false;
+                                Intent intent = new Intent(DocDashboard.this, DocLogin.class);
+                                startActivity(intent);
+                                finish();
+                                dialog.dismiss();
+                            });
 
-                SimpleDateFormat full_date_format_range = new SimpleDateFormat("dd MMMM, yy", Locale.ENGLISH);
-
-                Date dateRangCc = Calendar.getInstance().getTime();
-                String date_range_text = full_date_format_range.format(dateRangCc);
-                dateRangeTextAdmin.setText(date_range_text);
-
-                getGreetingText();
-
-                TabLayout.Tab tabAt = tabLayout.getTabAt(0);
-                tabUpdateNeeded = false;
-                tabLayout.selectTab(tabAt);
-
-                totalAppointmentAdmin.setText(total_appointment_admin);
-                cancelAppointmentAdmin.setText(cancel_appointment_admin);
-                totalPaymentCount.setText(total_payment_count);
-
-                DecimalFormat formatter = new DecimalFormat("###,##,##,###");
-
-                int p_amnt = Integer.parseInt(total_payment_amount);
-                String formatted = formatter.format(p_amnt);
-                String p_a = "৳ " + formatted ;
-                totalPaymentAmount.setText(p_a);
-
-                if (imageFound) {
+                    AlertDialog alert = alertDialogBuilder.create();
+                    alert.setCancelable(false);
+                    alert.setCanceledOnTouchOutside(false);
                     try {
-                        Glide.with(getApplicationContext())
-                                .load(bitmap)
-                                .fitCenter()
-                                .into(docImage);
+                        alert.show();
                     }
                     catch (Exception e) {
                         restart("App is paused for a long time. Please Start the app again.");
                     }
                 }
                 else {
-                    docImage.setImageResource(R.drawable.profile);
-                }
+                    fullLayout.setVisibility(View.VISIBLE);
+                    progressBarCard.setVisibility(View.GONE);
+                    bottomNavigationView.setVisibility(View.VISIBLE);
+                    circularProgressIndicator.setVisibility(View.GONE);
+                    tabFullLayout.setVisibility(View.GONE);
+                    tabFullLayoutAdmin.setVisibility(View.VISIBLE);
+                    tabCircularProgressIndicator.setVisibility(View.GONE);
+                    tabLayout.setVisibility(View.VISIBLE);
+                    tabRefresh.setVisibility(View.GONE);
+                    graphicalViewLayout.setVisibility(View.VISIBLE);
+                    payAppointmentTypeLay.setVisibility(View.GONE);
+                    chartTabLayout.setVisibility(View.VISIBLE);
+                    chartTabFullLayout.setVisibility(View.VISIBLE);
+                    chartTabRefresh.setVisibility(View.GONE);
+                    chartTabCircularProgressIndicator.setVisibility(View.GONE);
+                    paymentChartCircularProgressIndicator.setVisibility(View.GONE);
+                    paymentChartRefresh.setVisibility(View.GONE);
+                    appointChartCircularProgressIndicator.setVisibility(View.GONE);
+                    appointChartRefresh.setVisibility(View.GONE);
 
-                TabLayout.Tab chartTabAt = chartTabLayout.getTabAt(0);
-                chartTabUpdateNeeded = false;
-                chartTabLayout.selectTab(chartTabAt);
+                    unitDoctor.setVisibility(View.GONE);
+                    allDoctorAppointment.setVisibility(View.GONE);
+                    doctorReports.setVisibility(View.GONE);
 
-                chartTabPosition = 0;
+                    conn = false;
+                    connected = false;
 
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM-yy",Locale.ENGLISH);
-                monthSelectionLayPayment.setVisibility(View.VISIBLE);
-                yearSelectionLayPayment.setVisibility(View.GONE);
-                graphPaymentTotalLay.setVisibility(View.VISIBLE);
-                Date dd = Calendar.getInstance().getTime();
-                String mo_name = simpleDateFormat.format(dd);
-                mo_name = mo_name.toUpperCase(Locale.ENGLISH);
-                String ms = "MONTH: " + mo_name;
-                monthSelectionPayment.setText(ms);
+                    SimpleDateFormat full_date_format_range = new SimpleDateFormat("dd MMMM, yy", Locale.ENGLISH);
 
-                if (adminInfoLists == null) {
-                    restart("Could Not Get Doctor Data. Please Restart the App.");
-                }
-                else {
-                    if (adminInfoLists.isEmpty()) {
+                    Date dateRangCc = Calendar.getInstance().getTime();
+                    String date_range_text = full_date_format_range.format(dateRangCc);
+                    dateRangeTextAdmin.setText(date_range_text);
+
+                    getGreetingText();
+
+                    TabLayout.Tab tabAt = tabLayout.getTabAt(0);
+                    tabUpdateNeeded = false;
+                    tabLayout.selectTab(tabAt);
+
+                    totalAppointmentAdmin.setText(total_appointment_admin);
+                    cancelAppointmentAdmin.setText(cancel_appointment_admin);
+                    totalPaymentCount.setText(total_payment_count);
+
+                    DecimalFormat formatter = new DecimalFormat("###,##,##,###");
+
+                    int p_amnt = Integer.parseInt(total_payment_amount);
+                    String formatted = formatter.format(p_amnt);
+                    String p_a = "৳ " + formatted;
+                    totalPaymentAmount.setText(p_a);
+
+                    if (imageFound) {
+                        try {
+                            Glide.with(getApplicationContext())
+                                    .load(bitmap)
+                                    .fitCenter()
+                                    .into(docImage);
+                        } catch (Exception e) {
+                            restart("App is paused for a long time. Please Start the app again.");
+                        }
+                    } else {
+                        docImage.setImageResource(R.drawable.profile);
+                    }
+
+                    TabLayout.Tab chartTabAt = chartTabLayout.getTabAt(0);
+                    chartTabUpdateNeeded = false;
+                    chartTabLayout.selectTab(chartTabAt);
+
+                    chartTabPosition = 0;
+
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MMM-yy", Locale.ENGLISH);
+                    monthSelectionLayPayment.setVisibility(View.VISIBLE);
+                    yearSelectionLayPayment.setVisibility(View.GONE);
+                    graphPaymentTotalLay.setVisibility(View.VISIBLE);
+                    Date dd = Calendar.getInstance().getTime();
+                    String mo_name = simpleDateFormat.format(dd);
+                    mo_name = mo_name.toUpperCase(Locale.ENGLISH);
+                    String ms = "MONTH: " + mo_name;
+                    monthSelectionPayment.setText(ms);
+
+                    if (adminInfoLists == null) {
                         restart("Could Not Get Doctor Data. Please Restart the App.");
-                    }
-                    else {
-                        if (Integer.parseInt(adminInfoLists.get(0).getIs_pay_appoint_type_active()) == 1) {
-                            payAppointmentTypeLay.setVisibility(View.VISIBLE);
+                    } else {
+                        if (adminInfoLists.isEmpty()) {
+                            restart("Could Not Get Doctor Data. Please Restart the App.");
+                        } else {
+                            if (Integer.parseInt(adminInfoLists.get(0).getIs_pay_appoint_type_active()) == 1) {
+                                payAppointmentTypeLay.setVisibility(View.VISIBLE);
+                            } else {
+                                payAppointmentTypeLay.setVisibility(View.GONE);
+                            }
                         }
-                        else {
-                            payAppointmentTypeLay.setVisibility(View.GONE);
+                    }
+
+                    allPayAppCard.setCardBackgroundColor(getColor(R.color.green_sea));
+                    allPayAppText.setTextColor(getColor(R.color.white));
+
+                    offlinePayAppCard.setCardBackgroundColor(getColor(R.color.primaryColor_alpha));
+                    offPayAppText.setTextColor(getColor(R.color.green_sea));
+
+                    onlinePayAppCard.setCardBackgroundColor(getColor(R.color.primaryColor_alpha));
+                    onPayAppText.setTextColor(getColor(R.color.green_sea));
+
+                    // chart
+                    MyMarkerView mv = new MyMarkerView(getApplicationContext(), R.layout.custom_marker_view);
+                    mv.setChartView(paymentChart);
+                    paymentChart.setMarker(mv);
+
+                    ArrayList<Entry> amountValue = new ArrayList<>();
+                    ArrayList<Entry> returnValue = new ArrayList<>();
+                    ArrayList<String> monthName = new ArrayList<>();
+
+                    double payment_rcv = 0.0;
+                    double payment_rtn = 0.0;
+
+                    for (int i = 0; i < paymentChartLists.size(); i++) {
+                        amountValue.add(new Entry(i, Float.parseFloat(paymentChartLists.get(i).getPaymentAmount()), paymentChartLists.get(i).getId()));
+                        returnValue.add(new Entry(i, Float.parseFloat(paymentChartLists.get(i).getPatymentReturn()), paymentChartLists.get(i).getId()));
+                        monthName.add(paymentChartLists.get(i).getDateMonth());
+                        if (!paymentChartLists.get(i).getPaymentAmount().isEmpty()) {
+                            payment_rcv = payment_rcv + Double.parseDouble(paymentChartLists.get(i).getPaymentAmount());
+                        }
+                        if (!paymentChartLists.get(i).getPatymentReturn().isEmpty()) {
+                            payment_rtn = payment_rtn + Double.parseDouble(paymentChartLists.get(i).getPatymentReturn());
                         }
                     }
-                }
+                    String prcv = formatter.format(payment_rcv);
+                    String prtn = formatter.format(payment_rtn);
+                    prcv = "৳ " + prcv;
+                    prtn = "৳ " + prtn;
+                    totalPaymentRcvGraph.setText(prcv);
+                    totalPaymentRtnGraph.setText(prtn);
 
-                allPayAppCard.setCardBackgroundColor(getColor(R.color.green_sea));
-                allPayAppText.setTextColor(getColor(R.color.white));
+                    paymentChart.animateXY(1000, 1000);
 
-                offlinePayAppCard.setCardBackgroundColor(getColor(R.color.primaryColor_alpha));
-                offPayAppText.setTextColor(getColor(R.color.green_sea));
+                    LineDataSet lineDataSet = new LineDataSet(amountValue, "Payment Receive");
+                    lineDataSet.setValueFormatter(new LargeValueFormatter());
+                    lineDataSet.setCircleColor(getColor(R.color.light_green));
+                    lineDataSet.setCircleRadius(3f);
+                    lineDataSet.setLineWidth(2f);
+                    lineDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+                    lineDataSet.setColor(getColor(R.color.green_sea));
+                    lineDataSet.setDrawFilled(false);
+                    lineDataSet.setValueTextSize(9f);
 
-                onlinePayAppCard.setCardBackgroundColor(getColor(R.color.primaryColor_alpha));
-                onPayAppText.setTextColor(getColor(R.color.green_sea));
+                    lineDataSet.setDrawCircleHole(true);
+                    lineDataSet.setValueTextColor(R.color.default_text_color);
+                    lineDataSet.setValueTextSize(8f);
 
-                // chart
-                MyMarkerView mv = new MyMarkerView(getApplicationContext(), R.layout.custom_marker_view);
-                mv.setChartView(paymentChart);
-                paymentChart.setMarker(mv);
+                    LineDataSet lineDataSet1 = new LineDataSet(returnValue, "Payment Return");
+                    lineDataSet1.setValueFormatter(new LargeValueFormatter());
+                    lineDataSet1.setCircleColor(getColor(R.color.red_dark));
+                    lineDataSet1.setCircleRadius(3f);
+                    lineDataSet1.setLineWidth(2f);
+                    lineDataSet1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+                    lineDataSet1.setColor(getColor(R.color.blue_end));
+                    lineDataSet1.setDrawFilled(false);
+                    lineDataSet1.setValueTextSize(9f);
+                    lineDataSet1.setDrawCircleHole(true);
+                    lineDataSet1.setValueTextColor(R.color.default_text_color);
+                    lineDataSet1.setValueTextSize(8f);
 
-                ArrayList<Entry> amountValue = new ArrayList<>();
-                ArrayList<Entry> returnValue = new ArrayList<>();
-                ArrayList<String> monthName = new ArrayList<>();
+                    ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+                    dataSets.add(lineDataSet);
+                    dataSets.add(lineDataSet1);
 
-                double payment_rcv = 0.0;
-                double payment_rtn = 0.0;
+                    LineData data1 = new LineData(dataSets);
 
-                for (int i = 0; i < paymentChartLists.size(); i++) {
-                    amountValue.add(new Entry(i,Float.parseFloat(paymentChartLists.get(i).getPaymentAmount()), paymentChartLists.get(i).getId()));
-                    returnValue.add(new Entry(i,Float.parseFloat(paymentChartLists.get(i).getPatymentReturn()),paymentChartLists.get(i).getId()));
-                    monthName.add(paymentChartLists.get(i).getDateMonth());
-                    if (!paymentChartLists.get(i).getPaymentAmount().isEmpty()) {
-                        payment_rcv = payment_rcv + Double.parseDouble(paymentChartLists.get(i).getPaymentAmount());
+                    paymentChart.getXAxis().setValueFormatter(new MyAxisValueFormatter(monthName));
+
+                    if (chartTabPosition == 0) {
+                        paymentChart.getXAxis().setLabelRotationAngle(45);
+                    } else {
+                        paymentChart.getXAxis().setLabelRotationAngle(0);
                     }
-                    if (!paymentChartLists.get(i).getPatymentReturn().isEmpty()) {
-                        payment_rtn = payment_rtn + Double.parseDouble(paymentChartLists.get(i).getPatymentReturn());
+                    paymentChart.setData(data1);
+                    paymentChart.getData().setHighlightEnabled(true);
+                    paymentChart.invalidate();
+
+
+                    monthSelectionLayAppoint.setVisibility(View.VISIBLE);
+                    yearSelectionLayAppoint.setVisibility(View.GONE);
+                    graphAppointmentTotalLay.setVisibility(View.VISIBLE);
+                    monthSelectionAppoint.setText(ms);
+
+                    // Apointment Chart
+                    AppointMarkerView view = new AppointMarkerView(getApplicationContext(), R.layout.custom_marker_view);
+                    view.setChartView(appointmentChart);
+                    appointmentChart.setMarker(view);
+
+                    ArrayList<Entry> totalAppValue = new ArrayList<>();
+                    ArrayList<Entry> cancelAppValue = new ArrayList<>();
+                    ArrayList<String> dateMonthName = new ArrayList<>();
+
+                    int totapp = 0;
+                    int totcanapp = 0;
+                    for (int i = 0; i < appointmentChartLists.size(); i++) {
+                        totalAppValue.add(new Entry(i, Float.parseFloat(appointmentChartLists.get(i).getTotal_app()), appointmentChartLists.get(i).getId()));
+                        cancelAppValue.add(new Entry(i, Float.parseFloat(appointmentChartLists.get(i).getCancel_app()), appointmentChartLists.get(i).getId()));
+                        dateMonthName.add(appointmentChartLists.get(i).getDateMonth());
+                        if (!appointmentChartLists.get(i).getTotal_app().isEmpty()) {
+                            totapp = totapp + Integer.parseInt(appointmentChartLists.get(i).getTotal_app());
+                        }
+                        if (!appointmentChartLists.get(i).getCancel_app().isEmpty()) {
+                            totcanapp = totcanapp + Integer.parseInt(appointmentChartLists.get(i).getCancel_app());
+                        }
                     }
-                }
-                String prcv = formatter.format(payment_rcv);
-                String prtn = formatter.format(payment_rtn);
-                prcv = "৳ " + prcv ;
-                prtn = "৳ " + prtn ;
-                totalPaymentRcvGraph.setText(prcv);
-                totalPaymentRtnGraph.setText(prtn);
+                    totalAppointmentGraph.setText(String.valueOf(totapp));
+                    totalCancelAppointmentGraph.setText(String.valueOf(totcanapp));
 
-                paymentChart.animateXY(1000,1000);
+                    appointmentChart.animateXY(1000, 1000);
 
-                LineDataSet lineDataSet = new LineDataSet(amountValue,"Payment Receive");
-                lineDataSet.setValueFormatter(new LargeValueFormatter());
-                lineDataSet.setCircleColor(getColor(R.color.light_green));
-                lineDataSet.setCircleRadius(3f);
-                lineDataSet.setLineWidth(2f);
-                lineDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-                lineDataSet.setColor(getColor(R.color.green_sea));
-                lineDataSet.setDrawFilled(false);
-                lineDataSet.setValueTextSize(9f);
+                    LineDataSet lineDataSet2 = new LineDataSet(totalAppValue, "Total Appointment");
+                    lineDataSet2.setValueFormatter(new LargeValueFormatter());
+                    lineDataSet2.setCircleColor(getColor(R.color.light_green));
+                    lineDataSet2.setCircleRadius(3f);
+                    lineDataSet2.setLineWidth(2f);
+                    lineDataSet2.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+                    lineDataSet2.setColor(getColor(R.color.green_sea));
+                    lineDataSet2.setDrawFilled(false);
+                    lineDataSet2.setValueTextSize(9f);
 
-                lineDataSet.setDrawCircleHole(true);
-                lineDataSet.setValueTextColor(R.color.default_text_color);
-                lineDataSet.setValueTextSize(8f);
+                    lineDataSet2.setDrawCircleHole(true);
+                    lineDataSet2.setValueTextColor(R.color.default_text_color);
+                    lineDataSet2.setValueTextSize(8f);
 
-                LineDataSet lineDataSet1 = new LineDataSet(returnValue,"Payment Return");
-                lineDataSet1.setValueFormatter(new LargeValueFormatter());
-                lineDataSet1.setCircleColor(getColor(R.color.red_dark));
-                lineDataSet1.setCircleRadius(3f);
-                lineDataSet1.setLineWidth(2f);
-                lineDataSet1.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-                lineDataSet1.setColor(getColor(R.color.blue_end));
-                lineDataSet1.setDrawFilled(false);
-                lineDataSet1.setValueTextSize(9f);
-                lineDataSet1.setDrawCircleHole(true);
-                lineDataSet1.setValueTextColor(R.color.default_text_color);
-                lineDataSet1.setValueTextSize(8f);
+                    LineDataSet lineDataSet3 = new LineDataSet(cancelAppValue, "Cancel Appointment");
+                    lineDataSet3.setValueFormatter(new LargeValueFormatter());
+                    lineDataSet3.setCircleColor(getColor(R.color.back_color));
+                    lineDataSet3.setCircleRadius(3f);
+                    lineDataSet3.setLineWidth(2f);
+                    lineDataSet3.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+                    lineDataSet3.setColor(getColor(R.color.disabled));
+                    lineDataSet3.setDrawFilled(false);
+                    lineDataSet3.setValueTextSize(9f);
+                    lineDataSet3.setDrawCircleHole(true);
+                    lineDataSet3.setValueTextColor(R.color.default_text_color);
+                    lineDataSet3.setValueTextSize(8f);
 
-                ArrayList<ILineDataSet> dataSets = new ArrayList<>();
-                dataSets.add(lineDataSet);
-                dataSets.add(lineDataSet1);
+                    ArrayList<ILineDataSet> dataSets1 = new ArrayList<>();
+                    dataSets1.add(lineDataSet2);
+                    dataSets1.add(lineDataSet3);
 
-                LineData data1 = new LineData(dataSets);
+                    LineData data2 = new LineData(dataSets1);
 
-                paymentChart.getXAxis().setValueFormatter(new MyAxisValueFormatter(monthName));
+                    appointmentChart.getXAxis().setValueFormatter(new MyAxisValueFormatter(dateMonthName));
 
-                if (chartTabPosition == 0) {
-                    paymentChart.getXAxis().setLabelRotationAngle(45);
-                }
-                else {
-                    paymentChart.getXAxis().setLabelRotationAngle(0);
-                }
-                paymentChart.setData(data1);
-                paymentChart.getData().setHighlightEnabled(true);
-                paymentChart.invalidate();
-
-
-                monthSelectionLayAppoint.setVisibility(View.VISIBLE);
-                yearSelectionLayAppoint.setVisibility(View.GONE);
-                graphAppointmentTotalLay.setVisibility(View.VISIBLE);
-                monthSelectionAppoint.setText(ms);
-
-                // Apointment Chart
-                AppointMarkerView view = new AppointMarkerView(getApplicationContext(), R.layout.custom_marker_view);
-                view.setChartView(appointmentChart);
-                appointmentChart.setMarker(view);
-
-                ArrayList<Entry> totalAppValue = new ArrayList<>();
-                ArrayList<Entry> cancelAppValue = new ArrayList<>();
-                ArrayList<String> dateMonthName = new ArrayList<>();
-
-                int totapp = 0;
-                int totcanapp = 0;
-                for (int i = 0; i < appointmentChartLists.size(); i++) {
-                    totalAppValue.add(new Entry(i,Float.parseFloat(appointmentChartLists.get(i).getTotal_app()), appointmentChartLists.get(i).getId()));
-                    cancelAppValue.add(new Entry(i,Float.parseFloat(appointmentChartLists.get(i).getCancel_app()),appointmentChartLists.get(i).getId()));
-                    dateMonthName.add(appointmentChartLists.get(i).getDateMonth());
-                    if (!appointmentChartLists.get(i).getTotal_app().isEmpty()) {
-                        totapp = totapp + Integer.parseInt(appointmentChartLists.get(i).getTotal_app());
+                    if (chartTabPosition == 0) {
+                        appointmentChart.getXAxis().setLabelRotationAngle(45);
+                    } else {
+                        appointmentChart.getXAxis().setLabelRotationAngle(0);
                     }
-                    if (!appointmentChartLists.get(i).getCancel_app().isEmpty()) {
-                        totcanapp = totcanapp + Integer.parseInt(appointmentChartLists.get(i).getCancel_app());
-                    }
+                    appointmentChart.setData(data2);
+                    appointmentChart.getData().setHighlightEnabled(true);
+                    appointmentChart.invalidate();
+
+                    askUserForReview();
+                    first_flag = 1;
+                    loading = false;
                 }
-                totalAppointmentGraph.setText(String.valueOf(totapp));
-                totalCancelAppointmentGraph.setText(String.valueOf(totcanapp));
-
-                appointmentChart.animateXY(1000,1000);
-
-                LineDataSet lineDataSet2 = new LineDataSet(totalAppValue,"Total Appointment");
-                lineDataSet2.setValueFormatter(new LargeValueFormatter());
-                lineDataSet2.setCircleColor(getColor(R.color.light_green));
-                lineDataSet2.setCircleRadius(3f);
-                lineDataSet2.setLineWidth(2f);
-                lineDataSet2.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-                lineDataSet2.setColor(getColor(R.color.green_sea));
-                lineDataSet2.setDrawFilled(false);
-                lineDataSet2.setValueTextSize(9f);
-
-                lineDataSet2.setDrawCircleHole(true);
-                lineDataSet2.setValueTextColor(R.color.default_text_color);
-                lineDataSet2.setValueTextSize(8f);
-
-                LineDataSet lineDataSet3 = new LineDataSet(cancelAppValue,"Cancel Appointment");
-                lineDataSet3.setValueFormatter(new LargeValueFormatter());
-                lineDataSet3.setCircleColor(getColor(R.color.back_color));
-                lineDataSet3.setCircleRadius(3f);
-                lineDataSet3.setLineWidth(2f);
-                lineDataSet3.setMode(LineDataSet.Mode.CUBIC_BEZIER);
-                lineDataSet3.setColor(getColor(R.color.disabled));
-                lineDataSet3.setDrawFilled(false);
-                lineDataSet3.setValueTextSize(9f);
-                lineDataSet3.setDrawCircleHole(true);
-                lineDataSet3.setValueTextColor(R.color.default_text_color);
-                lineDataSet3.setValueTextSize(8f);
-
-                ArrayList<ILineDataSet> dataSets1 = new ArrayList<>();
-                dataSets1.add(lineDataSet2);
-                dataSets1.add(lineDataSet3);
-
-                LineData data2 = new LineData(dataSets1);
-
-                appointmentChart.getXAxis().setValueFormatter(new MyAxisValueFormatter(dateMonthName));
-
-                if (chartTabPosition == 0) {
-                    appointmentChart.getXAxis().setLabelRotationAngle(45);
-                }
-                else {
-                    appointmentChart.getXAxis().setLabelRotationAngle(0);
-                }
-                appointmentChart.setData(data2);
-                appointmentChart.getData().setHighlightEnabled(true);
-                appointmentChart.invalidate();
-
-                askUserForReview();
-                first_flag = 1;
-                loading = false;
             }
             else {
                 adminAlertMessage2();

@@ -1,6 +1,5 @@
 package ttit.com.shuvo.docdiary.appt_schedule.adapters;
 
-import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.userInfoLists;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -43,12 +42,14 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
 
     private final Context myContext;
 
-    boolean patAppHisAvailable = userInfoLists != null && userInfoLists.get(0).getPat_app_history().equals("1");
-    boolean patUpcomingAppHist = userInfoLists != null && userInfoLists.get(0).getUpcoming_pat_history().equals("1");
+    private final boolean patAppHisAvailable;
+    private final boolean patUpcomingAppHist;
 
-    public TimeLineAdapter(ArrayList<ApptScheduleInfoList> mCategory, Context myContext) {
-        this.mCategory = mCategory;
+    public TimeLineAdapter(ArrayList<ApptScheduleInfoList> mCategory, Context myContext, boolean patAppHisAvailable, boolean patUpcomingAppHist) {
+        this.mCategory = mCategory != null ? mCategory : new ArrayList<>();
         this.myContext = myContext;
+        this.patAppHisAvailable = patAppHisAvailable;
+        this.patUpcomingAppHist = patUpcomingAppHist;
     }
 
     @NonNull

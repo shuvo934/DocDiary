@@ -80,6 +80,9 @@ public class AppointmentSchedule extends AppCompatActivity {
     TextView noSchMess;
     ImageView backButton;
 
+    boolean patAppHisAvailable = false;
+    boolean patUpcomingAppHist = false;
+
     Logger logger = Logger.getLogger(AppointmentSchedule.class.getName());
 
     @Override
@@ -121,6 +124,8 @@ public class AppointmentSchedule extends AppCompatActivity {
             }
             else {
                 doc_id = userInfoLists.get(0).getDoc_id();
+                patAppHisAvailable = userInfoLists.get(0).getPat_app_history().equals("1");
+                patUpcomingAppHist = userInfoLists.get(0).getUpcoming_pat_history().equals("1");
             }
         }
 
@@ -441,7 +446,7 @@ public class AppointmentSchedule extends AppCompatActivity {
                 else {
                     noSchMess.setVisibility(View.GONE);
                 }
-                timeLineAdapter = new TimeLineAdapter(apptScheduleInfoLists,AppointmentSchedule.this);
+                timeLineAdapter = new TimeLineAdapter(apptScheduleInfoLists,AppointmentSchedule.this, patAppHisAvailable, patUpcomingAppHist);
                 timelineView.setAdapter(timeLineAdapter);
                 loading = false;
             }
