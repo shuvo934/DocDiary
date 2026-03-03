@@ -44,19 +44,24 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
 
     private final boolean patAppHisAvailable;
     private final boolean patUpcomingAppHist;
+    private final boolean isNeedAvail;
 
-    public TimeLineAdapter(ArrayList<ApptScheduleInfoList> mCategory, Context myContext, boolean patAppHisAvailable, boolean patUpcomingAppHist) {
+    private final ClickedAvail clickedAvail;
+
+    public TimeLineAdapter(ArrayList<ApptScheduleInfoList> mCategory, Context myContext, boolean patAppHisAvailable, boolean patUpcomingAppHist, boolean isNeedAvail, ClickedAvail clickedAvail) {
         this.mCategory = mCategory != null ? mCategory : new ArrayList<>();
         this.myContext = myContext;
         this.patAppHisAvailable = patAppHisAvailable;
         this.patUpcomingAppHist = patUpcomingAppHist;
+        this.isNeedAvail = isNeedAvail;
+        this.clickedAvail = clickedAvail;
     }
 
     @NonNull
     @Override
     public TLHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.appt_view_with_time_line, parent, false);
-        return new TLHolder(view, viewType);
+        return new TLHolder(view, viewType, clickedAvail);
     }
 
     @Override
@@ -82,6 +87,14 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
             holder.patAppHistory.setVisibility(View.GONE);
         }
 
+        if (isNeedAvail) {
+            holder.avail.setVisibility(View.VISIBLE);
+        }
+        else {
+            holder.avail.setVisibility(View.GONE);
+        }
+        holder.availMessage.setVisibility(View.GONE);
+
         String appt_date = schedule.getAppointment_date();
         appt_date = appt_date + " " + schedule.getTime();
         System.out.println("APP DATE: "+ appt_date);
@@ -106,6 +119,8 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
             holder.progressAddCheck.setVisibility(View.GONE);
             holder.addProgress.setVisibility(View.GONE);
             holder.patAppHistory.setVisibility(View.GONE);
+            holder.avail.setVisibility(View.GONE);
+            holder.availMessage.setVisibility(View.GONE);
 
             holder.materialCardView.setCardBackgroundColor(myContext.getColor(R.color.progress_back_color));
             holder.materialCardView.setCardElevation(3);
@@ -168,161 +183,372 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
                 System.out.println(simpleDateFormat.format(nowDate));
                 System.out.println(appDate.getTime());
                 System.out.println(nowDate.getTime());
-                if (appDate.before(nowDate)) {
-                    String pph_prog = schedule.getPph_progress();
-                    String hpAdded = schedule.getIs_ranked();
-                    SimpleDateFormat sss = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
-                    String nnn = sss.format(nowDate);
-                    nnn = nnn.toUpperCase();
-                    String adm_date = schedule.getAdm_date();
+                if(isNeedAvail) {
+                    if (appDate.before(nowDate)) {
+                        String pph_prog = schedule.getPph_progress();
+                        String hpAdded = schedule.getIs_ranked();
+                        SimpleDateFormat sss = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
+                        String nnn = sss.format(nowDate);
+                        nnn = nnn.toUpperCase();
+                        String adm_date = schedule.getAdm_date();
 
-                    if (nnn.equals(adm_date)) {
-                        if (pph_prog.equals("0")) {
-                            String apt = "ADD PROGRESS";
-                            holder.addProgress.setText(apt);
-                        }
-                        else {
-                            if (hpAdded.equals("0")) {
+                        if (nnn.equals(adm_date)) {
+                            if (pph_prog.equals("0")) {
                                 String apt = "ADD PROGRESS";
                                 holder.addProgress.setText(apt);
                             }
                             else {
-                                String vpt = "VIEW PROGRESS";
-                                holder.addProgress.setText(vpt);
+                                if (hpAdded.equals("0")) {
+                                    String apt = "ADD PROGRESS";
+                                    holder.addProgress.setText(apt);
+                                }
+                                else {
+                                    String vpt = "VIEW PROGRESS";
+                                    holder.addProgress.setText(vpt);
+                                }
+                            }
+                            if (patAppHisAvailable) {
+                                holder.patAppHistory.setVisibility(View.VISIBLE);
+                            }
+
+                            if (schedule.getAvail_flag().equals("1")) {
+                                holder.avail.setVisibility(View.GONE);
+                                holder.availMessage.setVisibility(View.VISIBLE);
+                                String a_msg = "Availed";
+                                holder.availMessage.setText(a_msg);
+                                holder.availMessage.setTextColor(myContext.getColor(R.color.white));
+
+                                holder.materialCardView.setCardBackgroundColor(myContext.getColor(R.color.light_greenish_blue));
+
+                                holder.pat_name.setTextColor(myContext.getColor(R.color.white));
+                                holder.pat_code.setTextColor(myContext.getColor(R.color.white));
+                                holder.pat_age.setTextColor(myContext.getColor(R.color.white));
+                                holder.serviceName.setTextColor(myContext.getColor(R.color.white));
+                                holder.timeOfAppt.setTextColor(myContext.getColor(R.color.white));
+                                holder.hpText.setTextColor(myContext.getColor(R.color.white));
+                                holder.hpMissing.setTextColor(myContext.getColor(R.color.white));
+
+                                holder.mTimelineView.setMarker(AppCompatResources.getDrawable(myContext,R.drawable.check_circle_24));
+                                holder.mTimelineView.setMarkerColor(myContext.getColor(R.color.light_green));
+                            }
+                            else {
+                                holder.avail.setVisibility(View.VISIBLE);
+                                holder.availMessage.setVisibility(View.GONE);
+                                String a_msg = "Not Availed";
+                                holder.availMessage.setText(a_msg);
+                                holder.availMessage.setTextColor(myContext.getColor(R.color.green_sea));
+
+                                holder.materialCardView.setCardBackgroundColor(myContext.getColor(R.color.pr_color_alpha));
+
+                                holder.pat_name.setTextColor(myContext.getColor(R.color.black));
+                                holder.pat_code.setTextColor(myContext.getColor(R.color.default_text_color));
+                                holder.pat_age.setTextColor(myContext.getColor(R.color.default_text_color));
+                                holder.serviceName.setTextColor(myContext.getColor(R.color.default_text_color));
+                                holder.timeOfAppt.setTextColor(myContext.getColor(R.color.black));
+                                holder.hpText.setTextColor(myContext.getColor(R.color.default_text_color));
+                                holder.hpMissing.setTextColor(myContext.getColor(R.color.default_text_color));
+
+                                holder.mTimelineView.setMarker(AppCompatResources.getDrawable(myContext,R.drawable.circle_24));
+                                holder.mTimelineView.setMarkerColor(myContext.getColor(R.color.pr_color_alpha2));
                             }
                         }
-                        if (patAppHisAvailable) {
-                            holder.patAppHistory.setVisibility(View.VISIBLE);
+                        else {
+                            if (pph_prog.equals("0")) {
+                                String apt = "ADD PROGRESS";
+                                holder.addProgress.setText(apt);
+                                holder.addProgress.setVisibility(View.GONE);
+                            }
+                            else {
+                                String vpt = "VIEW PROGRESS";
+                                holder.addProgress.setText(vpt);
+                                holder.addProgress.setVisibility(View.VISIBLE);
+                            }
+                            holder.patAppHistory.setVisibility(View.GONE);
+
+                            holder.avail.setVisibility(View.GONE);
+                            holder.availMessage.setVisibility(View.VISIBLE);
+                            String a_msg = "Not Availed";
+                            holder.availMessage.setText(a_msg);
+                            holder.availMessage.setTextColor(myContext.getColor(R.color.white));
+
+                            holder.materialCardView.setCardBackgroundColor(myContext.getColor(R.color.light_rose));
+
+                            holder.pat_name.setTextColor(myContext.getColor(R.color.white));
+                            holder.pat_code.setTextColor(myContext.getColor(R.color.white));
+                            holder.pat_age.setTextColor(myContext.getColor(R.color.white));
+                            holder.serviceName.setTextColor(myContext.getColor(R.color.white));
+                            holder.timeOfAppt.setTextColor(myContext.getColor(R.color.white));
+                            holder.hpText.setTextColor(myContext.getColor(R.color.white));
+                            holder.hpMissing.setTextColor(myContext.getColor(R.color.white));
+
+                            holder.mTimelineView.setMarker(AppCompatResources.getDrawable(myContext,R.drawable.baseline_warning_24));
+                            holder.mTimelineView.setMarkerColor(myContext.getColor(R.color.light_rose));
                         }
+
+                        if (pph_prog.equals("0")) {
+                            holder.hpLayout.setVisibility(View.GONE);
+                            holder.hpMissing.setVisibility(View.VISIBLE);
+                            holder.hpBar.setProgress(Integer.parseInt(pph_prog));
+                        }
+                        else {
+                            holder.hpLayout.setVisibility(View.VISIBLE);
+                            holder.hpMissing.setVisibility(View.GONE);
+                            holder.hpBar.setProgress(Integer.parseInt(pph_prog));
+                        }
+
+                        if (hpAdded.equals("0")) {
+                            holder.progressAddCheck.setVisibility(View.GONE);
+                        }
+                        else {
+                            holder.progressAddCheck.setVisibility(View.VISIBLE);
+                        }
+
+                        holder.materialCardView.setCardElevation(7);
+                        holder.border.setVisibility(View.GONE);
+
+                        holder.videoLinkNotice.setVisibility(View.GONE);
+                        holder.videoCallButton.setVisibility(View.GONE);
                     }
                     else {
+                        String pph_prog = schedule.getPph_progress();
+                        String vpt = "VIEW PROGRESS";
+                        holder.addProgress.setText(vpt);
+                        SimpleDateFormat sss = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
+                        String nnn = sss.format(nowDate);
+                        nnn = nnn.toUpperCase();
+                        String adm_date = schedule.getAdm_date();
+                        if (!patUpcomingAppHist) {
+                            if (nnn.equals(adm_date)) {
+                                if (patAppHisAvailable) {
+                                    holder.patAppHistory.setVisibility(View.VISIBLE);
+                                }
+                            }
+                            else {
+                                holder.patAppHistory.setVisibility(View.GONE);
+                            }
+                        }
+                        else {
+                            if (patAppHisAvailable) {
+                                holder.patAppHistory.setVisibility(View.VISIBLE);
+                            }
+                        }
+
+                        holder.avail.setVisibility(View.GONE);
+                        holder.availMessage.setVisibility(View.GONE);
+
                         if (pph_prog.equals("0")) {
-                            String apt = "ADD PROGRESS";
-                            holder.addProgress.setText(apt);
+                            holder.hpLayout.setVisibility(View.GONE);
+                            holder.hpMissing.setVisibility(View.VISIBLE);
+                            holder.hpBar.setProgress(Integer.parseInt(pph_prog));
                             holder.addProgress.setVisibility(View.GONE);
                         }
                         else {
-                            String vpt = "VIEW PROGRESS";
-                            holder.addProgress.setText(vpt);
+                            holder.hpLayout.setVisibility(View.VISIBLE);
+                            holder.hpMissing.setVisibility(View.GONE);
+                            holder.hpBar.setProgress(Integer.parseInt(pph_prog));
                             holder.addProgress.setVisibility(View.VISIBLE);
                         }
-                        holder.patAppHistory.setVisibility(View.GONE);
+
+                        String hpAdded = schedule.getIs_ranked();
+                        if (hpAdded.equals("0")) {
+                            holder.progressAddCheck.setVisibility(View.GONE);
+                        }
+                        else {
+                            holder.progressAddCheck.setVisibility(View.VISIBLE);
+                        }
+                        holder.materialCardView.setCardBackgroundColor(myContext.getColor(R.color.default_disabled_color));
+                        holder.materialCardView.setCardElevation(10);
+                        holder.border.setVisibility(View.VISIBLE);
+
+                        holder.pat_name.setTextColor(myContext.getColor(R.color.black));
+                        holder.pat_code.setTextColor(myContext.getColor(R.color.default_text_color));
+                        holder.pat_age.setTextColor(myContext.getColor(R.color.default_text_color));
+                        holder.serviceName.setTextColor(myContext.getColor(R.color.default_text_color));
+                        holder.timeOfAppt.setTextColor(myContext.getColor(R.color.black));
+                        holder.hpText.setTextColor(myContext.getColor(R.color.default_text_color));
+                        holder.hpMissing.setTextColor(myContext.getColor(R.color.default_text_color));
+
+                        holder.mTimelineView.setMarker(AppCompatResources.getDrawable(myContext,R.drawable.circle_24));
+                        holder.mTimelineView.setMarkerColor(myContext.getColor(R.color.clouds));
+
+                        if (schedule.getTs_video_conf_flag().equals("1")) {
+                            long ten_min = 10*60*1000;
+                            if ((appDate.getTime() - ten_min) > nowDate.getTime()) {
+                                String v_notice = "Video Call Link will be available before 10 mins of Schedule Time";
+                                SpannableString spannableString = new SpannableString(v_notice);
+                                spannableString.setSpan(new UnderlineSpan(),0,v_notice.length(),0);
+                                holder.videoLinkNotice.setText(spannableString);
+                                holder.videoLinkNotice.setVisibility(View.VISIBLE);
+                                holder.videoCallButton.setVisibility(View.GONE);
+                            }
+                            else {
+                                holder.videoLinkNotice.setVisibility(View.GONE);
+                                holder.videoCallButton.setVisibility(View.VISIBLE);
+                            }
+                        }
+                        else {
+                            holder.videoLinkNotice.setVisibility(View.GONE);
+                            holder.videoCallButton.setVisibility(View.GONE);
+                        }
                     }
-
-                    if (pph_prog.equals("0")) {
-                        holder.hpLayout.setVisibility(View.GONE);
-                        holder.hpMissing.setVisibility(View.VISIBLE);
-                        holder.hpBar.setProgress(Integer.parseInt(pph_prog));
-                    }
-                    else {
-                        holder.hpLayout.setVisibility(View.VISIBLE);
-                        holder.hpMissing.setVisibility(View.GONE);
-                        holder.hpBar.setProgress(Integer.parseInt(pph_prog));
-                    }
-
-                    if (hpAdded.equals("0")) {
-                        holder.progressAddCheck.setVisibility(View.GONE);
-                    }
-                    else {
-                        holder.progressAddCheck.setVisibility(View.VISIBLE);
-                    }
-
-                    holder.materialCardView.setCardBackgroundColor(myContext.getColor(R.color.light_greenish_blue));
-                    holder.materialCardView.setCardElevation(7);
-                    holder.border.setVisibility(View.GONE);
-
-                    holder.videoLinkNotice.setVisibility(View.GONE);
-                    holder.videoCallButton.setVisibility(View.GONE);
-
-                    holder.pat_name.setTextColor(myContext.getColor(R.color.white));
-                    holder.pat_code.setTextColor(myContext.getColor(R.color.white));
-                    holder.pat_age.setTextColor(myContext.getColor(R.color.white));
-                    holder.serviceName.setTextColor(myContext.getColor(R.color.white));
-                    holder.timeOfAppt.setTextColor(myContext.getColor(R.color.white));
-                    holder.hpText.setTextColor(myContext.getColor(R.color.white));
-                    holder.hpMissing.setTextColor(myContext.getColor(R.color.white));
-
-                    holder.mTimelineView.setMarker(AppCompatResources.getDrawable(myContext,R.drawable.check_circle_24));
-                    holder.mTimelineView.setMarkerColor(myContext.getColor(R.color.light_green));
                 }
                 else {
-                    String pph_prog = schedule.getPph_progress();
-                    String vpt = "VIEW PROGRESS";
-                    holder.addProgress.setText(vpt);
-                    SimpleDateFormat sss = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
-                    String nnn = sss.format(nowDate);
-                    nnn = nnn.toUpperCase();
-                    String adm_date = schedule.getAdm_date();
-                    if (!patUpcomingAppHist) {
+                    if (appDate.before(nowDate)) {
+                        String pph_prog = schedule.getPph_progress();
+                        String hpAdded = schedule.getIs_ranked();
+                        SimpleDateFormat sss = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
+                        String nnn = sss.format(nowDate);
+                        nnn = nnn.toUpperCase();
+                        String adm_date = schedule.getAdm_date();
+
                         if (nnn.equals(adm_date)) {
+                            if (pph_prog.equals("0")) {
+                                String apt = "ADD PROGRESS";
+                                holder.addProgress.setText(apt);
+                            }
+                            else {
+                                if (hpAdded.equals("0")) {
+                                    String apt = "ADD PROGRESS";
+                                    holder.addProgress.setText(apt);
+                                }
+                                else {
+                                    String vpt = "VIEW PROGRESS";
+                                    holder.addProgress.setText(vpt);
+                                }
+                            }
                             if (patAppHisAvailable) {
                                 holder.patAppHistory.setVisibility(View.VISIBLE);
                             }
                         }
                         else {
+                            if (pph_prog.equals("0")) {
+                                String apt = "ADD PROGRESS";
+                                holder.addProgress.setText(apt);
+                                holder.addProgress.setVisibility(View.GONE);
+                            }
+                            else {
+                                String vpt = "VIEW PROGRESS";
+                                holder.addProgress.setText(vpt);
+                                holder.addProgress.setVisibility(View.VISIBLE);
+                            }
                             holder.patAppHistory.setVisibility(View.GONE);
                         }
-                    }
-                    else {
-                        if (patAppHisAvailable) {
-                            holder.patAppHistory.setVisibility(View.VISIBLE);
+
+                        if (pph_prog.equals("0")) {
+                            holder.hpLayout.setVisibility(View.GONE);
+                            holder.hpMissing.setVisibility(View.VISIBLE);
+                            holder.hpBar.setProgress(Integer.parseInt(pph_prog));
                         }
-                    }
+                        else {
+                            holder.hpLayout.setVisibility(View.VISIBLE);
+                            holder.hpMissing.setVisibility(View.GONE);
+                            holder.hpBar.setProgress(Integer.parseInt(pph_prog));
+                        }
 
+                        if (hpAdded.equals("0")) {
+                            holder.progressAddCheck.setVisibility(View.GONE);
+                        }
+                        else {
+                            holder.progressAddCheck.setVisibility(View.VISIBLE);
+                        }
 
-                    if (pph_prog.equals("0")) {
-                        holder.hpLayout.setVisibility(View.GONE);
-                        holder.hpMissing.setVisibility(View.VISIBLE);
-                        holder.hpBar.setProgress(Integer.parseInt(pph_prog));
-                        holder.addProgress.setVisibility(View.GONE);
+                        holder.materialCardView.setCardBackgroundColor(myContext.getColor(R.color.light_greenish_blue));
+                        holder.materialCardView.setCardElevation(7);
+                        holder.border.setVisibility(View.GONE);
+
+                        holder.videoLinkNotice.setVisibility(View.GONE);
+                        holder.videoCallButton.setVisibility(View.GONE);
+
+                        holder.pat_name.setTextColor(myContext.getColor(R.color.white));
+                        holder.pat_code.setTextColor(myContext.getColor(R.color.white));
+                        holder.pat_age.setTextColor(myContext.getColor(R.color.white));
+                        holder.serviceName.setTextColor(myContext.getColor(R.color.white));
+                        holder.timeOfAppt.setTextColor(myContext.getColor(R.color.white));
+                        holder.hpText.setTextColor(myContext.getColor(R.color.white));
+                        holder.hpMissing.setTextColor(myContext.getColor(R.color.white));
+
+                        holder.mTimelineView.setMarker(AppCompatResources.getDrawable(myContext,R.drawable.check_circle_24));
+                        holder.mTimelineView.setMarkerColor(myContext.getColor(R.color.light_green));
                     }
                     else {
-                        holder.hpLayout.setVisibility(View.VISIBLE);
-                        holder.hpMissing.setVisibility(View.GONE);
-                        holder.hpBar.setProgress(Integer.parseInt(pph_prog));
-                        holder.addProgress.setVisibility(View.VISIBLE);
-                    }
+                        String pph_prog = schedule.getPph_progress();
+                        String vpt = "VIEW PROGRESS";
+                        holder.addProgress.setText(vpt);
+                        SimpleDateFormat sss = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
+                        String nnn = sss.format(nowDate);
+                        nnn = nnn.toUpperCase();
+                        String adm_date = schedule.getAdm_date();
+                        if (!patUpcomingAppHist) {
+                            if (nnn.equals(adm_date)) {
+                                if (patAppHisAvailable) {
+                                    holder.patAppHistory.setVisibility(View.VISIBLE);
+                                }
+                            }
+                            else {
+                                holder.patAppHistory.setVisibility(View.GONE);
+                            }
+                        }
+                        else {
+                            if (patAppHisAvailable) {
+                                holder.patAppHistory.setVisibility(View.VISIBLE);
+                            }
+                        }
 
-                    String hpAdded = schedule.getIs_ranked();
-                    if (hpAdded.equals("0")) {
-                        holder.progressAddCheck.setVisibility(View.GONE);
-                    }
-                    else {
-                        holder.progressAddCheck.setVisibility(View.VISIBLE);
-                    }
-                    holder.materialCardView.setCardBackgroundColor(myContext.getColor(R.color.default_disabled_color));
-                    holder.materialCardView.setCardElevation(10);
-                    holder.border.setVisibility(View.VISIBLE);
 
-                    holder.pat_name.setTextColor(myContext.getColor(R.color.black));
-                    holder.pat_code.setTextColor(myContext.getColor(R.color.default_text_color));
-                    holder.pat_age.setTextColor(myContext.getColor(R.color.default_text_color));
-                    holder.serviceName.setTextColor(myContext.getColor(R.color.default_text_color));
-                    holder.timeOfAppt.setTextColor(myContext.getColor(R.color.black));
-                    holder.hpText.setTextColor(myContext.getColor(R.color.default_text_color));
-                    holder.hpMissing.setTextColor(myContext.getColor(R.color.default_text_color));
+                        if (pph_prog.equals("0")) {
+                            holder.hpLayout.setVisibility(View.GONE);
+                            holder.hpMissing.setVisibility(View.VISIBLE);
+                            holder.hpBar.setProgress(Integer.parseInt(pph_prog));
+                            holder.addProgress.setVisibility(View.GONE);
+                        }
+                        else {
+                            holder.hpLayout.setVisibility(View.VISIBLE);
+                            holder.hpMissing.setVisibility(View.GONE);
+                            holder.hpBar.setProgress(Integer.parseInt(pph_prog));
+                            holder.addProgress.setVisibility(View.VISIBLE);
+                        }
 
-                    holder.mTimelineView.setMarker(AppCompatResources.getDrawable(myContext,R.drawable.circle_24));
-                    holder.mTimelineView.setMarkerColor(myContext.getColor(R.color.clouds));
+                        String hpAdded = schedule.getIs_ranked();
+                        if (hpAdded.equals("0")) {
+                            holder.progressAddCheck.setVisibility(View.GONE);
+                        }
+                        else {
+                            holder.progressAddCheck.setVisibility(View.VISIBLE);
+                        }
+                        holder.materialCardView.setCardBackgroundColor(myContext.getColor(R.color.default_disabled_color));
+                        holder.materialCardView.setCardElevation(10);
+                        holder.border.setVisibility(View.VISIBLE);
 
-                    if (schedule.getTs_video_conf_flag().equals("1")) {
-                        long ten_min = 10*60*1000;
-                        if ((appDate.getTime() - ten_min) > nowDate.getTime()) {
-                            String v_notice = "Video Call Link will be available before 10 mins of Schedule Time";
-                            SpannableString spannableString = new SpannableString(v_notice);
-                            spannableString.setSpan(new UnderlineSpan(),0,v_notice.length(),0);
-                            holder.videoLinkNotice.setText(spannableString);
-                            holder.videoLinkNotice.setVisibility(View.VISIBLE);
-                            holder.videoCallButton.setVisibility(View.GONE);
+                        holder.pat_name.setTextColor(myContext.getColor(R.color.black));
+                        holder.pat_code.setTextColor(myContext.getColor(R.color.default_text_color));
+                        holder.pat_age.setTextColor(myContext.getColor(R.color.default_text_color));
+                        holder.serviceName.setTextColor(myContext.getColor(R.color.default_text_color));
+                        holder.timeOfAppt.setTextColor(myContext.getColor(R.color.black));
+                        holder.hpText.setTextColor(myContext.getColor(R.color.default_text_color));
+                        holder.hpMissing.setTextColor(myContext.getColor(R.color.default_text_color));
+
+                        holder.mTimelineView.setMarker(AppCompatResources.getDrawable(myContext,R.drawable.circle_24));
+                        holder.mTimelineView.setMarkerColor(myContext.getColor(R.color.clouds));
+
+                        if (schedule.getTs_video_conf_flag().equals("1")) {
+                            long ten_min = 10*60*1000;
+                            if ((appDate.getTime() - ten_min) > nowDate.getTime()) {
+                                String v_notice = "Video Call Link will be available before 10 mins of Schedule Time";
+                                SpannableString spannableString = new SpannableString(v_notice);
+                                spannableString.setSpan(new UnderlineSpan(),0,v_notice.length(),0);
+                                holder.videoLinkNotice.setText(spannableString);
+                                holder.videoLinkNotice.setVisibility(View.VISIBLE);
+                                holder.videoCallButton.setVisibility(View.GONE);
+                            }
+                            else {
+                                holder.videoLinkNotice.setVisibility(View.GONE);
+                                holder.videoCallButton.setVisibility(View.VISIBLE);
+                            }
                         }
                         else {
                             holder.videoLinkNotice.setVisibility(View.GONE);
-                            holder.videoCallButton.setVisibility(View.VISIBLE);
+                            holder.videoCallButton.setVisibility(View.GONE);
                         }
-                    }
-                    else {
-                        holder.videoLinkNotice.setVisibility(View.GONE);
-                        holder.videoCallButton.setVisibility(View.GONE);
                     }
                 }
             }
@@ -331,6 +557,8 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
                 String vpt = "VIEW PROGRESS";
                 holder.addProgress.setText(vpt);
                 holder.patAppHistory.setVisibility(View.GONE);
+                holder.avail.setVisibility(View.GONE);
+                holder.availMessage.setVisibility(View.GONE);
 
                 if (pph_prog.equals("0")) {
                     holder.hpLayout.setVisibility(View.GONE);
@@ -382,6 +610,8 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
             holder.addProgress.setVisibility(View.GONE);
             holder.pat_name.setText(schedule.getApptStatus());
             holder.patAppHistory.setVisibility(View.GONE);
+            holder.avail.setVisibility(View.GONE);
+            holder.availMessage.setVisibility(View.GONE);
 
             holder.videoLinkNotice.setVisibility(View.GONE);
             holder.videoCallButton.setVisibility(View.GONE);
@@ -421,7 +651,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
         return true;
     }
 
-    public class TLHolder extends RecyclerView.ViewHolder {
+    public class TLHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         TextView timeOfAppt;
         TextView pat_name;
         TextView pat_code;
@@ -440,8 +670,12 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
         ImageView progressAddCheck;
         MaterialButton addProgress;
         MaterialButton patAppHistory;
+        MaterialButton avail;
+        TextView availMessage;
 
-        public TLHolder(@NonNull View itemView,int viewType) {
+        ClickedAvail clickedAvail;
+
+        public TLHolder(@NonNull View itemView,int viewType, ClickedAvail cav) {
             super(itemView);
             mTimelineView =  itemView.findViewById(R.id.timeline);
             timeOfAppt = itemView.findViewById(R.id.text_timeline_date_time);
@@ -462,6 +696,11 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
             progressAddCheck = itemView.findViewById(R.id.check_image_of_progress_added_in_timeline);
             addProgress = itemView.findViewById(R.id.patient_add_health_progress_timeline);
             patAppHistory = itemView.findViewById(R.id.patient_appointment_history);
+            avail = itemView.findViewById(R.id.schedule_avail_button);
+            availMessage = itemView.findViewById(R.id.schedule_avail_message);
+            this.clickedAvail = cav;
+
+            avail.setOnClickListener(this);
 
             videoCallButton.setOnClickListener(v -> {
                 AppCompatActivity activity = (AppCompatActivity) v.getContext();
@@ -518,10 +757,19 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
             });
 
         }
+
+        @Override
+        public void onClick(View v) {
+            clickedAvail.onAvailClicked(mCategory.get(getAdapterPosition()).getAd_id());
+        }
     }
 
     @Override
     public int getItemViewType(int position) {
         return TimelineView.getTimeLineViewType(position, getItemCount());
+    }
+
+    public interface ClickedAvail {
+        void onAvailClicked(String ad_id);
     }
 }

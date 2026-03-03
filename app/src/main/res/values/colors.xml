@@ -26,4 +26,6 @@
     <color name="pres_on_leave">#4080C0</color>
     <color name="pres_on_off">#E0C080</color>
     <color name="off_day">#80E0FF</color>
+    <color name="pr_color_alpha">#EDF8F8</color>
+    <color name="pr_color_alpha2">#C8F0F0</color>
 </resources>

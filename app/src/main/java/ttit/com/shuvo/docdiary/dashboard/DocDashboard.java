@@ -105,6 +105,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -1158,19 +1159,22 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 startActivity(intent);
             }
             else if (item.getItemId() == R.id.admin_hr_account_menu) {
-                if (Integer.parseInt(adminInfoLists.get(0).getHr_acc_active_flag()) == 1) {
-                    if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) > 0) {
-                        Intent intent = new Intent(DocDashboard.this, HRAccounts.class);
-                        startActivity(intent);
-                    }
-                    else {
+                if (adminInfoLists == null || adminInfoLists.isEmpty()) {
+                    restart("Could not get User Data. Please Restart the App.");
+                }
+                else {
+                    if (Integer.parseInt(adminInfoLists.get(0).getHr_acc_active_flag()) == 1) {
+                        if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) > 0) {
+                            Intent intent = new Intent(DocDashboard.this, HRAccounts.class);
+                            startActivity(intent);
+                        } else {
+                            Intent intent = new Intent(DocDashboard.this, ReportManager.class);
+                            startActivity(intent);
+                        }
+                    } else {
                         Intent intent = new Intent(DocDashboard.this, ReportManager.class);
                         startActivity(intent);
                     }
-                }
-                else {
-                    Intent intent = new Intent(DocDashboard.this, ReportManager.class);
-                    startActivity(intent);
                 }
             }
             return true;
@@ -1932,10 +1936,12 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                     .equals("null") ? "0" :docInfo.getString("pat_pres_view");
                             String all_presc = docInfo.getString("all_presc")
                                     .equals("null") ? "0" :docInfo.getString("all_presc");
+                            String is_need_avail = docInfo.getString("is_need_avail")
+                                    .equals("null") ? "0" : docInfo.getString("is_need_avail");
 
                             userInfoLists.add(new UserInfoList(doc_name,nn_doc_id,doc_code,depts_name,deptd_name,deptm_name,
                                     desig_name,doc_eff_date,doc_status,depts_id,desig_id,doc_video_link,doc_video_link_enable_flag,
-                                    doc_center_name,deptd_id,pat_app_history,upcoming_pat_history,pat_pres_view,all_presc,doc_head_flag));
+                                    doc_center_name,deptd_id,pat_app_history,upcoming_pat_history,pat_pres_view,all_presc,doc_head_flag, is_need_avail));
                             doc_fl_flag = docInfo.getString("fl_flag")
                                     .equals("null") ? "0" :docInfo.getString("fl_flag");
                             doc_mob_app_access_flag = docInfo.getString("access_flag")
@@ -2067,11 +2073,11 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         String date_now = dateFormat.format(Calendar.getInstance().getTime());
 
         if (doc_id == null) {
-           restart("Could Not Get Doctor Data. Please Restart the App.");
+           restart("Could not get User Data. Please Restart the App.");
         }
         else {
             if (doc_id.isEmpty()) {
-                restart("Could Not Get Doctor Data. Please Restart the App.");
+                restart("Could not get User Data. Please Restart the App.");
             }
         }
         String docFlUrl = pre_url_api+"doc_dashboard/getDocFLFlag?p_doc_id="+doc_id;
@@ -2458,7 +2464,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                 chartTabCircularProgressIndicator.setVisibility(View.GONE);
 
                                 MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
-                                alertDialogBuilder.setTitle("Date Expired!")
+                                alertDialogBuilder.setTitle("Access Expired!")
                                         .setMessage("Your access to the app is expired on: " + expiry_date + ".\n" +
                                                 "To gain access to the app, Please contact with the administrator")
                                         .setPositiveButton("OK", (dialog, which) -> {
@@ -2504,12 +2510,14 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                 userAvailable = false;
 
                                 progress_track_flag_value = 0;
-                                String doc_center = "";
+                                String doc_center;
                                 if (userInfoLists == null) {
-                                    restart("Could Not Get Doctor Data. Please Restart the App.");
+                                    restart("Could not get User Data. Please Restart the App.");
+                                    return;
                                 } else {
                                     if (userInfoLists.isEmpty()) {
-                                        restart("Could Not Get Doctor Data. Please Restart the App.");
+                                        restart("Could not get User Data. Please Restart the App.");
+                                        return;
                                     } else {
                                         doc_id = userInfoLists.get(0).getDoc_id();
                                         String dd = userInfoLists.get(0).getDoc_name();
@@ -2525,6 +2533,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                         docName.setText(doc_name);
 
                                         doc_center = userInfoLists.get(0).getDoc_center_name();
+                                        bottomNavigationView.getMenu().findItem(R.id.patient_search_menu).setVisible(userInfoLists.get(0).getPat_pres_view().equals("1"));
                                     }
                                 }
 
@@ -2663,7 +2672,12 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                                     System.out.println("remaining_seconds: " + remaining_seconds);
 
-                                    progress_track = (100 * remaining_seconds) / total_seconds;
+                                    if (total_seconds > 0) {
+                                        progress_track = (100 * remaining_seconds) / total_seconds;
+                                    }
+                                    else {
+                                        progress_track = 0;
+                                    }
 
                                     if (progress_track < 0) {
                                         progress_track = 0;
@@ -2744,7 +2758,25 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                     docImage.setImageResource(R.drawable.doctor);
                                 }
 
-                                bottomNavigationView.getMenu().findItem(R.id.patient_search_menu).setVisible(userInfoLists.get(0).getPat_pres_view().equals("1"));
+                                if (first_flag == 0) {
+                                    long diffInMillis = exp_date.getTime() - now_date.getTime();
+                                    long diffInDays = TimeUnit.MILLISECONDS.toDays(diffInMillis);
+                                    if (diffInDays <= 3 && diffInDays >= 0) {
+                                        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
+                                        alertDialogBuilder.setTitle("Access Expired Warning!")
+                                                .setMessage("Your access to the app will expire on: " + expiry_date +
+                                                        " (" + diffInDays + " day(s) left).\n" +
+                                                        "Please contact the administrator to renew your access and continue using the app without interruption.")
+                                                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+
+                                        AlertDialog alert = alertDialogBuilder.create();
+                                        try {
+                                            alert.show();
+                                        } catch (Exception e) {
+                                            restart("App is paused for a long time. Please Start the app again.");
+                                        }
+                                    }
+                                }
 
                                 first_flag = 1;
                             }
@@ -3076,7 +3108,12 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                         System.out.println("remaining_seconds: " + remaining_seconds);
 
-                        progress_track = (100 * remaining_seconds) / total_seconds;
+                        if (total_seconds > 0) {
+                            progress_track = (100 * remaining_seconds) / total_seconds;
+                        }
+                        else {
+                            progress_track = 0;
+                        }
 
                         if (progress_track < 0) {
                             progress_track = 0;
@@ -3460,6 +3497,12 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             wt = "Hello,";
         }
         welcomeText.setText(wt);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mHandler.removeCallbacksAndMessages(null);
     }
 
 
@@ -4144,7 +4187,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                 chartTabCircularProgressIndicator.setVisibility(View.GONE);
 
                                 MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
-                                alertDialogBuilder.setTitle("Date Expired!")
+                                alertDialogBuilder.setTitle("Access Expired!")
                                         .setMessage("Your access to the app is expired on: " + admin_expiry_date + ".\n" +
                                                 "To gain access to the app, Please contact with the administrator")
                                         .setPositiveButton("OK", (dialog, which) -> {
@@ -4205,12 +4248,14 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                                 getGreetingText();
 
-                                String doc_center = "";
+                                String doc_center;
                                 if (adminInfoLists == null) {
-                                    restart("Could Not Get Doctor Data. Please Restart the App.");
+                                    restart("Could not get User Data. Please Restart the App.");
+                                    return;
                                 } else {
                                     if (adminInfoLists.isEmpty()) {
-                                        restart("Could Not Get Doctor Data. Please Restart the App.");
+                                        restart("Could not get User Data. Please Restart the App.");
+                                        return;
                                     } else {
                                         if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) == 1) {
                                             admin_usr_name = "";
@@ -4467,6 +4512,25 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                 appointmentChart.getData().setHighlightEnabled(true);
                                 appointmentChart.invalidate();
 
+                                if (first_flag == 0) {
+                                    long diffInMillis = exp_date.getTime() - now_date.getTime();
+                                    long diffInDays = TimeUnit.MILLISECONDS.toDays(diffInMillis);
+                                    if (diffInDays <= 3 && diffInDays >= 0) {
+                                        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
+                                        alertDialogBuilder.setTitle("Access Expired Warning!")
+                                                .setMessage("Your access to the app will expire on: " + admin_expiry_date +
+                                                        " (" + diffInDays + " day(s) left).\n" +
+                                                        "Please contact the administrator to renew your access and continue using the app without interruption.")
+                                                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+
+                                        AlertDialog alert = alertDialogBuilder.create();
+                                        try {
+                                            alert.show();
+                                        } catch (Exception e) {
+                                            restart("App is paused for a long time. Please Start the app again.");
+                                        }
+                                    }
+                                }
                                 first_flag = 1;
                             }
                         }
@@ -4744,10 +4808,12 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     monthSelectionPayment.setText(ms);
 
                     if (adminInfoLists == null) {
-                        restart("Could Not Get Doctor Data. Please Restart the App.");
+                        restart("Could not get User Data. Please Restart the App.");
+                        return;
                     } else {
                         if (adminInfoLists.isEmpty()) {
-                            restart("Could Not Get Doctor Data. Please Restart the App.");
+                            restart("Could not get User Data. Please Restart the App.");
+                            return;
                         } else {
                             if (Integer.parseInt(adminInfoLists.get(0).getIs_pay_appoint_type_active()) == 1) {
                                 payAppointmentTypeLay.setVisibility(View.VISIBLE);
@@ -5426,11 +5492,13 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 connected = false;
 
                 if (adminInfoLists == null) {
-                    restart("Could Not Get Doctor Data. Please Restart the App.");
+                    restart("Could not get User Data. Please Restart the App.");
+                    return;
                 }
                 else {
                     if (adminInfoLists.isEmpty()) {
-                        restart("Could Not Get Doctor Data. Please Restart the App.");
+                        restart("Could not get User Data. Please Restart the App.");
+                        return;
                     }
                     else {
                         if (Integer.parseInt(adminInfoLists.get(0).getIs_pay_appoint_type_active()) == 1) {

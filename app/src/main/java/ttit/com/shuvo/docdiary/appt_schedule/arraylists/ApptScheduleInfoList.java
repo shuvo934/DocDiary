@@ -22,13 +22,14 @@ public class ApptScheduleInfoList {
     private String ad_id;
     private String ad_prm_id;
     private String ad_prd_id;
+    private String avail_flag;
 
 
     public ApptScheduleInfoList(String adm_date, String time, String apptInfo, String patientName, String apptStatus, String patient_code,
                                 String appointment_date, String patient_age, String pfn_fee_name, String doc_video_link,
                                 String ts_video_conf_flag, String pmm_for_prescription,
                                 String depts_id, String depts_name, String is_ranked, String pph_progress, String pfn_id, String ph_cat_id,
-                                String ad_id, String ad_prm_id, String ad_prd_id) {
+                                String ad_id, String ad_prm_id, String ad_prd_id, String avail_flag) {
         this.adm_date = adm_date;
         this.time = time;
         this.apptInfo = apptInfo;
@@ -50,6 +51,7 @@ public class ApptScheduleInfoList {
         this.ad_id = ad_id;
         this.ad_prm_id = ad_prm_id;
         this.ad_prd_id = ad_prd_id;
+        this.avail_flag = avail_flag;
     }
 
     public String getAdm_date() {
@@ -218,5 +220,13 @@ public class ApptScheduleInfoList {
 
     public void setAd_prd_id(String ad_prd_id) {
         this.ad_prd_id = ad_prd_id;
+    }
+
+    public String getAvail_flag() {
+        return avail_flag;
+    }
+
+    public void setAvail_flag(String avail_flag) {
+        this.avail_flag = avail_flag;
     }
 }

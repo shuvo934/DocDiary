@@ -25,6 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -52,9 +53,11 @@ import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.adapters.TimeLineAdapter;
 import ttit.com.shuvo.docdiary.appt_schedule.arraylists.ApptScheduleInfoList;
 import ttit.com.shuvo.docdiary.appt_schedule.arraylists.MonthSelectionList;
+import ttit.com.shuvo.docdiary.appt_schedule.dialogue.AvailScheduleDialogue;
+import ttit.com.shuvo.docdiary.appt_schedule.interfaces.AvailCallBack;
 import ttit.com.shuvo.docdiary.progressbar.WaitProgress;
 
-public class AppointmentSchedule extends AppCompatActivity {
+public class AppointmentSchedule extends AppCompatActivity implements TimeLineAdapter.ClickedAvail, AvailCallBack {
 
     LinearLayout fullLayout;
     CircularProgressIndicator circularProgressIndicator;
@@ -82,6 +85,7 @@ public class AppointmentSchedule extends AppCompatActivity {
 
     boolean patAppHisAvailable = false;
     boolean patUpcomingAppHist = false;
+    boolean isNeedAvail = false;
 
     Logger logger = Logger.getLogger(AppointmentSchedule.class.getName());
 
@@ -126,6 +130,7 @@ public class AppointmentSchedule extends AppCompatActivity {
                 doc_id = userInfoLists.get(0).getDoc_id();
                 patAppHisAvailable = userInfoLists.get(0).getPat_app_history().equals("1");
                 patUpcomingAppHist = userInfoLists.get(0).getUpcoming_pat_history().equals("1");
+                isNeedAvail = userInfoLists.get(0).getIs_need_avail().equals("1");
             }
         }
 
@@ -401,10 +406,12 @@ public class AppointmentSchedule extends AppCompatActivity {
                                 .equals("null") ? "" :apptDataInfo.getString("ad_prm_id");
                         String ad_prd_id = apptDataInfo.getString("ad_prd_id")
                                 .equals("null") ? "" :apptDataInfo.getString("ad_prd_id");
+                        String avail_flag = apptDataInfo.getString("avail_flag")
+                                .equals("null") ? "0" :apptDataInfo.getString("avail_flag");
 
                         apptScheduleInfoLists.add(new ApptScheduleInfoList(adm_date, schedule_time, "",pat_name,patient_data,pat_code,selected_date,
                                 pat_age_now,pfn_fee_name, doc_video_link, ts_video_conf_flag, pmm,depts_id,depts_name,is_ranked,pph_progress,
-                                pfn_id, ph_cat_id, ad_id, ad_prm_id, ad_prd_id));
+                                pfn_id, ph_cat_id, ad_id, ad_prm_id, ad_prd_id, avail_flag));
 
                     }
                 }
@@ -424,6 +431,12 @@ public class AppointmentSchedule extends AppCompatActivity {
             parsing_message = error.getLocalizedMessage();
             updateInterface(waitProgress);
         });
+
+        apptDataReq.setRetryPolicy(new DefaultRetryPolicy(
+                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS * 10,
+                0,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        ));
 
         requestQueue.add(apptDataReq);
     }
@@ -446,7 +459,7 @@ public class AppointmentSchedule extends AppCompatActivity {
                 else {
                     noSchMess.setVisibility(View.GONE);
                 }
-                timeLineAdapter = new TimeLineAdapter(apptScheduleInfoLists,AppointmentSchedule.this, patAppHisAvailable, patUpcomingAppHist);
+                timeLineAdapter = new TimeLineAdapter(apptScheduleInfoLists,AppointmentSchedule.this, patAppHisAvailable, patUpcomingAppHist,  isNeedAvail, AppointmentSchedule.this);
                 timelineView.setAdapter(timeLineAdapter);
                 loading = false;
             }
@@ -496,6 +509,24 @@ public class AppointmentSchedule extends AppCompatActivity {
             alert.show();
         }
         catch (Exception e) {
+            restart("App is paused for a long time. Please Start the app again.");
+        }
+    }
+
+    @Override
+    public void onAvailClicked(String ad_id) {
+        AvailScheduleDialogue availScheduleDialogue = new AvailScheduleDialogue(AppointmentSchedule.this, ad_id);
+        availScheduleDialogue.show(getSupportFragmentManager(),"AV_SCH");
+    }
+
+    @Override
+    public void onAvailed() {
+        if (loading != null) {
+            if (!loading) {
+                getAppointmentData();
+            }
+        }
+        else {
             restart("App is paused for a long time. Please Start the app again.");
         }
     }

@@ -21,11 +21,12 @@ public class UserInfoList {
     private String pat_pres_view;
     private String all_presc;
     private String doc_head_flag;
+    private String is_need_avail;
 
     public UserInfoList(String doc_name, String doc_id, String doc_code, String depts_name, String deptd_name, String deptm_name, String desig_name,
                         String docd_eff_date, String docd_status, String depts_id, String desig_id,String doc_video_link,
                         String doc_video_link_enable_flag, String doc_center_name, String deptd_id, String pat_app_history, String upcoming_pat_history,
-                        String pat_pres_view, String all_presc, String doc_head_flag) {
+                        String pat_pres_view, String all_presc, String doc_head_flag, String is_need_avail ) {
         this.doc_name = doc_name;
         this.doc_id = doc_id;
         this.doc_code = doc_code;
@@ -46,6 +47,7 @@ public class UserInfoList {
         this.pat_pres_view = pat_pres_view;
         this.all_presc = all_presc;
         this.doc_head_flag = doc_head_flag;
+        this.is_need_avail = is_need_avail;
     }
 
     public String getDoc_name() {
@@ -206,5 +208,13 @@ public class UserInfoList {
 
     public void setDoc_head_flag(String doc_head_flag) {
         this.doc_head_flag = doc_head_flag;
+    }
+
+    public String getIs_need_avail() {
+        return is_need_avail;
+    }
+
+    public void setIs_need_avail(String is_need_avail) {
+        this.is_need_avail = is_need_avail;
     }
 }
