@@ -3,7 +3,6 @@ package ttit.com.shuvo.docdiary.dashboard.dialogue;
 import static android.content.Context.MODE_PRIVATE;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -45,16 +44,21 @@ public class UserSelectDialogue extends AppCompatDialogFragment implements Multi
 
     ArrayList<MultipleUserList> multipleUserLists;
     ArrayList<CenterList> centerLists;
-    Context mContext;
+//    Context mContext;
     String c_name;
     String api;
 
-    public UserSelectDialogue(ArrayList<CenterList> centerLists, ArrayList<MultipleUserList> multipleUserLists, Context mContext,String c_name, String api) {
-        this.centerLists = centerLists;
-        this.multipleUserLists = multipleUserLists;
-        this.mContext = mContext;
-        this.c_name = c_name;
-        this.api = api;
+    public UserSelectDialogue() {
+    }
+    public static UserSelectDialogue newInstance(String c_name, String api, ArrayList<CenterList> centerLists, ArrayList<MultipleUserList> multipleUserLists) {
+        UserSelectDialogue fragment = new UserSelectDialogue();
+        Bundle args = new Bundle();
+        args.putString("c_name", c_name);
+        args.putString("api", api);
+        args.putSerializable("centerLists", centerLists);
+        args.putSerializable("multipleUserLists", multipleUserLists);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     private IDCallbackListener idCallbackListener;
@@ -70,6 +74,7 @@ public class UserSelectDialogue extends AppCompatDialogFragment implements Multi
     public static final String ADMIN_OR_USER_FLAG = "ADMIN_OR_USER_FLAG";
     public static final String ADMIN_USR_ID = "ADMIN_USR_ID";
 
+    @SuppressWarnings("unchecked")
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -83,6 +88,14 @@ public class UserSelectDialogue extends AppCompatDialogFragment implements Multi
             adminIDCallbackListener = (AdminIDCallbackListener) getActivity();
 
         View view = inflater.inflate(R.layout.user_id_selectable_view, null);
+
+        if (getArguments() != null) {
+            c_name = getArguments().getString("c_name", "");
+            api = getArguments().getString("api", "");
+
+            centerLists = (ArrayList<CenterList>) getArguments().getSerializable("centerLists");
+            multipleUserLists = (ArrayList<MultipleUserList>) getArguments().getSerializable("multipleUserLists");
+        }
 
         userIdView = view.findViewById(R.id.multiple_user_list_view);
         centerName = view.findViewById(R.id.center_name_of_selectable_id);
@@ -103,7 +116,8 @@ public class UserSelectDialogue extends AppCompatDialogFragment implements Multi
         layoutManager = new LinearLayoutManager(getContext());
         userIdView.setLayoutManager(layoutManager);
 
-        multipleUserAdapter = new MultipleUserAdapter(multipleUserLists,mContext,this);
+        if (multipleUserLists == null) multipleUserLists = new ArrayList<>();
+        multipleUserAdapter = new MultipleUserAdapter(multipleUserLists,requireContext(),this);
         userIdView.setAdapter(multipleUserAdapter);
 
         close.setOnClickListener(v -> dialog.dismiss());
@@ -117,6 +131,7 @@ public class UserSelectDialogue extends AppCompatDialogFragment implements Multi
         admin_user_flag = multipleUserLists.get(CategoryPosition).getUser_admin_flag();
         Gson gson = new Gson();
         String json;
+        if (centerLists == null) centerLists = new ArrayList<>();
         json = gson.toJson(centerLists);
         sharedpreferences = requireActivity().getSharedPreferences(LOGIN_ACTIVITY_FILE, MODE_PRIVATE);
         String pass = sharedpreferences.getString(DOC_USER_PASSWORD,"");

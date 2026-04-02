@@ -5,7 +5,6 @@ import static ttit.com.shuvo.docdiary.login.DocLogin.center_doc_code;
 import static ttit.com.shuvo.docdiary.login.DocLogin.user_or_admin_flag;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,18 +40,25 @@ public class SelectUserIdDialogue extends AppCompatDialogFragment implements Mul
     String d_code = "";
 
     ArrayList<MultipleUserList> multipleUserLists;
-    Context mContext;
+//    Context mContext;
     String c_name;
 
-    public SelectUserIdDialogue(ArrayList<MultipleUserList> multipleUserLists, Context mContext,String c_name) {
-        this.multipleUserLists = multipleUserLists;
-        this.mContext = mContext;
-        this.c_name = c_name;
+    public SelectUserIdDialogue() {
+    }
+    public static SelectUserIdDialogue newInstance(ArrayList<MultipleUserList> multipleUserLists, String c_name) {
+        SelectUserIdDialogue fragment = new SelectUserIdDialogue();
+        Bundle args = new Bundle();
+        args.putSerializable("multipleUserLists", multipleUserLists);
+        args.putString("c_name", c_name);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     private IDCallbackListener idCallbackListener;
     private CloseCallBack closeCallBack;
     private AdminIDCallbackListener adminIDCallbackListener;
+
+    @SuppressWarnings("unchecked")
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -66,6 +72,13 @@ public class SelectUserIdDialogue extends AppCompatDialogFragment implements Mul
 
         if (getActivity() instanceof AdminIDCallbackListener)
             adminIDCallbackListener = (AdminIDCallbackListener) getActivity();
+
+        if (getArguments() != null) {
+            multipleUserLists = (ArrayList<MultipleUserList>) getArguments().getSerializable("multipleUserLists");
+            c_name = getArguments().getString("c_name", "");
+        }
+
+        if (multipleUserLists == null) multipleUserLists = new ArrayList<>();
 
         View view = inflater.inflate(R.layout.user_id_selectable_view, null);
 
@@ -86,7 +99,7 @@ public class SelectUserIdDialogue extends AppCompatDialogFragment implements Mul
         layoutManager = new LinearLayoutManager(getContext());
         userIdView.setLayoutManager(layoutManager);
 
-        multipleUserAdapter = new MultipleUserAdapter(multipleUserLists,mContext,this);
+        multipleUserAdapter = new MultipleUserAdapter(multipleUserLists,requireContext(),this);
         userIdView.setAdapter(multipleUserAdapter);
 
         close.setOnClickListener(v -> {

@@ -25,6 +25,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import androidx.exifinterface.media.ExifInterface;
+import androidx.fragment.app.FragmentManager;
+
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -305,6 +307,17 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     Bitmap selectedBitmap;
     ReviewManager reviewManager;
     boolean cameraResumeLoad = true;
+
+    private long lastDialogClickTime = 0L;
+
+    private boolean isFastDialogClick() {
+        long now = System.currentTimeMillis();
+        if (now - lastDialogClickTime < 500) {
+            return true;
+        }
+        lastDialogClickTime = now;
+        return false;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -785,6 +798,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         paymentChartRefresh.setOnClickListener(v -> getPaymentChart());
 
         monthSelectionPayment.setOnClickListener(v -> {
+            if (isFastDialogClick()) return;
 
             Date c1 = Calendar.getInstance().getTime();
 
@@ -858,7 +872,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             MonthYearPickerDialogFragment dialogFragment =  MonthYearPickerDialogFragment
                     .getInstance(monthSelected, yearSelected, minDate, maxDate, customTitle, monthFormat);
 
-            dialogFragment.show(getSupportFragmentManager(), null);
+//            dialogFragment.show(getSupportFragmentManager(), null);
+            showDialogSafely(dialogFragment, "PAYMENT_MONTH_PICKER");
 
             dialogFragment.setOnDateSetListener((year, monthOfYear) -> {
                 System.out.println(year);
@@ -980,6 +995,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         appointChartRefresh.setOnClickListener(v -> getAppointmentChart());
 
         monthSelectionAppoint.setOnClickListener(v -> {
+            if (isFastDialogClick()) return;
 
             Calendar mc = Calendar.getInstance();
             mc.add(Calendar.MONTH, 2);
@@ -1055,7 +1071,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             MonthYearPickerDialogFragment dialogFragment =  MonthYearPickerDialogFragment
                     .getInstance(monthSelected, yearSelected, minDate, maxDate, customTitle, monthFormat);
 
-            dialogFragment.show(getSupportFragmentManager(), null);
+//            dialogFragment.show(getSupportFragmentManager(), null);
+            showDialogSafely(dialogFragment, "APPOINT_MONTH_PICKER");
 
             dialogFragment.setOnDateSetListener((year, monthOfYear) -> {
                 System.out.println(year);
@@ -1230,23 +1247,31 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         });
 
         switchUser.setOnClickListener(v -> {
+            if (isFastDialogClick()) return;
+            System.out.println("Tap");
             if (centerLists != null && !centerLists.isEmpty()) {
                 if (centerLists.size() == 1) {
                     ArrayList<MultipleUserList> multipleUserLists = centerLists.get(0).getMultipleUserLists();
+                    if (multipleUserLists == null) {
+                        multipleUserLists = new ArrayList<>();
+                    }
                     String cn = centerLists.get(0).getCenter_name();
                     String c_api = centerLists.get(0).getCenter_api();
-                    UserSelectDialogue userSelectDialogue = new UserSelectDialogue(centerLists,multipleUserLists,DocDashboard.this,cn,c_api);
+//                    UserSelectDialogue userSelectDialogue = new UserSelectDialogue(centerLists,multipleUserLists,DocDashboard.this,cn,c_api);
+                    UserSelectDialogue userSelectDialogue = UserSelectDialogue.newInstance(cn, c_api,centerLists,multipleUserLists);
                     try {
-                        userSelectDialogue.show(getSupportFragmentManager(),"USER_CENTER");
+//                        userSelectDialogue.show(getSupportFragmentManager(),"USER_CENTER");
+                        showDialogSafely(userSelectDialogue, "USER_CENTER");
                     }
                     catch (Exception e) {
                         restart("App is paused for a long time. Please Start the app again.");
                     }
                 }
                 else {
-                    CenterSelectDialogue centerSelectDialogue = new CenterSelectDialogue(centerLists,DocDashboard.this);
+                    CenterSelectDialogue centerSelectDialogue = CenterSelectDialogue.newInstance(centerLists);
                     try {
-                        centerSelectDialogue.show(getSupportFragmentManager(),"CENTER");
+//                        centerSelectDialogue.show(getSupportFragmentManager(),"CENTER");
+                        showDialogSafely(centerSelectDialogue, "CENTER");
                     }
                     catch (Exception e) {
                         restart("App is paused for a long time. Please Start the app again.");
@@ -1256,6 +1281,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         });
 
         adminCaptureImage.setOnClickListener(view -> {
+            if (isFastDialogClick()) return;
             if (admin_user_flag.equals("2")) {
                 cameraResumeLoad = false;
 //                ImagePicker.with(this)
@@ -1264,7 +1290,8 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 //                        .maxResultSize(1080,1080)
 //                        .start(1114);
                 ImageTakerChoiceDialog imageTakerChoiceDialog = new ImageTakerChoiceDialog();
-                imageTakerChoiceDialog.show(getSupportFragmentManager(),"CH_IMAGE");
+//                imageTakerChoiceDialog.show(getSupportFragmentManager(),"CH_IMAGE");
+                showDialogSafely(imageTakerChoiceDialog, "CH_IMAGE");
             }
         });
 
@@ -3811,6 +3838,12 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         appointmentChart.clear();
         appointmentChart.invalidate();
         appointmentChart.fitScreen();
+
+        paymentChartFirstDate = "";
+        paymentChartLastDate = "";
+
+        appointChartFirstDate = "";
+        appointChartLastDate = "";
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
         String date_now = dateFormat.format(Calendar.getInstance().getTime());
@@ -6561,5 +6594,39 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 });
             }
         });
+    }
+
+    // safe dialog open
+    private boolean canShowDialog(String tag) {
+        if (isFinishing()) return false;
+        if (isDestroyed()) return false;
+
+        FragmentManager fm = getSupportFragmentManager();
+        if (fm.isStateSaved()) return false;
+
+        return fm.findFragmentByTag(tag) == null;
+    }
+
+    private void showDialogSafely(androidx.fragment.app.DialogFragment dialog, String tag) {
+        if (canShowDialog(tag)) {
+            dialog.show(getSupportFragmentManager(), tag);
+        }
+//        else {
+//            MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
+//            alertDialogBuilder.setTitle("System Error!")
+//                    .setMessage("Could not open the dialog for unspecified incident. Please restart the app and try again.")
+//                    .setPositiveButton("OK", (dialogs, which) -> {
+//                        restart("App is paused for a long time. Please Start the app again.");
+//                        dialogs.dismiss();
+//                    });
+//
+//            AlertDialog alert = alertDialogBuilder.create();
+//            try {
+//                alert.show();
+//            }
+//            catch (Exception e) {
+//                restart("App is paused for a long time. Please Start the app again.");
+//            }
+//        }
     }
 }

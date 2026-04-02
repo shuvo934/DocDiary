@@ -6,7 +6,6 @@ import static ttit.com.shuvo.docdiary.login.DocLogin.center_doc_code;
 import static ttit.com.shuvo.docdiary.login.DocLogin.user_or_admin_flag;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
+import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -41,15 +41,24 @@ public class SelectCenterDialogue extends AppCompatDialogFragment implements Cen
     String d_code = "";
 
     ArrayList<CenterList> centerLists;
-    Context mContext;
+//    Context mContext;
 
-    public SelectCenterDialogue(ArrayList<CenterList> centerLists, Context mContext) {
-        this.centerLists = centerLists;
-        this.mContext = mContext;
+    public SelectCenterDialogue() {
     }
+
+    public static SelectCenterDialogue newInstance(ArrayList<CenterList> centerLists) {
+        SelectCenterDialogue fragment = new SelectCenterDialogue();
+        Bundle args = new Bundle();
+        args.putSerializable("centerLists", centerLists);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     private CallBackListener callBackListener;
     private CloseCallBack closeCallBack;
     private AdminCallBackListener adminCallBackListener;
+
+    @SuppressWarnings("unchecked")
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -63,6 +72,12 @@ public class SelectCenterDialogue extends AppCompatDialogFragment implements Cen
 
         if (getActivity() instanceof AdminCallBackListener)
             adminCallBackListener = (AdminCallBackListener) getActivity();
+
+        if (getArguments() != null) {
+            centerLists = (ArrayList<CenterList>) getArguments().getSerializable("centerLists");
+        }
+
+        if (centerLists == null) centerLists = new ArrayList<>();
 
         View view = inflater.inflate(R.layout.center_selectable_view, null);
 
@@ -81,7 +96,7 @@ public class SelectCenterDialogue extends AppCompatDialogFragment implements Cen
         layoutManager = new LinearLayoutManager(getContext());
         centerView.setLayoutManager(layoutManager);
 
-        centerAdapter = new CenterAdapter(centerLists,mContext,this);
+        centerAdapter = new CenterAdapter(centerLists,requireContext(),this);
         centerView.setAdapter(centerAdapter);
         close.setOnClickListener(v -> {
             if(closeCallBack != null)
@@ -96,6 +111,9 @@ public class SelectCenterDialogue extends AppCompatDialogFragment implements Cen
     public void onCategoryClicked(int CategoryPosition) {
 
         ArrayList<MultipleUserList> multipleUserLists = centerLists.get(CategoryPosition).getMultipleUserLists();
+        if (multipleUserLists == null) {
+            multipleUserLists = new ArrayList<>();
+        }
         centerAPI = centerLists.get(CategoryPosition).getCenter_api();
         center_api = centerAPI;
         if (multipleUserLists.isEmpty()) {
@@ -128,9 +146,28 @@ public class SelectCenterDialogue extends AppCompatDialogFragment implements Cen
             System.out.println("USERs Found : "+multipleUserLists.size());
             String cn = centerLists.get(CategoryPosition).getCenter_name();
 
-            SelectUserIdDialogue selectUserIdDialogue = new SelectUserIdDialogue(multipleUserLists, mContext,cn);
-            selectUserIdDialogue.show(requireActivity().getSupportFragmentManager(),"USER_CENTER");
+//            SelectUserIdDialogue selectUserIdDialogue = new SelectUserIdDialogue(multipleUserLists, mContext,cn);
+            SelectUserIdDialogue selectUserIdDialogue = SelectUserIdDialogue.newInstance(multipleUserLists,cn);
+//            selectUserIdDialogue.show(requireActivity().getSupportFragmentManager(),"USER_CENTER");
+            showDialogSafely(selectUserIdDialogue);
             dialog.dismiss();
+        }
+    }
+
+    private boolean canShowDialog() {
+        if (getActivity() == null) return false;
+        if (requireActivity().isFinishing()) return false;
+        if (requireActivity().isDestroyed()) return false;
+
+        androidx.fragment.app.FragmentManager fm = requireActivity().getSupportFragmentManager();
+        if (fm.isStateSaved()) return false;
+
+        return fm.findFragmentByTag("USER_CENTER") == null;
+    }
+
+    private void showDialogSafely(DialogFragment fragment) {
+        if (canShowDialog()) {
+            fragment.show(requireActivity().getSupportFragmentManager(), "USER_CENTER");
         }
     }
 }

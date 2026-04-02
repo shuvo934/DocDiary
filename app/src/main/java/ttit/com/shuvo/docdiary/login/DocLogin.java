@@ -3,6 +3,7 @@ package ttit.com.shuvo.docdiary.login;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
 
 import android.content.Context;
 import android.content.Intent;
@@ -110,6 +111,17 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
     String json = "";
     Logger logger = Logger.getLogger(DocLogin.class.getName());
 
+    private long lastClickTime = 0L;
+
+    private boolean isFastClick() {
+        long now = System.currentTimeMillis();
+        if (now - lastClickTime < 500) {
+            return true;
+        }
+        lastClickTime = now;
+        return false;
+    }
+
     ArrayList<AllUrlList> urls;
     String text_url = "https://raw.githubusercontent.com/shuvo934/Story/refs/heads/master/docDiaryServers";
 
@@ -213,6 +225,7 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
 
         login.setOnClickListener(v -> {
             closeKeyBoard();
+            if (isFastClick()) return;
 
             user_mobile = Objects.requireNonNull(userMobile.getText()).toString();
             user_password = Objects.requireNonNull(userPassword.getText()).toString();
@@ -319,11 +332,11 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
                     urls.add(new AllUrlList("http://103.73.227.28:8080/cstar/cstar_bsd/",false));
                     urls.add(new AllUrlList("http://103.56.208.123:8001/apex/btrf/",false));
                 }
-                else {
-                    for (int i = 0; i < urls.size(); i++) {
-                        System.out.println(urls.get(i).getUrls());
-                    }
-                }
+//                else {
+//                    for (int i = 0; i < urls.size(); i++) {
+//                        System.out.println(urls.get(i).getUrls());
+//                    }
+//                }
                 fullLayout.setVisibility(View.VISIBLE);
                 circularProgressIndicator.setVisibility(View.GONE);
             });
@@ -345,7 +358,7 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
         center_admin_user_id = "";
         user_or_admin_flag = "";
         user_center_name = "";
-        System.out.println("START");
+//        System.out.println("START");
 
         checkToGetLoginData();
     }
@@ -357,13 +370,13 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
             if (!urls.get(i).isChecked()) {
                 allUpdated = urls.get(i).isChecked();
                 String url = urls.get(i).getUrls();
-                System.out.println(i+" Started");
+//                System.out.println(i+" Started");
                 getLoginData(url,i);
                 break;
             }
         }
         if (allUpdated) {
-            System.out.println("all clear");
+//            System.out.println("all clear");
             updateLayout();
         }
     }
@@ -389,7 +402,7 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
                                 center_admin_user_id, user_or_admin_flag, new ArrayList<>()));
                         connected = true;
                         urls.get(index).setChecked(true);
-                        System.out.println(String.valueOf(index+1)+"st Found : 1");
+//                        System.out.println(index + 1 +"st Found : 1");
                         checkToGetLoginData();
                         break;
                     case "0":
@@ -398,7 +411,7 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
                         }
                         connected = true;
                         urls.get(index).setChecked(true);
-                        System.out.println(String.valueOf(index+1)+"st Found : 0");
+//                        System.out.println(index + 1 +"st Found : 0");
                         checkToGetLoginData();
                         break;
                     case "3":
@@ -420,7 +433,7 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
                                 center_admin_user_id, user_or_admin_flag, multipleUserLists));
                         connected = true;
                         urls.get(index).setChecked(true);
-                        System.out.println(String.valueOf(index+1)+"st Found : 3");
+//                        System.out.println(index + 1 +"st Found : 3");
                         checkToGetLoginData();
                         break;
                     case "4":
@@ -445,7 +458,7 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
                                 center_admin_user_id, user_or_admin_flag, multipleUserLists1));
                         connected = true;
                         urls.get(index).setChecked(true);
-                        System.out.println(String.valueOf(index+1)+"st Found : 4");
+//                        System.out.println(index + 1 +"st Found : 4");
                         checkToGetLoginData();
                         break;
                     case "5":
@@ -485,13 +498,13 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
                                 center_admin_user_id, user_or_admin_flag, multipleUserLists2));
                         connected = true;
                         urls.get(index).setChecked(true);
-                        System.out.println(String.valueOf(index+1)+"st Found : 5");
+//                        System.out.println(index + 1 +"st Found : 5");
                         checkToGetLoginData();
                         break;
                     default:
                         connected = true;
                         urls.get(index).setChecked(true);
-                        System.out.println(String.valueOf(index+1)+"st Found : 2");
+//                        System.out.println(index + 1 +"st Found : 2");
                         checkToGetLoginData();
                         break;
                 }
@@ -1231,9 +1244,11 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
                     center_api = centerLists.get(0).getCenter_api();
                     String cn = centerLists.get(0).getCenter_name();
                     json = gson.toJson(centerLists);
-                    SelectUserIdDialogue selectUserIdDialogue = new SelectUserIdDialogue(multipleUserLists,DocLogin.this,cn);
+//                    SelectUserIdDialogue selectUserIdDialogue = new SelectUserIdDialogue(multipleUserLists,DocLogin.this,cn);
+                    SelectUserIdDialogue selectUserIdDialogue = SelectUserIdDialogue.newInstance(multipleUserLists, cn);
                     try {
-                        selectUserIdDialogue.show(getSupportFragmentManager(),"USER_CENTER");
+//                        selectUserIdDialogue.show(getSupportFragmentManager(),"USER_CENTER");
+                        showDialogSafely(selectUserIdDialogue, "USER_CENTER");
                     }
                     catch (Exception e) {
                         restart("App is paused for a long time. Please Start the app again.");
@@ -1244,9 +1259,11 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
                 System.out.println("Multi Center Found : "+centerLists.size());
                 json = gson.toJson(centerLists);
 
-                SelectCenterDialogue selectCenterDialogue = new SelectCenterDialogue(centerLists,DocLogin.this);
+//                SelectCenterDialogue selectCenterDialogue = new SelectCenterDialogue(centerLists,DocLogin.this);
+                SelectCenterDialogue selectCenterDialogue = SelectCenterDialogue.newInstance(centerLists);
                 try {
-                    selectCenterDialogue.show(getSupportFragmentManager(),"CENTER");
+//                    selectCenterDialogue.show(getSupportFragmentManager(),"CENTER");
+                    showDialogSafely(selectCenterDialogue, "CENTER");
                 }
                 catch (Exception e) {
                     restart("App is paused for a long time. Please Start the app again.");
@@ -1592,5 +1609,22 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
     @Override
     public void onAdminCenterSelection() {
         updateAdminFLFlag();
+    }
+
+    // safe dialog open
+    private boolean canShowDialog(String tag) {
+        if (isFinishing()) return false;
+        if (isDestroyed()) return false;
+
+        FragmentManager fm = getSupportFragmentManager();
+        if (fm.isStateSaved()) return false;
+
+        return fm.findFragmentByTag(tag) == null;
+    }
+
+    private void showDialogSafely(androidx.fragment.app.DialogFragment dialog, String tag) {
+        if (canShowDialog(tag)) {
+            dialog.show(getSupportFragmentManager(), tag);
+        }
     }
 }

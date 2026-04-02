@@ -8,6 +8,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -516,7 +518,8 @@ public class AppointmentSchedule extends AppCompatActivity implements TimeLineAd
     @Override
     public void onAvailClicked(String ad_id) {
         AvailScheduleDialogue availScheduleDialogue = new AvailScheduleDialogue(AppointmentSchedule.this, ad_id);
-        availScheduleDialogue.show(getSupportFragmentManager(),"AV_SCH");
+//        availScheduleDialogue.show(getSupportFragmentManager(),"AV_SCH");
+        showDialogSafely(availScheduleDialogue);
     }
 
     @Override
@@ -529,5 +532,39 @@ public class AppointmentSchedule extends AppCompatActivity implements TimeLineAd
         else {
             restart("App is paused for a long time. Please Start the app again.");
         }
+    }
+
+    // safe dialog open
+    private boolean canShowDialog() {
+        if (isFinishing()) return false;
+        if (isDestroyed()) return false;
+
+        FragmentManager fm = getSupportFragmentManager();
+        if (fm.isStateSaved()) return false;
+
+        return fm.findFragmentByTag("AV_SCH") == null;
+    }
+
+    private void showDialogSafely(DialogFragment dialog) {
+        if (canShowDialog()) {
+            dialog.show(getSupportFragmentManager(), "AV_SCH");
+        }
+//        else {
+//            MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(AppointmentSchedule.this);
+//            alertDialogBuilder.setTitle("System Error!")
+//                    .setMessage("Could not open the dialog for unspecified incident. Please restart the app and try again.")
+//                    .setPositiveButton("OK", (dialogs, which) -> {
+//                        restart("App is paused for a long time. Please Start the app again.");
+//                        dialogs.dismiss();
+//                    });
+//
+//            AlertDialog alert = alertDialogBuilder.create();
+//            try {
+//                alert.show();
+//            }
+//            catch (Exception e) {
+//                restart("App is paused for a long time. Please Start the app again.");
+//            }
+//        }
     }
 }

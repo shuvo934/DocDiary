@@ -21,6 +21,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import androidx.exifinterface.media.ExifInterface;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
+
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -238,7 +241,8 @@ public class DocProfile extends AppCompatActivity implements PictureChooseListen
 //                    .maxResultSize(1080,1080)
 //                    .start(1113);
             ImageTakerChoiceDialog imageTakerChoiceDialog = new ImageTakerChoiceDialog();
-            imageTakerChoiceDialog.show(getSupportFragmentManager(),"CH_IMAGE_DOC");
+//            imageTakerChoiceDialog.show(getSupportFragmentManager(),"CH_IMAGE_DOC");
+            showDialogSafely(imageTakerChoiceDialog);
         });
 
         editAddress.setOnClickListener(v -> {
@@ -883,5 +887,21 @@ public class DocProfile extends AppCompatActivity implements PictureChooseListen
                 //.withAspectRatio(1, 1)  // Optional: Set aspect ratio
                 .withMaxResultSize(1080, 1080) // Optional: Set max resolution
                 .start(this);
+    }
+
+    private boolean canShowDialog() {
+        if (isFinishing()) return false;
+        if (isDestroyed()) return false;
+
+        FragmentManager fm = getSupportFragmentManager();
+        if (fm.isStateSaved()) return false;
+
+        return fm.findFragmentByTag("CH_IMAGE_DOC") == null;
+    }
+
+    private void showDialogSafely(DialogFragment dialog) {
+        if (canShowDialog()) {
+            dialog.show(getSupportFragmentManager(), "CH_IMAGE_DOC");
+        }
     }
 }

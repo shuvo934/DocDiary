@@ -1,8 +1,9 @@
 package ttit.com.shuvo.docdiary.login.arraylists;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class CenterList {
+public class CenterList implements Serializable {
     private String center_name;
     private String center_api;
     private String doc_code;

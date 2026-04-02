@@ -8,6 +8,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -65,7 +67,6 @@ public class DocLeave extends AppCompatActivity {
     String last_month = "";
     String doc_id = "";
 
-    WaitProgress waitProgress = new WaitProgress();
     private Boolean conn = false;
     private Boolean connected = false;
     private Boolean loading = false;
@@ -263,9 +264,11 @@ public class DocLeave extends AppCompatActivity {
     }
 
     public void getLeaveScheduleData() {
+        WaitProgress waitProgress = new WaitProgress();
         try {
-            waitProgress.show(getSupportFragmentManager(), "WaitBar");
+//            waitProgress.show(getSupportFragmentManager(), "WaitBar");
             waitProgress.setCancelable(false);
+            showDialogSafely(waitProgress);
         }
         catch (Exception e) {
             restart("App is paused for a long time. Please Start the app again.");
@@ -361,26 +364,26 @@ public class DocLeave extends AppCompatActivity {
                 }
 //                requestQueue.add(dayDataReq);
                 connected = true;
-                updateInterface();
+                updateInterface(waitProgress);
             }
             catch (JSONException e) {
                 connected = false;
                 logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
-                updateInterface();
+                updateInterface(waitProgress);
             }
         }, error -> {
             conn = false;
             connected = false;
             logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
-            updateInterface();
+            updateInterface(waitProgress);
         });
 
         requestQueue.add(timeDataReq);
     }
 
-    private void updateInterface() {
+    private void updateInterface(WaitProgress waitProgress) {
         if (conn) {
             if (connected) {
 
@@ -540,15 +543,15 @@ public class DocLeave extends AppCompatActivity {
 
             }
             else {
-                alertMessage();
+                alertMessage(waitProgress);
             }
         }
         else {
-            alertMessage();
+            alertMessage(waitProgress);
         }
     }
 
-    public void alertMessage() {
+    public void alertMessage(WaitProgress waitProgress) {
         try {
             waitProgress.dismiss();
         }
@@ -649,4 +652,21 @@ public class DocLeave extends AppCompatActivity {
             .setMaximumDate(endDates)
             .commit();
      */
+
+    // safe dialog open
+    private boolean canShowDialog() {
+        if (isFinishing()) return false;
+        if (isDestroyed()) return false;
+
+        FragmentManager fm = getSupportFragmentManager();
+        if (fm.isStateSaved()) return false;
+
+        return fm.findFragmentByTag("WaitBar") == null;
+    }
+
+    private void showDialogSafely(DialogFragment dialog) {
+        if (canShowDialog()) {
+            dialog.show(getSupportFragmentManager(), "WaitBar");
+        }
+    }
 }

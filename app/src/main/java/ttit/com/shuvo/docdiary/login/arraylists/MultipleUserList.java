@@ -1,6 +1,8 @@
 package ttit.com.shuvo.docdiary.login.arraylists;
 
-public class MultipleUserList {
+import java.io.Serializable;
+
+public class MultipleUserList implements Serializable {
     private String doc_code;
     private String doc_name;
     private String depts_name;

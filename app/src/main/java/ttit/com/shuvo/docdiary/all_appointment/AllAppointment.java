@@ -4,7 +4,6 @@ import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.adminInfoLists;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.userInfoLists;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
