@@ -256,13 +256,11 @@ public class MainActivity extends AppCompatActivity {
                         || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
 
                     Log.i("Ekhane", "3");
-                    showDialog("Storage Permission!", "This app needs the storage permission for functioning.", "OK", (dialogInterface, i) -> storageResultLauncher.launch(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE}));
+                    showDialog("Storage Permission!", "This app needs the storage permission for functioning.", "OK", (dialogInterface, i) -> launchStoragePermissionSafely());
                 }
                 else {
                     Log.i("Ekhane", "4");
-                    storageResultLauncher.launch(new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                            android.Manifest.permission.WRITE_EXTERNAL_STORAGE});
+                    launchStoragePermissionSafely();
                 }
             }
         }
@@ -330,12 +328,31 @@ public class MainActivity extends AppCompatActivity {
             Log.i("Ekhane", "14");
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
                 Log.i("Ekhane", "15");
-                showDialog("Camera Permission!", "This app needs the Camera permission for functioning.", "OK", (dialogInterface, i) -> cameraPermResultLauncher.launch(Manifest.permission.CAMERA));
+                showDialog("Camera Permission!", "This app needs the Camera permission for functioning.", "OK", (dialogInterface, i) -> launchCameraPermissionSafely());
             }
             else {
                 Log.i("Ekhane", "16");
-                cameraPermResultLauncher.launch(Manifest.permission.CAMERA);
+                launchCameraPermissionSafely();
             }
+        }
+    }
+
+    private void launchCameraPermissionSafely() {
+        if (isFinishing() || isDestroyed()) return;
+
+        if (getLifecycle().getCurrentState().isAtLeast(
+                androidx.lifecycle.Lifecycle.State.STARTED)) {
+            cameraPermResultLauncher.launch(Manifest.permission.CAMERA);
+        }
+    }
+
+    private void launchStoragePermissionSafely() {
+        if (isFinishing() || isDestroyed()) return;
+
+        if (getLifecycle().getCurrentState().isAtLeast(
+                androidx.lifecycle.Lifecycle.State.STARTED)) {
+            storageResultLauncher.launch(new String[]{android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE});
         }
     }
 

@@ -402,7 +402,7 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
                                 center_admin_user_id, user_or_admin_flag, new ArrayList<>()));
                         connected = true;
                         urls.get(index).setChecked(true);
-//                        System.out.println(index + 1 +"st Found : 1");
+                        System.out.println(index + 1 +"st Found : 1");
                         checkToGetLoginData();
                         break;
                     case "0":
@@ -411,7 +411,7 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
                         }
                         connected = true;
                         urls.get(index).setChecked(true);
-//                        System.out.println(index + 1 +"st Found : 0");
+                        System.out.println(index + 1 +"st Found : 0");
                         checkToGetLoginData();
                         break;
                     case "3":
@@ -433,7 +433,7 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
                                 center_admin_user_id, user_or_admin_flag, multipleUserLists));
                         connected = true;
                         urls.get(index).setChecked(true);
-//                        System.out.println(index + 1 +"st Found : 3");
+                        System.out.println(index + 1 +"st Found : 3");
                         checkToGetLoginData();
                         break;
                     case "4":
@@ -458,7 +458,7 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
                                 center_admin_user_id, user_or_admin_flag, multipleUserLists1));
                         connected = true;
                         urls.get(index).setChecked(true);
-//                        System.out.println(index + 1 +"st Found : 4");
+                        System.out.println(index + 1 +"st Found : 4");
                         checkToGetLoginData();
                         break;
                     case "5":
@@ -498,13 +498,13 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
                                 center_admin_user_id, user_or_admin_flag, multipleUserLists2));
                         connected = true;
                         urls.get(index).setChecked(true);
-//                        System.out.println(index + 1 +"st Found : 5");
+                        System.out.println(index + 1 +"st Found : 5");
                         checkToGetLoginData();
                         break;
                     default:
                         connected = true;
                         urls.get(index).setChecked(true);
-//                        System.out.println(index + 1 +"st Found : 2");
+                        System.out.println(index + 1 +"st Found : 2");
                         checkToGetLoginData();
                         break;
                 }
