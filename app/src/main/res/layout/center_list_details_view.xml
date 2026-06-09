@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -19,18 +20,32 @@
             android:background="?attr/selectableItemBackground">
 
             <LinearLayout
+                android:id="@+id/center_list_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:weightSum="10"
+                android:gravity="center"
+                android:orientation="horizontal"
                 android:background="@drawable/border_design">
                 <TextView
                     android:id="@+id/data_center_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="CRP, Manikganj - Local"
+                    android:layout_weight="9"
+                    android:text=""
                     android:layout_margin="15dp"
                     android:textSize="@dimen/_13sdp"
                     android:textColor="@color/green_sea"
                     android:fontFamily="@font/open_sans_bold"/>
+                <ImageView
+                    android:id="@+id/selected_center_check_image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:visibility="gone"
+                    android:layout_marginEnd="@dimen/_4sdp"
+                    android:src="@drawable/check_circle_24"
+                    tools:ignore="ContentDescription" />
             </LinearLayout>
 
 

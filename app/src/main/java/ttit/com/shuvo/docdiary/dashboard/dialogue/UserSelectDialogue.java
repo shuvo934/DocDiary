@@ -47,16 +47,23 @@ public class UserSelectDialogue extends AppCompatDialogFragment implements Multi
 //    Context mContext;
     String c_name;
     String api;
+    String selected_doc_code;
+    String selected_admin_id;
+    String admin_or_user;
 
     public UserSelectDialogue() {
     }
-    public static UserSelectDialogue newInstance(String c_name, String api, ArrayList<CenterList> centerLists, ArrayList<MultipleUserList> multipleUserLists) {
+    public static UserSelectDialogue newInstance(String c_name, String api, ArrayList<CenterList> centerLists, ArrayList<MultipleUserList> multipleUserLists,
+                                                 String selected_doc_code, String selected_admin_id, String admin_or_user) {
         UserSelectDialogue fragment = new UserSelectDialogue();
         Bundle args = new Bundle();
         args.putString("c_name", c_name);
         args.putString("api", api);
         args.putSerializable("centerLists", centerLists);
         args.putSerializable("multipleUserLists", multipleUserLists);
+        args.putString("selected_doc_code", selected_doc_code);
+        args.putString("selected_admin_id", selected_admin_id);
+        args.putString("admin_or_user", admin_or_user);
         fragment.setArguments(args);
         return fragment;
     }
@@ -92,6 +99,9 @@ public class UserSelectDialogue extends AppCompatDialogFragment implements Multi
         if (getArguments() != null) {
             c_name = getArguments().getString("c_name", "");
             api = getArguments().getString("api", "");
+            selected_doc_code = getArguments().getString("selected_doc_code", "");
+            selected_admin_id = getArguments().getString("selected_admin_id", "");
+            admin_or_user = getArguments().getString("admin_or_user", "");
 
             centerLists = (ArrayList<CenterList>) getArguments().getSerializable("centerLists");
             multipleUserLists = (ArrayList<MultipleUserList>) getArguments().getSerializable("multipleUserLists");
@@ -117,7 +127,7 @@ public class UserSelectDialogue extends AppCompatDialogFragment implements Multi
         userIdView.setLayoutManager(layoutManager);
 
         if (multipleUserLists == null) multipleUserLists = new ArrayList<>();
-        multipleUserAdapter = new MultipleUserAdapter(multipleUserLists,requireContext(),this);
+        multipleUserAdapter = new MultipleUserAdapter(multipleUserLists,requireContext(),selected_doc_code,selected_admin_id,admin_or_user,this);
         userIdView.setAdapter(multipleUserAdapter);
 
         close.setOnClickListener(v -> dialog.dismiss());

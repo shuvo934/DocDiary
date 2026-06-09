@@ -99,7 +99,7 @@ public class SelectUserIdDialogue extends AppCompatDialogFragment implements Mul
         layoutManager = new LinearLayoutManager(getContext());
         userIdView.setLayoutManager(layoutManager);
 
-        multipleUserAdapter = new MultipleUserAdapter(multipleUserLists,requireContext(),this);
+        multipleUserAdapter = new MultipleUserAdapter(multipleUserLists,requireContext(),"","","",this);
         userIdView.setAdapter(multipleUserAdapter);
 
         close.setOnClickListener(v -> {

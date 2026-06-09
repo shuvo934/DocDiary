@@ -44,15 +44,24 @@ public class CenterSelectDialogue extends AppCompatDialogFragment implements Cen
     String admin_user_flag = "";
 
     ArrayList<CenterList> centerLists;
+    String center_api;
+    String selected_doc_code;
+    String selected_admin_id;
+    String admin_or_user;
 //    Context mContext;
 
     public CenterSelectDialogue() {
     }
 
-    public static CenterSelectDialogue newInstance(ArrayList<CenterList> centerLists) {
+    public static CenterSelectDialogue newInstance(ArrayList<CenterList> centerLists, String center_api,
+                                                   String selected_doc_code, String selected_admin_id, String admin_or_user) {
         CenterSelectDialogue fragment = new CenterSelectDialogue();
         Bundle args = new Bundle();
         args.putSerializable("centerLists", centerLists);
+        args.putString("center_api",center_api);
+        args.putString("selected_doc_code", selected_doc_code);
+        args.putString("selected_admin_id", selected_admin_id);
+        args.putString("admin_or_user", admin_or_user);
         fragment.setArguments(args);
         return fragment;
     }
@@ -86,6 +95,10 @@ public class CenterSelectDialogue extends AppCompatDialogFragment implements Cen
 
         if (getArguments() != null) {
             centerLists = (ArrayList<CenterList>) getArguments().getSerializable("centerLists");
+            center_api = getArguments().getString("center_api","");
+            selected_doc_code = getArguments().getString("selected_doc_code", "");
+            selected_admin_id = getArguments().getString("selected_admin_id", "");
+            admin_or_user = getArguments().getString("admin_or_user", "");
         }
 
         if (centerLists == null) centerLists = new ArrayList<>();
@@ -107,7 +120,7 @@ public class CenterSelectDialogue extends AppCompatDialogFragment implements Cen
         layoutManager = new LinearLayoutManager(getContext());
         centerView.setLayoutManager(layoutManager);
 
-        centerAdapter = new CenterAdapter(centerLists,requireContext(),this);
+        centerAdapter = new CenterAdapter(centerLists,requireContext(),center_api,this);
         centerView.setAdapter(centerAdapter);
         close.setOnClickListener(v -> dialog.dismiss());
 
@@ -172,10 +185,16 @@ public class CenterSelectDialogue extends AppCompatDialogFragment implements Cen
             String cn = centerLists.get(CategoryPosition).getCenter_name();
             String api = centerLists.get(CategoryPosition).getCenter_api();
 
+            if (center_api.equals(api)) {
 //            UserSelectDialogue userSelectDialogue = new UserSelectDialogue(centerLists,multipleUserLists, mContext,cn,api);
-            UserSelectDialogue userSelectDialogue = UserSelectDialogue.newInstance(cn, api, centerLists, multipleUserLists);
+                UserSelectDialogue userSelectDialogue = UserSelectDialogue.newInstance(cn, api, centerLists, multipleUserLists, selected_doc_code, selected_admin_id, admin_or_user);
 //            userSelectDialogue.show(requireActivity().getSupportFragmentManager(),"USER_CENTER");
-            showDialogSafely(userSelectDialogue);
+                showDialogSafely(userSelectDialogue);
+            }
+            else {
+                UserSelectDialogue userSelectDialogue = UserSelectDialogue.newInstance(cn, api, centerLists, multipleUserLists, "","","");
+                showDialogSafely(userSelectDialogue);
+            }
             dialog.dismiss();
         }
     }

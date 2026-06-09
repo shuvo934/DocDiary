@@ -96,7 +96,7 @@ public class SelectCenterDialogue extends AppCompatDialogFragment implements Cen
         layoutManager = new LinearLayoutManager(getContext());
         centerView.setLayoutManager(layoutManager);
 
-        centerAdapter = new CenterAdapter(centerLists,requireContext(),this);
+        centerAdapter = new CenterAdapter(centerLists,requireContext(),"",this);
         centerView.setAdapter(centerAdapter);
         close.setOnClickListener(v -> {
             if(closeCallBack != null)

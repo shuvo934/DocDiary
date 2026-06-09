@@ -118,9 +118,11 @@ import ttit.com.shuvo.docdiary.camera_preview.CameraPreview;
 import ttit.com.shuvo.docdiary.dashboard.arraylists.AdminInfoList;
 import ttit.com.shuvo.docdiary.dashboard.arraylists.AppointmentChartList;
 import ttit.com.shuvo.docdiary.dashboard.arraylists.PaymentChartList;
+import ttit.com.shuvo.docdiary.dashboard.dialogue.ErrorHandlerDialogue;
 import ttit.com.shuvo.docdiary.dashboard.dialogue.ImageTakerChoiceDialog;
 import ttit.com.shuvo.docdiary.dashboard.extra.AppointMarkerView;
 import ttit.com.shuvo.docdiary.dashboard.extra.MyMarkerView;
+import ttit.com.shuvo.docdiary.dashboard.interfaces.ErrorHandlerListener;
 import ttit.com.shuvo.docdiary.dashboard.interfaces.PictureChooseListener;
 import ttit.com.shuvo.docdiary.hr_accounts.HRAccounts;
 import ttit.com.shuvo.docdiary.login.interfaces.AdminCallBackListener;
@@ -144,7 +146,7 @@ import ttit.com.shuvo.docdiary.report_manager.ReportManager;
 import ttit.com.shuvo.docdiary.unit_app_schedule.UnitWiseAppointment;
 
 public class DocDashboard extends AppCompatActivity implements CallBackListener, IDCallbackListener, AdminIDCallbackListener,
-        AdminCallBackListener, BitmapCallBack, PictureChooseListener {
+        AdminCallBackListener, BitmapCallBack, PictureChooseListener, ErrorHandlerListener {
 
     LinearLayout fullLayout;
     CircularProgressIndicator circularProgressIndicator;
@@ -226,11 +228,11 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     TextView totalAppointmentAdmin;
     TextView blockedSchedule;
     TextView cancelAppointmentAdmin;
-    TextView totalPaymentCount;
+    TextView totalPaymentReturn;
     TextView totalPaymentAmount;
     int total_schedule = 0;
     int blocked_schedule = 0;
-    String total_payment_count = "";
+    String total_payment_return = "";
     String total_payment_amount = "";
     String total_appointment_admin = "";
     String cancel_appointment_admin = "";
@@ -319,6 +321,11 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         return false;
     }
 
+    String docDataDestination = "DocData";
+    String docSchDes = "DocSchedule";
+    String adminDataDes = "AdminData";
+    String adminDashDes = "AdminDashboard";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -383,7 +390,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         totalAppointmentAdmin = findViewById(R.id.total_appointment_count_for_admin);
         blockedSchedule = findViewById(R.id.blocked_schedule_count);
         cancelAppointmentAdmin = findViewById(R.id.canceled_appointment_count_for_admin);
-        totalPaymentCount = findViewById(R.id.total_payment_count_for_admin);
+        totalPaymentReturn = findViewById(R.id.total_payment_return_for_admin);
         totalPaymentAmount = findViewById(R.id.total_payment_amount_for_admin);
         switchUser = findViewById(R.id.switch_user_icon);
 
@@ -1258,7 +1265,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     String cn = centerLists.get(0).getCenter_name();
                     String c_api = centerLists.get(0).getCenter_api();
 //                    UserSelectDialogue userSelectDialogue = new UserSelectDialogue(centerLists,multipleUserLists,DocDashboard.this,cn,c_api);
-                    UserSelectDialogue userSelectDialogue = UserSelectDialogue.newInstance(cn, c_api,centerLists,multipleUserLists);
+                    UserSelectDialogue userSelectDialogue = UserSelectDialogue.newInstance(cn, c_api,centerLists,multipleUserLists,doc_code,admin_usr_id,admin_user_flag);
                     try {
 //                        userSelectDialogue.show(getSupportFragmentManager(),"USER_CENTER");
                         showDialogSafely(userSelectDialogue, "USER_CENTER");
@@ -1268,7 +1275,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     }
                 }
                 else {
-                    CenterSelectDialogue centerSelectDialogue = CenterSelectDialogue.newInstance(centerLists);
+                    CenterSelectDialogue centerSelectDialogue = CenterSelectDialogue.newInstance(centerLists, pre_url_api,doc_code,admin_usr_id,admin_user_flag);
                     try {
 //                        centerSelectDialogue.show(getSupportFragmentManager(),"CENTER");
                         showDialogSafely(centerSelectDialogue, "CENTER");
@@ -2933,25 +2940,34 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             parsing_message = "Server problem or Internet not connected";
         }
 
-        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
-        alertDialogBuilder.setTitle("Error!")
-                .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
-                .setPositiveButton("Retry", (dialog, which) -> {
-                    loading = false;
-                    getDocData();
-                    dialog.dismiss();
-                })
-                .setNegativeButton("Exit",(dialog, which) -> {
-                    loading = false;
-                    dialog.dismiss();
-                    System.exit(0);
-                });
+        loading = false;
+//        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
+//        alertDialogBuilder.setTitle("Error!")
+//                .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
+//                .setPositiveButton("Retry", (dialog, which) -> {
+//                    loading = false;
+//                    getDocData();
+//                    dialog.dismiss();
+//                })
+//                .setNegativeButton("Exit",(dialog, which) -> {
+//                    loading = false;
+//                    dialog.dismiss();
+//                    System.exit(0);
+//                });
+//
+//        AlertDialog alert = alertDialogBuilder.create();
+//        alert.setCancelable(false);
+//        alert.setCanceledOnTouchOutside(false);
+//        try {
+//            alert.show();
+//        }
+//        catch (Exception e) {
+//            restart("App is paused for a long time. Please Start the app again.");
+//        }
 
-        AlertDialog alert = alertDialogBuilder.create();
-        alert.setCancelable(false);
-        alert.setCanceledOnTouchOutside(false);
+        ErrorHandlerDialogue errorHandlerDialogue = ErrorHandlerDialogue.newInstance("Error Message: "+parsing_message+".\n"+"Please try again.\nYou can exit from the app OR retry to connect into the server OR log out from this account.", docDataDestination);
         try {
-            alert.show();
+            showDialogSafely(errorHandlerDialogue, "ERROR_HANDLER");
         }
         catch (Exception e) {
             restart("App is paused for a long time. Please Start the app again.");
@@ -3257,39 +3273,49 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             parsing_message = "Server problem or Internet not connected";
         }
 
-        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
-        alertDialogBuilder.setTitle("Error!")
-                .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
-                .setPositiveButton("Retry", (dialog, which) -> {
-                    loading = false;
-                    fullLayout.setVisibility(View.GONE);
-                    progressBarCard.setVisibility(View.GONE);
-                    bottomNavigationView.setVisibility(View.GONE);
-                    circularProgressIndicator.setVisibility(View.VISIBLE);
-                    tabFullLayout.setVisibility(View.GONE);
-                    tabFullLayoutAdmin.setVisibility(View.GONE);
-                    tabCircularProgressIndicator.setVisibility(View.GONE);
-                    tabLayout.setVisibility(View.GONE);
-                    tabRefresh.setVisibility(View.GONE);
-                    graphicalViewLayout.setVisibility(View.GONE);
-                    chartTabCircularProgressIndicator.setVisibility(View.GONE);
-                    conn = false;
-                    connected = false;
-                    loading = true;
-                    getDocSchedule();
-                    dialog.dismiss();
-                })
-                .setNegativeButton("Exit",(dialog, which) -> {
-                    loading = false;
-                    dialog.dismiss();
-                    System.exit(0);
-                });
+        loading = false;
 
-        AlertDialog alert = alertDialogBuilder.create();
-        alert.setCancelable(false);
-        alert.setCanceledOnTouchOutside(false);
+//        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
+//        alertDialogBuilder.setTitle("Error!")
+//                .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
+//                .setPositiveButton("Retry", (dialog, which) -> {
+//                    loading = false;
+//                    fullLayout.setVisibility(View.GONE);
+//                    progressBarCard.setVisibility(View.GONE);
+//                    bottomNavigationView.setVisibility(View.GONE);
+//                    circularProgressIndicator.setVisibility(View.VISIBLE);
+//                    tabFullLayout.setVisibility(View.GONE);
+//                    tabFullLayoutAdmin.setVisibility(View.GONE);
+//                    tabCircularProgressIndicator.setVisibility(View.GONE);
+//                    tabLayout.setVisibility(View.GONE);
+//                    tabRefresh.setVisibility(View.GONE);
+//                    graphicalViewLayout.setVisibility(View.GONE);
+//                    chartTabCircularProgressIndicator.setVisibility(View.GONE);
+//                    conn = false;
+//                    connected = false;
+//                    loading = true;
+//                    getDocSchedule();
+//                    dialog.dismiss();
+//                })
+//                .setNegativeButton("Exit",(dialog, which) -> {
+//                    loading = false;
+//                    dialog.dismiss();
+//                    System.exit(0);
+//                });
+//
+//        AlertDialog alert = alertDialogBuilder.create();
+//        alert.setCancelable(false);
+//        alert.setCanceledOnTouchOutside(false);
+//        try {
+//            alert.show();
+//        }
+//        catch (Exception e) {
+//            restart("App is paused for a long time. Please Start the app again.");
+//        }
+
+        ErrorHandlerDialogue errorHandlerDialogue = ErrorHandlerDialogue.newInstance("Error Message: "+parsing_message+".\n"+"Please try again.\nYou can exit from the app OR retry to connect into the server OR log out from this account.", docSchDes);
         try {
-            alert.show();
+            showDialogSafely(errorHandlerDialogue, "ERROR_HANDLER");
         }
         catch (Exception e) {
             restart("App is paused for a long time. Please Start the app again.");
@@ -3812,7 +3838,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
         total_appointment_admin = "";
         cancel_appointment_admin = "";
-        total_payment_count = "";
+        total_payment_return = "";
         total_payment_amount = "";
 
         paymentChartLists = new ArrayList<>();
@@ -3850,7 +3876,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
         String adminFLFlagUrl = pre_url_api+"doc_dashboard/getAdminFLFlag?p_usr_id="+admin_usr_id;
         String adminPicUrl = pre_url_api+"doc_dashboard/getAdminPic?p_usr_id="+admin_usr_id;
-        String adminAppPayUrl = pre_url_api + "doc_dashboard/getAdminAppPayCount?begin_date="+date_now+"&end_date="+date_now+"&user_id="+admin_usr_name;
+        String adminAppPayUrl = pre_url_api + "doc_dashboard/getAdminAppPayCountNew?begin_date="+date_now+"&end_date="+date_now+"&user_id="+admin_usr_name;
         String paymentChartMonthUrl = pre_url_api + "doc_dashboard/getPaymentDataMonthly?begin_date="+firstDate+"&end_date="+lastDate+"&user_id="+admin_usr_name;
         String appointChartMonthUrl = pre_url_api + "doc_dashboard/getAppointDataMonthly?begin_date="+firstDate+"&end_date="+lastDate;
 
@@ -4027,10 +4053,10 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                         .equals("null") ? "0" : jsonObject.getString("cancel_app_count");
                 total_appointment_admin = jsonObject.getString("total_app_count")
                         .equals("null") ? "0" : jsonObject.getString("total_app_count");
-                total_payment_amount = jsonObject.getString("total_pay_amount")
-                        .equals("null") ? "0" : jsonObject.getString("total_pay_amount");
-                total_payment_count = jsonObject.getString("total_pay_count")
-                        .equals("null") ? "0" : jsonObject.getString("total_pay_count");
+                total_payment_amount = jsonObject.getString("total_pay_rcv")
+                        .equals("null") ? "0" : jsonObject.getString("total_pay_rcv");
+                total_payment_return = jsonObject.getString("total_pay_rtn")
+                        .equals("null") ? "0" : jsonObject.getString("total_pay_rtn");
 
                 requestQueue.add(payChartMonthReq);
             }
@@ -4360,7 +4386,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                                 totalAppointmentAdmin.setText(total_appointment_admin);
                                 cancelAppointmentAdmin.setText(cancel_appointment_admin);
-                                totalPaymentCount.setText(total_payment_count);
 
                                 DecimalFormat formatter = new DecimalFormat("###,##,##,###");
 
@@ -4368,6 +4393,11 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                 String formatted = formatter.format(p_amnt);
                                 String p_a = "৳ " + formatted;
                                 totalPaymentAmount.setText(p_a);
+
+                                int p_rtn = Integer.parseInt(total_payment_return);
+                                String formatted_rtn = formatter.format(p_rtn);
+                                String p_r = "৳ " + formatted_rtn;
+                                totalPaymentReturn.setText(p_r);
 
                                 if (imageFound) {
                                     try {
@@ -4688,25 +4718,35 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             parsing_message = "Server problem or Internet not connected";
         }
 
-        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
-        alertDialogBuilder.setTitle("Error!")
-                .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
-                .setPositiveButton("Retry", (dialog, which) -> {
-                    loading = false;
-                    getAdminData();
-                    dialog.dismiss();
-                })
-                .setNegativeButton("Exit",(dialog, which) -> {
-                    loading = false;
-                    dialog.dismiss();
-                    System.exit(0);
-                });
+        loading = false;
 
-        AlertDialog alert = alertDialogBuilder.create();
-        alert.setCancelable(false);
-        alert.setCanceledOnTouchOutside(false);
+//        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
+//        alertDialogBuilder.setTitle("Error!")
+//                .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
+//                .setPositiveButton("Retry", (dialog, which) -> {
+//                    loading = false;
+//                    getAdminData();
+//                    dialog.dismiss();
+//                })
+//                .setNegativeButton("Exit",(dialog, which) -> {
+//                    loading = false;
+//                    dialog.dismiss();
+//                    System.exit(0);
+//                });
+//
+//        AlertDialog alert = alertDialogBuilder.create();
+//        alert.setCancelable(false);
+//        alert.setCanceledOnTouchOutside(false);
+//        try {
+//            alert.show();
+//        }
+//        catch (Exception e) {
+//            restart("App is paused for a long time. Please Start the app again.");
+//        }
+
+        ErrorHandlerDialogue errorHandlerDialogue = ErrorHandlerDialogue.newInstance("Error Message: "+parsing_message+".\n"+"Please try again.\nYou can exit from the app OR retry to connect into the server OR log out from this account.", adminDataDes);
         try {
-            alert.show();
+            showDialogSafely(errorHandlerDialogue, "ERROR_HANDLER");
         }
         catch (Exception e) {
             restart("App is paused for a long time. Please Start the app again.");
@@ -4802,7 +4842,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                     totalAppointmentAdmin.setText(total_appointment_admin);
                     cancelAppointmentAdmin.setText(cancel_appointment_admin);
-                    totalPaymentCount.setText(total_payment_count);
 
                     DecimalFormat formatter = new DecimalFormat("###,##,##,###");
 
@@ -4810,6 +4849,11 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     String formatted = formatter.format(p_amnt);
                     String p_a = "৳ " + formatted;
                     totalPaymentAmount.setText(p_a);
+
+                    int p_rtn = Integer.parseInt(total_payment_return);
+                    String formatted_rtn = formatter.format(p_rtn);
+                    String p_r = "৳ " + formatted_rtn;
+                    totalPaymentReturn.setText(p_r);
 
                     if (imageFound) {
                         try {
@@ -5054,40 +5098,50 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             parsing_message = "Server problem or Internet not connected";
         }
 
-        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
-        alertDialogBuilder.setTitle("Error!")
-                .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
-                .setPositiveButton("Retry", (dialog, which) -> {
-                    loading = false;
-                    fullLayout.setVisibility(View.GONE);
-                    progressBarCard.setVisibility(View.GONE);
-                    bottomNavigationView.setVisibility(View.GONE);
-                    circularProgressIndicator.setVisibility(View.VISIBLE);
-                    tabFullLayout.setVisibility(View.GONE);
-                    tabFullLayoutAdmin.setVisibility(View.GONE);
-                    tabCircularProgressIndicator.setVisibility(View.GONE);
-                    tabLayout.setVisibility(View.GONE);
-                    tabRefresh.setVisibility(View.GONE);
-                    graphicalViewLayout.setVisibility(View.GONE);
-                    chartTabCircularProgressIndicator.setVisibility(View.GONE);
-                    pay_app_type = 0;
-                    conn = false;
-                    connected = false;
-                    loading = true;
-                    getAdminDashboardData();
-                    dialog.dismiss();
-                })
-                .setNegativeButton("Exit",(dialog, which) -> {
-                    loading = false;
-                    dialog.dismiss();
-                    System.exit(0);
-                });
+        loading = false;
 
-        AlertDialog alert = alertDialogBuilder.create();
-        alert.setCancelable(false);
-        alert.setCanceledOnTouchOutside(false);
+//        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocDashboard.this);
+//        alertDialogBuilder.setTitle("Error!")
+//                .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
+//                .setPositiveButton("Retry", (dialog, which) -> {
+//                    loading = false;
+//                    fullLayout.setVisibility(View.GONE);
+//                    progressBarCard.setVisibility(View.GONE);
+//                    bottomNavigationView.setVisibility(View.GONE);
+//                    circularProgressIndicator.setVisibility(View.VISIBLE);
+//                    tabFullLayout.setVisibility(View.GONE);
+//                    tabFullLayoutAdmin.setVisibility(View.GONE);
+//                    tabCircularProgressIndicator.setVisibility(View.GONE);
+//                    tabLayout.setVisibility(View.GONE);
+//                    tabRefresh.setVisibility(View.GONE);
+//                    graphicalViewLayout.setVisibility(View.GONE);
+//                    chartTabCircularProgressIndicator.setVisibility(View.GONE);
+//                    pay_app_type = 0;
+//                    conn = false;
+//                    connected = false;
+//                    loading = true;
+//                    getAdminDashboardData();
+//                    dialog.dismiss();
+//                })
+//                .setNegativeButton("Exit",(dialog, which) -> {
+//                    loading = false;
+//                    dialog.dismiss();
+//                    System.exit(0);
+//                });
+//
+//        AlertDialog alert = alertDialogBuilder.create();
+//        alert.setCancelable(false);
+//        alert.setCanceledOnTouchOutside(false);
+//        try {
+//            alert.show();
+//        }
+//        catch (Exception e) {
+//            restart("App is paused for a long time. Please Start the app again.");
+//        }
+
+        ErrorHandlerDialogue errorHandlerDialogue = ErrorHandlerDialogue.newInstance("Error Message: "+parsing_message+".\n"+"Please try again.\nYou can exit from the app OR retry to connect into the server OR log out from this account.", adminDashDes);
         try {
-            alert.show();
+            showDialogSafely(errorHandlerDialogue, "ERROR_HANDLER");
         }
         catch (Exception e) {
             restart("App is paused for a long time. Please Start the app again.");
@@ -5106,10 +5160,10 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
         total_appointment_admin = "";
         cancel_appointment_admin = "";
-        total_payment_count = "";
+        total_payment_return = "";
         total_payment_amount = "";
 
-        String adminAppPayUrl = pre_url_api + "doc_dashboard/getAdminAppPayCount?begin_date="+tabFirstDate+"&end_date="+tabEndDate+"&user_id="+admin_usr_name;
+        String adminAppPayUrl = pre_url_api + "doc_dashboard/getAdminAppPayCountNew?begin_date="+tabFirstDate+"&end_date="+tabEndDate+"&user_id="+admin_usr_name;
 
         RequestQueue requestQueue = Volley.newRequestQueue(DocDashboard.this);
 
@@ -5121,10 +5175,10 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                         .equals("null") ? "0" : jsonObject.getString("cancel_app_count");
                 total_appointment_admin = jsonObject.getString("total_app_count")
                         .equals("null") ? "0" : jsonObject.getString("total_app_count");
-                total_payment_amount = jsonObject.getString("total_pay_amount")
-                        .equals("null") ? "0" : jsonObject.getString("total_pay_amount");
-                total_payment_count = jsonObject.getString("total_pay_count")
-                        .equals("null") ? "0" : jsonObject.getString("total_pay_count");
+                total_payment_amount = jsonObject.getString("total_pay_rcv")
+                        .equals("null") ? "0" : jsonObject.getString("total_pay_rcv");
+                total_payment_return = jsonObject.getString("total_pay_rtn")
+                        .equals("null") ? "0" : jsonObject.getString("total_pay_rtn");
 
                 connected = true;
                 updateTabLayoutAdmin();
@@ -5166,7 +5220,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                 totalAppointmentAdmin.setText(total_appointment_admin);
                 cancelAppointmentAdmin.setText(cancel_appointment_admin);
-                totalPaymentCount.setText(total_payment_count);
 
                 DecimalFormat formatter = new DecimalFormat("###,##,##,###");
 
@@ -5174,6 +5227,11 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 String formatted = formatter.format(p_amnt);
                 String p_a = "৳ " + formatted ;
                 totalPaymentAmount.setText(p_a);
+
+                int p_rtn = Integer.parseInt(total_payment_return);
+                String formatted_rtn = formatter.format(p_rtn);
+                String p_r = "৳ " + formatted_rtn;
+                totalPaymentReturn.setText(p_r);
 
                 loading = false;
 
@@ -5217,6 +5275,73 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 //.withAspectRatio(1, 1)  // Optional: Set aspect ratio
                 .withMaxResultSize(1080, 1080) // Optional: Set max resolution
                 .start(this);
+    }
+
+    @Override
+    public void onButtonChoose(int type, String destination) {
+        loading = false;
+        if (type == 0) {
+            finish();
+        }
+        if (type == 2) {
+            SharedPreferences.Editor editor1 = sharedPreferences.edit();
+            editor1.remove(DOC_USER_CODE);
+            editor1.remove(DOC_USER_PASSWORD);
+            editor1.remove(DOC_DATA_API);
+            editor1.remove(DOC_ALL_ID);
+            editor1.remove(ADMIN_USR_ID);
+            editor1.remove(ADMIN_OR_USER_FLAG);
+            editor1.remove(LOGIN_TF);
+            editor1.apply();
+            editor1.commit();
+
+            Intent intent = new Intent(DocDashboard.this, DocLogin.class);
+            startActivity(intent);
+            finish();
+        }
+        if (type == 1) {
+            if (destination.equals(docDataDestination)) {
+                getDocData();
+            }
+            else if (destination.equals(docSchDes)) {
+                fullLayout.setVisibility(View.GONE);
+                progressBarCard.setVisibility(View.GONE);
+                bottomNavigationView.setVisibility(View.GONE);
+                circularProgressIndicator.setVisibility(View.VISIBLE);
+                tabFullLayout.setVisibility(View.GONE);
+                tabFullLayoutAdmin.setVisibility(View.GONE);
+                tabCircularProgressIndicator.setVisibility(View.GONE);
+                tabLayout.setVisibility(View.GONE);
+                tabRefresh.setVisibility(View.GONE);
+                graphicalViewLayout.setVisibility(View.GONE);
+                chartTabCircularProgressIndicator.setVisibility(View.GONE);
+                conn = false;
+                connected = false;
+                loading = true;
+                getDocSchedule();
+            }
+            else if (destination.equals(adminDataDes)) {
+                getAdminData();
+            }
+            else if (destination.equals(adminDashDes)) {
+                fullLayout.setVisibility(View.GONE);
+                progressBarCard.setVisibility(View.GONE);
+                bottomNavigationView.setVisibility(View.GONE);
+                circularProgressIndicator.setVisibility(View.VISIBLE);
+                tabFullLayout.setVisibility(View.GONE);
+                tabFullLayoutAdmin.setVisibility(View.GONE);
+                tabCircularProgressIndicator.setVisibility(View.GONE);
+                tabLayout.setVisibility(View.GONE);
+                tabRefresh.setVisibility(View.GONE);
+                graphicalViewLayout.setVisibility(View.GONE);
+                chartTabCircularProgressIndicator.setVisibility(View.GONE);
+                pay_app_type = 0;
+                conn = false;
+                connected = false;
+                loading = true;
+                getAdminDashboardData();
+            }
+        }
     }
 
     public static class MyAxisValueFormatter extends ValueFormatter {

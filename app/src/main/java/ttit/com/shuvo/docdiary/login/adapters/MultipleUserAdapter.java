@@ -4,9 +4,12 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -18,11 +21,17 @@ public class MultipleUserAdapter extends RecyclerView.Adapter<MultipleUserAdapte
 
     private final ArrayList<MultipleUserList> mCategory;
     private final Context myContext;
+    private final String selected_doc_code;
+    private final String selected_admin_id;
+    private final String admin_or_user;
     private final ClickedItem myClickedItem;
 
-    public MultipleUserAdapter(ArrayList<MultipleUserList> mCategory, Context myContext, ClickedItem myClickedItem) {
+    public MultipleUserAdapter(ArrayList<MultipleUserList> mCategory, Context myContext, String selectedDocCode, String selectedAdminId, String adminOrUser, ClickedItem myClickedItem) {
         this.mCategory = mCategory;
         this.myContext = myContext;
+        selected_doc_code = selectedDocCode;
+        selected_admin_id = selectedAdminId;
+        admin_or_user = adminOrUser;
         this.myClickedItem = myClickedItem;
     }
 
@@ -51,6 +60,43 @@ public class MultipleUserAdapter extends RecyclerView.Adapter<MultipleUserAdapte
             holder.depName.setText(user_name);
         }
 
+        if (admin_or_user != null && !admin_or_user.isEmpty()) {
+            if (admin_or_user.equals("1")) {
+                if (selected_doc_code != null && !selected_doc_code.isEmpty()) {
+                    if (selected_doc_code.equals(centerList.getDoc_code())) {
+                        holder.checkUser.setVisibility(View.VISIBLE);
+                        holder.userLay.setBackground(ContextCompat.getDrawable(myContext, R.drawable.border_design_selected));
+                    } else {
+                        holder.checkUser.setVisibility(View.GONE);
+                        holder.userLay.setBackground(ContextCompat.getDrawable(myContext, R.drawable.border_design));
+                    }
+                }
+                else {
+                    holder.checkUser.setVisibility(View.GONE);
+                    holder.userLay.setBackground(ContextCompat.getDrawable(myContext, R.drawable.border_design));
+                }
+            }
+            else {
+                if (selected_admin_id != null && !selected_admin_id.isEmpty()) {
+                    if (selected_admin_id.equals(centerList.getAdmin_user_id())) {
+                        holder.checkUser.setVisibility(View.VISIBLE);
+                        holder.userLay.setBackground(ContextCompat.getDrawable(myContext, R.drawable.border_design_selected));
+                    } else {
+                        holder.checkUser.setVisibility(View.GONE);
+                        holder.userLay.setBackground(ContextCompat.getDrawable(myContext, R.drawable.border_design));
+                    }
+                }
+                else {
+                    holder.checkUser.setVisibility(View.GONE);
+                    holder.userLay.setBackground(ContextCompat.getDrawable(myContext, R.drawable.border_design));
+                }
+            }
+        }
+        else {
+            holder.checkUser.setVisibility(View.GONE);
+            holder.userLay.setBackground(ContextCompat.getDrawable(myContext, R.drawable.border_design));
+        }
+
     }
 
     @Override
@@ -62,6 +108,8 @@ public class MultipleUserAdapter extends RecyclerView.Adapter<MultipleUserAdapte
         TextView docName;
         TextView docCode;
         TextView depName;
+        ImageView checkUser;
+        LinearLayout userLay;
         ClickedItem mClickedItem;
 
         public MUHolder(@NonNull View itemView, ClickedItem ci) {
@@ -69,6 +117,9 @@ public class MultipleUserAdapter extends RecyclerView.Adapter<MultipleUserAdapte
             docName = itemView.findViewById(R.id.selectable_user_name);
             docCode = itemView.findViewById(R.id.selectable_user_code);
             depName = itemView.findViewById(R.id.selectable_user_depts_name);
+            userLay = itemView.findViewById(R.id.user_list_layout);
+            checkUser = itemView.findViewById(R.id.selected_user_check_image);
+            checkUser.setVisibility(View.GONE);
             this.mClickedItem = ci;
             itemView.setOnClickListener(this);
         }
