@@ -1,5 +1,6 @@
 package ttit.com.shuvo.docdiary.dashboard.extra;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.widget.TextView;
 
@@ -11,18 +12,13 @@ import com.github.mikephil.charting.utils.MPPointF;
 import com.github.mikephil.charting.utils.Utils;
 
 import ttit.com.shuvo.docdiary.R;
+@SuppressLint("ViewConstructor")
 public class MyMarkerView extends MarkerView {
-    /**
-     * Constructor. Sets up the MarkerView with a custom layout resource.
-     *
-     * @param context
-     * @param layoutResource the layout resource to use for the MarkerView
-     */
 
     private final TextView tvContent;
     public MyMarkerView(Context context, int layoutResource) {
         super(context, layoutResource);
-        tvContent = (TextView) findViewById(R.id.tvContent);
+        tvContent = findViewById(R.id.tvContent);
 
     }
 
@@ -33,11 +29,11 @@ public class MyMarkerView extends MarkerView {
 
             CandleEntry ce = (CandleEntry) e;
 
-            String firstText = "৳ " + Utils.formatNumber(ce.getHigh(), 0, true, ',') + "";
+            String firstText = "৳ " + Utils.formatNumber(ce.getHigh(), 0, true, ',');
             tvContent.setText(firstText);
         } else {
 
-            String firstText = "৳ " + Utils.formatNumber(e.getY(), 0, true,',') + "";
+            String firstText = "৳ " + Utils.formatNumber(e.getY(), 0, true,',');
             tvContent.setText(firstText);
         }
 
@@ -46,7 +42,7 @@ public class MyMarkerView extends MarkerView {
 
     @Override
     public MPPointF getOffset() {
-        return new MPPointF(-(getWidth() / 2), -getHeight());
+        return new MPPointF(-((float) getWidth() / 2), -getHeight());
     }
 
 }

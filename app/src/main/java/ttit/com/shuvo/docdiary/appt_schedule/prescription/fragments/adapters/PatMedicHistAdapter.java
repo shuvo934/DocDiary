@@ -2,6 +2,7 @@ package ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.adapters;
 
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -32,10 +33,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.MedicalHistory;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.MedHistoryModify;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.arraylists.PatMedicHistList;
+import ttit.com.shuvo.docdiary.appt_schedule.prescription.interfaces.FragmentAdapterCallBack;
 
 public class PatMedicHistAdapter extends RecyclerView.Adapter<PatMedicHistAdapter.PMHAHolder> {
     private final ArrayList<PatMedicHistList> mCategory;
@@ -43,10 +43,12 @@ public class PatMedicHistAdapter extends RecyclerView.Adapter<PatMedicHistAdapte
     private Boolean conn = false;
     private Boolean connected = false;
     String parsing_message = "";
+    private final FragmentAdapterCallBack listener;
 
-    public PatMedicHistAdapter(ArrayList<PatMedicHistList> mCategory, Context mContext) {
+    public PatMedicHistAdapter(ArrayList<PatMedicHistList> mCategory, Context mContext, FragmentAdapterCallBack listener) {
         this.mCategory = mCategory;
         this.mContext = mContext;
+        this.listener = listener;
     }
 
     Logger logger = Logger.getLogger("PatMedicHistAdapter");
@@ -118,9 +120,8 @@ public class PatMedicHistAdapter extends RecyclerView.Adapter<PatMedicHistAdapte
     }
 
     public void deleteMedicalHistory(String pmh_id, int index) {
-        PrescriptionSetup.circularProgressIndicator.setVisibility(View.VISIBLE);
-        PrescriptionSetup.fullLayout.setVisibility(View.GONE);
-        PrescriptionSetup.prescriptionLoading = true;
+        listener.showLoading();
+        listener.setBoolPositive();
         conn = false;
         connected = false;
 
@@ -166,21 +167,16 @@ public class PatMedicHistAdapter extends RecyclerView.Adapter<PatMedicHistAdapte
         requestQueue.add(request);
     }
 
-    public void updateAfterDeleteMH(String pmh_id,int pos) {
+    @SuppressLint("NotifyDataSetChanged")
+    public void updateAfterDeleteMH(String pmh_id, int pos) {
         if (conn) {
             if (connected) {
-                PrescriptionSetup.circularProgressIndicator.setVisibility(View.GONE);
-                PrescriptionSetup.fullLayout.setVisibility(View.VISIBLE);
+                listener.hideLoading();
                 Toast.makeText(mContext,"Medical History Deleted Successfully",Toast.LENGTH_SHORT).show();
                 mCategory.remove(pos);
                 notifyDataSetChanged();
-                if (mCategory.isEmpty()) {
-                    MedicalHistory.noPatMedHistMsg.setVisibility(View.VISIBLE);
-                }
-                else {
-                    MedicalHistory.noPatMedHistMsg.setVisibility(View.GONE);
-                }
-                PrescriptionSetup.prescriptionLoading = false;
+                listener.onListChanged(mCategory.size());
+                listener.setBoolNegative();
             }
             else {
                 alertMessageForFailedDeleteMH(pmh_id,pos);
@@ -192,8 +188,7 @@ public class PatMedicHistAdapter extends RecyclerView.Adapter<PatMedicHistAdapte
     }
 
     public void alertMessageForFailedDeleteMH(String pmh_id, int pos) {
-        PrescriptionSetup.circularProgressIndicator.setVisibility(View.GONE);
-        PrescriptionSetup.fullLayout.setVisibility(View.VISIBLE);
+        listener.hideLoading();
         if (parsing_message != null) {
             if (parsing_message.isEmpty() || parsing_message.equals("null")) {
                 parsing_message = "Server problem or Internet not connected";
@@ -206,12 +201,12 @@ public class PatMedicHistAdapter extends RecyclerView.Adapter<PatMedicHistAdapte
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
-                    PrescriptionSetup.prescriptionLoading = false;
+                    listener.setBoolNegative();
                     deleteMedicalHistory(pmh_id,pos);
                     dialog.dismiss();
                 })
                 .setNegativeButton("Cancel",(dialog, which) -> {
-                    PrescriptionSetup.prescriptionLoading = false;
+                    listener.setBoolNegative();
                     dialog.dismiss();
                 });
 

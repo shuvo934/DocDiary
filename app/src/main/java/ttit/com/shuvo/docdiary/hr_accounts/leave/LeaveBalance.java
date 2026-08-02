@@ -18,9 +18,6 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -65,6 +62,7 @@ import ttit.com.shuvo.docdiary.hr_accounts.attendance.araylists.DivisionList;
 import ttit.com.shuvo.docdiary.hr_accounts.attendance.araylists.EmployeeList;
 import ttit.com.shuvo.docdiary.hr_accounts.leave.adapters.LeaveBalanceAdapter;
 import ttit.com.shuvo.docdiary.hr_accounts.leave.arraylists.LeaveBalanceList;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
 public class LeaveBalance extends AppCompatActivity {
 
@@ -141,12 +139,13 @@ public class LeaveBalance extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_leave_balance);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.leave_bal_root), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        EdgeToEdgeHelper.applyInsets(
+                this,
+                findViewById(R.id.leave_bal_root),
+                false,
+                false);
 
         fullLayout = findViewById(R.id.leave_balance_full_layout);
         circularProgressIndicator = findViewById(R.id.progress_indicator_leave_balance);

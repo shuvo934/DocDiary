@@ -6,17 +6,10 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.core.view.WindowInsetsControllerCompat;
 
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -24,8 +17,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
@@ -59,6 +50,7 @@ import java.util.logging.Logger;
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.arraylists.ListOfComplains;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.arraylists.ListOfInjuries;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
 public class ComplainModify extends AppCompatActivity {
 
@@ -107,26 +99,14 @@ public class ComplainModify extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Window window = getWindow();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) { // Android 14 (API 34) or Android 15 (API 35)
-            WindowCompat.setDecorFitsSystemWindows(window, false);
-            window.setStatusBarColor(ContextCompat.getColor(this, R.color.clouds));
-            WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(window, window.getDecorView());
-            controller.setAppearanceLightStatusBars(true);
-            controller.setAppearanceLightNavigationBars(false);
-        } else {
-            // Safe legacy approach for Android < 14
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(ContextCompat.getColor(this, R.color.clouds));
-        }
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_complain_modify);
-
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.comp_modify_root), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        EdgeToEdgeHelper.applyInsets(
+                this,
+                findViewById(R.id.comp_modify_root),
+                true,
+                false
+        );
 
         fullLayout = findViewById(R.id.pat_complain_modify_full_layout);
         circularProgressIndicator = findViewById(R.id.progress_indicator_pat_complain_modify);
@@ -473,11 +453,6 @@ public class ComplainModify extends AppCompatActivity {
         return super.onTouchEvent(event);
     }
 
-//    @Override
-//    public void onBackPressed() {
-//
-//    }
-
     private void closeKeyBoard() {
         View view = getCurrentFocus();
         if (view != null) {
@@ -728,18 +703,6 @@ public class ComplainModify extends AppCompatActivity {
             if (connected) {
                 fullLayout.setVisibility(View.VISIBLE);
                 circularProgressIndicator.setVisibility(View.GONE);
-//                MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(ComplainModify.this);
-//                alertDialogBuilder.setTitle("Success!")
-//                        .setMessage("New Complain Added.")
-//                        .setPositiveButton("Ok", (dialog, which) -> {
-//                            dialog.dismiss();
-//                            finish();
-//                        });
-//
-//                AlertDialog alert = alertDialogBuilder.create();
-//                alert.setCancelable(false);
-//                alert.setCanceledOnTouchOutside(false);
-//                alert.show();
                 finish();
             }
             else {

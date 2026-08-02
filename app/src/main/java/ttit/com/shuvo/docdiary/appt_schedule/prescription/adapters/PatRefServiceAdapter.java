@@ -2,6 +2,7 @@ package ttit.com.shuvo.docdiary.appt_schedule.prescription.adapters;
 
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -32,21 +33,22 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.RefServiceModify;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.arraylists.PatRefServiceList;
+import ttit.com.shuvo.docdiary.appt_schedule.prescription.interfaces.AdapterCallBack;
 
 public class PatRefServiceAdapter extends RecyclerView.Adapter<PatRefServiceAdapter.PRSHolder> {
     private final ArrayList<PatRefServiceList> mCategory;
     private final Context mContext;
     private Boolean conn = false;
     private Boolean connected = false;
-
     String parsing_message = "";
+    private final AdapterCallBack callBack;
 
-    public PatRefServiceAdapter(ArrayList<PatRefServiceList> mCategory, Context mContext) {
+    public PatRefServiceAdapter(ArrayList<PatRefServiceList> mCategory, Context mContext, AdapterCallBack callBack) {
         this.mCategory = mCategory;
         this.mContext = mContext;
+        this.callBack = callBack;
     }
 
     Logger logger = Logger.getLogger("PatRefServiceAdapter");
@@ -119,9 +121,8 @@ public class PatRefServiceAdapter extends RecyclerView.Adapter<PatRefServiceAdap
     }
 
     public void deleteService(String drs_id, int index) {
-        PrescriptionSetup.circularProgressIndicator.setVisibility(View.VISIBLE);
-        PrescriptionSetup.fullLayout.setVisibility(View.GONE);
-        PrescriptionSetup.prescriptionLoading = true;
+        callBack.showLoadingScreen();
+        callBack.setBoolPositive();
         conn = false;
         connected = false;
 
@@ -167,17 +168,17 @@ public class PatRefServiceAdapter extends RecyclerView.Adapter<PatRefServiceAdap
         requestQueue.add(request);
     }
 
-    public void updateAfterDeleteSLV(String drs_id,int pos) {
+    @SuppressLint("NotifyDataSetChanged")
+    public void updateAfterDeleteSLV(String drs_id, int pos) {
         if (conn) {
             if (connected) {
-                PrescriptionSetup.circularProgressIndicator.setVisibility(View.GONE);
-                PrescriptionSetup.fullLayout.setVisibility(View.VISIBLE);
+                callBack.hideLoadingScreen();
                 Toast.makeText(mContext,"Service Deleted Successfully",Toast.LENGTH_SHORT).show();
                 mCategory.remove(pos);
-                PrescriptionSetup.patReferralLists.get(PrescriptionSetup.selectedPosition2).setChild_count(String.valueOf(mCategory.size()));
                 notifyDataSetChanged();
-                PrescriptionSetup.updateDiagnosis();
-                PrescriptionSetup.prescriptionLoading = false;
+//                PrescriptionSetup.updateDiagnosis();
+                callBack.onListChanged("REF_SERVE",mCategory.size());
+                callBack.setBoolNegative();
             }
             else {
                 alertMessageForFailedDeleteSLV(drs_id,pos);
@@ -189,8 +190,7 @@ public class PatRefServiceAdapter extends RecyclerView.Adapter<PatRefServiceAdap
     }
 
     public void alertMessageForFailedDeleteSLV(String drs_id, int pos) {
-        PrescriptionSetup.circularProgressIndicator.setVisibility(View.GONE);
-        PrescriptionSetup.fullLayout.setVisibility(View.VISIBLE);
+       callBack.hideLoadingScreen();
         if (parsing_message != null) {
             if (parsing_message.isEmpty() || parsing_message.equals("null")) {
                 parsing_message = "Server problem or Internet not connected";
@@ -203,12 +203,12 @@ public class PatRefServiceAdapter extends RecyclerView.Adapter<PatRefServiceAdap
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
-                    PrescriptionSetup.prescriptionLoading = false;
+                    callBack.setBoolNegative();
                     deleteService(drs_id,pos);
                     dialog.dismiss();
                 })
                 .setNegativeButton("Cancel",(dialog, which) -> {
-                    PrescriptionSetup.prescriptionLoading = false;
+                    callBack.setBoolNegative();
                     dialog.dismiss();
                 });
 

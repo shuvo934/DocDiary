@@ -95,15 +95,37 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
         }
         holder.availMessage.setVisibility(View.GONE);
 
-        String appt_date = schedule.getAppointment_date();
-        appt_date = appt_date + " " + schedule.getTime();
-        System.out.println("APP DATE: "+ appt_date);
+//        String appt_date = schedule.getAppointment_date();
+//        appt_date = appt_date + " " + schedule.getTime();
+//        System.out.println("APP DATE: "+ appt_date);
+//        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy hh:mm a", Locale.ENGLISH);
+//        Date appDate;
+//        try {
+//            appDate = simpleDateFormat.parse(appt_date);
+//        } catch (ParseException e) {
+//            throw new RuntimeException(e);
+//        }
+        String appointmentDate = schedule.getAppointment_date();
+        String appointmentTime = schedule.getTime();
+
+        Date appDate = null;
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MMM-yy hh:mm a", Locale.ENGLISH);
-        Date appDate;
-        try {
-            appDate = simpleDateFormat.parse(appt_date);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
+
+        if (appointmentDate != null && appointmentTime != null) {
+            if (!appointmentDate.trim().isEmpty() && !appointmentTime.trim().isEmpty()
+                    && !appointmentDate.equalsIgnoreCase("null") && !appointmentTime.equalsIgnoreCase("null")) {
+
+                String appointmentDateTime = appointmentDate.trim() + " " + appointmentTime.trim();
+                try {
+                    appDate = simpleDateFormat.parse(appointmentDateTime);
+                } catch (ParseException e) {
+                    android.util.Log.e(
+                            "TimeLineAdapter",
+                            "Invalid appointment date: " + appointmentDateTime,
+                            e
+                    );
+                }
+            }
         }
 
 
@@ -644,11 +666,11 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
             return false;
         }
         try {
-            double d = Double.parseDouble(strNum);
+            Double.parseDouble(strNum);
+            return true;
         } catch (NumberFormatException nfe) {
             return false;
         }
-        return true;
     }
 
     public class TLHolder extends RecyclerView.ViewHolder implements View.OnClickListener{

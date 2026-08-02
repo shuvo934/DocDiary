@@ -1,5 +1,6 @@
 package ttit.com.shuvo.docdiary.appt_schedule.pat_history.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -177,6 +178,7 @@ public class AppointHistoryAdapter extends RecyclerView.Adapter<AppointHistoryAd
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void filterList(ArrayList<PatAppHistList> filteredList) {
         mCategory = filteredList;
         notifyDataSetChanged();

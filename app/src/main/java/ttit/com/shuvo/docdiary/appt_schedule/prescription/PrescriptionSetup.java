@@ -6,13 +6,11 @@ import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.userInfoLists;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -64,14 +62,16 @@ import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.MedicalHisto
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.Medication;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.PatAdvice;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.PatReference;
+import ttit.com.shuvo.docdiary.appt_schedule.prescription.interfaces.AdapterCallBack;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
-public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosisAdapter.ClickedItem, PatReferralUnitAdapter.ClickedItem2 {
+public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosisAdapter.ClickedItem, PatReferralUnitAdapter.ClickedItem2, AdapterCallBack {
 
-    public static LinearLayout fullLayout;
-    public static CircularProgressIndicator circularProgressIndicator;
+    LinearLayout fullLayout;
+    CircularProgressIndicator circularProgressIndicator;
     ImageView close;
     TextView patName,patSubCode;
-    TextInputEditText mdtCode, patAge, patMaritalStat, patGender, patBlood, patCatgory, patStatus, patAddress;
+    TextInputEditText mdtCode, patAge, patMaritalStat, patGender, patBlood, patCategory, patStatus, patAddress;
 
     String pat_name = "";
     String pat_sub_code = "";
@@ -94,7 +94,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
     MaterialButton create_prescription;
     private Boolean conn = false;
     private Boolean connected = false;
-    public static boolean prescriptionLoading = false;
+    boolean prescriptionLoading = false;
     public static boolean historyLoading = false;
     public static boolean medicationLoading = false;
     String parsing_message = "";
@@ -103,7 +103,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
     RecyclerView complainView;
     RecyclerView.LayoutManager layoutManager;
     ComplainAdapter complainAdapter;
-    public static TextView noComplainFoundMsg;
+    TextView noComplainFoundMsg;
     MaterialButton complainAdd;
 
     public static TabLayout historytabLayout;
@@ -117,20 +117,20 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
     MaterialButton diagnosisAdd;
 
     LinearLayout referralUnitLay;
-    public static ArrayList<PatReferralList> patReferralLists;
+    ArrayList<PatReferralList> patReferralLists;
     RecyclerView referralView;
     RecyclerView.LayoutManager refLayoutManager;
-    public static PatReferralUnitAdapter patReferralUnitAdapter;
+    PatReferralUnitAdapter patReferralUnitAdapter;
     TextView noReferralFoundMsg;
     MaterialButton referralAdd;
     String selected_pdi_id = "";
 
     LinearLayout refServiceUnitLay;
-    public static ArrayList<PatRefServiceList> patRefServiceLists;
+    ArrayList<PatRefServiceList> patRefServiceLists;
     RecyclerView refServiceView;
     RecyclerView.LayoutManager refServLayoutManager;
     PatRefServiceAdapter patRefServiceAdapter;
-    public static TextView noRefServiceFoundMsg;
+    TextView noRefServiceFoundMsg;
     MaterialButton serviceAdd;
     String selected_drd_id = "";
     String selected_depts_id = "";
@@ -149,12 +149,13 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_prescription_setup);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.presc_setup_root), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        EdgeToEdgeHelper.applyInsets(
+                this,
+                findViewById(R.id.presc_setup_root),
+                false,
+                false);
 
         fullLayout = findViewById(R.id.prescription_full_layout);
         circularProgressIndicator = findViewById(R.id.progress_indicator_pat_prescription);
@@ -169,7 +170,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
         patMaritalStat = findViewById(R.id.patient_marital_status_in_prescription);
         patGender = findViewById(R.id.patient_gender_in_prescription);
         patBlood = findViewById(R.id.patient_blood_group_in_prescription);
-        patCatgory = findViewById(R.id.patient_category_in_prescription);
+        patCategory = findViewById(R.id.patient_category_in_prescription);
         patStatus = findViewById(R.id.patient_status_in_prescription);
         patAddress = findViewById(R.id.patient_address_in_prescription);
 
@@ -295,13 +296,13 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
             public void onTabSelected(TabLayout.Tab tab) {
                 switch (tab.getPosition()) {
                     case 0:
-                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab, MedicalHistory.newInstance(pmm_id, "false"), "MHTEST").commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab, MedicalHistory.newInstance(pmm_id), "MHTEST").commit();
                         break;
                     case 1:
-                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab, DrugHistory.newInstance(pmm_id, "false"), "DHTEST").commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab, DrugHistory.newInstance(pmm_id), "DHTEST").commit();
                         break;
                     case 2:
-                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab, ClinicalFindings.newInstance(pmm_id,"false"),"CFTEST").commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab, ClinicalFindings.newInstance(pmm_id),"CFTEST").commit();
                         break;
                     default:
                         break;
@@ -346,16 +347,16 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
             public void onTabSelected(TabLayout.Tab tab) {
                 switch (tab.getPosition()) {
                     case 0:
-                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab, ManagementPlan.newInstance(pmm_id,"false"),"MPTEST").commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab, ManagementPlan.newInstance(pmm_id),"MPTEST").commit();
                         break;
                     case 1:
-                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab, Medication.newInstance(pmm_id, "false"), "MEDTEST").commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab, Medication.newInstance(pmm_id), "MEDTEST").commit();
                         break;
                     case 2:
-                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab, PatAdvice.newInstance(pmm_id,"false"),"PATEST").commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab, PatAdvice.newInstance(pmm_id),"PATEST").commit();
                         break;
                     case 3:
-                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab, PatReference.newInstance(pmm_id,"false"),"PRTEST").commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab, PatReference.newInstance(pmm_id),"PRTEST").commit();
                         break;
                     default:
                         break;
@@ -828,7 +829,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
                 patMaritalStat.setText(pat_marital_stat);
                 patGender.setText(pat_gender);
                 patBlood.setText(pat_blood);
-                patCatgory.setText(pat_category);
+                patCategory.setText(pat_category);
                 patStatus.setText(pat_status);
                 patAddress.setText(pat_address);
                 patAdmission.setChecked(pmm_admission_flag.equals("1"));
@@ -839,7 +840,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
                 else {
                     noComplainFoundMsg.setVisibility(View.GONE);
                 }
-                complainAdapter = new ComplainAdapter(complainLists,PrescriptionSetup.this);
+                complainAdapter = new ComplainAdapter(complainLists,PrescriptionSetup.this, this);
                 complainView.setAdapter(complainAdapter);
 
                 System.out.println("PMM_ID: "+pmm_id);
@@ -849,16 +850,16 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
                 System.out.println("TAB POS: "+tab_pos);
                 if (tab_pos == 0) {
                     System.out.println("EKHANE 1");
-                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab,MedicalHistory.newInstance(pmm_id,"false"),"MHTEST").commit();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab,MedicalHistory.newInstance(pmm_id),"MHTEST").commit();
                 }
                 else if (tab_pos == 1) {
                     System.out.println("EKHANE 2");
 //                    TabLayout.Tab tab = historytabLayout.getTabAt(0);
 //                    historytabLayout.selectTab(tab);
-                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab,DrugHistory.newInstance(pmm_id,"false"),"DHTEST").commit();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab,DrugHistory.newInstance(pmm_id),"DHTEST").commit();
                 }
                 else {
-                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab, ClinicalFindings.newInstance(pmm_id,"false"),"CFTEST").commit();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab, ClinicalFindings.newInstance(pmm_id),"CFTEST").commit();
                 }
 
                 //------
@@ -894,25 +895,25 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
                 else {
                     noRefServiceFoundMsg.setVisibility(View.GONE);
                 }
-                patRefServiceAdapter = new PatRefServiceAdapter(patRefServiceLists,PrescriptionSetup.this);
+                patRefServiceAdapter = new PatRefServiceAdapter(patRefServiceLists,PrescriptionSetup.this, this);
                 refServiceView.setAdapter(patRefServiceAdapter);
 
                 int med_tab_pos  = medicationtabLayout.getSelectedTabPosition();
                 System.out.println("MED TAB POS: "+med_tab_pos);
                 if (med_tab_pos == 0) {
                     System.out.println("EKHANE 1");
-                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab, ManagementPlan.newInstance(pmm_id,"false"),"MPTEST").commit();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab, ManagementPlan.newInstance(pmm_id),"MPTEST").commit();
                 }
                 else if (med_tab_pos == 1) {
                     System.out.println("EKHANE 2");
-                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab, Medication.newInstance(pmm_id,"false"),"MEDTEST").commit();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab, Medication.newInstance(pmm_id),"MEDTEST").commit();
                 }
                 else if (med_tab_pos == 2) {
                     System.out.println("EKHANE 3");
-                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab, PatAdvice.newInstance(pmm_id,"false"),"PATEST").commit();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab, PatAdvice.newInstance(pmm_id),"PATEST").commit();
                 }
                 else {
-                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab, PatReference.newInstance(pmm_id,"false"),"PRTEST").commit();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab, PatReference.newInstance(pmm_id),"PRTEST").commit();
                 }
                 prescriptionLoading = false;
             }
@@ -961,7 +962,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
         }
     }
 
-    public static void updateDiagnosis() {
+//    public static void updateDiagnosis() {
 //        if (patDiagnosisLists.size() == 0) {
 //            noDiagnosisFoundMsg.setVisibility(View.VISIBLE);
 //            referralUnitLay.setVisibility(View.GONE);
@@ -988,14 +989,14 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
 //        referralView.setAdapter(patReferralUnitAdapter);
 
         //------
-        if (patRefServiceLists.isEmpty()) {
-            noRefServiceFoundMsg.setVisibility(View.VISIBLE);
-        }
-        else {
-            noRefServiceFoundMsg.setVisibility(View.GONE);
-        }
-        patReferralUnitAdapter.notifyDataSetChanged();
-    }
+//        if (patRefServiceLists.isEmpty()) {
+//            noRefServiceFoundMsg.setVisibility(View.VISIBLE);
+//        }
+//        else {
+//            noRefServiceFoundMsg.setVisibility(View.GONE);
+//        }
+//        patReferralUnitAdapter.notifyDataSetChanged();
+//    }
 
 
     // Creating Prescription API
@@ -1113,6 +1114,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onCategoryClicked(int CategoryPosition) {
         selected_pdi_id = patDiagnosisLists.get(CategoryPosition).getPdi_id();
@@ -1226,7 +1228,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
                 else {
                     noRefServiceFoundMsg.setVisibility(View.GONE);
                 }
-                patRefServiceAdapter = new PatRefServiceAdapter(patRefServiceLists,PrescriptionSetup.this);
+                patRefServiceAdapter = new PatRefServiceAdapter(patRefServiceLists,PrescriptionSetup.this, this);
                 refServiceView.setAdapter(patRefServiceAdapter);
                 prescriptionLoading = false;
             }
@@ -1274,6 +1276,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onCategoryClicked2(int CategoryPosition2) {
         selected_drd_id = patReferralLists.get(CategoryPosition2).getDrd_id();
@@ -1362,7 +1365,7 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
                 else {
                     noRefServiceFoundMsg.setVisibility(View.GONE);
                 }
-                patRefServiceAdapter = new PatRefServiceAdapter(patRefServiceLists,PrescriptionSetup.this);
+                patRefServiceAdapter = new PatRefServiceAdapter(patRefServiceLists,PrescriptionSetup.this, this);
                 refServiceView.setAdapter(patRefServiceAdapter);
                 prescriptionLoading = false;
             }
@@ -1523,6 +1526,61 @@ public class PrescriptionSetup extends AppCompatActivity implements PatDiagnosis
         catch (Exception e) {
             Toast.makeText(getApplicationContext(),msg,Toast.LENGTH_SHORT).show();
             System.exit(0);
+        }
+    }
+
+    public void showLoading() {
+        circularProgressIndicator.setVisibility(View.VISIBLE);
+        fullLayout.setVisibility(View.GONE);
+    }
+
+    public void boolPositive() {
+        prescriptionLoading = true;
+    }
+
+    public void hideLoading() {
+        circularProgressIndicator.setVisibility(View.GONE);
+        fullLayout.setVisibility(View.VISIBLE);
+    }
+
+    public void boolNegative() {
+        prescriptionLoading = false;
+    }
+
+    @Override
+    public void showLoadingScreen() {
+        showLoading();
+    }
+
+    @Override
+    public void setBoolPositive() {
+        boolPositive();
+    }
+
+    @Override
+    public void setBoolNegative() {
+        boolNegative();
+    }
+
+    @Override
+    public void hideLoadingScreen() {
+        hideLoading();
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    @Override
+    public void onListChanged(String type, int size) {
+        if (type.equals("COMPLAIN")) {
+            noComplainFoundMsg.setVisibility(
+                    size == 0 ? View.VISIBLE : View.GONE
+            );
+        }
+        else if (type.equals("REF_SERVE")) {
+            noRefServiceFoundMsg.setVisibility(
+                    size == 0 ? View.VISIBLE : View.GONE
+            );
+            patReferralLists.get(selectedPosition2).setChild_count(String.valueOf(size));
+            patReferralUnitAdapter.notifyDataSetChanged();
         }
     }
 }

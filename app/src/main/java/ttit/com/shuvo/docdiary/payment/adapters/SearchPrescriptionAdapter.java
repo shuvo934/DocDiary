@@ -1,5 +1,6 @@
 package ttit.com.shuvo.docdiary.payment.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -89,6 +90,7 @@ public class SearchPrescriptionAdapter extends RecyclerView.Adapter<SearchPrescr
         void onItemClicked(int Position);
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void filterList(ArrayList<PrescriptionCodeList> filteredList) {
         mCategoryItem = filteredList;
         notifyDataSetChanged();

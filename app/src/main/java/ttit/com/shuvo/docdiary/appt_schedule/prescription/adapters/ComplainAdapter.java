@@ -2,6 +2,7 @@ package ttit.com.shuvo.docdiary.appt_schedule.prescription.adapters;
 
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -32,9 +33,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.addInformation.ComplainModify;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.arraylists.ComplainLists;
+import ttit.com.shuvo.docdiary.appt_schedule.prescription.interfaces.AdapterCallBack;
 
 public class ComplainAdapter extends RecyclerView.Adapter<ComplainAdapter.CMPHolder> {
 
@@ -42,12 +43,13 @@ public class ComplainAdapter extends RecyclerView.Adapter<ComplainAdapter.CMPHol
     private final Context mContext;
     private Boolean conn = false;
     private Boolean connected = false;
-
     String parsing_message = "";
+    private final AdapterCallBack callBack;
 
-    public ComplainAdapter(ArrayList<ComplainLists> mCategory, Context mContext) {
+    public ComplainAdapter(ArrayList<ComplainLists> mCategory, Context mContext, AdapterCallBack callBack) {
         this.mCategory = mCategory;
         this.mContext = mContext;
+        this.callBack = callBack;
     }
     Logger logger = Logger.getLogger("ComplainAdapter");
 
@@ -126,9 +128,8 @@ public class ComplainAdapter extends RecyclerView.Adapter<ComplainAdapter.CMPHol
     }
 
     public void deleteComplain(String pci_id, int index) {
-        PrescriptionSetup.circularProgressIndicator.setVisibility(View.VISIBLE);
-        PrescriptionSetup.fullLayout.setVisibility(View.GONE);
-        PrescriptionSetup.prescriptionLoading = true;
+        callBack.showLoadingScreen();
+        callBack.setBoolPositive();
         conn = false;
         connected = false;
 
@@ -174,21 +175,16 @@ public class ComplainAdapter extends RecyclerView.Adapter<ComplainAdapter.CMPHol
         requestQueue.add(request);
     }
 
-    public void updateAfterDeleteComp(String pci_id,int pos) {
+    @SuppressLint("NotifyDataSetChanged")
+    public void updateAfterDeleteComp(String pci_id, int pos) {
         if (conn) {
             if (connected) {
-                PrescriptionSetup.circularProgressIndicator.setVisibility(View.GONE);
-                PrescriptionSetup.fullLayout.setVisibility(View.VISIBLE);
+                callBack.hideLoadingScreen();
                 Toast.makeText(mContext,"Complain Deleted Successfully",Toast.LENGTH_SHORT).show();
                 mCategory.remove(pos);
                 notifyDataSetChanged();
-                if (mCategory.isEmpty()) {
-                    PrescriptionSetup.noComplainFoundMsg.setVisibility(View.VISIBLE);
-                }
-                else {
-                    PrescriptionSetup.noComplainFoundMsg.setVisibility(View.GONE);
-                }
-                PrescriptionSetup.prescriptionLoading = false;
+                callBack.onListChanged("COMPLAIN",mCategory.size());
+                callBack.setBoolNegative();
             }
             else {
                 alertMessageForFailedDeleteComp(pci_id,pos);
@@ -200,8 +196,7 @@ public class ComplainAdapter extends RecyclerView.Adapter<ComplainAdapter.CMPHol
     }
 
     public void alertMessageForFailedDeleteComp(String pci_id, int pos) {
-        PrescriptionSetup.circularProgressIndicator.setVisibility(View.GONE);
-        PrescriptionSetup.fullLayout.setVisibility(View.VISIBLE);
+        callBack.hideLoadingScreen();
         if (parsing_message != null) {
             if (parsing_message.isEmpty() || parsing_message.equals("null")) {
                 parsing_message = "Server problem or Internet not connected";
@@ -214,12 +209,12 @@ public class ComplainAdapter extends RecyclerView.Adapter<ComplainAdapter.CMPHol
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
-                    PrescriptionSetup.prescriptionLoading = false;
+                    callBack.setBoolNegative();
                     deleteComplain(pci_id,pos);
                     dialog.dismiss();
                 })
                 .setNegativeButton("Cancel",(dialog, which) -> {
-                    PrescriptionSetup.prescriptionLoading = false;
+                    callBack.setBoolNegative();
                     dialog.dismiss();
                 });
 

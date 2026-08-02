@@ -11,23 +11,14 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -65,6 +56,7 @@ import ttit.com.shuvo.docdiary.appointment_admin.add_schedule.adapters.TakenSche
 import ttit.com.shuvo.docdiary.appointment_admin.add_schedule.arraylists.SelectableAppointmentDateList;
 import ttit.com.shuvo.docdiary.appointment_admin.add_schedule.arraylists.SelectableTimeList;
 import ttit.com.shuvo.docdiary.appointment_admin.arraylists.SavedAppointmentDateTimeList;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
 public class AddSchedule extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
 
@@ -123,26 +115,14 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Window window = getWindow();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) { // Android 14 (API 34) or Android 15 (API 35)
-            WindowCompat.setDecorFitsSystemWindows(window, false);
-            window.setStatusBarColor(ContextCompat.getColor(this, R.color.clouds));
-            WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(window, window.getDecorView());
-            controller.setAppearanceLightStatusBars(true);
-            controller.setAppearanceLightNavigationBars(false);
-        } else {
-            // Safe legacy approach for Android < 14
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(ContextCompat.getColor(this, R.color.clouds));
-        }
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_add_schedule);
-
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.add_sch_root), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        EdgeToEdgeHelper.applyInsets(
+                this,
+                findViewById(R.id.add_sch_root),
+                true,
+                false
+        );
 
         fullLayout = findViewById(R.id.add_schedule_modify_full_layout);
         circularProgressIndicator = findViewById(R.id.progress_indicator_add_schedule_modify);
@@ -225,6 +205,10 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
 
             SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
 
+            if (dateLists == null || dateLists.isEmpty()) {
+                return;
+            }
+
             String firstDate = dateLists.get(0).getP_adm_date();
             String lastDate = dateLists.get(dateLists.size()-1).getP_adm_date();
 
@@ -237,13 +221,16 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
                 logger.log(Level.WARNING,e.getMessage(),e);
             }
 
+            if (fdate == null || ldate == null) {
+                Toast.makeText(this, "Invalid date", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             Calendar firstDateCalendar = Calendar.getInstance();
-            assert fdate != null;
             firstDateCalendar.setTime(fdate);
             firstDateCalendar.set(Calendar.DAY_OF_MONTH,1);
 
             Calendar lastDateCalendar = Calendar.getInstance();
-            assert ldate != null;
             lastDateCalendar.setTime(ldate);
             lastDateCalendar.add(Calendar.MONTH,1);
             lastDateCalendar.set(Calendar.DAY_OF_MONTH,1);
@@ -259,18 +246,21 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
                 try {
                     date = sdf.parse(dateLists.get(i).getP_adm_date());
                 }
-                catch (Exception e) {
+                catch (ParseException e) {
                     logger.log(Level.WARNING,e.getMessage(),e);
                 }
-                Calendar calendar = Calendar.getInstance();
                 if (date != null) {
+                    Calendar calendar = Calendar.getInstance();
                     calendar.setTime(date);
+                    dates.add(calendar);
                 }
-                dates.add(calendar);
             }
-            Calendar[] selectableDays = dates.toArray(new Calendar[dates.size()]);
+            if (dates.isEmpty()) {
+                Toast.makeText(this, "No valid dates found.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            Calendar[] selectableDays = dates.toArray(new Calendar[0]);
             dpd.setSelectableDays(selectableDays);
-//
             dpd.setFirstDayOfWeek(SATURDAY);
             dpd.show(getSupportFragmentManager(),"DATE_PICKER");
         });
@@ -480,11 +470,6 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
         closeKeyBoard();
         return super.onTouchEvent(event);
     }
-
-//    @Override
-//    public void onBackPressed() {
-//
-//    }
 
     private void closeKeyBoard() {
         View view = getCurrentFocus();
@@ -771,9 +756,6 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
                     JSONArray array = new JSONArray(items);
                     for (int i = 0; i < array.length(); i++) {
                         JSONObject info = array.getJSONObject(i);
-
-//                        String ts_id = info.getString("ts_id")
-//                                .equals("null") ? "" : info.getString("ts_id");
                         String schedule = info.getString("schedule")
                                 .equals("null") ? "" : info.getString("schedule");
 

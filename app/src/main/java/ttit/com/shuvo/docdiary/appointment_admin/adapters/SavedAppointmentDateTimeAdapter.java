@@ -3,6 +3,7 @@ package ttit.com.shuvo.docdiary.appointment_admin.adapters;
 import static ttit.com.shuvo.docdiary.appointment_admin.AppointmentModify.selected_service_qty;
 import static ttit.com.shuvo.docdiary.appointment_admin.AppointmentModify.serviceQty;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -78,6 +79,7 @@ public class SavedAppointmentDateTimeAdapter extends RecyclerView.Adapter<SavedA
         LinearLayout delete;
         ImageView image;
 
+        @SuppressLint("NotifyDataSetChanged")
         public SADTHolder(@NonNull View itemView) {
             super(itemView);
 

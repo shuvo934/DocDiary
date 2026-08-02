@@ -1,5 +1,6 @@
 package ttit.com.shuvo.docdiary.appointment_admin.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -74,6 +75,7 @@ public class SearchDoctorForAppAdapter extends RecyclerView.Adapter<SearchDoctor
         void onItemClicked(int Position);
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void filterList(ArrayList<DoctorForAppList> filteredList) {
         mCategoryItem = filteredList;
         notifyDataSetChanged();

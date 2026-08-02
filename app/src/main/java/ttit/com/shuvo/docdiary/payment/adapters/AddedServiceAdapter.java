@@ -1,10 +1,8 @@
 package ttit.com.shuvo.docdiary.payment.adapters;
 
 import static ttit.com.shuvo.docdiary.payment.AddPayment.selected_pat_cat_id;
-import static ttit.com.shuvo.docdiary.payment.AddPayment.totalAmount;
-import static ttit.com.shuvo.docdiary.payment.AddPayment.totalAmountLay;
-import static ttit.com.shuvo.docdiary.payment.AddPayment.total_amount;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -25,15 +23,18 @@ import java.util.ArrayList;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.payment.arraylists.AddedServiceList;
+import ttit.com.shuvo.docdiary.payment.interfaces.ServiceDeleteCallBack;
 import ttit.com.shuvo.docdiary.payment.service.ServiceModify;
 
 public class AddedServiceAdapter extends RecyclerView.Adapter<AddedServiceAdapter.ADSHOlder> {
     private final ArrayList<AddedServiceList> addedServiceLists;
     private final Context mContext;
+    private final ServiceDeleteCallBack callBack;
 
-    public AddedServiceAdapter(ArrayList<AddedServiceList> addedServiceLists, Context mContext) {
+    public AddedServiceAdapter(ArrayList<AddedServiceList> addedServiceLists, Context mContext, ServiceDeleteCallBack callBack) {
         this.addedServiceLists = addedServiceLists;
         this.mContext = mContext;
+        this.callBack = callBack;
     }
 
     @NonNull
@@ -66,6 +67,7 @@ public class AddedServiceAdapter extends RecyclerView.Adapter<AddedServiceAdapte
         TextView serviceAmount;
         LinearLayout delete;
 
+        @SuppressLint("NotifyDataSetChanged")
         public ADSHOlder(@NonNull View itemView) {
             super(itemView);
 
@@ -83,22 +85,8 @@ public class AddedServiceAdapter extends RecyclerView.Adapter<AddedServiceAdapte
                         .setPositiveButton("Yes", (dialogInterface, i) -> {
                             addedServiceLists.remove(getAdapterPosition());
                             Toast.makeText(mContext,"Service Deleted Successfully",Toast.LENGTH_SHORT).show();
-                            if (addedServiceLists.isEmpty()) {
-                                totalAmountLay.setVisibility(View.GONE);
-                                total_amount = "";
-                                totalAmount.setText(total_amount);
-                            }
-                            else {
-                                totalAmountLay.setVisibility(View.VISIBLE);
-                                int ttt = 0;
-                                for (int j = 0; j < addedServiceLists.size(); j++) {
-                                    int amnt = Integer.parseInt(addedServiceLists.get(j).getService_amnt());
-                                    ttt = ttt + amnt;
-                                }
-                                total_amount = String.valueOf(ttt);
-                                totalAmount.setText(total_amount);
-                            }
                             notifyDataSetChanged();
+                            callBack.onListUpdated();
                             System.out.println("Service List: " + addedServiceLists.size());
                             dialogInterface.dismiss();
                         })

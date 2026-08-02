@@ -31,6 +31,9 @@
         android:theme="@style/Theme.DocDiary"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+        <property
+            android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
+            android:value="true" />
         <activity
             android:name=".appt_schedule.pat_history.PatientAppointmentHistory"
             android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"

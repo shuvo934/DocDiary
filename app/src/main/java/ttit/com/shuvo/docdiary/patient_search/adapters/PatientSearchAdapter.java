@@ -2,6 +2,7 @@ package ttit.com.shuvo.docdiary.patient_search.adapters;
 
 import static ttit.com.shuvo.docdiary.patient_search.PatientSearchAdmin.needToUpdatePatList;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -16,7 +17,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -204,6 +204,7 @@ public class PatientSearchAdapter extends RecyclerView.Adapter<PatientSearchAdap
             });
         }
     }
+    @SuppressLint("NotifyDataSetChanged")
     public void filterList(ArrayList<PatientSearchList> filteredList) {
         mCategory = filteredList;
         notifyDataSetChanged();

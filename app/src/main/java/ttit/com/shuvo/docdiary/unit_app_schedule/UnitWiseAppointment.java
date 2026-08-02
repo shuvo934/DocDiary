@@ -7,9 +7,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 import androidx.cardview.widget.CardView;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -64,6 +61,7 @@ import ttit.com.shuvo.docdiary.progressbar.WaitProgress;
 import ttit.com.shuvo.docdiary.unit_app_schedule.adapters.DoctorsListAdapter;
 import ttit.com.shuvo.docdiary.unit_app_schedule.arraylists.DoctorAppSchList;
 import ttit.com.shuvo.docdiary.unit_app_schedule.arraylists.UnitDoctorsList;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
 public class UnitWiseAppointment extends AppCompatActivity {
 
@@ -100,7 +98,6 @@ public class UnitWiseAppointment extends AppCompatActivity {
     String selected_date = "";
     private Boolean conn = false;
     private Boolean connected = false;
-    private Boolean loading = false;
     String parsing_message = "";
     TextView noDocsMess;
     ImageView backButton;
@@ -116,12 +113,13 @@ public class UnitWiseAppointment extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_unit_wise_appointment);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.unit_app_root), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        EdgeToEdgeHelper.applyInsets(
+                this,
+                findViewById(R.id.unit_app_root),
+                false,
+                false);
 
         fullLayout = findViewById(R.id.unit_app_schedule_full_layout);
         circularProgressIndicator = findViewById(R.id.progress_indicator_unit_wise_appointment_schedule);
@@ -447,7 +445,6 @@ public class UnitWiseAppointment extends AppCompatActivity {
     }
 
     public void getUnits() {
-        loading = true;
         try {
             waitProgress.show(getSupportFragmentManager(), "WaitBar");
             waitProgress.setCancelable(false);
@@ -536,7 +533,6 @@ public class UnitWiseAppointment extends AppCompatActivity {
                         restart("App is paused for a long time. Please Start the app again.");
                     }
 
-                    loading = false;
                 }
                 else {
                     getDoctors(selected_depts_id,1);
@@ -572,12 +568,10 @@ public class UnitWiseAppointment extends AppCompatActivity {
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
-                    loading = false;
                     getUnits();
                     dialog.dismiss();
                 })
                 .setNegativeButton("Exit",(dialog, which) -> {
-                    loading = false;
                     dialog.dismiss();
                     finish();
                 });
@@ -594,7 +588,6 @@ public class UnitWiseAppointment extends AppCompatActivity {
     }
 
     public void getDoctors(String id, int choice) {
-        loading = true;
         if (choice == 2) {
             try {
                 waitProgress.show(getSupportFragmentManager(), "WaitBar");
@@ -740,11 +733,11 @@ public class UnitWiseAppointment extends AppCompatActivity {
             return false;
         }
         try {
-            double d = Double.parseDouble(strNum);
+            Double.parseDouble(strNum);
+            return true;
         } catch (NumberFormatException nfe) {
             return false;
         }
-        return true;
     }
 
     private void updateLayout() {
@@ -791,7 +784,6 @@ public class UnitWiseAppointment extends AppCompatActivity {
                 doctorsListAdapter = new DoctorsListAdapter(unitDoctorsLists,UnitWiseAppointment.this);
                 docListView.setAdapter(doctorsListAdapter);
 
-                loading = false;
             }
             else {
                 alertMessage1();
@@ -822,12 +814,10 @@ public class UnitWiseAppointment extends AppCompatActivity {
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
-                    loading = false;
                     getDoctors(selected_depts_id,2);
                     dialog.dismiss();
                 })
                 .setNegativeButton("Exit",(dialog, which) -> {
-                    loading = false;
                     dialog.dismiss();
                     finish();
                 });

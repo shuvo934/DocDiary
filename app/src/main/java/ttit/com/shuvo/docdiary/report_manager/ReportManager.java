@@ -4,9 +4,6 @@ import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,6 +12,7 @@ import android.widget.ImageView;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.report_manager.report_view.ReportView;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
 public class ReportManager extends AppCompatActivity {
 
@@ -30,12 +28,13 @@ public class ReportManager extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_report_manager);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.report_manager_root), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        EdgeToEdgeHelper.applyInsets(
+                this,
+                findViewById(R.id.report_manager_root),
+                false,
+                false);
 
         backButton = findViewById(R.id.back_logo_of_report_manager);
         paymentRcvReport = findViewById(R.id.payment_rcv_report_card_view);

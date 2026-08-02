@@ -40,20 +40,18 @@ import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.adapters.PatReferenceAdapter;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.ReferenceModify;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.arraylists.PatReferenceList;
+import ttit.com.shuvo.docdiary.appt_schedule.prescription.interfaces.FragmentAdapterCallBack;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link PatReference#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class PatReference extends Fragment {
+public class PatReference extends Fragment implements FragmentAdapterCallBack {
 
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
     private String pmm_Id;
-    private String mParam2;
 
     public PatReference() {
         // Required empty public constructor
@@ -66,7 +64,7 @@ public class PatReference extends Fragment {
     RecyclerView refView;
     PatReferenceAdapter patReferenceAdapter;
     RecyclerView.LayoutManager layoutManager;
-    public static TextView noRefMsg;
+    TextView noRefMsg;
     MaterialButton refAdd;
     ArrayList<PatReferenceList> patReferenceLists;
 
@@ -83,19 +81,10 @@ public class PatReference extends Fragment {
 
     Logger logger = Logger.getLogger(PatReference.class.getName());
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment PatReference.
-     */
-    public static PatReference newInstance(String param1, String param2) {
+    public static PatReference newInstance(String param1) {
         PatReference fragment = new PatReference();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -105,7 +94,6 @@ public class PatReference extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             pmm_Id = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
 
@@ -231,7 +219,7 @@ public class PatReference extends Fragment {
                 else {
                     noRefMsg.setVisibility(View.GONE);
                 }
-                patReferenceAdapter = new PatReferenceAdapter(patReferenceLists,mContext);
+                patReferenceAdapter = new PatReferenceAdapter(patReferenceLists,mContext, this);
                 refView.setAdapter(patReferenceAdapter);
 
             }
@@ -261,5 +249,36 @@ public class PatReference extends Fragment {
             Toast.makeText(mContext, parsing_message, Toast.LENGTH_SHORT).show();
             refresh.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public void showLoading() {
+        PrescriptionSetup activity = (PrescriptionSetup) requireActivity();
+        activity.showLoading();
+    }
+
+    @Override
+    public void setBoolPositive() {
+        PrescriptionSetup activity = (PrescriptionSetup) requireActivity();
+        activity.boolPositive();
+    }
+
+    @Override
+    public void hideLoading() {
+        PrescriptionSetup activity = (PrescriptionSetup) requireActivity();
+        activity.hideLoading();
+    }
+
+    @Override
+    public void setBoolNegative() {
+        PrescriptionSetup activity = (PrescriptionSetup) requireActivity();
+        activity.boolNegative();
+    }
+
+    @Override
+    public void onListChanged(int size) {
+        noRefMsg.setVisibility(
+                size == 0 ? View.VISIBLE : View.GONE
+        );
     }
 }

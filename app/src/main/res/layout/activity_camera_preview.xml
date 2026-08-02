@@ -7,14 +7,15 @@
     android:background="@color/black"
     tools:context=".camera_preview.CameraPreview">
 
-    <io.fotoapparat.view.CameraView
+    <androidx.camera.view.PreviewView
         android:id="@+id/camera_view_fp"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_height="match_parent"/>
+        app:scaleType="fitCenter"/>
 
     <RelativeLayout
         android:id="@+id/image_capture_state_layout"
@@ -34,7 +35,8 @@
             app:tint="@color/white"
             android:layout_marginStart="@dimen/_15sdp"
             android:layout_marginTop="@dimen/_42sdp"
-            android:layout_marginEnd="@dimen/_15sdp"/>
+            android:layout_marginEnd="@dimen/_15sdp"
+            tools:ignore="ContentDescription" />
 
         <ImageView
             android:id="@+id/camera_flash_button"
@@ -46,7 +48,8 @@
             app:tint="@color/white"
             android:layout_marginStart="@dimen/_15sdp"
             android:layout_marginTop="@dimen/_42sdp"
-            android:layout_marginEnd="@dimen/_15sdp"/>
+            android:layout_marginEnd="@dimen/_15sdp"
+            tools:ignore="ContentDescription" />
 
     </RelativeLayout>
 
@@ -60,7 +63,8 @@
         app:tint="@color/white"
         android:layout_marginStart="@dimen/_8sdp"
         android:layout_marginBottom="@dimen/_48sdp"
-        android:layout_marginEnd="@dimen/_8sdp"/>
+        android:layout_marginEnd="@dimen/_8sdp"
+        tools:ignore="ContentDescription" />
 
     <RelativeLayout
         android:id="@+id/image_preview_layout"
@@ -80,7 +84,8 @@
             android:layout_alignParentEnd="true"
             android:scaleType="centerInside"
             android:adjustViewBounds="true"
-            android:layout_above="@+id/picture_check_layout"/>
+            android:layout_above="@+id/picture_check_layout"
+            tools:ignore="ContentDescription" />
 
         <RelativeLayout
             android:id="@+id/picture_check_layout"
@@ -102,7 +107,8 @@
                 android:layout_marginEnd="@dimen/_8sdp"
                 android:layout_marginTop="@dimen/_45sdp"
                 android:layout_marginBottom="@dimen/_45sdp"
-                android:layout_marginStart="@dimen/_38sdp"/>
+                android:layout_marginStart="@dimen/_38sdp"
+                tools:ignore="ContentDescription" />
 
             <ImageView
                 android:id="@+id/picture_check_ok"
@@ -115,12 +121,11 @@
                 android:layout_marginStart="@dimen/_8sdp"
                 android:layout_marginTop="@dimen/_45sdp"
                 android:layout_marginBottom="@dimen/_45sdp"
-                android:layout_marginEnd="@dimen/_38sdp"/>
+                android:layout_marginEnd="@dimen/_38sdp"
+                tools:ignore="ContentDescription" />
 
         </RelativeLayout>
 
-
     </RelativeLayout>
-
 
 </RelativeLayout>

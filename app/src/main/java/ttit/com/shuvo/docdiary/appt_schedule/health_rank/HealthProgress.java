@@ -5,14 +5,12 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.userInfoLists;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 import androidx.cardview.widget.CardView;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,7 +22,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Base64;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -39,7 +36,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
@@ -50,7 +46,6 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.jakewharton.processphoenix.ProcessPhoenix;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.ParseException;
@@ -58,10 +53,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -75,6 +70,7 @@ import ttit.com.shuvo.docdiary.appt_schedule.health_rank.arraylists.HealthProgre
 import ttit.com.shuvo.docdiary.appt_schedule.health_rank.arraylists.HealthProgressList;
 import ttit.com.shuvo.docdiary.appt_schedule.health_rank.arraylists.HealthProgressResponse;
 import ttit.com.shuvo.docdiary.appt_schedule.health_rank.retrofit_process.ApiClient;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
 public class HealthProgress extends AppCompatActivity {
 
@@ -149,15 +145,17 @@ public class HealthProgress extends AppCompatActivity {
     private boolean connected = false;
     private boolean patProgressLoading = false;
     String parsing_message = "";
+    Logger logger = Logger.getLogger(HealthProgress.class.getName());
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_health_progress);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.health_pr_root), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        EdgeToEdgeHelper.applyInsets(
+                this,
+                findViewById(R.id.health_pr_root),
+                false,
+                false);
 
         fullLayout = findViewById(R.id.health_progress_full_layout);
         circularProgressIndicator = findViewById(R.id.progress_indicator_pat_health_progress);
@@ -237,7 +235,7 @@ public class HealthProgress extends AppCompatActivity {
                 restart("Could Not Get Doctor Data. Please Restart the App.");
             }
             else {
-                if (userInfoLists.size() == 0) {
+                if (userInfoLists.isEmpty()) {
                     restart("Could Not Get Doctor Data. Please Restart the App.");
                 }
                 else {
@@ -311,7 +309,7 @@ public class HealthProgress extends AppCompatActivity {
         progressScoreList.add("9");
         progressScoreList.add("10");
 
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(HealthProgress.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,progressScoreList);
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(HealthProgress.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,progressScoreList);
         patProgressScore.setAdapter(arrayAdapter);
 
         shortAnimationDuration = getResources().getInteger(
@@ -497,9 +495,7 @@ public class HealthProgress extends AppCompatActivity {
                                 dialog.dismiss();
                                 addPatProgress(healthProgressAdder());
                             })
-                            .setNegativeButton("No",(dialog, which) -> {
-                                dialog.dismiss();
-                            });
+                            .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
 
                     AlertDialog alert = alertDialogBuilder.create();
                     try {
@@ -520,7 +516,26 @@ public class HealthProgress extends AppCompatActivity {
             }
         });
 
-        close.setOnClickListener(v -> onBackPressed());
+        close.setOnClickListener(v -> {
+            if (patProgressLoading) {
+                Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+            }
+            else {
+                finish();
+            }
+        });
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (patProgressLoading) {
+                    Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    finish();
+                }
+            }
+        });
 
     }
 
@@ -537,16 +552,6 @@ public class HealthProgress extends AppCompatActivity {
             getPatPrgHistData();
         }
 
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (patProgressLoading) {
-            Toast.makeText(getApplicationContext(),"Please wait while loading",Toast.LENGTH_SHORT).show();
-        }
-        else {
-            super.onBackPressed();
-        }
     }
 
     private void closeKeyBoard() {
@@ -616,7 +621,7 @@ public class HealthProgress extends AppCompatActivity {
         for (int i = 0; i < filteredList.size(); i++) {
             filteredList.get(i).setSerialNo(String.valueOf(filteredList.size()-i));
         }
-        if (filteredList.size() == 0) {
+        if (filteredList.isEmpty()) {
             noHistFound.setVisibility(View.VISIBLE);
             healthPrgText.setText("0");
             hpBar.setProgress(0);
@@ -687,7 +692,7 @@ public class HealthProgress extends AppCompatActivity {
         for (int i = 0; i < filteredList.size(); i++) {
             filteredList.get(i).setSerialNo(String.valueOf(filteredList.size()-i));
         }
-        if (filteredList.size() == 0) {
+        if (filteredList.isEmpty()) {
             noHistFound.setVisibility(View.VISIBLE);
             healthPrgText.setText("0");
             hpBar.setProgress(0);
@@ -758,7 +763,7 @@ public class HealthProgress extends AppCompatActivity {
         for (int i = 0; i < filteredList.size(); i++) {
             filteredList.get(i).setSerialNo(String.valueOf(filteredList.size()-i));
         }
-        if (filteredList.size() == 0) {
+        if (filteredList.isEmpty()) {
             noHistFound.setVisibility(View.VISIBLE);
             healthPrgText.setText("0");
             hpBar.setProgress(0);
@@ -787,10 +792,10 @@ public class HealthProgress extends AppCompatActivity {
         search_depts_id = "";
         search_pfn_id = "";
 
-        String patPrgUrl = pre_url_api+"health_progress/getHealthProgress?p_ph_id="+ph_id+"";
-        String patPrgServiceUrl = pre_url_api+"health_progress/getService?p_ph_id="+ph_id+"";
-        String patPrgUnitUrl = pre_url_api+"health_progress/getUnit?p_ph_id="+ph_id+"";
-        String patPrgDocUrl = pre_url_api+"health_progress/getDocs?p_ph_id="+ph_id+"";
+        String patPrgUrl = pre_url_api+"health_progress/getHealthProgress?p_ph_id="+ph_id;
+        String patPrgServiceUrl = pre_url_api+"health_progress/getService?p_ph_id="+ph_id;
+        String patPrgUnitUrl = pre_url_api+"health_progress/getUnit?p_ph_id="+ph_id;
+        String patPrgDocUrl = pre_url_api+"health_progress/getDocs?p_ph_id="+ph_id;
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest patPrgDocReq = new StringRequest(Request.Method.GET, patPrgDocUrl, response -> {
@@ -819,14 +824,14 @@ public class HealthProgress extends AppCompatActivity {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -856,14 +861,14 @@ public class HealthProgress extends AppCompatActivity {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -893,14 +898,14 @@ public class HealthProgress extends AppCompatActivity {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -951,14 +956,14 @@ public class HealthProgress extends AppCompatActivity {
             }
             catch (Exception e) {
                 connected = false;
-                e.printStackTrace();
+                logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
                 updateInterface();
             }
         }, error -> {
             conn = false;
             connected = false;
-            error.printStackTrace();
+            logger.log(Level.WARNING,error.getMessage(),error);
             parsing_message = error.getLocalizedMessage();
             updateInterface();
         });
@@ -974,7 +979,7 @@ public class HealthProgress extends AppCompatActivity {
                 conn = false;
                 connected = false;
 
-                if (healthProgressLists.size() == 0) {
+                if (healthProgressLists.isEmpty()) {
                     noHistFound.setVisibility(View.VISIBLE);
                     healthPrgText.setText("0");
                     hpBar.setProgress(0);
@@ -993,7 +998,7 @@ public class HealthProgress extends AppCompatActivity {
                     type.add(choiceServiceLists.get(i).getPfn_name());
                 }
 
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(HealthProgress.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
+                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(HealthProgress.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
                 serviceSearch.setAdapter(arrayAdapter);
 
                 unitSearch.setText("");
@@ -1002,7 +1007,7 @@ public class HealthProgress extends AppCompatActivity {
                     type1.add(choiceUnitLists.get(i).getDetps_name());
                 }
 
-                ArrayAdapter<String> arrayAdapter1 = new ArrayAdapter<String>(HealthProgress.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type1);
+                ArrayAdapter<String> arrayAdapter1 = new ArrayAdapter<>(HealthProgress.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type1);
                 unitSearch.setAdapter(arrayAdapter1);
 
                 doctorSearch.setText("");
@@ -1011,7 +1016,7 @@ public class HealthProgress extends AppCompatActivity {
                     type2.add(choiceDoctorLists.get(i).getDoc_name());
                 }
 
-                ArrayAdapter<String> arrayAdapter2 = new ArrayAdapter<String>(HealthProgress.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type2);
+                ArrayAdapter<String> arrayAdapter2 = new ArrayAdapter<>(HealthProgress.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type2);
                 doctorSearch.setAdapter(arrayAdapter2);
                 patProgressLoading = false;
 
@@ -1090,9 +1095,9 @@ public class HealthProgress extends AppCompatActivity {
 
         Call<HealthProgressResponse> healthProgressResponseCall = ApiClient.getService().addHealthProgress(healthProgressAdder);
 
-        healthProgressResponseCall.enqueue(new Callback<HealthProgressResponse>() {
+        healthProgressResponseCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<HealthProgressResponse> call, @NonNull Response<HealthProgressResponse> response) {
+            public void onResponse(@NonNull Call<HealthProgressResponse> call, @NonNull Response<HealthProgressResponse> response) {
 
                 if (response.isSuccessful()) {
                     conn = true;
@@ -1102,13 +1107,11 @@ public class HealthProgress extends AppCompatActivity {
                     if (string_out.equals("Successfully Created")) {
                         connected = true;
                         updateAfterAdd();
-                    }
-                    else {
+                    } else {
                         connected = false;
                         updateAfterAdd();
                     }
-                }
-                else {
+                } else {
                     conn = false;
                     connected = false;
                     parsing_message = "";
@@ -1117,10 +1120,10 @@ public class HealthProgress extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<HealthProgressResponse> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<HealthProgressResponse> call, @NonNull Throwable t) {
                 conn = false;
                 connected = false;
-                t.printStackTrace();
+                logger.log(Level.WARNING,t.getMessage(),t);
                 parsing_message = t.getLocalizedMessage();
                 updateAfterAdd();
             }
@@ -1154,14 +1157,14 @@ public class HealthProgress extends AppCompatActivity {
 //            }
 //            catch (JSONException e) {
 //                connected = false;
-//                e.printStackTrace();
+//                logger.log(Level.WARNING,e.getMessage(),e);
 //                parsing_message = e.getLocalizedMessage();
 //                updateAfterAdd();
 //            }
 //        }, error -> {
 //            conn = false;
 //            connected = false;
-//            error.printStackTrace();
+//            logger.log(Level.WARNING,error.getMessage(),error);
 //            parsing_message = error.getLocalizedMessage();
 //            updateAfterAdd();
 //        }) {

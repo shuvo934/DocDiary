@@ -17,10 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
 import androidx.core.view.GravityCompat;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -62,6 +59,7 @@ import ttit.com.shuvo.docdiary.hr_accounts.vouch_approval.DebitVoucherApproval;
 import ttit.com.shuvo.docdiary.hr_accounts.vouch_approval.JournalVoucherApproval;
 import ttit.com.shuvo.docdiary.hr_accounts.vouch_trans.VoucherTransaction;
 import ttit.com.shuvo.docdiary.report_manager.report_view.reports.ReportShow;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
 public class AccountsDashboard extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -115,12 +113,13 @@ public class AccountsDashboard extends AppCompatActivity implements NavigationVi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_accounts_dashboard);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.acc_dashboard_root), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        EdgeToEdgeHelper.applyInsets(
+                this,
+                findViewById(R.id.acc_dashboard_root),
+                false,
+                false);
 
         drawerLayout = findViewById(R.id.account_dashboard_drawer);
         navigationView = findViewById(R.id.account_menu_navigation);

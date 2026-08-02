@@ -5,13 +5,11 @@ import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -56,6 +54,7 @@ import ttit.com.shuvo.docdiary.patient_search.prescription.fragments.MedicalHist
 import ttit.com.shuvo.docdiary.patient_search.prescription.fragments.MedicationPSV;
 import ttit.com.shuvo.docdiary.patient_search.prescription.fragments.PatAdvicePSV;
 import ttit.com.shuvo.docdiary.patient_search.prescription.fragments.PatReferencePSV;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
 public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisPSVAdapter.ClickedItem, PatReferralUniPSVAdapter.ClickedItem2 {
 
@@ -142,12 +141,13 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_pat_prescription_v);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.pat_presc_v_root), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        EdgeToEdgeHelper.applyInsets(
+                this,
+                findViewById(R.id.pat_presc_v_root),
+                false,
+                false);
         fullLayoutPatPSV = findViewById(R.id.pat_prescription_v_full_layout);
         circularProgressIndicatorPatPSV = findViewById(R.id.progress_indicator_pat_prescription_v);
         circularProgressIndicatorPatPSV.setVisibility(View.GONE);
@@ -246,13 +246,13 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
             public void onTabSelected(TabLayout.Tab tab) {
                 switch (tab.getPosition()) {
                     case 0:
-                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab_pat_pres_v, MedicalHistPSV.newInstance(pmm_id, "false"), "MHTEST").commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab_pat_pres_v, MedicalHistPSV.newInstance(pmm_id), "MHTEST").commit();
                         break;
                     case 1:
-                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab_pat_pres_v, DrugHistPSV.newInstance(pmm_id, "false"), "DHTEST").commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab_pat_pres_v, DrugHistPSV.newInstance(pmm_id), "DHTEST").commit();
                         break;
                     case 2:
-                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab_pat_pres_v, ClinicalFindPSV.newInstance(pmm_id,"false"),"CFTEST").commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab_pat_pres_v, ClinicalFindPSV.newInstance(pmm_id),"CFTEST").commit();
                         break;
                     default:
                         break;
@@ -275,16 +275,16 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
             public void onTabSelected(TabLayout.Tab tab) {
                 switch (tab.getPosition()) {
                     case 0:
-                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab_pat_pres_v, ManagementPlanPSV.newInstance(pmm_id,"false"),"MPTEST").commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab_pat_pres_v, ManagementPlanPSV.newInstance(pmm_id),"MPTEST").commit();
                         break;
                     case 1:
-                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab_pat_pres_v, MedicationPSV.newInstance(pmm_id, "false"), "MEDTEST").commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab_pat_pres_v, MedicationPSV.newInstance(pmm_id), "MEDTEST").commit();
                         break;
                     case 2:
-                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab_pat_pres_v, PatAdvicePSV.newInstance(pmm_id,"false"),"PATEST").commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab_pat_pres_v, PatAdvicePSV.newInstance(pmm_id),"PATEST").commit();
                         break;
                     case 3:
-                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab_pat_pres_v, PatReferencePSV.newInstance(pmm_id,"false"),"PRTEST").commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab_pat_pres_v, PatReferencePSV.newInstance(pmm_id),"PRTEST").commit();
                         break;
                     default:
                         break;
@@ -706,16 +706,16 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
                     System.out.println("TAB POS: "+tab_pos);
                     if (tab_pos == 0) {
                         System.out.println("EKHANE 1");
-                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab_pat_pres_v, MedicalHistPSV.newInstance(pmm_id,"false"),"MHTEST").commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab_pat_pres_v, MedicalHistPSV.newInstance(pmm_id),"MHTEST").commit();
                     }
                     else if (tab_pos == 1) {
                         System.out.println("EKHANE 2");
 //                    TabLayout.Tab tab = historytabLayout.getTabAt(0);
 //                    historytabLayout.selectTab(tab);
-                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab_pat_pres_v, DrugHistPSV.newInstance(pmm_id,"false"),"DHTEST").commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab_pat_pres_v, DrugHistPSV.newInstance(pmm_id),"DHTEST").commit();
                     }
                     else {
-                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab_pat_pres_v, ClinicalFindPSV.newInstance(pmm_id,"false"),"CFTEST").commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_history_tab_pat_pres_v, ClinicalFindPSV.newInstance(pmm_id),"CFTEST").commit();
                     }
 
                     //------
@@ -764,18 +764,18 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
                     System.out.println("MED TAB POS: "+med_tab_pos);
                     if (med_tab_pos == 0) {
                         System.out.println("EKHANE 1");
-                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab_pat_pres_v, ManagementPlanPSV.newInstance(pmm_id,"false"),"MPTEST").commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab_pat_pres_v, ManagementPlanPSV.newInstance(pmm_id),"MPTEST").commit();
                     }
                     else if (med_tab_pos == 1) {
                         System.out.println("EKHANE 2");
-                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab_pat_pres_v, MedicationPSV.newInstance(pmm_id,"false"),"MEDTEST").commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab_pat_pres_v, MedicationPSV.newInstance(pmm_id),"MEDTEST").commit();
                     }
                     else if (med_tab_pos == 2) {
                         System.out.println("EKHANE 3");
-                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab_pat_pres_v, PatAdvicePSV.newInstance(pmm_id,"false"),"PATEST").commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab_pat_pres_v, PatAdvicePSV.newInstance(pmm_id),"PATEST").commit();
                     }
                     else {
-                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab_pat_pres_v, PatReferencePSV.newInstance(pmm_id,"false"),"PRTEST").commit();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout_for_medication_plan_tab_pat_pres_v, PatReferencePSV.newInstance(pmm_id),"PRTEST").commit();
                     }
                     prescriptionLoadingPatPSV = false;
                 }
@@ -835,6 +835,7 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onDiagnosisClicked(int diagPosition) {
         selected_pdi_id = patDiagnosisLists.get(diagPosition).getPdi_id();
@@ -999,6 +1000,7 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onRefUnitClicked(int refUnitPosition) {
         selected_drd_id = patReferralListsPatPSV.get(refUnitPosition).getDrd_id();

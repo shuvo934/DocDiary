@@ -1,5 +1,6 @@
 package ttit.com.shuvo.docdiary.appointment_admin.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,6 +67,7 @@ public class SearchPaymentForAppAdapter extends RecyclerView.Adapter<SearchPayme
         void onItemClicked(int Position);
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void filterList(ArrayList<PaymentForAppList> filteredList) {
         mCategoryItem = filteredList;
         notifyDataSetChanged();

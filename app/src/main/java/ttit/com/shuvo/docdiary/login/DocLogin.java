@@ -59,6 +59,7 @@ import ttit.com.shuvo.docdiary.login.interfaces.AdminIDCallbackListener;
 import ttit.com.shuvo.docdiary.login.interfaces.CallBackListener;
 import ttit.com.shuvo.docdiary.login.interfaces.CloseCallBack;
 import ttit.com.shuvo.docdiary.login.interfaces.IDCallbackListener;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
 public class DocLogin extends AppCompatActivity implements CallBackListener, IDCallbackListener, CloseCallBack, AdminIDCallbackListener, AdminCallBackListener {
 
@@ -128,7 +129,12 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_doc_login);
+        EdgeToEdgeHelper.applyInsets(this,
+                findViewById(R.id.login_root),
+                false,
+                false);
 
         fullLayout = findViewById(R.id.login_full_layout);
         circularProgressIndicator = findViewById(R.id.progress_indicator_doc_log_in);

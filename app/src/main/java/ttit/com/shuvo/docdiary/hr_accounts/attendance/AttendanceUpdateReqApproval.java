@@ -21,9 +21,6 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -49,6 +46,7 @@ import java.util.logging.Logger;
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.hr_accounts.attendance.dialogs.AttUpReqSelectionDialog;
 import ttit.com.shuvo.docdiary.hr_accounts.attendance.interfaces.AttendanceUpReqSelectedListener;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
 public class AttendanceUpdateReqApproval extends AppCompatActivity implements AttendanceUpReqSelectedListener {
 
@@ -132,12 +130,13 @@ public class AttendanceUpdateReqApproval extends AppCompatActivity implements At
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_attendance_update_req_approval);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.att_up_req_apr_root), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        EdgeToEdgeHelper.applyInsets(
+                this,
+                findViewById(R.id.att_up_req_apr_root),
+                false,
+                false);
 
         fullLayout = findViewById(R.id.att_up_approval_full_layout);
         circularProgressIndicator = findViewById(R.id.progress_indicator_att_up_approval);
@@ -605,6 +604,7 @@ public class AttendanceUpdateReqApproval extends AppCompatActivity implements At
                 }
                 else {
                     System.out.println(string_out);
+                    parsing_message = string_out;
                     isApprovedd = false;
                 }
                 updateLayout();
@@ -667,7 +667,14 @@ public class AttendanceUpdateReqApproval extends AppCompatActivity implements At
                 else {
                     fullLayout.setVisibility(View.VISIBLE);
                     circularProgressIndicator.setVisibility(View.GONE);
-                    Toast.makeText(getApplicationContext(), approveSuccess, Toast.LENGTH_SHORT).show();
+                    MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(AttendanceUpdateReqApproval.this);
+                    builder.setMessage(approveSuccess)
+                            .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+
+                    AlertDialog alert = builder.create();
+                    alert.setCancelable(false);
+                    alert.setCanceledOnTouchOutside(false);
+                    alert.show();
                 }
             }
             else {

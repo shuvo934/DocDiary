@@ -47,10 +47,8 @@ public class PatAdvicePSV extends Fragment {
 
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
     private String pmm_Id;
-    private String mParam2;
 
     public PatAdvicePSV() {
         // Required empty public constructor
@@ -79,19 +77,10 @@ public class PatAdvicePSV extends Fragment {
 
     Logger logger = Logger.getLogger(PatAdvicePSV.class.getName());
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment PatAdvicePSV.
-     */
-    public static PatAdvicePSV newInstance(String param1, String param2) {
+    public static PatAdvicePSV newInstance(String param1) {
         PatAdvicePSV fragment = new PatAdvicePSV();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -101,7 +90,6 @@ public class PatAdvicePSV extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             pmm_Id = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
 

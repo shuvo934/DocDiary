@@ -5,9 +5,6 @@ import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.userInfoLists;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -58,6 +55,7 @@ import ttit.com.shuvo.docdiary.appt_schedule.arraylists.MonthSelectionList;
 import ttit.com.shuvo.docdiary.appt_schedule.dialogue.AvailScheduleDialogue;
 import ttit.com.shuvo.docdiary.appt_schedule.interfaces.AvailCallBack;
 import ttit.com.shuvo.docdiary.progressbar.WaitProgress;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
 public class AppointmentSchedule extends AppCompatActivity implements TimeLineAdapter.ClickedAvail, AvailCallBack {
 
@@ -94,12 +92,13 @@ public class AppointmentSchedule extends AppCompatActivity implements TimeLineAd
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_appointment_schedule);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.app_sch_root), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        EdgeToEdgeHelper.applyInsets(
+                this,
+                findViewById(R.id.app_sch_root),
+                false,
+                false);
 
         fullLayout = findViewById(R.id.app_schedule_full_layout);
         circularProgressIndicator = findViewById(R.id.progress_indicator_appointment_schedule);

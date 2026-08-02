@@ -1,5 +1,6 @@
 package ttit.com.shuvo.docdiary.hr_accounts.leave.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -75,6 +76,7 @@ public class LeaveRequestAdapter extends RecyclerView.Adapter<LeaveRequestAdapte
         void onItemClicked(int Position);
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void filterList(ArrayList<LeaveRequestList> filteredList) {
         mCategoryItem = filteredList;
         notifyDataSetChanged();

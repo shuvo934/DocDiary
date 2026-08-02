@@ -18,10 +18,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import androidx.core.graphics.Insets;
 import androidx.core.view.GravityCompat;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -69,6 +66,7 @@ import ttit.com.shuvo.docdiary.hr_accounts.dashboards.arraylists.EmpWiseLeaveLis
 import ttit.com.shuvo.docdiary.hr_accounts.leave.LeaveApproval;
 import ttit.com.shuvo.docdiary.hr_accounts.leave.LeaveBalance;
 import ttit.com.shuvo.docdiary.hr_accounts.leave.LeaveRecord;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
 public class HumanResDashboard extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -171,12 +169,13 @@ public class HumanResDashboard extends AppCompatActivity implements NavigationVi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_human_res_dashboard);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.hr_dashboard_root), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        EdgeToEdgeHelper.applyInsets(
+                this,
+                findViewById(R.id.hr_dashboard_root),
+                false,
+                false);
 
         drawerLayout = findViewById(R.id.hr_dashboard_drawer);
         navigationView = findViewById(R.id.hr_menu_navigation);

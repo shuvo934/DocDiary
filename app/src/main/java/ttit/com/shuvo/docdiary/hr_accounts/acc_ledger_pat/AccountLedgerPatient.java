@@ -15,9 +15,6 @@ import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -50,6 +47,7 @@ import ttit.com.shuvo.docdiary.hr_accounts.acc_ledger.adapters.AccountLedgerAdap
 import ttit.com.shuvo.docdiary.hr_accounts.acc_ledger.arraylists.AccountLedgerLists;
 import ttit.com.shuvo.docdiary.hr_accounts.acc_ledger_pat.dialogs.SearchPatientALDialog;
 import ttit.com.shuvo.docdiary.hr_accounts.acc_ledger_pat.interfaces.PatientForALListener;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
 public class AccountLedgerPatient extends AppCompatActivity implements PatientForALListener {
 
@@ -102,12 +100,13 @@ public class AccountLedgerPatient extends AppCompatActivity implements PatientFo
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_account_ledger_patient);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.acc_ledger_pat_root), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        EdgeToEdgeHelper.applyInsets(
+                this,
+                findViewById(R.id.acc_ledger_pat_root),
+                false,
+                false);
 
         fullLayout = findViewById(R.id.account_ledger_pat_full_layout);
         circularProgressIndicator = findViewById(R.id.progress_indicator_account_ledger_pat);

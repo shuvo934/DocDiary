@@ -11,9 +11,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import android.content.Context;
 import android.content.Intent;
@@ -66,6 +63,7 @@ import ttit.com.shuvo.docdiary.camera_preview.BitmapCallBack;
 import ttit.com.shuvo.docdiary.camera_preview.CameraPreview;
 import ttit.com.shuvo.docdiary.dashboard.dialogue.ImageTakerChoiceDialog;
 import ttit.com.shuvo.docdiary.dashboard.interfaces.PictureChooseListener;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
 public class DocProfile extends AppCompatActivity implements PictureChooseListener, BitmapCallBack {
 
@@ -127,12 +125,13 @@ public class DocProfile extends AppCompatActivity implements PictureChooseListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_doc_profile);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.doc_profile_root), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        EdgeToEdgeHelper.applyInsets(
+                this,
+                findViewById(R.id.doc_profile_root),
+                false,
+                false);
 
         fullLayout = findViewById(R.id.doc_profile_full_layout);
         circularProgressIndicator = findViewById(R.id.progress_indicator_doc_profile);

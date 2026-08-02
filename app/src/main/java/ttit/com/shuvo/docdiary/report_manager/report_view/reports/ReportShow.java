@@ -5,14 +5,6 @@ import static android.view.View.VISIBLE;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.core.view.WindowInsetsControllerCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.DownloadManager;
 import android.content.Context;
@@ -28,14 +20,10 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -46,25 +34,20 @@ import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
-//import com.github.barteksc.pdfviewer.PDFView;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.report_manager.report_view.reports.request.ByteArrayRequest;
-import ttit.com.shuvo.docdiary.report_manager.report_view.reports.request.PdfRendererHelper;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
 public class ReportShow extends AppCompatActivity {
 
@@ -97,25 +80,14 @@ public class ReportShow extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Window window = getWindow();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) { // Android 14 (API 34) or Android 15 (API 35)
-            WindowCompat.setDecorFitsSystemWindows(window, false);
-            window.setStatusBarColor(ContextCompat.getColor(this, R.color.clouds));
-            WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(window, window.getDecorView());
-            controller.setAppearanceLightStatusBars(true);
-            controller.setAppearanceLightNavigationBars(false);
-        } else {
-            // Safe legacy approach for Android < 14
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(ContextCompat.getColor(this, R.color.clouds));
-        }
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_report_show);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.parent_layout_report_show), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        EdgeToEdgeHelper.applyInsets(
+                this,
+                findViewById(R.id.parent_layout_report_show),
+                true,
+                false
+        );
 
         close = findViewById(R.id.close_logo_of_report_show);
         appbarName = findViewById(R.id.report_show_app_bar_text);

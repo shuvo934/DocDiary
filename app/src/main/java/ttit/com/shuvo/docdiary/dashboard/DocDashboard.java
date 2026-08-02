@@ -8,13 +8,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.core.view.WindowInsetsControllerCompat;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -35,8 +29,6 @@ import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -144,6 +136,7 @@ import ttit.com.shuvo.docdiary.patient_search.PatientSearch;
 import ttit.com.shuvo.docdiary.profile.DocProfile;
 import ttit.com.shuvo.docdiary.report_manager.ReportManager;
 import ttit.com.shuvo.docdiary.unit_app_schedule.UnitWiseAppointment;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
 public class DocDashboard extends AppCompatActivity implements CallBackListener, IDCallbackListener, AdminIDCallbackListener,
         AdminCallBackListener, BitmapCallBack, PictureChooseListener, ErrorHandlerListener {
@@ -329,26 +322,20 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Window window = getWindow();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) { // Android 14 (API 34) or Android 15 (API 35)
-            WindowCompat.setDecorFitsSystemWindows(window, false);
-            window.setStatusBarColor(ContextCompat.getColor(this, R.color.clouds));
-            WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(window, window.getDecorView());
-            controller.setAppearanceLightStatusBars(true);
-            controller.setAppearanceLightNavigationBars(false);
-        } else {
-            // Safe legacy approach for Android < 14
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(ContextCompat.getColor(this, R.color.clouds));
-        }
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_doc_dashboard);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.dashboard_root), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
 
+        bottomNavigationView = findViewById(R.id.bottom_navigation_layout);
+        View systemNavigationBackground =
+                findViewById(R.id.system_navigation_background);
+        EdgeToEdgeHelper.applyWithBottomNavigation(
+                this,
+                findViewById(R.id.dashboard_root),
+                bottomNavigationView,
+                systemNavigationBackground,
+                true,
+                false
+        );
         reviewManager = ReviewManagerFactory.create(this);
         fullLayout = findViewById(R.id.doc_dashboard_full_layout);
         circularProgressIndicator = findViewById(R.id.progress_indicator_doc_dashboard);
@@ -440,7 +427,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         appointChartRefresh = findViewById(R.id.appointment_chart_refresh_button);
         appointChartRefresh.setVisibility(View.GONE);
 
-        bottomNavigationView = findViewById(R.id.bottom_navigation_layout);
         bottomNavigationView.getMenu().setGroupCheckable(0, false, true);
 
         normalCountDownView.setOnTickListener(new HappyTimer.OnTickListener() {

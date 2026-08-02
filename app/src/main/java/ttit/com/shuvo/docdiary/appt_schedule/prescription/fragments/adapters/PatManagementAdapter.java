@@ -2,6 +2,7 @@ package ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.adapters;
 
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -32,10 +33,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
-import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.ManagementPlan;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.ManagementModify;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.arraylists.PatManagementList;
+import ttit.com.shuvo.docdiary.appt_schedule.prescription.interfaces.FragmentAdapterCallBack;
 
 public class PatManagementAdapter extends RecyclerView.Adapter<PatManagementAdapter.PMAHolder> {
     private final ArrayList<PatManagementList> mCategory;
@@ -43,10 +43,12 @@ public class PatManagementAdapter extends RecyclerView.Adapter<PatManagementAdap
     private Boolean conn = false;
     private Boolean connected = false;
     String parsing_message = "";
+    private final FragmentAdapterCallBack listener;
 
-    public PatManagementAdapter(ArrayList<PatManagementList> mCategory, Context mContext) {
+    public PatManagementAdapter(ArrayList<PatManagementList> mCategory, Context mContext, FragmentAdapterCallBack listener) {
         this.mCategory = mCategory;
         this.mContext = mContext;
+        this.listener = listener;
     }
 
     Logger logger = Logger.getLogger("PatManagementAdapter");
@@ -108,9 +110,8 @@ public class PatManagementAdapter extends RecyclerView.Adapter<PatManagementAdap
     }
 
     public void deleteManagement(String pmap_id, int index) {
-        PrescriptionSetup.circularProgressIndicator.setVisibility(View.VISIBLE);
-        PrescriptionSetup.fullLayout.setVisibility(View.GONE);
-        PrescriptionSetup.prescriptionLoading = true;
+        listener.showLoading();
+        listener.setBoolPositive();
         conn = false;
         connected = false;
 
@@ -156,21 +157,16 @@ public class PatManagementAdapter extends RecyclerView.Adapter<PatManagementAdap
         requestQueue.add(request);
     }
 
-    public void updateAfterDeleteMang(String pmap_id,int pos) {
+    @SuppressLint("NotifyDataSetChanged")
+    public void updateAfterDeleteMang(String pmap_id, int pos) {
         if (conn) {
             if (connected) {
-                PrescriptionSetup.circularProgressIndicator.setVisibility(View.GONE);
-                PrescriptionSetup.fullLayout.setVisibility(View.VISIBLE);
+                listener.hideLoading();
                 Toast.makeText(mContext,"Management Plan Deleted Successfully",Toast.LENGTH_SHORT).show();
                 mCategory.remove(pos);
                 notifyDataSetChanged();
-                if (mCategory.isEmpty()) {
-                    ManagementPlan.noManagementMsg.setVisibility(View.VISIBLE);
-                }
-                else {
-                    ManagementPlan.noManagementMsg.setVisibility(View.GONE);
-                }
-                PrescriptionSetup.prescriptionLoading = false;
+                listener.onListChanged(mCategory.size());
+                listener.setBoolNegative();
             }
             else {
                 alertMessageForFailedDeleteMang(pmap_id,pos);
@@ -182,8 +178,7 @@ public class PatManagementAdapter extends RecyclerView.Adapter<PatManagementAdap
     }
 
     public void alertMessageForFailedDeleteMang(String pmap_id, int pos) {
-        PrescriptionSetup.circularProgressIndicator.setVisibility(View.GONE);
-        PrescriptionSetup.fullLayout.setVisibility(View.VISIBLE);
+        listener.hideLoading();
         if (parsing_message != null) {
             if (parsing_message.isEmpty() || parsing_message.equals("null")) {
                 parsing_message = "Server problem or Internet not connected";
@@ -196,12 +191,12 @@ public class PatManagementAdapter extends RecyclerView.Adapter<PatManagementAdap
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
-                    PrescriptionSetup.prescriptionLoading = false;
+                    listener.setBoolNegative();
                     deleteManagement(pmap_id,pos);
                     dialog.dismiss();
                 })
                 .setNegativeButton("Cancel",(dialog, which) -> {
-                    PrescriptionSetup.prescriptionLoading = false;
+                    listener.setBoolNegative();
                     dialog.dismiss();
                 });
 

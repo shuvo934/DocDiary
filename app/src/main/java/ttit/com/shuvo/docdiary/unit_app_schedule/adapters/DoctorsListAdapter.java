@@ -1,5 +1,6 @@
 package ttit.com.shuvo.docdiary.unit_app_schedule.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -93,6 +94,7 @@ public class DoctorsListAdapter extends RecyclerView.Adapter<DoctorsListAdapter.
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void filterList(ArrayList<UnitDoctorsList> filteredList) {
         mCategoryItem = filteredList;
         notifyDataSetChanged();

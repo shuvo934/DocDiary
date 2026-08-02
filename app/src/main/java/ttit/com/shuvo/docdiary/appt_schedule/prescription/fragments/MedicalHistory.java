@@ -40,20 +40,18 @@ import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.adapters.PatMedicHistAdapter;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.MedHistoryModify;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.arraylists.PatMedicHistList;
+import ttit.com.shuvo.docdiary.appt_schedule.prescription.interfaces.FragmentAdapterCallBack;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link MedicalHistory#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MedicalHistory extends Fragment {
+public class MedicalHistory extends Fragment implements FragmentAdapterCallBack {
 
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
     private String pmm_Id;
-    private String mParam2;
 
     public MedicalHistory() {
         // Required empty public constructor
@@ -66,7 +64,7 @@ public class MedicalHistory extends Fragment {
     RecyclerView medHistoryView;
     PatMedicHistAdapter patMedicHistAdapter;
     RecyclerView.LayoutManager layoutManager;
-    public static TextView noPatMedHistMsg;
+    TextView noPatMedHistMsg;
     MaterialButton medHistAdd;
     ArrayList<PatMedicHistList> patMedicHistLists;
 
@@ -82,19 +80,10 @@ public class MedicalHistory extends Fragment {
     }
     Logger logger = Logger.getLogger(MedicalHistory.class.getName());
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment MedicalHistory.
-     */
-    public static MedicalHistory newInstance(String param1, String param2) {
+    public static MedicalHistory newInstance(String param1) {
         MedicalHistory fragment = new MedicalHistory();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -104,7 +93,6 @@ public class MedicalHistory extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             pmm_Id = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
 
@@ -232,7 +220,7 @@ public class MedicalHistory extends Fragment {
                 else {
                     noPatMedHistMsg.setVisibility(View.GONE);
                 }
-                patMedicHistAdapter = new PatMedicHistAdapter(patMedicHistLists,mContext);
+                patMedicHistAdapter = new PatMedicHistAdapter(patMedicHistLists,mContext,this);
                 medHistoryView.setAdapter(patMedicHistAdapter);
 
             }
@@ -262,5 +250,36 @@ public class MedicalHistory extends Fragment {
             Toast.makeText(mContext, parsing_message, Toast.LENGTH_SHORT).show();
             refresh.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public void showLoading() {
+        PrescriptionSetup activity = (PrescriptionSetup) requireActivity();
+        activity.showLoading();
+    }
+
+    @Override
+    public void setBoolPositive() {
+        PrescriptionSetup activity = (PrescriptionSetup) requireActivity();
+        activity.boolPositive();
+    }
+
+    @Override
+    public void hideLoading() {
+        PrescriptionSetup activity = (PrescriptionSetup) requireActivity();
+        activity.hideLoading();
+    }
+
+    @Override
+    public void setBoolNegative() {
+        PrescriptionSetup activity = (PrescriptionSetup) requireActivity();
+        activity.boolNegative();
+    }
+
+    @Override
+    public void onListChanged(int size) {
+        noPatMedHistMsg.setVisibility(
+                size == 0 ? View.VISIBLE : View.GONE
+        );
     }
 }

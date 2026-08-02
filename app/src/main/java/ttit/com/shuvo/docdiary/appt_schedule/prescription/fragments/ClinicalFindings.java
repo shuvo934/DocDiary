@@ -40,20 +40,19 @@ import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.adapters.PatClFindingsAdapter;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.addinfo.ClinicalFindingsModify;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.fragments.arraylists.PatClinicalFindingsList;
+import ttit.com.shuvo.docdiary.appt_schedule.prescription.interfaces.FragmentAdapterCallBack;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link ClinicalFindings#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ClinicalFindings extends Fragment {
+public class ClinicalFindings extends Fragment implements FragmentAdapterCallBack {
 
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
     private String pmm_Id;
-    private String mParam2;
 
     public ClinicalFindings() {
         // Required empty public constructor
@@ -66,7 +65,7 @@ public class ClinicalFindings extends Fragment {
     RecyclerView clFindingsView;
     RecyclerView.LayoutManager layoutManager;
     PatClFindingsAdapter patClFindingsAdapter;
-    public static TextView noPatClFindMsg;
+    TextView noPatClFindMsg;
     MaterialButton clFindAdd;
     ArrayList<PatClinicalFindingsList> patClinicalFindingsLists;
 
@@ -83,19 +82,10 @@ public class ClinicalFindings extends Fragment {
 
     Logger logger = Logger.getLogger(ClinicalFindings.class.getName());
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ClinicalFindings.
-     */
-    public static ClinicalFindings newInstance(String param1, String param2) {
+    public static ClinicalFindings newInstance(String param1) {
         ClinicalFindings fragment = new ClinicalFindings();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -105,7 +95,6 @@ public class ClinicalFindings extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             pmm_Id = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
 
@@ -234,7 +223,7 @@ public class ClinicalFindings extends Fragment {
                 else {
                     noPatClFindMsg.setVisibility(View.GONE);
                 }
-                patClFindingsAdapter = new PatClFindingsAdapter(patClinicalFindingsLists,mContext);
+                patClFindingsAdapter = new PatClFindingsAdapter(patClinicalFindingsLists,mContext, this);
                 clFindingsView.setAdapter(patClFindingsAdapter);
 
             }
@@ -264,5 +253,36 @@ public class ClinicalFindings extends Fragment {
             Toast.makeText(mContext, parsing_message, Toast.LENGTH_SHORT).show();
             refresh.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public void showLoading() {
+        PrescriptionSetup activity = (PrescriptionSetup) requireActivity();
+        activity.showLoading();
+    }
+
+    @Override
+    public void setBoolPositive() {
+        PrescriptionSetup activity = (PrescriptionSetup) requireActivity();
+        activity.boolPositive();
+    }
+
+    @Override
+    public void hideLoading() {
+        PrescriptionSetup activity = (PrescriptionSetup) requireActivity();
+        activity.hideLoading();
+    }
+
+    @Override
+    public void setBoolNegative() {
+        PrescriptionSetup activity = (PrescriptionSetup) requireActivity();
+        activity.boolNegative();
+    }
+
+    @Override
+    public void onListChanged(int size) {
+        noPatClFindMsg.setVisibility(
+                size == 0 ? View.VISIBLE : View.GONE
+        );
     }
 }

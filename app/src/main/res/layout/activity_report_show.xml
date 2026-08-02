@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/parent_layout_report_show"
-    android:background="@color/clouds"
+    android:background="@drawable/cloud_gray_background"
     tools:context=".report_manager.report_view.reports.ReportShow">
 
     <RelativeLayout

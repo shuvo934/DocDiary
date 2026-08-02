@@ -22,9 +22,6 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -50,6 +47,7 @@ import java.util.logging.Logger;
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.hr_accounts.leave.dialogs.LeaveReqSelectionDialog;
 import ttit.com.shuvo.docdiary.hr_accounts.leave.interfaces.LeaveSelectedListener;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
 public class LeaveApproval extends AppCompatActivity implements LeaveSelectedListener {
 
@@ -120,12 +118,13 @@ public class LeaveApproval extends AppCompatActivity implements LeaveSelectedLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_leave_approval);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.leave_apr_root), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        EdgeToEdgeHelper.applyInsets(
+                this,
+                findViewById(R.id.leave_apr_root),
+                false,
+                false);
 
         fullLayout = findViewById(R.id.leave_approval_full_layout);
         circularProgressIndicator = findViewById(R.id.progress_indicator_leave_approval);
@@ -440,65 +439,25 @@ public class LeaveApproval extends AppCompatActivity implements LeaveSelectedLis
                 afterSelecting.setVisibility(View.VISIBLE);
                 afterSelectingButton.setVisibility(View.VISIBLE);
 
-                if (emp_name == null) {
-                    name.setText("");
-                } else {
-                    name.setText(emp_name);
-                }
+                name.setText(Objects.requireNonNullElse(emp_name, ""));
 
-                if (emp_id == null) {
-                    empCode.setText("");
-                } else {
-                    empCode.setText(emp_id);
-                }
+                empCode.setText(Objects.requireNonNullElse(emp_id, ""));
 
-                if (app_date == null) {
-                    appDate.setText("");
-                } else {
-                    appDate.setText(app_date);
-                }
+                appDate.setText(Objects.requireNonNullElse(app_date, ""));
 
-                if (call_title == null) {
-                    title.setText("");
-                } else {
-                    title.setText(call_title);
-                }
+                title.setText(Objects.requireNonNullElse(call_title, ""));
 
-                if (leave_type == null) {
-                    leaveType.setText("");
-                } else {
-                    leaveType.setText(leave_type);
-                }
+                leaveType.setText(Objects.requireNonNullElse(leave_type, ""));
 
-                if (leave_bal == null) {
-                    leaveBalance.setText("");
-                } else {
-                    leaveBalance.setText(leave_bal);
-                }
+                leaveBalance.setText(Objects.requireNonNullElse(leave_bal, ""));
 
-                if (from_date == null) {
-                    fromDate.setText("");
-                } else {
-                    fromDate.setText(from_date);
-                }
+                fromDate.setText(Objects.requireNonNullElse(from_date, ""));
 
-                if (to_date == null) {
-                    toDate.setText("");
-                } else {
-                    toDate.setText(to_date);
-                }
+                toDate.setText(Objects.requireNonNullElse(to_date, ""));
 
-                if (total_day == null) {
-                    totalDays.setText("");
-                } else {
-                    totalDays.setText(total_day);
-                }
+                totalDays.setText(Objects.requireNonNullElse(total_day, ""));
 
-                if (reason_desc == null) {
-                    reason.setText("");
-                } else {
-                    reason.setText(reason_desc);
-                }
+                reason.setText(Objects.requireNonNullElse(reason_desc, ""));
 
                 loading = false;
 

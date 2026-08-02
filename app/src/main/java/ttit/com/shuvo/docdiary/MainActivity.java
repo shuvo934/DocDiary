@@ -2,7 +2,6 @@ package ttit.com.shuvo.docdiary;
 
 import static com.google.android.play.core.install.model.AppUpdateType.IMMEDIATE;
 
-import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.IntentSenderRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -33,6 +32,7 @@ import com.google.android.play.core.install.model.UpdateAvailability;
 
 import ttit.com.shuvo.docdiary.dashboard.DocDashboard;
 import ttit.com.shuvo.docdiary.login.DocLogin;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -134,8 +134,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_main);
+        EdgeToEdgeHelper.applyInsets(this,
+                findViewById(R.id.main_root),
+                false,
+                false);
         appUpdateManager = AppUpdateManagerFactory.create(MainActivity.this);
         sharedPreferences = getSharedPreferences(LOGIN_ACTIVITY_FILE, MODE_PRIVATE);
 

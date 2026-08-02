@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/app_sch_root"
-    android:backgroundTint="@color/light_green"
-    android:background="@color/white"
+    android:background="@drawable/green_gray_background"
     tools:context=".appt_schedule.AppointmentSchedule">
 
     <LinearLayout

@@ -1,5 +1,6 @@
 package ttit.com.shuvo.docdiary.hr_accounts.dashboards.extra;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.widget.TextView;
 
@@ -11,6 +12,7 @@ import com.github.mikephil.charting.utils.MPPointF;
 import com.github.mikephil.charting.utils.Utils;
 
 import ttit.com.shuvo.docdiary.R;
+@SuppressLint("ViewConstructor")
 public class NormalMarker extends MarkerView {
 
     private final TextView tvContent;

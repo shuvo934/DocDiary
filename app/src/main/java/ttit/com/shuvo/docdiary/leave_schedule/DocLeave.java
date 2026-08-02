@@ -5,9 +5,6 @@ import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.userInfoLists;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -51,6 +48,7 @@ import ttit.com.shuvo.docdiary.leave_schedule.adapters.TimeSchAdapter;
 import ttit.com.shuvo.docdiary.leave_schedule.arraylists.LeaveCalenderValues;
 import ttit.com.shuvo.docdiary.leave_schedule.arraylists.LeaveTimeSchedule;
 import ttit.com.shuvo.docdiary.progressbar.WaitProgress;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
 public class DocLeave extends AppCompatActivity {
 
@@ -80,12 +78,13 @@ public class DocLeave extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_doc_leave);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.doc_leave_root), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        EdgeToEdgeHelper.applyInsets(
+                this,
+                findViewById(R.id.doc_leave_root),
+                false,
+                false);
         backButton = findViewById(R.id.back_logo_of_doc_leave);
         calendarView = findViewById(R.id.calendarView_new);
 

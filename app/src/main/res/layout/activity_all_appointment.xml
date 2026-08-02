@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:id="@+id/all_app_root"
     android:layout_height="match_parent"
-    android:background="@color/clouds"
+    android:background="@drawable/cloud_gray_background"
     tools:context=".all_appointment.AllAppointment">
 
     <LinearLayout
@@ -90,7 +90,8 @@
                 android:id="@+id/timeline_recycle_view_all_app_sch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"/>
+                android:layout_marginTop="@dimen/_8sdp"
+                android:layout_marginBottom="@dimen/_8sdp"/>
 
             <TextView
                 android:id="@+id/no_doctor_found_message_all_app_sch"

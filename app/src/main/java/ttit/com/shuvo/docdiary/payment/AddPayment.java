@@ -7,9 +7,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.cardview.widget.CardView;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -67,11 +64,13 @@ import ttit.com.shuvo.docdiary.payment.dialog.UpdateConfirmPayDialog;
 import ttit.com.shuvo.docdiary.payment.interfaces.ConfirmPaymentListener;
 import ttit.com.shuvo.docdiary.payment.interfaces.PatCodeCallBackListener;
 import ttit.com.shuvo.docdiary.payment.interfaces.PaymentCodeCallListener;
+import ttit.com.shuvo.docdiary.payment.interfaces.ServiceDeleteCallBack;
 import ttit.com.shuvo.docdiary.payment.interfaces.UpdateConfirmPayListener;
 import ttit.com.shuvo.docdiary.payment.service.ServiceModify;
 import ttit.com.shuvo.docdiary.payment.service.ServiceModifyForUp;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
-public class AddPayment extends AppCompatActivity implements PatCodeCallBackListener, PaymentCodeCallListener, ConfirmPaymentListener, UpdateConfirmPayListener {
+public class AddPayment extends AppCompatActivity implements PatCodeCallBackListener, PaymentCodeCallListener, ConfirmPaymentListener, UpdateConfirmPayListener, ServiceDeleteCallBack {
 
     LinearLayout fullLayout;
     CircularProgressIndicator circularProgressIndicator;
@@ -135,9 +134,9 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
     RecyclerView serviceView;
     RecyclerView.LayoutManager layoutManager;
     AddedServiceAdapter addedServiceAdapter;
-    public static LinearLayout totalAmountLay;
-    public static TextView totalAmount;
-    public static String total_amount = "";
+    LinearLayout totalAmountLay;
+    TextView totalAmount;
+    String total_amount = "";
     MaterialButton addService;
 
     RecyclerView upServiceView;
@@ -173,12 +172,13 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_add_payment);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.add_pay_root), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        EdgeToEdgeHelper.applyInsets(
+                this,
+                findViewById(R.id.add_pay_root),
+                false,
+                false);
         fullLayout = findViewById(R.id.add_payment_full_layout);
         circularProgressIndicator = findViewById(R.id.progress_indicator_add_payment);
         circularProgressIndicator.setVisibility(View.GONE);
@@ -279,7 +279,7 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
         DividerItemDecoration dividerItemDecorationRS = new DividerItemDecoration(serviceView.getContext(),DividerItemDecoration.VERTICAL);
         serviceView.addItemDecoration(dividerItemDecorationRS);
 
-        addedServiceAdapter = new AddedServiceAdapter(addedServiceLists,AddPayment.this);
+        addedServiceAdapter = new AddedServiceAdapter(addedServiceLists,AddPayment.this, this);
         serviceView.setAdapter(addedServiceAdapter);
 
         upServiceView.setHasFixedSize(true);
@@ -525,7 +525,7 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
                 if (isPayMode.equals("1")) {
                     selectedPaymentMethodLists = new ArrayList<>();
                     ArrayList<ServiceAmountIdList> serviceAmountIdLists = new ArrayList<>();
-                    String service_amount_pay = "";
+                    String service_amount_pay;
                     double sva = 0.0;
                     for (int i = 0; i < addedServiceLists.size(); i++) {
                         sva = sva + Double.parseDouble(addedServiceLists.get(i).getService_amnt());
@@ -567,7 +567,7 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
             if (!updatedServiceLists.isEmpty()) {
                 if (isPayMode.equals("1")) {
                     ArrayList<ServiceAmountIdList> serviceAmountIdLists = new ArrayList<>();
-                    String service_amount_pay = "";
+                    String service_amount_pay;
                     double sva = 0.0;
                     for (int i = 0; i < updatedServiceLists.size(); i++) {
                         sva = sva + Double.parseDouble(updatedServiceLists.get(i).getAmount());
@@ -663,7 +663,7 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
         totalAmount.setText(total_amount);
         totalAmountUp.setText(total_amount_up);
 
-        addedServiceAdapter = new AddedServiceAdapter(addedServiceLists,AddPayment.this);
+        addedServiceAdapter = new AddedServiceAdapter(addedServiceLists,AddPayment.this, this);
         serviceView.setAdapter(addedServiceAdapter);
 
         updatedServiceAdapter = new UpdatedServiceAdapter(updatedServiceLists, AddPayment.this);
@@ -687,7 +687,7 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
             totalAmount.setText(total_amount);
         }
         System.out.println("Service List: " + addedServiceLists.size());
-        addedServiceAdapter = new AddedServiceAdapter(addedServiceLists,AddPayment.this);
+        addedServiceAdapter = new AddedServiceAdapter(addedServiceLists,AddPayment.this, this);
         serviceView.setAdapter(addedServiceAdapter);
 
         if (updatedServiceLists.isEmpty()) {
@@ -736,8 +736,27 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
         total_amount = "";
         totalAmountLay.setVisibility(View.GONE);
         totalAmount.setText(total_amount);
-        addedServiceAdapter = new AddedServiceAdapter(addedServiceLists,AddPayment.this);
+        addedServiceAdapter = new AddedServiceAdapter(addedServiceLists,AddPayment.this, this);
         serviceView.setAdapter(addedServiceAdapter);
+    }
+
+    @Override
+    public void onListUpdated() {
+        if (addedServiceLists.isEmpty()) {
+            totalAmountLay.setVisibility(View.GONE);
+            total_amount = "";
+            totalAmount.setText(total_amount);
+        }
+        else {
+            totalAmountLay.setVisibility(View.VISIBLE);
+            int ttt = 0;
+            for (int j = 0; j < addedServiceLists.size(); j++) {
+                int amnt = Integer.parseInt(addedServiceLists.get(j).getService_amnt());
+                ttt = ttt + amnt;
+            }
+            total_amount = String.valueOf(ttt);
+            totalAmount.setText(total_amount);
+        }
     }
 
     @Override

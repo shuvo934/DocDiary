@@ -3,6 +3,7 @@ package ttit.com.shuvo.docdiary.payment.dialog;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 import static ttit.com.shuvo.docdiary.payment.AddPayment.updatedPaymentMethodLists;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
@@ -62,7 +63,6 @@ public class UpdateConfirmPayDialog extends AppCompatDialogFragment {
     ImageView close;
     private Boolean conn = false;
     private Boolean connected = false;
-    private Boolean loading = false;
     String parsing_message = "";
 
     TextView totalAmount;
@@ -118,6 +118,7 @@ public class UpdateConfirmPayDialog extends AppCompatDialogFragment {
         this.pfnIds = pfnIds;
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -466,13 +467,9 @@ public class UpdateConfirmPayDialog extends AppCompatDialogFragment {
             }
         });
 
-        close.setOnClickListener(view1 -> {
-            alertDialog.dismiss();
-        });
+        close.setOnClickListener(view1 -> alertDialog.dismiss());
 
-        cancel.setOnClickListener(view1 -> {
-            alertDialog.dismiss();
-        });
+        cancel.setOnClickListener(view1 -> alertDialog.dismiss());
 
         getPaymentMethod();
 
@@ -484,11 +481,11 @@ public class UpdateConfirmPayDialog extends AppCompatDialogFragment {
             return false;
         }
         try {
-            double d = Double.parseDouble(strNum);
+            Double.parseDouble(strNum);
+            return true;
         } catch (NumberFormatException nfe) {
             return false;
         }
-        return true;
     }
 
     private void closeKeyBoard() {
@@ -506,7 +503,6 @@ public class UpdateConfirmPayDialog extends AppCompatDialogFragment {
         reload.setVisibility(View.GONE);
         conn = false;
         connected = false;
-        loading = true;
 
         paymentMethodLists = new ArrayList<>();
 
@@ -701,8 +697,6 @@ public class UpdateConfirmPayDialog extends AppCompatDialogFragment {
                 ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(mContext,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
                 payMethodSpinner.setAdapter(arrayAdapter);
 
-                loading = false;
-
             }
             else {
                 reload_choice = choice;
@@ -728,6 +722,5 @@ public class UpdateConfirmPayDialog extends AppCompatDialogFragment {
             parsing_message = "Server problem or Internet not connected";
         }
         Toast.makeText(mContext, parsing_message, Toast.LENGTH_SHORT).show();
-        loading = false;
     }
 }

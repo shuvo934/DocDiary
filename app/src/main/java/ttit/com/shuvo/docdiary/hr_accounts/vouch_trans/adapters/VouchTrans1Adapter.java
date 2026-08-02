@@ -1,5 +1,6 @@
 package ttit.com.shuvo.docdiary.hr_accounts.vouch_trans.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -75,6 +76,7 @@ public class VouchTrans1Adapter extends RecyclerView.Adapter<VouchTrans1Adapter.
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void filterList(ArrayList<VoucherLists1> filteredList) {
         mCategoryItem = filteredList;
         notifyDataSetChanged();

@@ -16,10 +16,7 @@ import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
 import androidx.core.util.Pair;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -73,6 +70,7 @@ import ttit.com.shuvo.docdiary.hr_accounts.dashboards.arraylists.OpasCardWiseErr
 import ttit.com.shuvo.docdiary.hr_accounts.dashboards.arraylists.OpasPayCardWiseList;
 import ttit.com.shuvo.docdiary.hr_accounts.dashboards.arraylists.OpasPayChartList;
 import ttit.com.shuvo.docdiary.hr_accounts.dashboards.extra.NormalMarker;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
 
 public class AnalyticsDashboard extends AppCompatActivity {
@@ -188,12 +186,13 @@ public class AnalyticsDashboard extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_analytics_dashboard);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.analytic_dash_root), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        EdgeToEdgeHelper.applyInsets(
+                this,
+                findViewById(R.id.analytic_dash_root),
+                false,
+                false);
 
         scrollView = findViewById(R.id.analytics_dashboard_scrollview);
         fullLayout = findViewById(R.id.analytics_dashboard_full_layout);

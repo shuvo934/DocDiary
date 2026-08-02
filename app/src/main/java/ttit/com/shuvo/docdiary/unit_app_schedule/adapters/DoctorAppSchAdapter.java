@@ -2,7 +2,6 @@ package ttit.com.shuvo.docdiary.unit_app_schedule.adapters;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -200,11 +199,11 @@ public class DoctorAppSchAdapter extends RecyclerView.Adapter<DoctorAppSchAdapte
             return false;
         }
         try {
-            double d = Double.parseDouble(strNum);
+            Double.parseDouble(strNum);
+            return true;
         } catch (NumberFormatException nfe) {
             return false;
         }
-        return true;
     }
 
     @Override

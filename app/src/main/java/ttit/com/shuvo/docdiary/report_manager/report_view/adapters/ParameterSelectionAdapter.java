@@ -1,5 +1,6 @@
 package ttit.com.shuvo.docdiary.report_manager.report_view.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -63,6 +64,7 @@ public class ParameterSelectionAdapter extends RecyclerView.Adapter<ParameterSel
         void onItemClicked(int Position);
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void filterList(ArrayList<ParameterList> filteredList) {
         mCategoryItem = filteredList;
         notifyDataSetChanged();

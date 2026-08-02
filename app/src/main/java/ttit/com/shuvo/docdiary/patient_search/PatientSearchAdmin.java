@@ -6,9 +6,6 @@ import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -55,6 +52,7 @@ import java.util.logging.Logger;
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.patient_search.adapters.PatientSearchAdapter;
 import ttit.com.shuvo.docdiary.patient_search.arraylists.PatientSearchList;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
 public class PatientSearchAdmin extends AppCompatActivity {
 
@@ -96,12 +94,13 @@ public class PatientSearchAdmin extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_patient_search_admin);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.pat_src_admin_root), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        EdgeToEdgeHelper.applyInsets(
+                this,
+                findViewById(R.id.pat_src_admin_root),
+                false,
+                false);
 
         fullLayout = findViewById(R.id.patient_search_admin_full_layout);
         circularProgressIndicator = findViewById(R.id.progress_indicator_patient_search_admin);

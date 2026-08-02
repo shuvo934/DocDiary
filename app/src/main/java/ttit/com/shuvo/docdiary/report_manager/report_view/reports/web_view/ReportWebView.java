@@ -8,12 +8,9 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
@@ -26,12 +23,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.core.view.WindowInsetsControllerCompat;
 
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 
@@ -40,6 +31,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 //import ttit.com.shuvo.docdiary.report_manager.report_view.reports.ReportShow;
 
 public class ReportWebView extends AppCompatActivity {
@@ -61,25 +53,14 @@ public class ReportWebView extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Window window = getWindow();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) { // Android 14 (API 34) or Android 15 (API 35)
-            WindowCompat.setDecorFitsSystemWindows(window, false);
-            window.setStatusBarColor(ContextCompat.getColor(this, R.color.clouds));
-            WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(window, window.getDecorView());
-            controller.setAppearanceLightStatusBars(true);
-            controller.setAppearanceLightNavigationBars(false);
-        } else {
-            // Safe legacy approach for Android < 14
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(ContextCompat.getColor(this, R.color.clouds));
-        }
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_report_web_view);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.rep_web_view_root), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        EdgeToEdgeHelper.applyInsets(
+                this,
+                findViewById(R.id.rep_web_view_root),
+                true,
+                false
+        );
 
         circularProgressIndicator = findViewById(R.id.progress_indicator_web_report_show);
         circularProgressIndicator.setVisibility(View.GONE);

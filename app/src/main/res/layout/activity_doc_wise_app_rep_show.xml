@@ -5,7 +5,7 @@
     android:id="@+id/doc_app_rep_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/clouds"
+    android:background="@drawable/cloud_gray_background"
     tools:context=".report_manager.report_view.reports.DocWiseAppRepShow">
 
     <LinearLayout

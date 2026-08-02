@@ -8,12 +8,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,13 +17,10 @@ import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.Spanned;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
@@ -73,6 +64,7 @@ import ttit.com.shuvo.docdiary.progressbar.WaitProgress;
 import ttit.com.shuvo.docdiary.unit_app_schedule.adapters.DoctorsListAdapter;
 import ttit.com.shuvo.docdiary.unit_app_schedule.arraylists.DoctorAppSchList;
 import ttit.com.shuvo.docdiary.unit_app_schedule.arraylists.UnitDoctorsList;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
 public class AllAppointment extends AppCompatActivity {
 
@@ -114,7 +106,6 @@ public class AllAppointment extends AppCompatActivity {
     String deptd_count = "0";
     private Boolean conn = false;
     private Boolean connected = false;
-    private Boolean loading = true;
     private Boolean fromCalendar = false;
     String parsing_message = "";
     TextView noDocsMess;
@@ -136,26 +127,14 @@ public class AllAppointment extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Window window = getWindow();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) { // Android 14 (API 34) or Android 15 (API 35)
-            WindowCompat.setDecorFitsSystemWindows(window, false);
-            window.setStatusBarColor(ContextCompat.getColor(this, R.color.clouds));
-            WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(window, window.getDecorView());
-            controller.setAppearanceLightStatusBars(true);
-            controller.setAppearanceLightNavigationBars(false);
-        } else {
-            // Safe legacy approach for Android < 14
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(ContextCompat.getColor(this, R.color.clouds));
-        }
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_all_appointment);
-
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.all_app_root), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        EdgeToEdgeHelper.applyInsets(
+                this,
+                findViewById(R.id.all_app_root),
+                true,
+                false
+        );
 
         fullLayout = findViewById(R.id.all_doc_appointment_schedule_full_layout);
         circularProgressIndicator = findViewById(R.id.progress_indicator_all_doc_appointment_schdeule);
@@ -529,7 +508,6 @@ public class AllAppointment extends AppCompatActivity {
     }
 
     public void getDepartments() {
-        loading = true;
         try {
             waitProgress.show(getSupportFragmentManager(), "WaitBar");
             waitProgress.setCancelable(false);
@@ -635,7 +613,6 @@ public class AllAppointment extends AppCompatActivity {
                     unit_sch_count = 0;
                     unit_blank_count = 0;
 
-                    loading = false;
                 }
                 else {
                     getUnits(1);
@@ -671,12 +648,10 @@ public class AllAppointment extends AppCompatActivity {
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
-                    loading = false;
                     getDepartments();
                     dialog.dismiss();
                 })
                 .setNegativeButton("Cancel",(dialog, which) -> {
-                    loading = false;
                     dialog.dismiss();
                     finish();
                 });
@@ -693,7 +668,6 @@ public class AllAppointment extends AppCompatActivity {
     }
 
     public void getUnits(int choice) {
-        loading = true;
         if (choice == 2) {
             try {
                 waitProgress.show(getSupportFragmentManager(), "WaitBar");
@@ -851,7 +825,6 @@ public class AllAppointment extends AppCompatActivity {
                     unit_sch_count = 0;
                     unit_blank_count = 0;
 
-                    loading = false;
                 }
                 else {
                     fromCalendar = false;
@@ -887,14 +860,10 @@ public class AllAppointment extends AppCompatActivity {
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
-                    loading = false;
                     getUnits(2);
                     dialog.dismiss();
                 })
-                .setNegativeButton("Cancel",(dialog, which) -> {
-                    loading = false;
-                    dialog.dismiss();
-                });
+                .setNegativeButton("Cancel",(dialog, which) -> dialog.dismiss());
 
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
@@ -908,7 +877,6 @@ public class AllAppointment extends AppCompatActivity {
     }
 
     public void getDeptdCount() {
-        loading = true;
         try {
             waitProgress.show(getSupportFragmentManager(), "WaitBar");
             waitProgress.setCancelable(false);
@@ -1021,14 +989,10 @@ public class AllAppointment extends AppCompatActivity {
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
-                    loading = false;
                     getDeptdCount();
                     dialog.dismiss();
                 })
-                .setNegativeButton("Cancel",(dialog, which) -> {
-                    loading = false;
-                    dialog.dismiss();
-                });
+                .setNegativeButton("Cancel",(dialog, which) -> dialog.dismiss());
 
         AlertDialog alert = alertDialogBuilder.create();
         alert.setCancelable(false);
@@ -1042,7 +1006,6 @@ public class AllAppointment extends AppCompatActivity {
     }
 
     public void getDoctors(String id, int choice) {
-        loading = true;
         if (choice == 2) {
             try {
                 waitProgress.show(getSupportFragmentManager(), "WaitBar");
@@ -1255,11 +1218,11 @@ public class AllAppointment extends AppCompatActivity {
             return false;
         }
         try {
-            double d = Double.parseDouble(strNum);
+            Double.parseDouble(strNum);
+            return true;
         } catch (NumberFormatException nfe) {
             return false;
         }
-        return true;
     }
 
     private void updateFrontView() {
@@ -1316,7 +1279,6 @@ public class AllAppointment extends AppCompatActivity {
                 doctorsListAdapter = new DoctorsListAdapter(unitDoctorsLists,AllAppointment.this);
                 docListView.setAdapter(doctorsListAdapter);
 
-                loading = false;
             }
             else {
                 alertMessage2();
@@ -1347,12 +1309,10 @@ public class AllAppointment extends AppCompatActivity {
         alertDialogBuilder.setTitle("Error!")
                 .setMessage("Error Message: "+parsing_message+".\n"+"Please try again.")
                 .setPositiveButton("Retry", (dialog, which) -> {
-                    loading = false;
                     getDoctors(selected_depts_id,2);
                     dialog.dismiss();
                 })
                 .setNegativeButton("Exit",(dialog, which) -> {
-                    loading = false;
                     dialog.dismiss();
                     finish();
                 });

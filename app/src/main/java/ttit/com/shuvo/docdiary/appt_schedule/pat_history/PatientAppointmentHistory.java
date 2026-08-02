@@ -18,10 +18,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
-import androidx.core.graphics.Insets;
 import androidx.core.util.Pair;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -57,6 +54,7 @@ import ttit.com.shuvo.docdiary.appt_schedule.health_rank.arraylists.ChoiceServic
 import ttit.com.shuvo.docdiary.appt_schedule.health_rank.arraylists.ChoiceUnitList;
 import ttit.com.shuvo.docdiary.appt_schedule.pat_history.adapters.AppointHistoryAdapter;
 import ttit.com.shuvo.docdiary.appt_schedule.pat_history.arraylists.PatAppHistList;
+import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
 public class PatientAppointmentHistory extends AppCompatActivity {
 
@@ -112,12 +110,13 @@ public class PatientAppointmentHistory extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_patient_appointment_history);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.pat_app_history_root), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+        EdgeToEdgeHelper.applyInsets(
+                this,
+                findViewById(R.id.pat_app_history_root),
+                false,
+                false);
 
         fullLayout = findViewById(R.id.pat_app_history_full_layout);
         circularProgressIndicator = findViewById(R.id.progress_indicator_pat_appoint_history);
