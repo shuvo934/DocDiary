@@ -125,7 +125,7 @@ public class PaymentInvoice extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.payment_invoice_item_report_view);
 
-        recyclerView.setHasFixedSize(true);
+//        recyclerView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(layoutManager);
 

@@ -25,7 +25,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.MediaStore;
+import android.os.Looper;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
@@ -120,6 +120,7 @@ import ttit.com.shuvo.docdiary.hr_accounts.HRAccounts;
 import ttit.com.shuvo.docdiary.login.interfaces.AdminCallBackListener;
 import ttit.com.shuvo.docdiary.login.interfaces.AdminIDCallbackListener;
 import ttit.com.shuvo.docdiary.patient_search.PatientSearchAdmin;
+import ttit.com.shuvo.docdiary.patient_search.PatientSearchDyPrescription;
 import ttit.com.shuvo.docdiary.payment.AddPayment;
 import ttit.com.shuvo.docdiary.all_appointment.AllAppointment;
 import ttit.com.shuvo.docdiary.appt_schedule.AppointmentSchedule;
@@ -195,7 +196,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     TextView nextMeetingText;
     ImageView timerIcon;
     TextView patientName;
-    private final Handler mHandler = new Handler();
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     int total_meeting = 0;
     int completed_meeting = 0;
@@ -1153,8 +1154,21 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 startActivity(intent);
             }
             else if (item.getItemId() == R.id.patient_search_menu) {
-                Intent intent = new Intent(DocDashboard.this, PatientSearch.class);
-                startActivity(intent);
+                if (userInfoLists == null || userInfoLists.isEmpty()) {
+                    restart("Could not get User Data. Please Restart the App.");
+                }
+                else {
+                    Intent intent;
+                    if(userInfoLists.get(0).getPresc_active().equals("1") && userInfoLists.get(0).getCan_prescribe().equals("1")) {
+                        intent = new Intent(DocDashboard.this, PatientSearchDyPrescription.class);
+                    }
+                    else {
+                        intent = new Intent(DocDashboard.this, PatientSearch.class);
+                    }
+                    startActivity(intent);
+                }
+
+
             }
             else if (item.getItemId() == R.id.admin_payment_menu) {
                 Intent intent = new Intent(DocDashboard.this, AddPayment.class);
@@ -1696,27 +1710,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         cameraResumeLoad = false;
-        if (requestCode == 1114) {
-            if (resultCode == AppCompatActivity.RESULT_OK) {
-                if (data != null) {
-                    Uri resultUri = data.getData();
-                    try {
-                        selectedBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri);
-                        System.out.println("UPLOADED PIC");
-
-                        updateAdminPic();
-
-                    } catch (IOException e) {
-                        logger.log(Level.WARNING,e.getMessage(),e);
-                        Toast.makeText(getApplicationContext(),"Failed to upload image",Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-            else {
-                Toast.makeText(getApplicationContext(),"Failed to get image",Toast.LENGTH_SHORT).show();
-            }
-        }
-        else if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
+         if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
             if (data != null) {
                 Uri croppedUri = UCrop.getOutput(data);
                 selectedBitmap = getCorrectlyOrientedBitmap(croppedUri);
@@ -1958,10 +1952,17 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                     .equals("null") ? "0" :docInfo.getString("all_presc");
                             String is_need_avail = docInfo.getString("is_need_avail")
                                     .equals("null") ? "0" : docInfo.getString("is_need_avail");
+                            String presc_active = docInfo.getString("presc_active")
+                                    .equals("null") ? "0" : docInfo.getString("presc_active");
+                            String can_prescribe = docInfo.getString("can_prescribe")
+                                    .equals("null") ? "0" : docInfo.getString("can_prescribe");
+                            String med_active = docInfo.getString("med_active")
+                                    .equals("null") ? "0" : docInfo.getString("med_active");
 
                             userInfoLists.add(new UserInfoList(doc_name,nn_doc_id,doc_code,depts_name,deptd_name,deptm_name,
                                     desig_name,doc_eff_date,doc_status,depts_id,desig_id,doc_video_link,doc_video_link_enable_flag,
-                                    doc_center_name,deptd_id,pat_app_history,upcoming_pat_history,pat_pres_view,all_presc,doc_head_flag, is_need_avail));
+                                    doc_center_name,deptd_id,pat_app_history,upcoming_pat_history,pat_pres_view,all_presc,doc_head_flag, is_need_avail,
+                                    presc_active, can_prescribe, med_active));
                             doc_fl_flag = docInfo.getString("fl_flag")
                                     .equals("null") ? "0" :docInfo.getString("fl_flag");
                             doc_mob_app_access_flag = docInfo.getString("access_flag")
@@ -3676,10 +3677,13 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                         admin_first_login_flag = adminInfo.getString("usr_app_first_login_flag")
                                 .equals("null") ? "0" :adminInfo.getString("usr_app_first_login_flag");
 
+                        String presc_active = adminInfo.getString("presc_active")
+                                .equals("null") ? "0" : adminInfo.getString("presc_active");
+
                         adminInfoLists.add(new AdminInfoList(admin_usr_id, usr_name,usr_fname,usr_lname,
                                 usr_email,usr_contact,all_access_flag, admin_center_name, hr_payment_active, hr_appointment_active,
                                 acc_payment_active,acc_appointment_active,hr_dashboard,acc_dashboard,hr_acc_active_flag, is_pay_mode_active,
-                                is_pay_appoint_type_active, analytics_dashboard));
+                                is_pay_appoint_type_active, analytics_dashboard, presc_active));
 
                         if (Integer.parseInt(all_access_flag) == 1) {
                             admin_usr_name = "";

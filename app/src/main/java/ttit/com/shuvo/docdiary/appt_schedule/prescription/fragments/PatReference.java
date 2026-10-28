@@ -116,7 +116,7 @@ public class PatReference extends Fragment implements FragmentAdapterCallBack {
 
         patReferenceLists = new ArrayList<>();
 
-        refView.setHasFixedSize(true);
+//        refView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(mContext);
         refView.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(refView.getContext(),DividerItemDecoration.VERTICAL);

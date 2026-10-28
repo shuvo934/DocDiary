@@ -147,7 +147,7 @@ public class PatientAppointmentHistory extends AppCompatActivity {
 
         patAppHistLists = new ArrayList<>();
         filteredList = new ArrayList<>();
-        patAppointHistView.setHasFixedSize(true);
+//        patAppointHistView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getApplicationContext());
         patAppointHistView.setLayoutManager(layoutManager);
 

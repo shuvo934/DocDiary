@@ -89,9 +89,13 @@ public class SavedAppointmentDateTimeAdapter extends RecyclerView.Adapter<SavedA
             image = itemView.findViewById(R.id.delete_imageview_of_pat_appoint_time);
 
             delete.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 AppCompatActivity activity = (AppCompatActivity) v.getContext();
-                if (mCategory.get(getAdapterPosition()).isInserted()) {
-                    if (mCategory.get(getAdapterPosition()).isSchDuplicate()) {
+                if (mCategory.get(position).isInserted()) {
+                    if (mCategory.get(position).isSchDuplicate()) {
                         int num = 0;
                         for (int i = 0; i < mCategory.size(); i++) {
                             if (mCategory.get(i).isInserted()) {
@@ -102,25 +106,25 @@ public class SavedAppointmentDateTimeAdapter extends RecyclerView.Adapter<SavedA
                         }
                         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext);
                         if (num > 1) {
-                            builder.setTitle(mCategory.get(getAdapterPosition()).getAdm_date() +", "+ mCategory.get(getAdapterPosition()).getSchedule())
+                            builder.setTitle(mCategory.get(position).getAdm_date() +", "+ mCategory.get(position).getSchedule())
                                     .setMessage("Do you want to remove this schedule?")
                                     .setPositiveButton("Yes", (dialog, which) -> {
                                         int adm_count = 0;
                                         for (int i = 0; i < mCategory.size(); i++) {
-                                            if (mCategory.get(i).getAdm_id().equals(mCategory.get(getAdapterPosition()).getAdm_id())) {
+                                            if (mCategory.get(i).getAdm_id().equals(mCategory.get(position).getAdm_id())) {
                                                 adm_count++;
                                             }
                                         }
                                         if (adm_count <= 1) {
                                             int service_qty = Integer.parseInt(selected_service_qty);
-                                            boolean tsa = mCategory.get(getAdapterPosition()).isTakenScheduleAvailable();
+                                            boolean tsa = mCategory.get(position).isTakenScheduleAvailable();
                                             if (!tsa) {
                                                 service_qty = service_qty + 1;
                                                 selected_service_qty = String.valueOf(service_qty);
                                                 serviceQty.setText(selected_service_qty);
                                             }
                                         }
-                                        mCategory.remove(getAdapterPosition());
+                                        mCategory.remove(position);
                                         Toast.makeText(mContext,"Schedule Removed Successfully",Toast.LENGTH_SHORT).show();
                                         notifyDataSetChanged();
                                         dialog.dismiss();
@@ -130,10 +134,10 @@ public class SavedAppointmentDateTimeAdapter extends RecyclerView.Adapter<SavedA
                             alertDialog.show();
                         }
                         else {
-                            builder.setTitle(mCategory.get(getAdapterPosition()).getAdm_date() + ", " + mCategory.get(getAdapterPosition()).getSchedule())
+                            builder.setTitle(mCategory.get(position).getAdm_date() + ", " + mCategory.get(position).getSchedule())
                                     .setMessage("Do you want to remove this schedule? By removing this Schedule you will complete this add appointment process.")
                                     .setPositiveButton("Yes", (dialog, which) -> {
-                                        mCategory.remove(getAdapterPosition());
+                                        mCategory.remove(position);
                                         Toast.makeText(mContext, "Schedule Removed Successfully", Toast.LENGTH_SHORT).show();
                                         notifyDataSetChanged();
                                         dialog.dismiss();
@@ -147,26 +151,26 @@ public class SavedAppointmentDateTimeAdapter extends RecyclerView.Adapter<SavedA
                 }
                 else {
                     MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext);
-                    builder.setTitle(mCategory.get(getAdapterPosition()).getAdm_date() +", "+ mCategory.get(getAdapterPosition()).getSchedule())
+                    builder.setTitle(mCategory.get(position).getAdm_date() +", "+ mCategory.get(position).getSchedule())
                             .setMessage("Do you want to remove this schedule?")
                             .setPositiveButton("Yes", (dialog, which) -> {
                                 int adm_count = 0;
                                 for (int i = 0; i < mCategory.size(); i++) {
-                                    if (mCategory.get(i).getAdm_id().equals(mCategory.get(getAdapterPosition()).getAdm_id())) {
+                                    if (mCategory.get(i).getAdm_id().equals(mCategory.get(position).getAdm_id())) {
                                         adm_count++;
                                     }
                                 }
 
                                 if (adm_count <= 1) {
                                     int service_qty = Integer.parseInt(selected_service_qty);
-                                    boolean tsa = mCategory.get(getAdapterPosition()).isTakenScheduleAvailable();
+                                    boolean tsa = mCategory.get(position).isTakenScheduleAvailable();
                                     if (!tsa) {
                                         service_qty = service_qty + 1;
                                         selected_service_qty = String.valueOf(service_qty);
                                         serviceQty.setText(selected_service_qty);
                                     }
                                 }
-                                mCategory.remove(getAdapterPosition());
+                                mCategory.remove(position);
                                 Toast.makeText(mContext,"Schedule Removed Successfully",Toast.LENGTH_SHORT).show();
                                 notifyDataSetChanged();
                                 dialog.dismiss();
@@ -179,25 +183,29 @@ public class SavedAppointmentDateTimeAdapter extends RecyclerView.Adapter<SavedA
             });
 
             itemView.setOnClickListener(v -> {
-                if (mCategory.get(getAdapterPosition()).isInserted()) {
-                    if (mCategory.get(getAdapterPosition()).isSchDuplicate()) {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
+                if (mCategory.get(position).isInserted()) {
+                    if (mCategory.get(position).isSchDuplicate()) {
                         AppCompatActivity activity = (AppCompatActivity) v.getContext();
                         Intent intent = new Intent(mContext, AddSchedule.class);
-                        intent.putExtra("P_DOC_ID",mCategory.get(getAdapterPosition()).getDoc_id());
-                        intent.putExtra("P_PFN_ID",mCategory.get(getAdapterPosition()).getPfn_id());
-                        intent.putExtra("P_DEPTS_ID",mCategory.get(getAdapterPosition()).getDepts_id());
-                        intent.putExtra("P_PH_ID",mCategory.get(getAdapterPosition()).getPh_id());
-                        intent.putExtra("P_PRM_ID",mCategory.get(getAdapterPosition()).getPrm_id());
-                        intent.putExtra("P_PRD_ID",mCategory.get(getAdapterPosition()).getPrd_id());
+                        intent.putExtra("P_DOC_ID",mCategory.get(position).getDoc_id());
+                        intent.putExtra("P_PFN_ID",mCategory.get(position).getPfn_id());
+                        intent.putExtra("P_DEPTS_ID",mCategory.get(position).getDepts_id());
+                        intent.putExtra("P_PH_ID",mCategory.get(position).getPh_id());
+                        intent.putExtra("P_PRM_ID",mCategory.get(position).getPrm_id());
+                        intent.putExtra("P_PRD_ID",mCategory.get(position).getPrd_id());
                         intent.putExtra("P_UPDATE",true);
 
-                        intent.putExtra("P_DATE",mCategory.get(getAdapterPosition()).getAdm_date());
-                        intent.putExtra("P_ADM_ID", mCategory.get(getAdapterPosition()).getAdm_id());
-                        intent.putExtra("P_SCHEDULE",mCategory.get(getAdapterPosition()).getSchedule());
-                        intent.putExtra("P_TS_ID",mCategory.get(getAdapterPosition()).getTs_id());
-                        intent.putExtra("P_POSITION",getAdapterPosition());
-                        intent.putExtra("SCH_INSERTED", mCategory.get(getAdapterPosition()).isInserted());
-                        intent.putExtra("SCH_DUPLICATE",mCategory.get(getAdapterPosition()).isSchDuplicate());
+                        intent.putExtra("P_DATE",mCategory.get(position).getAdm_date());
+                        intent.putExtra("P_ADM_ID", mCategory.get(position).getAdm_id());
+                        intent.putExtra("P_SCHEDULE",mCategory.get(position).getSchedule());
+                        intent.putExtra("P_TS_ID",mCategory.get(position).getTs_id());
+                        intent.putExtra("P_POSITION",position);
+                        intent.putExtra("SCH_INSERTED", mCategory.get(position).isInserted());
+                        intent.putExtra("SCH_DUPLICATE",mCategory.get(position).isSchDuplicate());
 
                         activity.startActivity(intent);
                     }
@@ -205,21 +213,21 @@ public class SavedAppointmentDateTimeAdapter extends RecyclerView.Adapter<SavedA
                 else {
                     AppCompatActivity activity = (AppCompatActivity) v.getContext();
                     Intent intent = new Intent(mContext, AddSchedule.class);
-                    intent.putExtra("P_DOC_ID",mCategory.get(getAdapterPosition()).getDoc_id());
-                    intent.putExtra("P_PFN_ID",mCategory.get(getAdapterPosition()).getPfn_id());
-                    intent.putExtra("P_DEPTS_ID",mCategory.get(getAdapterPosition()).getDepts_id());
-                    intent.putExtra("P_PH_ID",mCategory.get(getAdapterPosition()).getPh_id());
-                    intent.putExtra("P_PRM_ID",mCategory.get(getAdapterPosition()).getPrm_id());
-                    intent.putExtra("P_PRD_ID",mCategory.get(getAdapterPosition()).getPrd_id());
+                    intent.putExtra("P_DOC_ID",mCategory.get(position).getDoc_id());
+                    intent.putExtra("P_PFN_ID",mCategory.get(position).getPfn_id());
+                    intent.putExtra("P_DEPTS_ID",mCategory.get(position).getDepts_id());
+                    intent.putExtra("P_PH_ID",mCategory.get(position).getPh_id());
+                    intent.putExtra("P_PRM_ID",mCategory.get(position).getPrm_id());
+                    intent.putExtra("P_PRD_ID",mCategory.get(position).getPrd_id());
                     intent.putExtra("P_UPDATE",true);
 
-                    intent.putExtra("P_DATE",mCategory.get(getAdapterPosition()).getAdm_date());
-                    intent.putExtra("P_ADM_ID", mCategory.get(getAdapterPosition()).getAdm_id());
-                    intent.putExtra("P_SCHEDULE",mCategory.get(getAdapterPosition()).getSchedule());
-                    intent.putExtra("P_TS_ID",mCategory.get(getAdapterPosition()).getTs_id());
-                    intent.putExtra("P_POSITION",getAdapterPosition());
-                    intent.putExtra("SCH_INSERTED", mCategory.get(getAdapterPosition()).isInserted());
-                    intent.putExtra("SCH_DUPLICATE",mCategory.get(getAdapterPosition()).isSchDuplicate());
+                    intent.putExtra("P_DATE",mCategory.get(position).getAdm_date());
+                    intent.putExtra("P_ADM_ID", mCategory.get(position).getAdm_id());
+                    intent.putExtra("P_SCHEDULE",mCategory.get(position).getSchedule());
+                    intent.putExtra("P_TS_ID",mCategory.get(position).getTs_id());
+                    intent.putExtra("P_POSITION",position);
+                    intent.putExtra("SCH_INSERTED", mCategory.get(position).isInserted());
+                    intent.putExtra("SCH_DUPLICATE",mCategory.get(position).isSchDuplicate());
 
                     activity.startActivity(intent);
                 }

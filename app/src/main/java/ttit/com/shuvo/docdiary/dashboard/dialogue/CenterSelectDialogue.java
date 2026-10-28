@@ -5,6 +5,7 @@ import static android.content.Context.MODE_PRIVATE;
 import android.app.Dialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import androidx.core.os.BundleCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -94,7 +95,8 @@ public class CenterSelectDialogue extends AppCompatDialogFragment implements Cen
         View view = inflater.inflate(R.layout.center_selectable_view, null);
 
         if (getArguments() != null) {
-            centerLists = (ArrayList<CenterList>) getArguments().getSerializable("centerLists");
+//            centerLists = (ArrayList<CenterList>) getArguments().getSerializable("centerLists");
+            centerLists = (ArrayList<CenterList>) BundleCompat.getSerializable(getArguments(), "centerLists", ArrayList.class);
             center_api = getArguments().getString("center_api","");
             selected_doc_code = getArguments().getString("selected_doc_code", "");
             selected_admin_id = getArguments().getString("selected_admin_id", "");
@@ -116,7 +118,7 @@ public class CenterSelectDialogue extends AppCompatDialogFragment implements Cen
         dialog.setCanceledOnTouchOutside(false);
         setCancelable(false);
 
-        centerView.setHasFixedSize(true);
+//        centerView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getContext());
         centerView.setLayoutManager(layoutManager);
 
@@ -185,16 +187,16 @@ public class CenterSelectDialogue extends AppCompatDialogFragment implements Cen
             String cn = centerLists.get(CategoryPosition).getCenter_name();
             String api = centerLists.get(CategoryPosition).getCenter_api();
 
+            UserSelectDialogue userSelectDialogue;
             if (center_api.equals(api)) {
 //            UserSelectDialogue userSelectDialogue = new UserSelectDialogue(centerLists,multipleUserLists, mContext,cn,api);
-                UserSelectDialogue userSelectDialogue = UserSelectDialogue.newInstance(cn, api, centerLists, multipleUserLists, selected_doc_code, selected_admin_id, admin_or_user);
+                userSelectDialogue = UserSelectDialogue.newInstance(cn, api, centerLists, multipleUserLists, selected_doc_code, selected_admin_id, admin_or_user);
 //            userSelectDialogue.show(requireActivity().getSupportFragmentManager(),"USER_CENTER");
-                showDialogSafely(userSelectDialogue);
             }
             else {
-                UserSelectDialogue userSelectDialogue = UserSelectDialogue.newInstance(cn, api, centerLists, multipleUserLists, "","","");
-                showDialogSafely(userSelectDialogue);
+                userSelectDialogue = UserSelectDialogue.newInstance(cn, api, centerLists, multipleUserLists, "", "", "");
             }
+            showDialogSafely(userSelectDialogue);
             dialog.dismiss();
         }
     }

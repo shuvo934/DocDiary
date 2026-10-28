@@ -110,7 +110,7 @@ public class PatAdvicePSV extends Fragment {
 
         patAdviceLists = new ArrayList<>();
 
-        adviceView.setHasFixedSize(true);
+//        adviceView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(mContext);
         adviceView.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(adviceView.getContext(),DividerItemDecoration.VERTICAL);

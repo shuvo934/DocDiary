@@ -126,7 +126,11 @@ public class MultipleUserAdapter extends RecyclerView.Adapter<MultipleUserAdapte
 
         @Override
         public void onClick(View v) {
-            mClickedItem.onCategoryClicked(getAdapterPosition());
+            int position = getBindingAdapterPosition();
+            if (position == RecyclerView.NO_POSITION) {
+                return;
+            }
+            mClickedItem.onCategoryClicked(position);
         }
     }
 

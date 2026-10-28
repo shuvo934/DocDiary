@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_clinical_entry_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="@dimen/_7sdp"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/prescription_outline"
+    app:strokeWidth="0dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/_42sdp"
+        android:paddingStart="@dimen/_10sdp"
+        android:paddingTop="@dimen/_6sdp"
+        android:paddingEnd="@dimen/_5sdp"
+        android:paddingBottom="@dimen/_6sdp">
+
+        <!-- Edit and delete actions -->
+
+        <LinearLayout
+            android:id="@+id/layout_clinical_entry_actions"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/_30sdp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv_edit_clinical_entry"
+                android:layout_width="@dimen/_30sdp"
+                android:layout_height="@dimen/_30sdp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Edit entry"
+                android:padding="@dimen/_6sdp"
+                app:srcCompat="@drawable/edit_24"
+                app:tint="@color/green_sea"
+                tools:ignore="HardcodedText" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv_delete_clinical_entry"
+                android:layout_width="@dimen/_30sdp"
+                android:layout_height="@dimen/_30sdp"
+                android:layout_marginStart="@dimen/_2sdp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Delete entry"
+                android:padding="@dimen/_6sdp"
+                app:srcCompat="@drawable/ic_delete_24"
+                app:tint="#D92D20"
+                tools:ignore="HardcodedText" />
+
+        </LinearLayout>
+
+        <!-- Added item name -->
+
+        <LinearLayout
+            android:id="@+id/layout_clinical_entry_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/_5sdp"
+            android:layout_toStartOf="@id/layout_clinical_entry_actions"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_clinical_entry_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/poppins_medium"
+                android:maxLines="2"
+                android:textColor="@color/prescription_text_primary"
+                android:textSize="@dimen/_9sdp"
+                tools:text="Pathology-1" />
+
+            <TextView
+                android:id="@+id/tv_clinical_entry_notes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:fontFamily="@font/poppins"
+                android:maxLines="3"
+                android:textColor="@color/prescription_text_secondary"
+                android:textSize="@dimen/_7sdp"
+                android:visibility="gone"
+                tools:text="Notes: Complete within 7 days"
+                tools:visibility="visible" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</com.google.android.material.card.MaterialCardView>

@@ -47,7 +47,7 @@ public class VouchTrans2Adapter extends RecyclerView.Adapter<VouchTrans2Adapter.
 
         ArrayList<VoucherLists3> voucherLists3s = voucherLists2.getVoucherLists3s();
 
-        holder.itemDetails.setHasFixedSize(true);
+//        holder.itemDetails.setHasFixedSize(true);
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(myContext);
         holder.itemDetails.setLayoutManager(layoutManager);
@@ -105,28 +105,32 @@ public class VouchTrans2Adapter extends RecyclerView.Adapter<VouchTrans2Adapter.
             bottomborder = itemView.findViewById(R.id.layout_bottom_border_v_trans);
 
             voucherNo.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 AppCompatActivity activity = (AppCompatActivity) v.getContext();
-                if (mCategoryItem.get(getAdapterPosition()).getType().equals("PRM")) {
-                    if (mCategoryItem.get(getAdapterPosition()).getPay_type_flag().equals("1")) {
+                if (mCategoryItem.get(position).getType().equals("PRM")) {
+                    if (mCategoryItem.get(position).getPay_type_flag().equals("1")) {
                         Intent intent = new Intent(myContext, PaymentInvoice.class);
-                        intent.putExtra("PRM_CODE",mCategoryItem.get(getAdapterPosition()).getOrderNo());
+                        intent.putExtra("PRM_CODE",mCategoryItem.get(position).getOrderNo());
                         activity.startActivity(intent);
                     }
                 }
-                else if (mCategoryItem.get(getAdapterPosition()).getType().equals("AV")) {
-                    VoucherDialog debitCreditVoucher = new VoucherDialog(myContext, mCategoryItem.get(getAdapterPosition()).getOrderNo());
+                else if (mCategoryItem.get(position).getType().equals("AV")) {
+                    VoucherDialog debitCreditVoucher = new VoucherDialog(myContext, mCategoryItem.get(position).getOrderNo());
                     debitCreditVoucher.show(activity.getSupportFragmentManager(),"VTDV");
 
                 }
-//                else if (mCategoryItem.get(getAdapterPosition()).getType().equals("DPRCV")) {
-//                    VM_NO = mCategoryItem.get(getAdapterPosition()).getOrderNo();
+//                else if (mCategoryItem.get(position).getType().equals("DPRCV")) {
+//                    VM_NO = mCategoryItem.get(position).getOrderNo();
 //
 //                    DirectPurchase directPurchase = new DirectPurchase(myContext);
 //                    directPurchase.show(activity.getSupportFragmentManager(),"DPR");
 //                }
-//                else if (mCategoryItem.get(getAdapterPosition()).getType().equals("SM")) {
+//                else if (mCategoryItem.get(position).getType().equals("SM")) {
 //                    for (int i = 0; i < deliveryChallanListsVT.size(); i++) {
-//                        if (mCategoryItem.get(getAdapterPosition()).getOrderNo().equals(deliveryChallanListsVT.get(i).getDelivery_no())) {
+//                        if (mCategoryItem.get(position).getOrderNo().equals(deliveryChallanListsVT.get(i).getDelivery_no())) {
 //
 //                            INV_NO = deliveryChallanListsVT.get(i).getDelivery_no();
 //                            INV_DATE = deliveryChallanListsVT.get(i).getDelivery_date();

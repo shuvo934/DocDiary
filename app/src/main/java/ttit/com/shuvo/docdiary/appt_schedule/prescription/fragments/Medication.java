@@ -115,7 +115,7 @@ public class Medication extends Fragment implements FragmentAdapterCallBack {
 
         patMedicationLists = new ArrayList<>();
 
-        medicationView.setHasFixedSize(true);
+//        medicationView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(mContext);
         medicationView.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(medicationView.getContext(),DividerItemDecoration.VERTICAL);

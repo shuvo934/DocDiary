@@ -100,16 +100,20 @@ public class AccountLedgerAdapter extends RecyclerView.Adapter<AccountLedgerAdap
             itemDivider = itemView.findViewById(R.id.layout_bottom_border_acc_ledger);
 
             voucherNo.setOnClickListener(view -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 AppCompatActivity activity = (AppCompatActivity) view.getContext();
-                if (mCategoryItem.get(getAdapterPosition()).getLg_trans_type().equals("PRM")) {
-                    if (mCategoryItem.get(getAdapterPosition()).getPrm_pay_type_flag().equals("1")) {
+                if (mCategoryItem.get(position).getLg_trans_type().equals("PRM")) {
+                    if (mCategoryItem.get(position).getPrm_pay_type_flag().equals("1")) {
                         Intent intent = new Intent(myContext, PaymentInvoice.class);
-                        intent.putExtra("PRM_CODE",mCategoryItem.get(getAdapterPosition()).getLg_inv_pur_no());
+                        intent.putExtra("PRM_CODE",mCategoryItem.get(position).getLg_inv_pur_no());
                         activity.startActivity(intent);
                     }
                 }
-                else if (mCategoryItem.get(getAdapterPosition()).getLg_trans_type().equals("AV")) {
-                    VoucherDialog debitCreditVoucher = new VoucherDialog(myContext, mCategoryItem.get(getAdapterPosition()).getLg_inv_pur_no());
+                else if (mCategoryItem.get(position).getLg_trans_type().equals("AV")) {
+                    VoucherDialog debitCreditVoucher = new VoucherDialog(myContext, mCategoryItem.get(position).getLg_inv_pur_no());
                     debitCreditVoucher.show(activity.getSupportFragmentManager(),"VTDV");
                 }
             });

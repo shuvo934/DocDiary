@@ -129,7 +129,7 @@ public class AccountLedgerPatient extends AppCompatActivity implements PatientFo
 
         itemView = findViewById(R.id.acc_ledger_pat_report_view);
 
-        itemView.setHasFixedSize(true);
+//        itemView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(this);
         itemView.setLayoutManager(layoutManager);
 

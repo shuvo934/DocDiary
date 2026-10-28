@@ -234,8 +234,12 @@ public class DoctorAppSchAdapter extends RecyclerView.Adapter<DoctorAppSchAdapte
             calling = itemView.findViewById(R.id.phone_call_from_all_appointment);
 
             calling.setOnClickListener(view -> {
-                String number = mCategoryItem.get(getAdapterPosition()).getPat_cell();
-                String name = mCategoryItem.get(getAdapterPosition()).getPat_name();
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
+                String number = mCategoryItem.get(position).getPat_cell();
+                String name = mCategoryItem.get(position).getPat_name();
                 if (!number.isEmpty()) {
                     AppCompatActivity activity = (AppCompatActivity) view.getContext();
                     AlertDialog dialog = new AlertDialog.Builder(activity)

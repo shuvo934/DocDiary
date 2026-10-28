@@ -86,12 +86,16 @@ public class PatDrugHistAdapter extends RecyclerView.Adapter<PatDrugHistAdapter.
             delete = itemView.findViewById(R.id.pat_medic_history_delete);
 
             itemView.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 AppCompatActivity activity = (AppCompatActivity) v.getContext();
-                String pdh_id = mCategory.get(getAdapterPosition()).getPdh_id();
-                String pmm_id = mCategory.get(getAdapterPosition()).getPdh_pmm_id();
-                String medicine_id = mCategory.get(getAdapterPosition()).getMedicine_id();
-                String medicine_name = mCategory.get(getAdapterPosition()).getMedicine_name();
-                String details = mCategory.get(getAdapterPosition()).getPdh_details();
+                String pdh_id = mCategory.get(position).getPdh_id();
+                String pmm_id = mCategory.get(position).getPdh_pmm_id();
+                String medicine_id = mCategory.get(position).getMedicine_id();
+                String medicine_name = mCategory.get(position).getMedicine_name();
+                String details = mCategory.get(position).getPdh_details();
 
                 Intent intent = new Intent(mContext, DrugHistoryModify.class);
                 intent.putExtra("P_PMM_ID", pmm_id);
@@ -105,13 +109,17 @@ public class PatDrugHistAdapter extends RecyclerView.Adapter<PatDrugHistAdapter.
             });
 
             delete.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext);
-                builder.setTitle(mCategory.get(getAdapterPosition()).getMedicine_name())
+                builder.setTitle(mCategory.get(position).getMedicine_name())
                         .setMessage("Do you want to delete this Drug History?")
                         .setPositiveButton("Yes", (dialogInterface, i) -> {
-                            String pdh_id = mCategory.get(getAdapterPosition()).getPdh_id();
+                            String pdh_id = mCategory.get(position).getPdh_id();
                             System.out.println(pdh_id);
-                            deleteDrugHistory(pdh_id,getAdapterPosition());
+                            deleteDrugHistory(pdh_id,position);
                         })
                         .setNegativeButton("No", (dialogInterface, i) -> dialogInterface.dismiss());
                 AlertDialog alertDialog = builder.create();

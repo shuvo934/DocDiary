@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
+import androidx.core.os.BundleCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -74,7 +75,8 @@ public class SelectUserIdDialogue extends AppCompatDialogFragment implements Mul
             adminIDCallbackListener = (AdminIDCallbackListener) getActivity();
 
         if (getArguments() != null) {
-            multipleUserLists = (ArrayList<MultipleUserList>) getArguments().getSerializable("multipleUserLists");
+//            multipleUserLists = (ArrayList<MultipleUserList>) getArguments().getSerializable("multipleUserLists");
+            multipleUserLists = (ArrayList<MultipleUserList>) BundleCompat.getSerializable(getArguments(),"multipleUserLists", ArrayList.class);
             c_name = getArguments().getString("c_name", "");
         }
 
@@ -95,7 +97,7 @@ public class SelectUserIdDialogue extends AppCompatDialogFragment implements Mul
         setCancelable(false);
 
         centerName.setText(c_name);
-        userIdView.setHasFixedSize(true);
+//        userIdView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getContext());
         userIdView.setLayoutManager(layoutManager);
 

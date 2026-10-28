@@ -86,11 +86,15 @@ public class PatDiagnosisAdapter extends RecyclerView.Adapter<PatDiagnosisAdapte
             itemView.setOnClickListener(this);
 
             edit.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 AppCompatActivity activity = (AppCompatActivity) v.getContext();
-                String dm_id = mCategory.get(getAdapterPosition()).getDm_id();
-                String pdi_id = mCategory.get(getAdapterPosition()).getPdi_id();
-                String pmm_id = mCategory.get(getAdapterPosition()).getPdi_pmm_id();
-                String dm_name = mCategory.get(getAdapterPosition()).getDm_name();
+                String dm_id = mCategory.get(position).getDm_id();
+                String pdi_id = mCategory.get(position).getPdi_id();
+                String pmm_id = mCategory.get(position).getPdi_pmm_id();
+                String dm_name = mCategory.get(position).getDm_name();
 
                 Intent intent = new Intent(mContext, DiagnosisModify.class);
                 intent.putExtra("P_DM_ID", dm_id);
@@ -98,7 +102,7 @@ public class PatDiagnosisAdapter extends RecyclerView.Adapter<PatDiagnosisAdapte
                 intent.putExtra("P_PDI_ID", pdi_id);
                 intent.putExtra("P_PMM_ID", pmm_id);
                 intent.putExtra("P_DM_NAME", dm_name);
-                intent.putExtra("POSITION",getAdapterPosition());
+                intent.putExtra("POSITION",position);
                 activity.startActivity(intent);
 
             });
@@ -106,8 +110,11 @@ public class PatDiagnosisAdapter extends RecyclerView.Adapter<PatDiagnosisAdapte
 
         @Override
         public void onClick(View v) {
-            mClickedItem.onCategoryClicked(getAdapterPosition());
-            //Log.i("Name", mCategoryItem.get(getAdapterPosition()).getName());
+            int position = getBindingAdapterPosition();
+            if (position == RecyclerView.NO_POSITION) {
+                return;
+            }
+            mClickedItem.onCategoryClicked(position);
         }
     }
 

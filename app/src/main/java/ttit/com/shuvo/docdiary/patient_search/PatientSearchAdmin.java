@@ -4,12 +4,15 @@ import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.adminInfoLists;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -50,11 +53,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ttit.com.shuvo.docdiary.R;
+import ttit.com.shuvo.docdiary.dynamic_prescription.preview.PrescriptionPreview;
 import ttit.com.shuvo.docdiary.patient_search.adapters.PatientSearchAdapter;
 import ttit.com.shuvo.docdiary.patient_search.arraylists.PatientSearchList;
+import ttit.com.shuvo.docdiary.patient_search.bottomsheet.PatientPrescriptionSearchBottomSheet;
+import ttit.com.shuvo.docdiary.patient_search.prescription.PatPrescriptionV;
 import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
-public class PatientSearchAdmin extends AppCompatActivity {
+public class PatientSearchAdmin extends AppCompatActivity implements PatientSearchAdapter.PatientSelection {
 
     RelativeLayout fullLayout;
     CircularProgressIndicator circularProgressIndicator;
@@ -88,6 +94,7 @@ public class PatientSearchAdmin extends AppCompatActivity {
     public static boolean needToUpdatePatList = true;
 
     String perm = "1";
+    boolean isPresActive = false;
 
     Logger logger = Logger.getLogger(PatientSearchAdmin.class.getName());
     
@@ -123,7 +130,7 @@ public class PatientSearchAdmin extends AppCompatActivity {
         clearButton = findViewById(R.id.clear_list_view_button_pat_search_admin);
         clearButton.setVisibility(View.GONE);
 
-        patientView.setHasFixedSize(true);
+//        patientView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getApplicationContext());
         patientView.setLayoutManager(layoutManager);
 
@@ -142,6 +149,7 @@ public class PatientSearchAdmin extends AppCompatActivity {
                 restart("Could Not Get Doctor Data. Please Restart the App.");
             }
             else {
+                isPresActive = adminInfoLists.get(0).getPresc_active().equals("1");
                 if (Integer.parseInt(adminInfoLists.get(0).getAll_access_flag()) == 1) {
                     perm = "2";
                 }
@@ -270,9 +278,11 @@ public class PatientSearchAdmin extends AppCompatActivity {
                 noPatientFound.setVisibility(View.GONE);
                 latestPatMsg.setVisibility(View.VISIBLE);
             }
-            patientSearchAdapter = new PatientSearchAdapter(hundredPatLists, PatientSearchAdmin.this);
+            patientSearchAdapter = new PatientSearchAdapter(hundredPatLists, PatientSearchAdmin.this, PatientSearchAdmin.this);
             patientView.setAdapter(patientSearchAdapter);
         });
+
+        getSupportFragmentManager().setFragmentResultListener(PatientPrescriptionSearchBottomSheet.RESULT_REQUEST_KEY, this, (requestKey, result) -> handlePrescriptionHistoryResult(result));
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -353,9 +363,13 @@ public class PatientSearchAdmin extends AppCompatActivity {
                             .equals("null") ? "" :docInfo.getString("pat_cell");
 //                    String pyear = docInfo.getString("pyear")
 //                            .equals("null") ? "" : docInfo.getString("pyear");
+                    String gender = docInfo.getString("gender")
+                            .equals("null") ? "" : docInfo.getString("gender");
+                    String pat_age = docInfo.getString("pat_age")
+                            .equals("null") ? "" : docInfo.getString("pat_age");
 
                     hundredPatLists.add(new PatientSearchList(pat_id,pat_name,dd_thana_name,ph_id,
-                            sub_code,pph_progress,"",pat_cell,perm));
+                            sub_code,pph_progress,"",pat_cell,perm,pat_age, gender));
                 }
 
                 connected = true;
@@ -405,7 +419,7 @@ public class PatientSearchAdmin extends AppCompatActivity {
                     noPatientFound.setVisibility(View.GONE);
                     latestPatMsg.setVisibility(View.VISIBLE);
                 }
-                patientSearchAdapter = new PatientSearchAdapter(hundredPatLists, PatientSearchAdmin.this);
+                patientSearchAdapter = new PatientSearchAdapter(hundredPatLists, PatientSearchAdmin.this, PatientSearchAdmin.this);
                 patientView.setAdapter(patientSearchAdapter);
                 loading = false;
 
@@ -491,9 +505,13 @@ public class PatientSearchAdmin extends AppCompatActivity {
                             .equals("null") ? "0" : docInfo.getString("pph_progress");
                     String pat_cell = docInfo.getString("pat_cell")
                             .equals("null") ? "" :docInfo.getString("pat_cell");
+                    String gender = docInfo.getString("gender")
+                            .equals("null") ? "" : docInfo.getString("gender");
+                    String pat_age = docInfo.getString("pat_age")
+                            .equals("null") ? "" : docInfo.getString("pat_age");
 
                     patientSearchLists.add(new PatientSearchList(pat_id,pat_name,dd_thana_name,ph_id,
-                            sub_code,pph_progress,"",pat_cell,perm));
+                            sub_code,pph_progress,"",pat_cell,perm,pat_age,gender));
                 }
 
                 connected = true;
@@ -539,7 +557,7 @@ public class PatientSearchAdmin extends AppCompatActivity {
                 else {
                     noPatientFound.setVisibility(View.GONE);
                 }
-                patientSearchAdapter = new PatientSearchAdapter(patientSearchLists, PatientSearchAdmin.this);
+                patientSearchAdapter = new PatientSearchAdapter(patientSearchLists, PatientSearchAdmin.this, PatientSearchAdmin.this);
                 patientView.setAdapter(patientSearchAdapter);
                 loading = false;
 
@@ -587,5 +605,63 @@ public class PatientSearchAdmin extends AppCompatActivity {
         catch (Exception e) {
             restart("App is paused for a long time. Please Start the app again.");
         }
+    }
+
+    @Override
+    public void onSelect(String pat_id, String ph_id) {
+        needToUpdatePatList = false;
+        if (isEmpty(pat_id) || isEmpty(ph_id)) {
+            showPrescriptionError("Select a patient before viewing prescription history.");
+            return;
+        }
+        if (isPresActive) {
+            if (getSupportFragmentManager().findFragmentByTag(PatientPrescriptionSearchBottomSheet.TAG) != null) {
+                return;
+            }
+
+            PatientPrescriptionSearchBottomSheet.newInstance(ph_id, pat_id, "").show(getSupportFragmentManager(), PatientPrescriptionSearchBottomSheet.TAG);
+        }
+        else {
+            Intent intent = new Intent(PatientSearchAdmin.this, PatPrescriptionV.class);
+            intent.putExtra("P_PH_ID",ph_id);
+            startActivity(intent);
+        }
+    }
+
+    private void handlePrescriptionHistoryResult(@NonNull Bundle result) {
+        boolean previewRequested = result.getBoolean(PatientPrescriptionSearchBottomSheet.KEY_PREVIEW_REQUESTED, false);
+        String selectedRvmId = cleanIntentValue(result.getString(PatientPrescriptionSearchBottomSheet.KEY_SELECTED_RVM_ID));
+
+        if (previewRequested) {
+            if (isEmpty(selectedRvmId)) {
+                showPrescriptionError("Prescription information not found.");
+                return;
+            }
+
+            Intent previewIntent = new Intent(PatientSearchAdmin.this, PrescriptionPreview.class);
+            previewIntent.putExtra(PrescriptionPreview.EXTRA_RVM_ID, selectedRvmId);
+            startActivity(previewIntent);
+        }
+    }
+
+    private boolean isEmpty(@Nullable String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
+    @NonNull
+    private String cleanIntentValue(@Nullable String value) {
+        if (value == null || value.trim().isEmpty() || "null".equalsIgnoreCase(value.trim())) {
+            return "";
+        }
+
+        return value.trim();
+    }
+
+    private void showPrescriptionError(@NonNull String message) {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Error!")
+                .setMessage(message)
+                .setPositiveButton("OK", null)
+                .show();
     }
 }

@@ -208,25 +208,25 @@ public class PatPrescriptionV extends AppCompatActivity implements PatDiagnosisP
         patReferralListsPatPSV = new ArrayList<>();
         patRefServiceListsPatPSV = new ArrayList<>();
 
-        complainView.setHasFixedSize(true);
+//        complainView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getApplicationContext());
         complainView.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(complainView.getContext(),DividerItemDecoration.VERTICAL);
         complainView.addItemDecoration(dividerItemDecoration);
 
-        diagnosisView.setHasFixedSize(true);
+//        diagnosisView.setHasFixedSize(true);
         daigLayoutManager = new LinearLayoutManager(getApplicationContext());
         diagnosisView.setLayoutManager(daigLayoutManager);
         DividerItemDecoration dividerItemDecorationDns = new DividerItemDecoration(diagnosisView.getContext(),DividerItemDecoration.VERTICAL);
         diagnosisView.addItemDecoration(dividerItemDecorationDns);
 
-        referralView.setHasFixedSize(true);
+//        referralView.setHasFixedSize(true);
         refLayoutManager = new LinearLayoutManager(getApplicationContext());
         referralView.setLayoutManager(refLayoutManager);
         DividerItemDecoration dividerItemDecorationRU = new DividerItemDecoration(referralView.getContext(),DividerItemDecoration.VERTICAL);
         referralView.addItemDecoration(dividerItemDecorationRU);
 
-        refServiceView.setHasFixedSize(true);
+//        refServiceView.setHasFixedSize(true);
         refServLayoutManager = new LinearLayoutManager(getApplicationContext());
         refServiceView.setLayoutManager(refServLayoutManager);
         DividerItemDecoration dividerItemDecorationRS = new DividerItemDecoration(refServiceView.getContext(),DividerItemDecoration.VERTICAL);

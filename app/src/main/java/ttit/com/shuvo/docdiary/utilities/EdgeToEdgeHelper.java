@@ -87,6 +87,72 @@ public class EdgeToEdgeHelper {
         ViewCompat.requestApplyInsets(rootView);
     }
 
+    public static void applyInsetsLogin(
+            @NonNull ComponentActivity activity,
+            @NonNull View rootView,
+            @NonNull View imeAwareView,
+            boolean darkStatusBarIcons,
+            boolean darkNavigationBarIcons
+    ) {
+
+        WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(
+                activity.getWindow(),
+                activity.getWindow().getDecorView());
+
+        controller.setAppearanceLightStatusBars(darkStatusBarIcons);
+        controller.setAppearanceLightNavigationBars(darkNavigationBarIcons);
+
+        final int initialLeft = rootView.getPaddingLeft();
+        final int initialTop = rootView.getPaddingTop();
+        final int initialRight = rootView.getPaddingRight();
+        final int initialBottom = rootView.getPaddingBottom();
+
+        final int imeLeft = imeAwareView.getPaddingLeft();
+        final int imeTop = imeAwareView.getPaddingTop();
+        final int imeRight = imeAwareView.getPaddingRight();
+        final int imeBottom = imeAwareView.getPaddingBottom();
+
+        ViewCompat.setOnApplyWindowInsetsListener(
+                rootView,
+                (view, windowInsets) -> {
+
+                    int insetTypes =
+                            WindowInsetsCompat.Type.systemBars()
+                                    | WindowInsetsCompat.Type.displayCutout();
+
+                    Insets safeInsets =
+                            windowInsets.getInsets(insetTypes);
+
+                    Insets imeInsets = windowInsets.getInsets(
+                            WindowInsetsCompat.Type.ime()
+                    );
+
+                    view.setPadding(
+                            initialLeft + safeInsets.left,
+                            initialTop + safeInsets.top,
+                            initialRight + safeInsets.right,
+                            initialBottom
+                    );
+
+                    int requiredBottomInset = Math.max(
+                            safeInsets.bottom,
+                            imeInsets.bottom
+                    );
+
+                    imeAwareView.setPadding(
+                            imeLeft,
+                            imeTop,
+                            imeRight,
+                            imeBottom + requiredBottomInset
+                    );
+
+                    return windowInsets;
+                }
+        );
+
+        ViewCompat.requestApplyInsets(rootView);
+    }
+
     public static void applyWithBottomNavigation(
             @NonNull ComponentActivity activity,
             @NonNull View rootView,
@@ -141,7 +207,6 @@ public class EdgeToEdgeHelper {
                     Insets navigationInsets = insets.getInsets(
                             WindowInsetsCompat.Type.navigationBars()
                     );
-                    System.out.println(navigationInsets.bottom);
 
                     ViewGroup.LayoutParams layoutParams =
                             systemNavigationBackground.getLayoutParams();

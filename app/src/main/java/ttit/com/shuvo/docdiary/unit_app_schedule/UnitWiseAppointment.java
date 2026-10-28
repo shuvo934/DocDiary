@@ -7,6 +7,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 import androidx.cardview.widget.CardView;
+import androidx.core.text.HtmlCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,7 +17,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
 import android.os.Bundle;
-import android.text.Html;
 import android.text.Spanned;
 import android.view.View;
 import android.view.animation.Animation;
@@ -145,7 +145,7 @@ public class UnitWiseAppointment extends AppCompatActivity {
         unitCard = findViewById(R.id.unit_app_count_un_app);
         unitDocCount = findViewById(R.id.unit_docs_count_un_app);
 
-        docListView.setHasFixedSize(true);
+//        docListView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getApplicationContext());
         docListView.setLayoutManager(layoutManager);
 
@@ -378,8 +378,8 @@ public class UnitWiseAppointment extends AppCompatActivity {
 
         unitCard.setOnClickListener(view -> {
             String text = unitSelect.getText().toString();
-            Spanned spanned = Html.fromHtml("Total Appointment:   <font color='black'><b>"+unit_sch_count+"</b></font><br>"+
-                    "Total Blank Schedule:   <font color='black'><b>"+unit_blank_count+"</b></font><br>");
+            Spanned spanned = HtmlCompat.fromHtml("Total Appointment:   <font color='black'><b>"+unit_sch_count+"</b></font><br>"+
+                    "Total Blank Schedule:   <font color='black'><b>"+unit_blank_count+"</b></font><br>",HtmlCompat.FROM_HTML_MODE_LEGACY);
 
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(UnitWiseAppointment.this);
             builder.setTitle(text)

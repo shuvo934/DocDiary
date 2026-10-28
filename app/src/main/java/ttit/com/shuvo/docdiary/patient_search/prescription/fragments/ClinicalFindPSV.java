@@ -110,7 +110,7 @@ public class ClinicalFindPSV extends Fragment {
 
         patClinicalFindingsLists = new ArrayList<>();
 
-        clFindingsView.setHasFixedSize(true);
+//        clFindingsView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(mContext);
         clFindingsView.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(clFindingsView.getContext(),DividerItemDecoration.VERTICAL);

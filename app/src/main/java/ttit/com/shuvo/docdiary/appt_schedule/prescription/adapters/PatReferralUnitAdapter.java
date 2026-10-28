@@ -94,13 +94,17 @@ public class PatReferralUnitAdapter extends RecyclerView.Adapter<PatReferralUnit
             itemView.setOnClickListener(this);
 
             edit.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 AppCompatActivity activity = (AppCompatActivity) v.getContext();
-                String drd_id = mCategory.get(getAdapterPosition()).getDrd_id();
-                String deptsId = mCategory.get(getAdapterPosition()).getDepts_id();
-                String pdiId = mCategory.get(getAdapterPosition()).getDrd_pdi_id();
-                String depts_name = mCategory.get(getAdapterPosition()).getDepts_name();
-                String doc_id = mCategory.get(getAdapterPosition()).getDoc_id();
-                String doc_name = mCategory.get(getAdapterPosition()).getDoc_name();
+                String drd_id = mCategory.get(position).getDrd_id();
+                String deptsId = mCategory.get(position).getDepts_id();
+                String pdiId = mCategory.get(position).getDrd_pdi_id();
+                String depts_name = mCategory.get(position).getDepts_name();
+                String doc_id = mCategory.get(position).getDoc_id();
+                String doc_name = mCategory.get(position).getDoc_name();
 
                 Intent intent = new Intent(mContext, ReferralUnitModify.class);
                 intent.putExtra("P_DRD_ID", drd_id);
@@ -110,7 +114,7 @@ public class PatReferralUnitAdapter extends RecyclerView.Adapter<PatReferralUnit
                 intent.putExtra("P_DEPTS_NAME", depts_name);
                 intent.putExtra("P_DOC_NAME", doc_name);
                 intent.putExtra("P_DOC_ID", doc_id);
-                intent.putExtra("POSITION",getAdapterPosition());
+                intent.putExtra("POSITION",position);
                 activity.startActivity(intent);
 
             });
@@ -118,8 +122,11 @@ public class PatReferralUnitAdapter extends RecyclerView.Adapter<PatReferralUnit
         }
         @Override
         public void onClick(View v) {
-            mClickedItem2.onCategoryClicked2(getAdapterPosition());
-            //Log.i("Name", mCategoryItem.get(getAdapterPosition()).getName());
+            int position = getBindingAdapterPosition();
+            if (position == RecyclerView.NO_POSITION) {
+                return;
+            }
+            mClickedItem2.onCategoryClicked2(position);
         }
     }
     public interface ClickedItem2 {

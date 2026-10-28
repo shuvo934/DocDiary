@@ -173,7 +173,7 @@ public class ConfirmPaymentDialog extends AppCompatDialogFragment {
         alertDialog.setCanceledOnTouchOutside(false);
         setCancelable(false);
 
-        savedPayMethod.setHasFixedSize(true);
+//        savedPayMethod.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getContext());
         savedPayMethod.setLayoutManager(layoutManager);
         selectedPayMethodAdapter = new SelectedPayMethodAdapter(selectedPaymentMethodLists, mContext);

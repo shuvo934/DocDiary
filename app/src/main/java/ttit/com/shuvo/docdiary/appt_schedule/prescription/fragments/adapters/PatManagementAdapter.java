@@ -81,10 +81,14 @@ public class PatManagementAdapter extends RecyclerView.Adapter<PatManagementAdap
             delete = itemView.findViewById(R.id.pat_management_plan_delete);
 
             itemView.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 AppCompatActivity activity = (AppCompatActivity) v.getContext();
-                String pmap_id = mCategory.get(getAdapterPosition()).getPmap_id();
-                String pmm_id = mCategory.get(getAdapterPosition()).getPmap_pmm_id();
-                String pmapDetails = mCategory.get(getAdapterPosition()).getPmap_details();
+                String pmap_id = mCategory.get(position).getPmap_id();
+                String pmm_id = mCategory.get(position).getPmap_pmm_id();
+                String pmapDetails = mCategory.get(position).getPmap_details();
 
                 Intent intent = new Intent(mContext, ManagementModify.class);
                 intent.putExtra("P_PMM_ID", pmm_id);
@@ -95,12 +99,16 @@ public class PatManagementAdapter extends RecyclerView.Adapter<PatManagementAdap
             });
 
             delete.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext);
                 builder.setMessage("Do you want to delete this Management Plan?")
                         .setPositiveButton("Yes", (dialogInterface, i) -> {
-                            String pmap_id = mCategory.get(getAdapterPosition()).getPmap_id();
+                            String pmap_id = mCategory.get(position).getPmap_id();
                             System.out.println(pmap_id);
-                            deleteManagement(pmap_id,getAdapterPosition());
+                            deleteManagement(pmap_id,position);
                         })
                         .setNegativeButton("No", (dialogInterface, i) -> dialogInterface.dismiss());
                 AlertDialog alertDialog = builder.create();

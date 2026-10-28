@@ -65,7 +65,11 @@ public class SelectedPayMethodAdapter extends RecyclerView.Adapter<SelectedPayMe
             delete = itemView.findViewById(R.id.delete_payment_method);
 
             delete.setOnClickListener(v -> {
-                selectedPaymentMethodLists.remove(getAdapterPosition());
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
+                selectedPaymentMethodLists.remove(position);
                 for (int i = 0; i < selectedPaymentMethodLists.size(); i++) {
                     selectedPaymentMethodLists.get(i).setSl_no(String.valueOf(i+1));
                 }

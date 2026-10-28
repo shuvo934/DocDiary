@@ -145,7 +145,7 @@ public class IncomeExpenseStatement extends AppCompatActivity {
 
         incomeView = findViewById(R.id.income_statement_report_view);
 
-        incomeView.setHasFixedSize(true);
+//        incomeView.setHasFixedSize(true);
         incLayoutManager = new LinearLayoutManager(getApplicationContext());
         incomeView.setLayoutManager(incLayoutManager);
 
@@ -157,7 +157,7 @@ public class IncomeExpenseStatement extends AppCompatActivity {
 
         expenseView = findViewById(R.id.expense_statement_report_view);
 
-        expenseView.setHasFixedSize(true);
+//        expenseView.setHasFixedSize(true);
         expLayoutManager = new LinearLayoutManager(getApplicationContext());
         expenseView.setLayoutManager(expLayoutManager);
 

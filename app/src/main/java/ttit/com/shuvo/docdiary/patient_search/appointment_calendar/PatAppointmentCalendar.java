@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -189,7 +190,7 @@ public class PatAppointmentCalendar extends AppCompatActivity {
         today_date.setText(selected_date);
         today_date_name.setText(selected_date_day);
 
-        recyclerView.setHasFixedSize(true);
+//        recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
         PatientAppSchAdapter patientAppSchAdapter = new PatientAppSchAdapter(list,PatAppointmentCalendar.this,appointment_date);
         recyclerView.setAdapter(patientAppSchAdapter);
@@ -294,7 +295,7 @@ public class PatAppointmentCalendar extends AppCompatActivity {
 
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy",Locale.ENGLISH);
 
-                Handler handler = new Handler();
+                Handler handler = new Handler(Looper.getMainLooper());
                 handler.postDelayed(() -> {
 
                     if (!patAppointmentLists.isEmpty()) {

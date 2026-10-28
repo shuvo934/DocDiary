@@ -35,6 +35,8 @@ import ttit.com.shuvo.docdiary.appt_schedule.arraylists.ApptScheduleInfoList;
 import ttit.com.shuvo.docdiary.appt_schedule.health_rank.HealthProgress;
 import ttit.com.shuvo.docdiary.appt_schedule.pat_history.PatientAppointmentHistory;
 import ttit.com.shuvo.docdiary.appt_schedule.prescription.PrescriptionSetup;
+import ttit.com.shuvo.docdiary.dynamic_prescription.PrescriptionBuilder;
+import ttit.com.shuvo.docdiary.dynamic_prescription.preview.PrescriptionPreview;
 
 public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHolder> {
 
@@ -45,16 +47,21 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
     private final boolean patAppHisAvailable;
     private final boolean patUpcomingAppHist;
     private final boolean isNeedAvail;
+    private final boolean isPresActive;
+    private final boolean presAccess;
 
     private final ClickedAvail clickedAvail;
 
-    public TimeLineAdapter(ArrayList<ApptScheduleInfoList> mCategory, Context myContext, boolean patAppHisAvailable, boolean patUpcomingAppHist, boolean isNeedAvail, ClickedAvail clickedAvail) {
+    public TimeLineAdapter(ArrayList<ApptScheduleInfoList> mCategory, Context myContext, boolean patAppHisAvailable,
+                           boolean patUpcomingAppHist, boolean isNeedAvail, boolean isPresActive, boolean presAccess, ClickedAvail clickedAvail) {
         this.mCategory = mCategory != null ? mCategory : new ArrayList<>();
         this.myContext = myContext;
         this.patAppHisAvailable = patAppHisAvailable;
         this.patUpcomingAppHist = patUpcomingAppHist;
         this.isNeedAvail = isNeedAvail;
         this.clickedAvail = clickedAvail;
+        this.isPresActive = isPresActive;
+        this.presAccess = presAccess;
     }
 
     @NonNull
@@ -71,6 +78,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
         holder.timeOfAppt.setText(schedule.getTime());
         String status = schedule.getApptStatus();
         String pmm = schedule.getPmm_for_prescription();
+        String rvm = schedule.getRvm_for_prescription();
         String pt;
         if (pmm.equals("1")) {
             pt = "Prescription";
@@ -79,6 +87,16 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
             pt = "Create Prescription";
         }
         holder.prescription.setText(pt);
+
+        String dpt;
+        boolean presCreated = !rvm.equals("0");
+        if (presCreated) {
+            dpt = "Prescription";
+        }
+        else {
+            dpt = "Create Prescription";
+        }
+        holder.dyPrescription.setText(dpt);
 
         if (patAppHisAvailable) {
             holder.patAppHistory.setVisibility(View.VISIBLE);
@@ -136,6 +154,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
             holder.videoLinkNotice.setVisibility(View.GONE);
             holder.videoCallButton.setVisibility(View.GONE);
             holder.prescription.setVisibility(View.GONE);
+            holder.dyPrescription.setVisibility(View.GONE);
             holder.hpLayout.setVisibility(View.GONE);
             holder.hpMissing.setVisibility(View.GONE);
             holder.progressAddCheck.setVisibility(View.GONE);
@@ -185,7 +204,6 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
             holder.pat_code.setVisibility(View.VISIBLE);
             holder.pat_age.setVisibility(View.VISIBLE);
             holder.serviceName.setVisibility(View.VISIBLE);
-            holder.prescription.setVisibility(View.VISIBLE);
             holder.hpLayout.setVisibility(View.VISIBLE);
             holder.hpMissing.setVisibility(View.VISIBLE);
             holder.progressAddCheck.setVisibility(View.VISIBLE);
@@ -193,7 +211,8 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
 
             String p_code = "("+schedule.getPatient_code()+")";
             holder.pat_code.setText(p_code);
-            holder.pat_age.setText(schedule.getPatient_age());
+            String patGenderAge = schedule.getPatGender() + "  •  " + schedule.getPatient_age();
+            holder.pat_age.setText(patGenderAge);
             holder.serviceName.setText(schedule.getPfn_fee_name());
             String text = schedule.getPatientName();
             holder.pat_name.setText(text);
@@ -215,6 +234,21 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
                         String adm_date = schedule.getAdm_date();
 
                         if (nnn.equals(adm_date)) {
+                            if (isPresActive) {
+                                if (presAccess) {
+                                    holder.prescription.setVisibility(View.GONE);
+                                    holder.dyPrescription.setVisibility(View.VISIBLE);
+                                }
+                                else {
+                                    holder.prescription.setVisibility(View.VISIBLE);
+                                    holder.dyPrescription.setVisibility(View.GONE);
+                                }
+                            }
+                            else {
+                                holder.prescription.setVisibility(View.VISIBLE);
+                                holder.dyPrescription.setVisibility(View.GONE);
+                            }
+
                             if (pph_prog.equals("0")) {
                                 String apt = "ADD PROGRESS";
                                 holder.addProgress.setText(apt);
@@ -275,6 +309,26 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
                             }
                         }
                         else {
+                            if (isPresActive) {
+                                if (presAccess) {
+                                    holder.prescription.setVisibility(View.GONE);
+                                    if (presCreated) {
+                                        holder.dyPrescription.setVisibility(View.VISIBLE);
+                                    }
+                                    else {
+                                        holder.dyPrescription.setVisibility(View.GONE);
+                                    }
+                                }
+                                else {
+                                    holder.prescription.setVisibility(View.VISIBLE);
+                                    holder.dyPrescription.setVisibility(View.GONE);
+                                }
+                            }
+                            else {
+                                holder.prescription.setVisibility(View.VISIBLE);
+                                holder.dyPrescription.setVisibility(View.GONE);
+                            }
+
                             if (pph_prog.equals("0")) {
                                 String apt = "ADD PROGRESS";
                                 holder.addProgress.setText(apt);
@@ -287,24 +341,46 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
                             }
                             holder.patAppHistory.setVisibility(View.GONE);
 
-                            holder.avail.setVisibility(View.GONE);
-                            holder.availMessage.setVisibility(View.VISIBLE);
-                            String a_msg = "Not Availed";
-                            holder.availMessage.setText(a_msg);
-                            holder.availMessage.setTextColor(myContext.getColor(R.color.white));
+                            if (schedule.getAvail_flag().equals("1")) {
+                                holder.avail.setVisibility(View.GONE);
+                                holder.availMessage.setVisibility(View.VISIBLE);
+                                String a_msg = "Availed";
+                                holder.availMessage.setText(a_msg);
+                                holder.availMessage.setTextColor(myContext.getColor(R.color.white));
 
-                            holder.materialCardView.setCardBackgroundColor(myContext.getColor(R.color.light_rose));
+                                holder.materialCardView.setCardBackgroundColor(myContext.getColor(R.color.light_greenish_blue));
 
-                            holder.pat_name.setTextColor(myContext.getColor(R.color.white));
-                            holder.pat_code.setTextColor(myContext.getColor(R.color.white));
-                            holder.pat_age.setTextColor(myContext.getColor(R.color.white));
-                            holder.serviceName.setTextColor(myContext.getColor(R.color.white));
-                            holder.timeOfAppt.setTextColor(myContext.getColor(R.color.white));
-                            holder.hpText.setTextColor(myContext.getColor(R.color.white));
-                            holder.hpMissing.setTextColor(myContext.getColor(R.color.white));
+                                holder.pat_name.setTextColor(myContext.getColor(R.color.white));
+                                holder.pat_code.setTextColor(myContext.getColor(R.color.white));
+                                holder.pat_age.setTextColor(myContext.getColor(R.color.white));
+                                holder.serviceName.setTextColor(myContext.getColor(R.color.white));
+                                holder.timeOfAppt.setTextColor(myContext.getColor(R.color.white));
+                                holder.hpText.setTextColor(myContext.getColor(R.color.white));
+                                holder.hpMissing.setTextColor(myContext.getColor(R.color.white));
 
-                            holder.mTimelineView.setMarker(AppCompatResources.getDrawable(myContext,R.drawable.baseline_warning_24));
-                            holder.mTimelineView.setMarkerColor(myContext.getColor(R.color.light_rose));
+                                holder.mTimelineView.setMarker(AppCompatResources.getDrawable(myContext,R.drawable.check_circle_24));
+                                holder.mTimelineView.setMarkerColor(myContext.getColor(R.color.light_green));
+                            }
+                            else {
+                                holder.avail.setVisibility(View.GONE);
+                                holder.availMessage.setVisibility(View.VISIBLE);
+                                String a_msg = "Not Availed";
+                                holder.availMessage.setText(a_msg);
+                                holder.availMessage.setTextColor(myContext.getColor(R.color.white));
+
+                                holder.materialCardView.setCardBackgroundColor(myContext.getColor(R.color.light_rose));
+
+                                holder.pat_name.setTextColor(myContext.getColor(R.color.white));
+                                holder.pat_code.setTextColor(myContext.getColor(R.color.white));
+                                holder.pat_age.setTextColor(myContext.getColor(R.color.white));
+                                holder.serviceName.setTextColor(myContext.getColor(R.color.white));
+                                holder.timeOfAppt.setTextColor(myContext.getColor(R.color.white));
+                                holder.hpText.setTextColor(myContext.getColor(R.color.white));
+                                holder.hpMissing.setTextColor(myContext.getColor(R.color.white));
+
+                                holder.mTimelineView.setMarker(AppCompatResources.getDrawable(myContext,R.drawable.baseline_warning_24));
+                                holder.mTimelineView.setMarkerColor(myContext.getColor(R.color.light_rose));
+                            }
                         }
 
                         if (pph_prog.equals("0")) {
@@ -353,6 +429,32 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
                             if (patAppHisAvailable) {
                                 holder.patAppHistory.setVisibility(View.VISIBLE);
                             }
+                        }
+
+                        if (isPresActive) {
+                            if (presAccess) {
+                                if (nnn.equals(adm_date)) {
+                                    holder.prescription.setVisibility(View.GONE);
+                                    holder.dyPrescription.setVisibility(View.VISIBLE);
+                                }
+                                else {
+                                    holder.prescription.setVisibility(View.GONE);
+                                    if (presCreated) {
+                                        holder.dyPrescription.setVisibility(View.VISIBLE);
+                                    }
+                                    else {
+                                        holder.dyPrescription.setVisibility(View.GONE);
+                                    }
+                                }
+                            }
+                            else {
+                                holder.prescription.setVisibility(View.VISIBLE);
+                                holder.dyPrescription.setVisibility(View.GONE);
+                            }
+                        }
+                        else {
+                            holder.prescription.setVisibility(View.VISIBLE);
+                            holder.dyPrescription.setVisibility(View.GONE);
                         }
 
                         holder.avail.setVisibility(View.GONE);
@@ -424,6 +526,21 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
                         String adm_date = schedule.getAdm_date();
 
                         if (nnn.equals(adm_date)) {
+                            if (isPresActive) {
+                                if (presAccess) {
+                                    holder.prescription.setVisibility(View.GONE);
+                                    holder.dyPrescription.setVisibility(View.VISIBLE);
+                                }
+                                else {
+                                    holder.prescription.setVisibility(View.VISIBLE);
+                                    holder.dyPrescription.setVisibility(View.GONE);
+                                }
+                            }
+                            else {
+                                holder.prescription.setVisibility(View.VISIBLE);
+                                holder.dyPrescription.setVisibility(View.GONE);
+                            }
+
                             if (pph_prog.equals("0")) {
                                 String apt = "ADD PROGRESS";
                                 holder.addProgress.setText(apt);
@@ -443,6 +560,26 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
                             }
                         }
                         else {
+                            if (isPresActive) {
+                                if (presAccess) {
+                                    holder.prescription.setVisibility(View.GONE);
+                                    if (presCreated) {
+                                        holder.dyPrescription.setVisibility(View.VISIBLE);
+                                    }
+                                    else {
+                                        holder.dyPrescription.setVisibility(View.GONE);
+                                    }
+                                }
+                                else {
+                                    holder.prescription.setVisibility(View.VISIBLE);
+                                    holder.dyPrescription.setVisibility(View.GONE);
+                                }
+                            }
+                            else {
+                                holder.prescription.setVisibility(View.VISIBLE);
+                                holder.dyPrescription.setVisibility(View.GONE);
+                            }
+
                             if (pph_prog.equals("0")) {
                                 String apt = "ADD PROGRESS";
                                 holder.addProgress.setText(apt);
@@ -516,6 +653,31 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
                             }
                         }
 
+                        if (isPresActive) {
+                            if (presAccess) {
+                                if (nnn.equals(adm_date)) {
+                                    holder.prescription.setVisibility(View.GONE);
+                                    holder.dyPrescription.setVisibility(View.VISIBLE);
+                                }
+                                else {
+                                    holder.prescription.setVisibility(View.GONE);
+                                    if (presCreated) {
+                                        holder.dyPrescription.setVisibility(View.VISIBLE);
+                                    }
+                                    else {
+                                        holder.dyPrescription.setVisibility(View.GONE);
+                                    }
+                                }
+                            }
+                            else {
+                                holder.prescription.setVisibility(View.VISIBLE);
+                                holder.dyPrescription.setVisibility(View.GONE);
+                            }
+                        }
+                        else {
+                            holder.prescription.setVisibility(View.VISIBLE);
+                            holder.dyPrescription.setVisibility(View.GONE);
+                        }
 
                         if (pph_prog.equals("0")) {
                             holder.hpLayout.setVisibility(View.GONE);
@@ -581,6 +743,8 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
                 holder.patAppHistory.setVisibility(View.GONE);
                 holder.avail.setVisibility(View.GONE);
                 holder.availMessage.setVisibility(View.GONE);
+                holder.prescription.setVisibility(View.GONE);
+                holder.dyPrescription.setVisibility(View.GONE);
 
                 if (pph_prog.equals("0")) {
                     holder.hpLayout.setVisibility(View.GONE);
@@ -626,6 +790,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
             holder.pat_age.setVisibility(View.GONE);
             holder.serviceName.setVisibility(View.GONE);
             holder.prescription.setVisibility(View.GONE);
+            holder.dyPrescription.setVisibility(View.GONE);
             holder.hpLayout.setVisibility(View.GONE);
             holder.hpMissing.setVisibility(View.GONE);
             holder.progressAddCheck.setVisibility(View.GONE);
@@ -685,6 +850,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
         MaterialButton videoCallButton;
         RelativeLayout border;
         MaterialButton prescription;
+        MaterialButton dyPrescription;
         RelativeLayout hpLayout;
         TextView hpText;
         ProgressBar hpBar;
@@ -711,6 +877,7 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
             videoLinkNotice = itemView.findViewById(R.id.text_timeline_video_link_available_notice);
             videoCallButton = itemView.findViewById(R.id.appointment_wise_video_call_button);
             prescription = itemView.findViewById(R.id.patient_prescription);
+            dyPrescription = itemView.findViewById(R.id.patient_dynamic_prescription);
             hpLayout = itemView.findViewById(R.id.layout_of_pat_health_progress_in_timeline);
             hpText = itemView.findViewById(R.id.text_timeline_hp_text);
             hpBar = itemView.findViewById(R.id.pat_health_progress_bar_in_timeline);
@@ -725,10 +892,14 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
             avail.setOnClickListener(this);
 
             videoCallButton.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 AppCompatActivity activity = (AppCompatActivity) v.getContext();
 
 //                String text = "https://meet.google.com/kaj-mfbt-ohk";
-                String text = mCategory.get(getAdapterPosition()).getDoc_video_link();
+                String text = mCategory.get(position).getDoc_video_link();
                 if (text.isEmpty()) {
                     Toast.makeText(myContext,"Video call is not available yet",Toast.LENGTH_SHORT).show();
                 }
@@ -740,41 +911,87 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
             });
 
             prescription.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 AppCompatActivity activity = (AppCompatActivity) v.getContext();
                 Intent intent = new Intent(myContext, PrescriptionSetup.class);
-                intent.putExtra("P_AGE",mCategory.get(getAdapterPosition()).getPatient_age());
-                intent.putExtra("PRESCRIPTION_TYPE",mCategory.get(getAdapterPosition()).getPmm_for_prescription());
-                intent.putExtra("P_PH_ID",mCategory.get(getAdapterPosition()).getApptStatus());
+                intent.putExtra("P_AGE",mCategory.get(position).getPatient_age());
+                intent.putExtra("PRESCRIPTION_TYPE",mCategory.get(position).getPmm_for_prescription());
+                intent.putExtra("P_PH_ID",mCategory.get(position).getApptStatus());
                 activity.startActivity(intent);
             });
 
+            dyPrescription.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
+                SimpleDateFormat sss = new SimpleDateFormat("dd-MMM-yy", Locale.ENGLISH);
+                String nnn = sss.format(Calendar.getInstance().getTime()).toUpperCase();
+                AppCompatActivity activity = (AppCompatActivity) v.getContext();
+
+                if (nnn.equals(mCategory.get(position).getAdm_date())) {
+                    Intent intent = new Intent(myContext, PrescriptionBuilder.class);
+                    intent.putExtra("P_AGE",mCategory.get(position).getPatient_age());
+                    intent.putExtra("PAT_NAME",mCategory.get(position).getPatientName());
+                    intent.putExtra("PAT_GENDER", mCategory.get(position).getPatGender());
+                    intent.putExtra("PAT_CODE", mCategory.get(position).getPatient_code());
+                    intent.putExtra("P_PH_ID",mCategory.get(position).getApptStatus());
+                    intent.putExtra("ADM_DATE", mCategory.get(position).getAdm_date());
+                    intent.putExtra("P_PAT_ID", mCategory.get(position).getPatientId());
+                    intent.putExtra("P_AD_ID", mCategory.get(position).getAd_id());
+                    intent.putExtra("P_PAT_TYPE", "1");
+                    intent.putExtra("IS_CREATED", mCategory.get(position).getRvm_for_prescription());
+                    activity.startActivity(intent);
+                }
+                else {
+                    if (mCategory.get(position).getRvm_id().isEmpty() || mCategory.get(position).getRvm_id() == null) {
+                        return;
+                    }
+
+                    Intent previewIntent = new Intent(myContext, PrescriptionPreview.class);
+                    previewIntent.putExtra(PrescriptionPreview.EXTRA_RVM_ID, mCategory.get(position).getRvm_id().trim());
+                    activity.startActivity(previewIntent);
+                }
+            });
+
             addProgress.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 AppCompatActivity activity = (AppCompatActivity) v.getContext();
                 Intent intent = new Intent(myContext, HealthProgress.class);
-                intent.putExtra("P_NAME",mCategory.get(getAdapterPosition()).getPatientName());
-                intent.putExtra("P_CODE",mCategory.get(getAdapterPosition()).getPatient_code());
-                intent.putExtra("P_PH_ID",mCategory.get(getAdapterPosition()).getApptStatus());
-                intent.putExtra("IS_RANKED",mCategory.get(getAdapterPosition()).getIs_ranked());
-                intent.putExtra("ADM_DATE",mCategory.get(getAdapterPosition()).getAdm_date());
-                intent.putExtra("APPT_TIME",mCategory.get(getAdapterPosition()).getTime());
-                intent.putExtra("PFN_NAME",mCategory.get(getAdapterPosition()).getPfn_fee_name());
-                intent.putExtra("PFN_ID",mCategory.get(getAdapterPosition()).getPfn_id());
-                intent.putExtra("DEPTS_NAME",mCategory.get(getAdapterPosition()).getDepts_name());
-                intent.putExtra("DEPTS_ID",mCategory.get(getAdapterPosition()).getDepts_id());
-                intent.putExtra("CAT_ID",mCategory.get(getAdapterPosition()).getPh_cat_id());
-                intent.putExtra("PRM_ID",mCategory.get(getAdapterPosition()).getAd_prm_id());
-                intent.putExtra("PRD_ID",mCategory.get(getAdapterPosition()).getAd_prd_id());
-                intent.putExtra("AD_ID",mCategory.get(getAdapterPosition()).getAd_id());
+                intent.putExtra("P_NAME",mCategory.get(position).getPatientName());
+                intent.putExtra("P_CODE",mCategory.get(position).getPatient_code());
+                intent.putExtra("P_PH_ID",mCategory.get(position).getApptStatus());
+                intent.putExtra("IS_RANKED",mCategory.get(position).getIs_ranked());
+                intent.putExtra("ADM_DATE",mCategory.get(position).getAdm_date());
+                intent.putExtra("APPT_TIME",mCategory.get(position).getTime());
+                intent.putExtra("PFN_NAME",mCategory.get(position).getPfn_fee_name());
+                intent.putExtra("PFN_ID",mCategory.get(position).getPfn_id());
+                intent.putExtra("DEPTS_NAME",mCategory.get(position).getDepts_name());
+                intent.putExtra("DEPTS_ID",mCategory.get(position).getDepts_id());
+                intent.putExtra("CAT_ID",mCategory.get(position).getPh_cat_id());
+                intent.putExtra("PRM_ID",mCategory.get(position).getAd_prm_id());
+                intent.putExtra("PRD_ID",mCategory.get(position).getAd_prd_id());
+                intent.putExtra("AD_ID",mCategory.get(position).getAd_id());
                 intent.putExtra("FROM_PSV",false);
                 activity.startActivity(intent);
             });
 
             patAppHistory.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 AppCompatActivity activity = (AppCompatActivity) v.getContext();
                 Intent intent = new Intent(myContext, PatientAppointmentHistory.class);
-                intent.putExtra("P_NAME",mCategory.get(getAdapterPosition()).getPatientName());
-                intent.putExtra("P_CODE",mCategory.get(getAdapterPosition()).getPatient_code());
-                intent.putExtra("P_PH_ID",mCategory.get(getAdapterPosition()).getApptStatus());
+                intent.putExtra("P_NAME",mCategory.get(position).getPatientName());
+                intent.putExtra("P_CODE",mCategory.get(position).getPatient_code());
+                intent.putExtra("P_PH_ID",mCategory.get(position).getApptStatus());
                 activity.startActivity(intent);
             });
 
@@ -782,7 +999,11 @@ public class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.TLHold
 
         @Override
         public void onClick(View v) {
-            clickedAvail.onAvailClicked(mCategory.get(getAdapterPosition()).getAd_id());
+            int position = getBindingAdapterPosition();
+            if (position == RecyclerView.NO_POSITION) {
+                return;
+            }
+            clickedAvail.onAvailClicked(mCategory.get(position).getAd_id());
         }
     }
 

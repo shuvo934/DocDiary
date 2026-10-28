@@ -79,11 +79,15 @@ public class AddedServiceAdapter extends RecyclerView.Adapter<AddedServiceAdapte
             delete = itemView.findViewById(R.id.added_service_delete);
 
             delete.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext);
-                builder.setTitle(addedServiceLists.get(getAdapterPosition()).getPfn_name())
+                builder.setTitle(addedServiceLists.get(position).getPfn_name())
                         .setMessage("Do you want to delete this Service?")
                         .setPositiveButton("Yes", (dialogInterface, i) -> {
-                            addedServiceLists.remove(getAdapterPosition());
+                            addedServiceLists.remove(position);
                             Toast.makeText(mContext,"Service Deleted Successfully",Toast.LENGTH_SHORT).show();
                             notifyDataSetChanged();
                             callBack.onListUpdated();
@@ -96,15 +100,19 @@ public class AddedServiceAdapter extends RecyclerView.Adapter<AddedServiceAdapte
             });
 
             itemView.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 AppCompatActivity activity = (AppCompatActivity) v.getContext();
-                String pfn_id = addedServiceLists.get(getAdapterPosition()).getPfn_id();
-                String pfn_name = addedServiceLists.get(getAdapterPosition()).getPfn_name();
-                String depts_name = addedServiceLists.get(getAdapterPosition()).getDepts_name();
-                String depts_id = addedServiceLists.get(getAdapterPosition()).getDepts_id();
-                String service_rate = addedServiceLists.get(getAdapterPosition()).getService_rate();
-                String service_top_rate = addedServiceLists.get(getAdapterPosition()).getService_top_rate();
-                String service_qty = addedServiceLists.get(getAdapterPosition()).getService_qty();
-                String service_amount = addedServiceLists.get(getAdapterPosition()).getService_amnt();
+                String pfn_id = addedServiceLists.get(position).getPfn_id();
+                String pfn_name = addedServiceLists.get(position).getPfn_name();
+                String depts_name = addedServiceLists.get(position).getDepts_name();
+                String depts_id = addedServiceLists.get(position).getDepts_id();
+                String service_rate = addedServiceLists.get(position).getService_rate();
+                String service_top_rate = addedServiceLists.get(position).getService_top_rate();
+                String service_qty = addedServiceLists.get(position).getService_qty();
+                String service_amount = addedServiceLists.get(position).getService_amnt();
 
                 Intent intent = new Intent(mContext, ServiceModify.class);
                 intent.putExtra("TYPE","UPDATE");
@@ -117,7 +125,7 @@ public class AddedServiceAdapter extends RecyclerView.Adapter<AddedServiceAdapte
                 intent.putExtra("TOP_RATE",service_top_rate);
                 intent.putExtra("QUANTITY",service_qty);
                 intent.putExtra("AMOUNT",service_amount);
-                intent.putExtra("POSITION", getAdapterPosition());
+                intent.putExtra("POSITION", position);
                 activity.startActivity(intent);
 
             });

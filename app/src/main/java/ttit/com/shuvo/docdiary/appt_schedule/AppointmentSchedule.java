@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.Drawable;
@@ -54,6 +55,7 @@ import ttit.com.shuvo.docdiary.appt_schedule.arraylists.ApptScheduleInfoList;
 import ttit.com.shuvo.docdiary.appt_schedule.arraylists.MonthSelectionList;
 import ttit.com.shuvo.docdiary.appt_schedule.dialogue.AvailScheduleDialogue;
 import ttit.com.shuvo.docdiary.appt_schedule.interfaces.AvailCallBack;
+import ttit.com.shuvo.docdiary.dynamic_prescription.PrescriptionBuilder;
 import ttit.com.shuvo.docdiary.progressbar.WaitProgress;
 import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
@@ -82,10 +84,13 @@ public class AppointmentSchedule extends AppCompatActivity implements TimeLineAd
     String parsing_message = "";
     TextView noSchMess;
     ImageView backButton;
+    MaterialButton walkInRx;
 
     boolean patAppHisAvailable = false;
     boolean patUpcomingAppHist = false;
     boolean isNeedAvail = false;
+    boolean isPresActive = false;
+    boolean presAccess = false;
 
     Logger logger = Logger.getLogger(AppointmentSchedule.class.getName());
 
@@ -111,9 +116,9 @@ public class AppointmentSchedule extends AppCompatActivity implements TimeLineAd
         noSchMess = findViewById(R.id.no_schedule_found_message);
         noSchMess.setVisibility(View.GONE);
         backButton = findViewById(R.id.back_logo_of_appointment_schedule);
+        walkInRx = findViewById(R.id.walk_in_prescription);
 
-
-        timelineView.setHasFixedSize(true);
+//        timelineView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getApplicationContext());
         timelineView.setLayoutManager(layoutManager);
 
@@ -132,6 +137,8 @@ public class AppointmentSchedule extends AppCompatActivity implements TimeLineAd
                 patAppHisAvailable = userInfoLists.get(0).getPat_app_history().equals("1");
                 patUpcomingAppHist = userInfoLists.get(0).getUpcoming_pat_history().equals("1");
                 isNeedAvail = userInfoLists.get(0).getIs_need_avail().equals("1");
+                isPresActive = userInfoLists.get(0).getPresc_active().equals("1");
+                presAccess = userInfoLists.get(0).getCan_prescribe().equals("1");
             }
         }
 
@@ -299,7 +306,19 @@ public class AppointmentSchedule extends AppCompatActivity implements TimeLineAd
 
         backButton.setOnClickListener(v -> finish());
 
+        if (presAccess && isPresActive) {
+            walkInRx.setVisibility(View.VISIBLE);
+        }
+        else {
+            walkInRx.setVisibility(View.GONE);
+        }
 
+        walkInRx.setOnClickListener(v -> {
+            Intent intent = new Intent(AppointmentSchedule.this, PrescriptionBuilder.class);
+            intent.putExtra("P_PAT_TYPE", "2");
+            intent.putExtra("IS_CREATED", "0");
+            startActivity(intent);
+        });
 
     }
     public void restart(String msg) {
@@ -354,7 +373,14 @@ public class AppointmentSchedule extends AppCompatActivity implements TimeLineAd
 
         apptScheduleInfoLists = new ArrayList<>();
 
-        String url = pre_url_api+"appointment_schedule/getAppointmentData?doc_id="+doc_id+"&pdate="+selected_date;
+        String url;
+        if (presAccess && isPresActive) {
+            url = pre_url_api+"appointment_schedule/getAppointmentDataNew?doc_id="+doc_id+"&pdate="+selected_date;
+        }
+        else {
+            url = pre_url_api+"appointment_schedule/getAppointmentData?doc_id="+doc_id+"&pdate="+selected_date;
+        }
+
         RequestQueue requestQueue = Volley.newRequestQueue(this);
 
         StringRequest apptDataReq = new StringRequest(Request.Method.GET, url, response -> {
@@ -381,6 +407,10 @@ public class AppointmentSchedule extends AppCompatActivity implements TimeLineAd
                                 .equals("null") ? "" :apptDataInfo.getString("depts_name");
                         String pat_name = apptDataInfo.getString("pat_name")
                                 .equals("null") ? "" :apptDataInfo.getString("pat_name");
+                        String pat_gender = apptDataInfo.getString("pat_gender")
+                                .equals("null") ? "" :apptDataInfo.getString("pat_gender");
+                        String pat_id = apptDataInfo.getString("pat_id")
+                                .equals("null") ? "" :apptDataInfo.getString("pat_id");
                         String pat_code = apptDataInfo.getString("pat_code")
                                 .equals("null") ? "" :apptDataInfo.getString("pat_code");
                         String pat_age_now = apptDataInfo.getString("pat_age_now")
@@ -393,6 +423,10 @@ public class AppointmentSchedule extends AppCompatActivity implements TimeLineAd
                                 .equals("null") ? "0" :apptDataInfo.getString("ts_video_conf_flag");
                         String pmm = apptDataInfo.getString("pmm")
                                 .equals("null") ? "0" :apptDataInfo.getString("pmm");
+                        String rvm = apptDataInfo.getString("rvm")
+                                .equals("null") ? "0" :apptDataInfo.getString("rvm");
+                        String rvm_id = apptDataInfo.getString("rvm_id")
+                                .equals("null") ? "" :apptDataInfo.getString("rvm_id");
                         String is_ranked = apptDataInfo.getString("is_ranked")
                                 .equals("null") ? "0" :apptDataInfo.getString("is_ranked");
                         String pph_progress = apptDataInfo.getString("pph_progress")
@@ -410,8 +444,8 @@ public class AppointmentSchedule extends AppCompatActivity implements TimeLineAd
                         String avail_flag = apptDataInfo.getString("avail_flag")
                                 .equals("null") ? "0" :apptDataInfo.getString("avail_flag");
 
-                        apptScheduleInfoLists.add(new ApptScheduleInfoList(adm_date, schedule_time, "",pat_name,patient_data,pat_code,selected_date,
-                                pat_age_now,pfn_fee_name, doc_video_link, ts_video_conf_flag, pmm,depts_id,depts_name,is_ranked,pph_progress,
+                        apptScheduleInfoLists.add(new ApptScheduleInfoList(adm_date, schedule_time, "",pat_name,pat_gender,pat_id,patient_data,pat_code,selected_date,
+                                pat_age_now,pfn_fee_name, doc_video_link, ts_video_conf_flag, pmm, rvm, rvm_id, depts_id,depts_name,is_ranked,pph_progress,
                                 pfn_id, ph_cat_id, ad_id, ad_prm_id, ad_prd_id, avail_flag));
 
                     }
@@ -460,7 +494,8 @@ public class AppointmentSchedule extends AppCompatActivity implements TimeLineAd
                 else {
                     noSchMess.setVisibility(View.GONE);
                 }
-                timeLineAdapter = new TimeLineAdapter(apptScheduleInfoLists,AppointmentSchedule.this, patAppHisAvailable, patUpcomingAppHist,  isNeedAvail, AppointmentSchedule.this);
+                timeLineAdapter = new TimeLineAdapter(apptScheduleInfoLists,AppointmentSchedule.this,
+                        patAppHisAvailable, patUpcomingAppHist, isNeedAvail, isPresActive, presAccess, AppointmentSchedule.this);
                 timelineView.setAdapter(timeLineAdapter);
                 loading = false;
             }

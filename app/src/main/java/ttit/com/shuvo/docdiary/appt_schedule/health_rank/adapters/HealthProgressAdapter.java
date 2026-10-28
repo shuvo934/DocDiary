@@ -1,5 +1,6 @@
 package ttit.com.shuvo.docdiary.appt_schedule.health_rank.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -67,6 +68,7 @@ public class HealthProgressAdapter extends RecyclerView.Adapter<HealthProgressAd
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void filterList(ArrayList<HealthProgressList> filteredList) {
         mCategory = filteredList;
         notifyDataSetChanged();

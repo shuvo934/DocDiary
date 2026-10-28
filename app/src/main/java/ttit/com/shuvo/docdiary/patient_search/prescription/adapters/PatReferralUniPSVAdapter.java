@@ -78,7 +78,11 @@ public class PatReferralUniPSVAdapter extends RecyclerView.Adapter<PatReferralUn
 
         @Override
         public void onClick(View v) {
-            mClickedItem2.onRefUnitClicked(getAdapterPosition());
+            int position = getBindingAdapterPosition();
+            if (position == RecyclerView.NO_POSITION) {
+                return;
+            }
+            mClickedItem2.onRefUnitClicked(position);
         }
     }
 }

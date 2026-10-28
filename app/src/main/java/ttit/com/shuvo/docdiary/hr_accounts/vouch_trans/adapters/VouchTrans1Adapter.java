@@ -43,7 +43,7 @@ public class VouchTrans1Adapter extends RecyclerView.Adapter<VouchTrans1Adapter.
 
         ArrayList<VoucherLists2> voucherLists2s = categoryItem.getVoucherLists2s();
 
-        holder.itemDetails.setHasFixedSize(true);
+//        holder.itemDetails.setHasFixedSize(true);
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(myContext);
         holder.itemDetails.setLayoutManager(layoutManager);

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scroll_prescription_advice"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:clipToPadding="false"
+    android:fillViewport="true"
+    android:overScrollMode="never"
+    tools:context=".dynamic_prescription.fragments.PrescriptionAdviceFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/_4sdp"
+        android:paddingTop="@dimen/_4sdp"
+        android:paddingEnd="@dimen/_4sdp"
+        android:paddingBottom="@dimen/_10sdp">
+
+        <!-- Advice -->
+
+        <include
+            android:id="@+id/section_advice"
+            layout="@layout/view_prescription_expandable_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"/>
+
+        <!-- Follow-up -->
+
+        <include
+            android:id="@+id/section_follow_up"
+            layout="@layout/view_prescription_expandable_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"/>
+
+        <!-- Special Alert -->
+
+        <include
+            android:id="@+id/section_special_alert"
+            layout="@layout/view_prescription_expandable_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"/>
+
+        <!-- Reference -->
+
+        <include
+            android:id="@+id/section_reference"
+            layout="@layout/view_prescription_expandable_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"/>
+
+        <!-- Notes -->
+
+        <include
+            android:id="@+id/section_notes"
+            layout="@layout/view_prescription_expandable_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:layout_marginBottom="@dimen/_5sdp"/>
+
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

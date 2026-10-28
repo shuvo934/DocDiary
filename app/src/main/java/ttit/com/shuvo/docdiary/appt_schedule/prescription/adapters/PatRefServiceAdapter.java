@@ -84,13 +84,17 @@ public class PatRefServiceAdapter extends RecyclerView.Adapter<PatRefServiceAdap
             delete = itemView.findViewById(R.id.pat_ref_service_delete);
 
             itemView.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 AppCompatActivity activity = (AppCompatActivity) v.getContext();
-                String drs_id = mCategory.get(getAdapterPosition()).getDrs_id();
-                String pfn_id = mCategory.get(getAdapterPosition()).getPfn_id();
-                String drd_id = mCategory.get(getAdapterPosition()).getDrs_drd_id();
-                String pfnFeeName = mCategory.get(getAdapterPosition()).getPfn_fee_name();
-                String drsQty = mCategory.get(getAdapterPosition()).getDrs_qty();
-                String depts_id = mCategory.get(getAdapterPosition()).getDepts_id();
+                String drs_id = mCategory.get(position).getDrs_id();
+                String pfn_id = mCategory.get(position).getPfn_id();
+                String drd_id = mCategory.get(position).getDrs_drd_id();
+                String pfnFeeName = mCategory.get(position).getPfn_fee_name();
+                String drsQty = mCategory.get(position).getDrs_qty();
+                String depts_id = mCategory.get(position).getDepts_id();
 
                 Intent intent = new Intent(mContext, RefServiceModify.class);
                 intent.putExtra("P_DRD_ID", drd_id);
@@ -105,13 +109,17 @@ public class PatRefServiceAdapter extends RecyclerView.Adapter<PatRefServiceAdap
             });
 
             delete.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext);
-                builder.setTitle(mCategory.get(getAdapterPosition()).getPfn_fee_name())
+                builder.setTitle(mCategory.get(position).getPfn_fee_name())
                         .setMessage("Do you want to delete this Service?")
                         .setPositiveButton("Yes", (dialogInterface, i) -> {
-                            String drs_id = mCategory.get(getAdapterPosition()).getDrs_id();
+                            String drs_id = mCategory.get(position).getDrs_id();
                             System.out.println(drs_id);
-                            deleteService(drs_id,getAdapterPosition());
+                            deleteService(drs_id,position);
                         })
                         .setNegativeButton("No", (dialogInterface, i) -> dialogInterface.dismiss());
                 AlertDialog alertDialog = builder.create();

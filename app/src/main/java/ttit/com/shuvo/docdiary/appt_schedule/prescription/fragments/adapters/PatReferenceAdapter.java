@@ -83,10 +83,14 @@ public class PatReferenceAdapter extends RecyclerView.Adapter<PatReferenceAdapte
             delete = itemView.findViewById(R.id.pat_management_plan_delete);
 
             itemView.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 AppCompatActivity activity = (AppCompatActivity) v.getContext();
-                String pref_id = mCategory.get(getAdapterPosition()).getPref_id();
-                String pmm_id = mCategory.get(getAdapterPosition()).getPref_pmm_id();
-                String pref_name = mCategory.get(getAdapterPosition()).getPref_name();
+                String pref_id = mCategory.get(position).getPref_id();
+                String pmm_id = mCategory.get(position).getPref_pmm_id();
+                String pref_name = mCategory.get(position).getPref_name();
 
                 Intent intent = new Intent(mContext, ReferenceModify.class);
                 intent.putExtra("P_PMM_ID", pmm_id);
@@ -97,12 +101,16 @@ public class PatReferenceAdapter extends RecyclerView.Adapter<PatReferenceAdapte
             });
 
             delete.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext);
                 builder.setMessage("Do you want to delete this Reference?")
                         .setPositiveButton("Yes", (dialogInterface, i) -> {
-                            String pref_id = mCategory.get(getAdapterPosition()).getPref_id();
+                            String pref_id = mCategory.get(position).getPref_id();
                             System.out.println(pref_id);
-                            deleteRef(pref_id,getAdapterPosition());
+                            deleteRef(pref_id,position);
                         })
                         .setNegativeButton("No", (dialogInterface, i) -> dialogInterface.dismiss());
                 AlertDialog alertDialog = builder.create();

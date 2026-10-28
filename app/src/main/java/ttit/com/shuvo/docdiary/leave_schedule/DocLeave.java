@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -254,7 +255,7 @@ public class DocLeave extends AppCompatActivity {
 
         }
 
-        offTimeView.setHasFixedSize(true);
+//        offTimeView.setHasFixedSize(true);
         offTimeView.setLayoutManager(layoutManager);
         TimeSchAdapter timeSchAdapter = new TimeSchAdapter(times,DocLeave.this);
         offTimeView.setAdapter(timeSchAdapter);
@@ -393,7 +394,7 @@ public class DocLeave extends AppCompatActivity {
 
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy",Locale.ENGLISH);
 
-                Handler handler = new Handler();
+                Handler handler = new Handler(Looper.getMainLooper());
                 handler.postDelayed(() -> {
 
                     if (!leaveTimeSchedules.isEmpty()) {

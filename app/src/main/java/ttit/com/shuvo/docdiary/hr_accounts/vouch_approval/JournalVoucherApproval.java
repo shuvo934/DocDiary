@@ -159,7 +159,7 @@ public class JournalVoucherApproval extends AppCompatActivity implements Voucher
 
         itemView = findViewById(R.id.journal_voucher_approved_transaction_view);
 
-        itemView.setHasFixedSize(true);
+//        itemView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(this);
         itemView.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(itemView.getContext(),DividerItemDecoration.VERTICAL);

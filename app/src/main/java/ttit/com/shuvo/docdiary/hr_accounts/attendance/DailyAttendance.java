@@ -171,7 +171,7 @@ public class DailyAttendance extends AppCompatActivity {
         dailyAttendanceLists = new ArrayList<>();
         filteredList = new ArrayList<>();
 
-        daListView.setHasFixedSize(true);
+//        daListView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getApplicationContext());
         daListView.setLayoutManager(layoutManager);
 

@@ -145,7 +145,7 @@ public class AddSchedule extends AppCompatActivity implements DatePickerDialog.O
         takenScheduleLay.setVisibility(View.GONE);
         takenScheduleView = findViewById(R.id.taken_appointment_time_recyclerview_for_patient);
 
-        takenScheduleView.setHasFixedSize(true);
+//        takenScheduleView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getApplicationContext());
         takenScheduleView.setLayoutManager(layoutManager);
 

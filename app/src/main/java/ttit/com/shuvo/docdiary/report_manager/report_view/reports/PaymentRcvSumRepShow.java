@@ -98,7 +98,7 @@ public class PaymentRcvSumRepShow extends AppCompatActivity {
         circularProgressIndicator.setVisibility(View.GONE);
 
         recyclerView = findViewById(R.id.payment_receive_sum_app_made_report_show_recyclerview);
-        recyclerView.setHasFixedSize(true);
+//        recyclerView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),DividerItemDecoration.VERTICAL);

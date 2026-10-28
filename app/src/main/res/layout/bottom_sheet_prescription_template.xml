@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent"
+    android:orientation="vertical">
+
+    <!-- Fixed header -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bottom_sheet_design"
+        android:padding="@dimen/_8sdp">
+
+        <View
+            android:id="@+id/drag_handler_template"
+            android:layout_width="@dimen/_32sdp"
+            android:layout_height="@dimen/_4sdp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/_7sdp"
+            android:background="#D0D5DD" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/drag_handler_template"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/_4sdp">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_template_header_icon"
+                android:layout_width="@dimen/_36sdp"
+                android:layout_height="@dimen/_36sdp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                app:cardBackgroundColor="#EAF7F8"
+                app:cardCornerRadius="@dimen/_9sdp"
+                app:cardElevation="0dp">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="@dimen/_21sdp"
+                    android:layout_height="@dimen/_21sdp"
+                    android:layout_gravity="center"
+                    android:contentDescription="Prescription template"
+                    android:src="@drawable/template"
+                    android:tint="@color/green_sea"
+                    tools:ignore="HardcodedText,UseAppTint" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="@dimen/_8sdp"
+                android:layout_toEndOf="@id/card_template_header_icon"
+                android:layout_toStartOf="@id/btn_close_template_sheet"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_template_sheet_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:text="Prescription Templates"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_11sdp" />
+
+                <TextView
+                    android:id="@+id/tv_template_sheet_subtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins"
+                    android:text="Choose a Disease Template, then optionally choose Treatment"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_7sdp" />
+
+            </LinearLayout>
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/btn_close_template_sheet"
+                android:layout_width="@dimen/_36sdp"
+                android:layout_height="@dimen/_36sdp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Close"
+                android:padding="@dimen/_8sdp"
+                android:src="@drawable/close_24"
+                android:tint="@color/white"
+                tools:ignore="HardcodedText,UseAppTint" />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <!-- Disease Template step -->
+    <LinearLayout
+        android:id="@+id/layout_disease_template_section"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:padding="@dimen/_10sdp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_medium"
+            android:text="STEP 1 OF 2"
+            android:textColor="@color/green_sea"
+            android:textSize="@dimen/_7sdp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_2sdp"
+            android:fontFamily="@font/poppins_bold"
+            android:text="Disease Template"
+            android:textColor="#101828"
+            android:textSize="@dimen/_11sdp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_2sdp"
+            android:fontFamily="@font/poppins"
+            android:text="Clinical and Advice data will be loaded"
+            android:textColor="#667085"
+            android:textSize="@dimen/_7sdp" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_search_disease_template"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:hint="Search Disease Template"
+            app:boxCornerRadiusBottomEnd="@dimen/_8sdp"
+            app:boxCornerRadiusBottomStart="@dimen/_8sdp"
+            app:boxCornerRadiusTopEnd="@dimen/_8sdp"
+            app:boxCornerRadiusTopStart="@dimen/_8sdp"
+            app:boxStrokeColor="@color/green_sea"
+            app:endIconMode="clear_text"
+            app:hintTextColor="#667085">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_search_disease_template"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins"
+                android:imeOptions="actionDone"
+                android:inputType="text"
+                android:maxLines="1"
+                android:textColor="#101828"
+                android:textSize="@dimen/_8sdp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Internally scrollable content -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:layout_weight="1">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_disease_templates"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="true"
+                android:overScrollMode="ifContentScrolls"
+                android:paddingBottom="@dimen/_4sdp" />
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/progress_disease_template"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:indeterminate="true" />
+
+            <TextView
+                android:id="@+id/tv_disease_template_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="@font/poppins"
+                android:gravity="center"
+                android:padding="@dimen/_10sdp"
+                android:textColor="#D92D20"
+                android:textSize="@dimen/_8sdp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tv_disease_template_empty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="@font/poppins"
+                android:gravity="center"
+                android:padding="@dimen/_10sdp"
+                android:text="No Disease Template available"
+                android:textColor="#667085"
+                android:textSize="@dimen/_8sdp"
+                android:visibility="gone" />
+
+        </FrameLayout>
+
+        <!-- Fixed Disease action -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_load_disease_template"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_40sdp"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:enabled="false"
+            android:fontFamily="@font/poppins_bold"
+            android:text="LOAD DISEASE TEMPLATE"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_8sdp"
+            app:backgroundTint="@color/green_sea"
+            app:cornerRadius="@dimen/_8sdp" />
+
+    </LinearLayout>
+
+    <!-- Treatment Template step -->
+    <LinearLayout
+        android:id="@+id/layout_treatment_template_section"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:padding="@dimen/_10sdp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_medium"
+            android:text="STEP 2 OF 2"
+            android:textColor="@color/green_sea"
+            android:textSize="@dimen/_7sdp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_2sdp"
+            android:fontFamily="@font/poppins_bold"
+            android:text="Treatment Template"
+            android:textColor="#101828"
+            android:textSize="@dimen/_11sdp" />
+
+        <TextView
+            android:id="@+id/tv_treatment_template_helper"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_2sdp"
+            android:fontFamily="@font/poppins"
+            android:text="Medicine, Therapy and Treatment Plan data will be loaded"
+            android:textColor="#667085"
+            android:textSize="@dimen/_7sdp" />
+
+        <!-- Loaded Disease summary -->
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_loaded_disease_template"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_8sdp"
+            app:cardBackgroundColor="#F2FBF6"
+            app:cardCornerRadius="@dimen/_8sdp"
+            app:cardElevation="0dp"
+            app:strokeColor="#B7E4C7"
+            app:strokeWidth="1dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingStart="@dimen/_10sdp"
+                android:paddingTop="@dimen/_6sdp"
+                android:paddingEnd="@dimen/_4sdp"
+                android:paddingBottom="@dimen/_6sdp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins"
+                        android:text="Disease Template loaded"
+                        android:textColor="#667085"
+                        android:textSize="@dimen/_7sdp" />
+
+                    <TextView
+                        android:id="@+id/tv_loaded_disease_template_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/poppins_medium"
+                        android:textColor="#1B8F4B"
+                        android:textSize="@dimen/_8sdp"
+                        tools:text="Occupational Template" />
+
+                </LinearLayout>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_change_disease_template"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/_36sdp"
+                    android:fontFamily="@font/poppins_bold"
+                    android:minWidth="0dp"
+                    android:text="CHANGE"
+                    android:textColor="@color/green_sea"
+                    android:textSize="@dimen/_7sdp" />
+
+            </LinearLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layout_search_treatment_template"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:hint="Search Treatment Template"
+            app:boxCornerRadiusBottomEnd="@dimen/_8sdp"
+            app:boxCornerRadiusBottomStart="@dimen/_8sdp"
+            app:boxCornerRadiusTopEnd="@dimen/_8sdp"
+            app:boxCornerRadiusTopStart="@dimen/_8sdp"
+            app:boxStrokeColor="@color/green_sea"
+            app:endIconMode="clear_text"
+            app:hintTextColor="#667085">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_search_treatment_template"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins"
+                android:imeOptions="actionDone"
+                android:inputType="text"
+                android:maxLines="1"
+                android:textColor="#101828"
+                android:textSize="@dimen/_8sdp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Internally scrollable content -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:layout_weight="1">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_treatment_templates"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:nestedScrollingEnabled="true"
+                android:overScrollMode="ifContentScrolls"
+                android:paddingBottom="@dimen/_4sdp" />
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/progress_treatment_template"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:indeterminate="true" />
+
+            <TextView
+                android:id="@+id/tv_treatment_template_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="@font/poppins"
+                android:gravity="center"
+                android:padding="@dimen/_10sdp"
+                android:textColor="#D92D20"
+                android:textSize="@dimen/_8sdp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tv_treatment_template_empty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:fontFamily="@font/poppins"
+                android:gravity="center"
+                android:padding="@dimen/_10sdp"
+                android:text="No Treatment Template available"
+                android:textColor="#667085"
+                android:textSize="@dimen/_8sdp"
+                android:visibility="gone" />
+
+        </FrameLayout>
+
+        <!-- Fixed Treatment actions -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_done_without_treatment"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/_40sdp"
+                android:layout_marginEnd="@dimen/_4sdp"
+                android:layout_weight="1"
+                android:fontFamily="@font/poppins_bold"
+                android:text="DONE"
+                android:textColor="@color/green_sea"
+                android:textSize="@dimen/_8sdp"
+                app:cornerRadius="@dimen/_8sdp"
+                app:strokeColor="@color/green_sea"
+                app:strokeWidth="1dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_load_treatment_template"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/_40sdp"
+                android:layout_marginStart="@dimen/_4sdp"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:fontFamily="@font/poppins_bold"
+                android:text="LOAD TREATMENT"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_8sdp"
+                app:backgroundTint="@color/green_sea"
+                app:cornerRadius="@dimen/_8sdp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

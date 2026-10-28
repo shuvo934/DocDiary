@@ -114,7 +114,7 @@ public class MedicalHistory extends Fragment implements FragmentAdapterCallBack 
 
         patMedicHistLists = new ArrayList<>();
 
-        medHistoryView.setHasFixedSize(true);
+//        medHistoryView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(mContext);
         medHistoryView.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(medHistoryView.getContext(),DividerItemDecoration.VERTICAL);

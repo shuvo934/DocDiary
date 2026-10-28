@@ -70,7 +70,11 @@ public class PatDiagnosisPSVAdapter extends RecyclerView.Adapter<PatDiagnosisPSV
 
         @Override
         public void onClick(View v) {
-            mClickedItem.onDiagnosisClicked(getAdapterPosition());
+            int position = getBindingAdapterPosition();
+            if (position == RecyclerView.NO_POSITION) {
+                return;
+            }
+            mClickedItem.onDiagnosisClicked(position);
         }
     }
 }

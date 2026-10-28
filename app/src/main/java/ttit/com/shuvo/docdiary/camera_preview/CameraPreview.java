@@ -1,6 +1,8 @@
 package ttit.com.shuvo.docdiary.camera_preview;
 
 import android.Manifest;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,7 +10,9 @@ import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -16,6 +20,8 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.Camera;
@@ -29,6 +35,7 @@ import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.ByteArrayOutputStream;
@@ -40,7 +47,41 @@ import ttit.com.shuvo.docdiary.R;
 
 public class CameraPreview extends AppCompatActivity {
 
-    private static final int CAMERA_PERMISSION_REQUEST_CODE = 1001;
+    private static final String KEY_CAMERA_PERMISSION_PENDING = "camera_permission_pending";
+
+    private boolean cameraPermissionPending = false;
+
+    private final ActivityResultLauncher<String> cameraPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
+                cameraPermissionPending = false;
+
+                if (isFinishing() || isDestroyed()) {
+                    return;
+                }
+
+                if (granted) {
+                    startCamera();
+                } else {
+                    showCameraPermissionDialog();
+                }
+            });
+
+    private final ActivityResultLauncher<Intent> cameraSettingsLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                cameraPermissionPending = false;
+
+                if (isFinishing() || isDestroyed()) {
+                    return;
+                }
+
+                // Settings does not reliably return RESULT_OK. Check the permission.
+                if (hasCameraPermission()) {
+                    startCamera();
+                } else {
+                    Toast.makeText(this, "Camera permission was not granted.", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            });
 
     PreviewView cameraView;
 
@@ -73,6 +114,9 @@ public class CameraPreview extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            cameraPermissionPending = savedInstanceState.getBoolean(KEY_CAMERA_PERMISSION_PENDING, false);
+        }
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_camera_preview);
 
@@ -149,7 +193,7 @@ public class CameraPreview extends AppCompatActivity {
 
         if (hasCameraPermission()) {
             startCamera();
-        } else {
+        } else if (!cameraPermissionPending) {
             requestCameraPermission();
         }
 
@@ -163,6 +207,9 @@ public class CameraPreview extends AppCompatActivity {
     }
 
     private void startCamera() {
+        if (isFinishing() || isDestroyed() || !hasCameraPermission()) {
+            return;
+        }
         ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
                 ProcessCameraProvider.getInstance(this);
 
@@ -367,29 +414,80 @@ public class CameraPreview extends AppCompatActivity {
     }
 
     private void requestCameraPermission() {
-        ActivityCompat.requestPermissions(
-                this,
-                new String[]{Manifest.permission.CAMERA},
-                CAMERA_PERMISSION_REQUEST_CODE
-        );
+        if (isFinishing() || isDestroyed() || cameraPermissionPending) {
+            return;
+        }
+        if (hasCameraPermission()) {
+            startCamera();
+            return;
+        }
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
+            showCameraPermissionDialog();
+        } else {
+            launchCameraPermissionRequest();
+        }
+    }
+
+    private void launchCameraPermissionRequest() {
+        if (isFinishing() || isDestroyed() || cameraPermissionPending) {
+            return;
+        }
+
+        cameraPermissionPending = true;
+        cameraPermissionLauncher.launch(Manifest.permission.CAMERA);
+    }
+
+    private void showCameraPermissionDialog() {
+        if (isFinishing() || isDestroyed()) {
+            return;
+        }
+
+        boolean canRequestAgain = ActivityCompat.shouldShowRequestPermissionRationale(
+                this, Manifest.permission.CAMERA);
+
+        String message = canRequestAgain
+                ? "Camera permission is needed to take a photo. You can cancel and choose a gallery image instead."
+                : "Camera access was not granted. You can open Settings, choose Permissions > Camera, and allow access to take a photo.";
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Camera permission")
+                .setMessage(message)
+                .setPositiveButton(canRequestAgain ? "Try again" : "Open Settings", (dialog, which) -> {
+                    if (canRequestAgain) {
+                        launchCameraPermissionRequest();
+                    } else {
+                        openCameraPermissionSettings();
+                    }
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> finish())
+                .setOnCancelListener(dialog -> finish())
+                .show();
+    }
+
+    private void openCameraPermissionSettings() {
+        if (isFinishing() || isDestroyed() || cameraPermissionPending) {
+            return;
+        }
+
+        Intent settingsIntent = new Intent(
+                Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.parse("package:" + getPackageName()));
+
+        cameraPermissionPending = true;
+
+        try {
+            cameraSettingsLauncher.launch(settingsIntent);
+        } catch (ActivityNotFoundException exception) {
+            cameraPermissionPending = false;
+            Toast.makeText(this, "Unable to open application settings.", Toast.LENGTH_SHORT).show();
+            finish();
+        }
     }
 
     @Override
-    public void onRequestPermissionsResult(
-            int requestCode,
-            @NonNull String[] permissions,
-            @NonNull int[] grantResults
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == CAMERA_PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                startCamera();
-            } else {
-                Toast.makeText(this, "Camera permission is required.", Toast.LENGTH_SHORT).show();
-                finish();
-            }
-        }
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putBoolean(KEY_CAMERA_PERMISSION_PENDING, cameraPermissionPending);
+        super.onSaveInstanceState(outState);
     }
 
     @Override

@@ -110,7 +110,7 @@ public class MedicationPSV extends Fragment {
 
         patMedicationLists = new ArrayList<>();
 
-        medicationView.setHasFixedSize(true);
+//        medicationView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(mContext);
         medicationView.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(medicationView.getContext(),DividerItemDecoration.VERTICAL);

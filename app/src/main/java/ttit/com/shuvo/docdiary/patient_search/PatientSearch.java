@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -50,9 +51,10 @@ import java.util.logging.Logger;
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.patient_search.adapters.PatientSearchAdapter;
 import ttit.com.shuvo.docdiary.patient_search.arraylists.PatientSearchList;
+import ttit.com.shuvo.docdiary.patient_search.prescription.PatPrescriptionV;
 import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
-public class PatientSearch extends AppCompatActivity {
+public class PatientSearch extends AppCompatActivity implements PatientSearchAdapter.PatientSelection {
 
     LinearLayout fullLayout;
     CircularProgressIndicator circularProgressIndicator;
@@ -111,7 +113,7 @@ public class PatientSearch extends AppCompatActivity {
         noPatientFound = findViewById(R.id.no_patient_prescription_found_message);
         noPatientFound.setVisibility(View.GONE);
 
-        patientView.setHasFixedSize(true);
+//        patientView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getApplicationContext());
         patientView.setLayoutManager(layoutManager);
 
@@ -316,9 +318,13 @@ public class PatientSearch extends AppCompatActivity {
                             .equals("null") ? "" : docInfo.getString("sub_code");
                     String pph_progress = docInfo.getString("pph_progress")
                             .equals("null") ? "0" : docInfo.getString("pph_progress");
+                    String gender = docInfo.getString("gender")
+                            .equals("null") ? "" : docInfo.getString("gender");
+                    String pat_age = docInfo.getString("pat_age")
+                            .equals("null") ? "" : docInfo.getString("pat_age");
 
                     patientSearchLists.add(new PatientSearchList(pat_id,pat_name,dd_thana_name,ph_id,sub_code,
-                            pph_progress,"","","1"));
+                            pph_progress,"","","1",pat_age, gender));
                 }
 
                 connected = true;
@@ -361,7 +367,7 @@ public class PatientSearch extends AppCompatActivity {
                 else {
                     noPatientFound.setVisibility(View.GONE);
                 }
-                patientSearchAdapter = new PatientSearchAdapter(patientSearchLists, PatientSearch.this);
+                patientSearchAdapter = new PatientSearchAdapter(patientSearchLists, PatientSearch.this, PatientSearch.this);
                 patientView.setAdapter(patientSearchAdapter);
                 loading = false;
 
@@ -409,5 +415,12 @@ public class PatientSearch extends AppCompatActivity {
         catch (Exception e) {
             restart("App is paused for a long time. Please Start the app again.");
         }
+    }
+
+    @Override
+    public void onSelect(String pat_id, String ph_id) {
+        Intent intent = new Intent(this, PatPrescriptionV.class);
+        intent.putExtra("P_PH_ID",ph_id);
+        startActivity(intent);
     }
 }

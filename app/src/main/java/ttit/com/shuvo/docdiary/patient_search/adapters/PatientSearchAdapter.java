@@ -16,7 +16,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,15 +28,16 @@ import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.appt_schedule.health_rank.HealthProgress;
 import ttit.com.shuvo.docdiary.patient_search.appointment_calendar.PatAppointmentCalendar;
 import ttit.com.shuvo.docdiary.patient_search.arraylists.PatientSearchList;
-import ttit.com.shuvo.docdiary.patient_search.prescription.PatPrescriptionV;
 
 public class PatientSearchAdapter extends RecyclerView.Adapter<PatientSearchAdapter.PSAHolder> {
     private ArrayList<PatientSearchList> mCategory;
     private final Context mContext;
+    private final PatientSelection patientSelection;
 
-    public PatientSearchAdapter(ArrayList<PatientSearchList> mCategory, Context mContext) {
+    public PatientSearchAdapter(ArrayList<PatientSearchList> mCategory, Context mContext, PatientSelection patientSelection) {
         this.mCategory = mCategory;
         this.mContext = mContext;
+        this.patientSelection = patientSelection;
     }
 
     @NonNull
@@ -65,6 +65,23 @@ public class PatientSearchAdapter extends RecyclerView.Adapter<PatientSearchAdap
         }
 
         holder.patCode.setText(patientSearchList.getSub_code());
+
+        String gender = safeText(patientSearchList.getPat_gender());
+        String age = safeText(patientSearchList.getPat_age());
+
+        String genderAge;
+
+        if (!gender.isEmpty() && !age.isEmpty()) {
+            genderAge = gender + "  •  " + age;
+        }
+        else if (!gender.isEmpty()) {
+            genderAge = gender;
+        }
+        else {
+            genderAge = age;
+        }
+
+        holder.patAG.setText(genderAge);
 
         String pph_prog = patientSearchList.getPph_progress();
 
@@ -112,6 +129,10 @@ public class PatientSearchAdapter extends RecyclerView.Adapter<PatientSearchAdap
         return mCategory.size();
     }
 
+    private static String safeText(String value) {
+        return value == null ? "" : value.trim();
+    }
+
     public class PSAHolder extends RecyclerView.ViewHolder {
 
         MaterialCardView cardView;
@@ -119,7 +140,7 @@ public class PatientSearchAdapter extends RecyclerView.Adapter<PatientSearchAdap
         AppCompatTextView patArea;
         AppCompatTextView patCode;
         AppCompatTextView patYear;
-
+        AppCompatTextView patAG;
         RelativeLayout hpLayout;
         TextView hpText;
         ProgressBar hpBar;
@@ -134,7 +155,7 @@ public class PatientSearchAdapter extends RecyclerView.Adapter<PatientSearchAdap
             patName = itemView.findViewById(R.id.patient_name_in_pat_search);
             patArea = itemView.findViewById(R.id.patient_area_in_pat_search);
             patCode = itemView.findViewById(R.id.pat_ph_code_in_pat_search);
-
+            patAG = itemView.findViewById(R.id.pat_age_gender_in_pat_search);
             hpLayout = itemView.findViewById(R.id.layout_of_pat_health_progress_in_pat_search);
             hpText = itemView.findViewById(R.id.text_pat_search_hp_text);
             hpBar = itemView.findViewById(R.id.pat_health_progress_bar_in_pat_search);
@@ -145,44 +166,59 @@ public class PatientSearchAdapter extends RecyclerView.Adapter<PatientSearchAdap
             calling = itemView.findViewById(R.id.phone_call_from_pat_search);
 
             cardView.setOnClickListener(v -> {
-                System.out.println(mCategory.get(getAdapterPosition()).getPat_name());
-                AppCompatActivity activity = (AppCompatActivity) v.getContext();
-                needToUpdatePatList = false;
-                Intent intent = new Intent(mContext, PatPrescriptionV.class);
-                intent.putExtra("P_PH_ID",mCategory.get(getAdapterPosition()).getPh_id());
-                activity.startActivity(intent);
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
+
+                String patId = mCategory.get(position).getPat_id();
+                String phId = mCategory.get(position).getPh_id();
+                patientSelection.onSelect(patId,phId);
             });
 
             viewProgress.setOnClickListener(v -> {
-                AppCompatActivity activity = (AppCompatActivity) v.getContext();
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
+                Context context = v.getContext();
                 needToUpdatePatList = false;
                 Intent intent = new Intent(mContext, HealthProgress.class);
-                intent.putExtra("P_NAME",mCategory.get(getAdapterPosition()).getPat_name());
-                intent.putExtra("P_CODE",mCategory.get(getAdapterPosition()).getSub_code());
-                intent.putExtra("P_PH_ID",mCategory.get(getAdapterPosition()).getPh_id());
+                intent.putExtra("P_NAME",mCategory.get(position).getPat_name());
+                intent.putExtra("P_CODE",mCategory.get(position).getSub_code());
+                intent.putExtra("P_PH_ID",mCategory.get(position).getPh_id());
                 intent.putExtra("FROM_PSV",true);
 
-                activity.startActivity(intent);
+                context.startActivity(intent);
 
             });
 
             appCalendar.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
+                Context context = v.getContext();
                 needToUpdatePatList = false;
-                AppCompatActivity activity = (AppCompatActivity) v.getContext();
                 Intent intent = new Intent(mContext, PatAppointmentCalendar.class);
-                intent.putExtra("P_NAME",mCategory.get(getAdapterPosition()).getPat_name());
-                intent.putExtra("P_CODE",mCategory.get(getAdapterPosition()).getSub_code());
-                intent.putExtra("P_PH_ID",mCategory.get(getAdapterPosition()).getPh_id());
+                intent.putExtra("P_NAME",mCategory.get(position).getPat_name());
+                intent.putExtra("P_CODE",mCategory.get(position).getSub_code());
+                intent.putExtra("P_PH_ID",mCategory.get(position).getPh_id());
 
-                activity.startActivity(intent);
+                context.startActivity(intent);
             });
 
             calling.setOnClickListener(view -> {
-                String number = mCategory.get(getAdapterPosition()).getPat_cell();
-                String name = mCategory.get(getAdapterPosition()).getPat_name();
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
+
+                String number = mCategory.get(position).getPat_cell();
+                String name = mCategory.get(position).getPat_name();
                 if (!number.isEmpty()) {
-                    AppCompatActivity activity = (AppCompatActivity) view.getContext();
-                    AlertDialog dialog = new AlertDialog.Builder(activity)
+                    Context context = view.getContext();
+                    AlertDialog dialog = new AlertDialog.Builder(context)
                             .setMessage("Do you want to make a call to "+name+" ?")
                             .setPositiveButton("Yes", null)
                             .setNegativeButton("No",null)
@@ -195,7 +231,7 @@ public class PatientSearchAdapter extends RecyclerView.Adapter<PatientSearchAdap
                         needToUpdatePatList = false;
                         Intent callIntent = new Intent(Intent.ACTION_DIAL);
                         callIntent.setData(Uri.parse("tel:"+number));
-                        activity.startActivity(callIntent);
+                        context.startActivity(callIntent);
 
                     });
                     Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
@@ -208,5 +244,9 @@ public class PatientSearchAdapter extends RecyclerView.Adapter<PatientSearchAdap
     public void filterList(ArrayList<PatientSearchList> filteredList) {
         mCategory = filteredList;
         notifyDataSetChanged();
+    }
+
+    public interface PatientSelection {
+        void onSelect(String pat_id, String ph_id);
     }
 }

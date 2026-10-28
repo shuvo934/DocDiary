@@ -132,7 +132,7 @@ public class UpdateAddress extends AppCompatActivity {
 
         streetAddress.setText(street_address);
         postOffice.setText(post_office);
-        thanaSpinner.setText(thana_name);
+        thanaSpinner.setText(getDisplayName(thana_name, district_name));
         district.setText(district_name);
 
         close.setOnClickListener(v -> finish());
@@ -257,58 +257,65 @@ public class UpdateAddress extends AppCompatActivity {
         });
 
         thanaSpinner.setOnItemClickListener((parent, view, position, id) -> {
-            String name = parent.getItemAtPosition(position).toString();
-            System.out.println(position+": "+name);
+            String selected = parent.getItemAtPosition(position).toString();
             dd_id = "";
-            for (int i = 0; i <thanaLists.size(); i++) {
-                if (name.equals(thanaLists.get(i).getDd_thana_name())) {
-                    dd_id = thanaLists.get(i).getDd_id();
-                    thana_name = thanaLists.get(i).getDd_thana_name();
-                    district_name = thanaLists.get(i).getDist_name();
+            for (ThanaList t : thanaLists) {
+                if (selected.equals(getDisplayName(t.getDd_thana_name(), t.getDist_name()))) {
+                    dd_id = t.getDd_id();
+                    thana_name = t.getDd_thana_name();
+                    district_name = t.getDist_name();
+                    break;
                 }
             }
 
             district.setText(district_name);
             selectedFromItems = true;
             thanaLay.setHelperText("");
-            System.out.println("thana_name: " + thana_name);
-            System.out.println("dd_id: "+ dd_id);
             closeKeyBoard();
         });
 
         thanaSpinner.setOnFocusChangeListener((v, hasFocus) -> {
             if (!hasFocus) {
-                String ss = thanaSpinner.getText().toString();
-                if (!selectedFromItems) {
-                    dd_id = "";
-                    for (int i = 0; i < thanaLists.size(); i++) {
-                        if (ss.equals(thanaLists.get(i).getDd_thana_name())) {
-                            dd_id = thanaLists.get(i).getDd_id();
-                            thana_name = thanaLists.get(i).getDd_thana_name();
-                            district_name = thanaLists.get(i).getDist_name();
-                        }
-                    }
-                    if (dd_id.isEmpty()) {
-
-                        if (ss.isEmpty()) {
-                            thanaLay.setHelperText("Please Select Thana/Upazila");
-                            district.setText("");
-                        }
-                        else {
-                            thanaLay.setHelperText("Invalid Thana/Upazila");
-                            district.setText("");
-                        }
-                    }
-                    else {
-                        district.setText(district_name);
-                    }
-                    System.out.println("thana_name: " + thana_name);
-                    System.out.println("dd_id: "+ dd_id);
-                }
-                else {
+                if (selectedFromItems) {
                     selectedFromItems = false;
-                    System.out.println("thana_name: " + thana_name);
-                    System.out.println("dd_id: "+ dd_id);
+                    return;
+                }
+                String ss = thanaSpinner.getText().toString().trim();
+                dd_id = "";
+                ThanaList match = null;
+                int nameMatchCount = 0;
+                ThanaList nameMatch = null;
+
+                for (ThanaList t : thanaLists) {
+                    if (ss.equals(getDisplayName(t.getDd_thana_name(), t.getDist_name()))) {
+                        match = t;
+                        break;
+                    }
+                    if (ss.equalsIgnoreCase(t.getDd_thana_name())) {
+                        nameMatchCount++;
+                        nameMatch = t;
+                    }
+                }
+                if (match == null && nameMatchCount == 1) {
+                    match = nameMatch;
+                }
+
+                if (match != null) {
+                    dd_id = match.getDd_id();
+                    thana_name = match.getDd_thana_name();
+                    district_name = match.getDist_name();
+                    thanaSpinner.setText(getDisplayName(thana_name, district_name), false);
+                    district.setText(district_name);
+                    thanaLay.setHelperText("");
+                } else {
+                    district.setText("");
+                    if (ss.isEmpty()) {
+                        thanaLay.setHelperText("Please Select Thana/Upazila");
+                    } else if (nameMatchCount > 1) {
+                        thanaLay.setHelperText("Multiple Thana/Upazila found. Please select from the list");
+                    } else {
+                        thanaLay.setHelperText("Invalid Thana/Upazila");
+                    }
                 }
             }
         });
@@ -393,6 +400,12 @@ public class UpdateAddress extends AppCompatActivity {
         }
     }
 
+    private String getDisplayName(String thana, String dist) {
+        thana = thana == null ? "" : thana;
+        dist = dist == null ? "" : dist;
+        return dist.isEmpty() ? thana : thana + " (" + dist + ")";
+    }
+
     public void getThanas() {
         fullLayout.setVisibility(View.GONE);
         circularProgressIndicator.setVisibility(View.VISIBLE);
@@ -470,8 +483,8 @@ public class UpdateAddress extends AppCompatActivity {
                 }
 
                 ArrayList<String> type = new ArrayList<>();
-                for(int i = 0; i < thanaLists.size(); i++) {
-                    type.add(thanaLists.get(i).getDd_thana_name());
+                for (ThanaList t : thanaLists) {
+                    type.add(getDisplayName(t.getDd_thana_name(), t.getDist_name()));
                 }
 
                 ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(UpdateAddress.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);

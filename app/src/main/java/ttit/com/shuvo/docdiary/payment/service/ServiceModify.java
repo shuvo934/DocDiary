@@ -478,12 +478,37 @@ public class ServiceModify extends AppCompatActivity {
             if (!pfn_id.isEmpty()) {
                 if (!depts_id.isEmpty()) {
                     if (!service_rate.isEmpty()) {
-//                        if (!service_rate.equals("0")) {
-                            if (!service_qty.isEmpty()) {
-                                if (!service_qty.startsWith("0")) {
-                                    if (!service_amount.isEmpty()) {
-                                        if (addedServiceLists.isEmpty()) {
-                                            MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(ServiceModify.this);
+                        if (!service_qty.isEmpty()) {
+                            if (!service_qty.startsWith("0")) {
+                                if (!service_amount.isEmpty()) {
+                                    if (addedServiceLists.isEmpty()) {
+                                        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(ServiceModify.this);
+                                        alertDialogBuilder.setTitle("Add Service!")
+                                                .setMessage("Do you want to Add Service for patient?")
+                                                .setPositiveButton("Yes", (dialog, which) -> {
+                                                    addedServiceLists.add(new AddedServiceList(pfn_id,pfn_name,depts_id,depts_name,service_rate,
+                                                            service_top_rate,service_qty,service_amount,false));
+                                                    dialog.dismiss();
+                                                    finish();
+                                                })
+                                                .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
+
+                                        AlertDialog alert = alertDialogBuilder.create();
+                                        alert.show();
+                                    }
+                                    else {
+                                        boolean sFound = false;
+                                        for (int i = 0; i < addedServiceLists.size(); i++) {
+                                            String p_id = addedServiceLists.get(i).getPfn_id();
+                                            String d_id = addedServiceLists.get(i).getDepts_id();
+                                            if (pfn_id.equals(p_id) && depts_id.equals(d_id)) {
+                                                sFound = true;
+                                                break;
+                                            }
+                                        }
+
+                                        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(ServiceModify.this);
+                                        if (!sFound) {
                                             alertDialogBuilder.setTitle("Add Service!")
                                                     .setMessage("Do you want to Add Service for patient?")
                                                     .setPositiveButton("Yes", (dialog, which) -> {
@@ -498,62 +523,31 @@ public class ServiceModify extends AppCompatActivity {
                                             alert.show();
                                         }
                                         else {
-                                            boolean sFound = false;
-                                            for (int i = 0; i < addedServiceLists.size(); i++) {
-                                                String p_id = addedServiceLists.get(i).getPfn_id();
-                                                String d_id = addedServiceLists.get(i).getDepts_id();
-                                                if (pfn_id.equals(p_id) && depts_id.equals(d_id)) {
-                                                    sFound = true;
-                                                    break;
-                                                }
-                                            }
-
-                                            MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(ServiceModify.this);
-                                            if (!sFound) {
-                                                alertDialogBuilder.setTitle("Add Service!")
-                                                        .setMessage("Do you want to Add Service for patient?")
-                                                        .setPositiveButton("Yes", (dialog, which) -> {
-                                                            addedServiceLists.add(new AddedServiceList(pfn_id,pfn_name,depts_id,depts_name,service_rate,
-                                                                    service_top_rate,service_qty,service_amount,false));
-                                                            dialog.dismiss();
-                                                            finish();
-                                                        })
-                                                        .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
-
-                                                AlertDialog alert = alertDialogBuilder.create();
-                                                alert.show();
-                                            }
-                                            else {
-                                                alertDialogBuilder.setTitle("Duplicate Service Found!")
-                                                        .setMessage("This Service is already added. Recheck again.")
-                                                        .setPositiveButton("Ok", (dialog, which) -> dialog.dismiss());
-                                                AlertDialog alert = alertDialogBuilder.create();
-                                                alert.setCancelable(false);
-                                                alert.setCanceledOnTouchOutside(false);
-                                                alert.show();
-                                            }
+                                            alertDialogBuilder.setTitle("Duplicate Service Found!")
+                                                    .setMessage("This Service is already added. Recheck again.")
+                                                    .setPositiveButton("Ok", (dialog, which) -> dialog.dismiss());
+                                            AlertDialog alert = alertDialogBuilder.create();
+                                            alert.setCancelable(false);
+                                            alert.setCanceledOnTouchOutside(false);
+                                            alert.show();
                                         }
-                                    }
-                                    else {
-                                        Toast.makeText(this, "Please Provide Quantity Again", Toast.LENGTH_SHORT).show();
                                     }
                                 }
                                 else {
-                                    String sqt = "Invalid Quantity";
-                                    serviceQtyMissing.setText(sqt);
-                                    serviceQtyMissing.setVisibility(View.VISIBLE);
+                                    Toast.makeText(this, "Please Provide Quantity Again", Toast.LENGTH_SHORT).show();
                                 }
                             }
                             else {
-                                String sqt = "Please Provide Quantity";
+                                String sqt = "Invalid Quantity";
                                 serviceQtyMissing.setText(sqt);
                                 serviceQtyMissing.setVisibility(View.VISIBLE);
                             }
-//                        }
-//                        else {
-//                            serviceRateMissing.setText("Invalid Rate. Select Unit Again");
-//                            serviceRateMissing.setVisibility(View.VISIBLE);
-//                        }
+                        }
+                        else {
+                            String sqt = "Please Provide Quantity";
+                            serviceQtyMissing.setText(sqt);
+                            serviceQtyMissing.setVisibility(View.VISIBLE);
+                        }
                     }
                     else {
                         serviceRateMissing.setVisibility(View.VISIBLE);
@@ -580,75 +574,69 @@ public class ServiceModify extends AppCompatActivity {
             if (!pfn_id.isEmpty()) {
                 if (!depts_id.isEmpty()) {
                     if (!service_rate.isEmpty()) {
-//                        if (!service_rate.equals("0")) {
-                            if (!service_qty.isEmpty()) {
-                                if (!service_qty.startsWith("0")) {
-                                    if (!service_amount.isEmpty()) {
-                                        boolean sFound = false;
-                                        for (int i = 0; i < addedServiceLists.size(); i++) {
-                                            String p_id = addedServiceLists.get(i).getPfn_id();
-                                            String d_id = addedServiceLists.get(i).getDepts_id();
-                                            if (pfn_id.equals(p_id) && depts_id.equals(d_id)) {
-                                                if (position != i) {
-                                                    sFound = true;
-                                                    break;
-                                                }
+                        if (!service_qty.isEmpty()) {
+                            if (!service_qty.startsWith("0")) {
+                                if (!service_amount.isEmpty()) {
+                                    boolean sFound = false;
+                                    for (int i = 0; i < addedServiceLists.size(); i++) {
+                                        String p_id = addedServiceLists.get(i).getPfn_id();
+                                        String d_id = addedServiceLists.get(i).getDepts_id();
+                                        if (pfn_id.equals(p_id) && depts_id.equals(d_id)) {
+                                            if (position != i) {
+                                                sFound = true;
+                                                break;
                                             }
                                         }
+                                    }
 
-                                        MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(ServiceModify.this);
-                                        if (!sFound) {
-                                            alertDialogBuilder.setTitle("Update Service!")
-                                                    .setMessage("Do you want to Update this Service for patient?")
-                                                    .setPositiveButton("Yes", (dialog, which) -> {
+                                    MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(ServiceModify.this);
+                                    if (!sFound) {
+                                        alertDialogBuilder.setTitle("Update Service!")
+                                                .setMessage("Do you want to Update this Service for patient?")
+                                                .setPositiveButton("Yes", (dialog, which) -> {
 
-                                                        addedServiceLists.get(position).setPfn_id(pfn_id);
-                                                        addedServiceLists.get(position).setPfn_name(pfn_name);
-                                                        addedServiceLists.get(position).setDepts_id(depts_id);
-                                                        addedServiceLists.get(position).setDepts_name(depts_name);
-                                                        addedServiceLists.get(position).setService_rate(service_rate);
-                                                        addedServiceLists.get(position).setService_top_rate(service_top_rate);
-                                                        addedServiceLists.get(position).setService_qty(service_qty);
-                                                        addedServiceLists.get(position).setService_amnt(service_amount);
+                                                    addedServiceLists.get(position).setPfn_id(pfn_id);
+                                                    addedServiceLists.get(position).setPfn_name(pfn_name);
+                                                    addedServiceLists.get(position).setDepts_id(depts_id);
+                                                    addedServiceLists.get(position).setDepts_name(depts_name);
+                                                    addedServiceLists.get(position).setService_rate(service_rate);
+                                                    addedServiceLists.get(position).setService_top_rate(service_top_rate);
+                                                    addedServiceLists.get(position).setService_qty(service_qty);
+                                                    addedServiceLists.get(position).setService_amnt(service_amount);
 
-                                                        dialog.dismiss();
-                                                        finish();
-                                                    })
-                                                    .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
+                                                    dialog.dismiss();
+                                                    finish();
+                                                })
+                                                .setNegativeButton("No",(dialog, which) -> dialog.dismiss());
 
-                                            AlertDialog alert = alertDialogBuilder.create();
-                                            alert.show();
-                                        }
-                                        else {
-                                            alertDialogBuilder.setTitle("Duplicate Service Found!")
-                                                    .setMessage("This Service is already added. Recheck again.")
-                                                    .setPositiveButton("Ok", (dialog, which) -> dialog.dismiss());
-                                            AlertDialog alert = alertDialogBuilder.create();
-                                            alert.setCancelable(false);
-                                            alert.setCanceledOnTouchOutside(false);
-                                            alert.show();
-                                        }
+                                        AlertDialog alert = alertDialogBuilder.create();
+                                        alert.show();
                                     }
                                     else {
-                                        Toast.makeText(this, "Please Provide Quantity Again", Toast.LENGTH_SHORT).show();
+                                        alertDialogBuilder.setTitle("Duplicate Service Found!")
+                                                .setMessage("This Service is already added. Recheck again.")
+                                                .setPositiveButton("Ok", (dialog, which) -> dialog.dismiss());
+                                        AlertDialog alert = alertDialogBuilder.create();
+                                        alert.setCancelable(false);
+                                        alert.setCanceledOnTouchOutside(false);
+                                        alert.show();
                                     }
                                 }
                                 else {
-                                    String sqt = "Invalid Quantity";
-                                    serviceQtyMissing.setText(sqt);
-                                    serviceQtyMissing.setVisibility(View.VISIBLE);
+                                    Toast.makeText(this, "Please Provide Quantity Again", Toast.LENGTH_SHORT).show();
                                 }
                             }
                             else {
-                                String sqt = "Please Provide Quantity";
+                                String sqt = "Invalid Quantity";
                                 serviceQtyMissing.setText(sqt);
                                 serviceQtyMissing.setVisibility(View.VISIBLE);
                             }
-//                        }
-//                        else {
-//                            serviceRateMissing.setText("Invalid Rate. Select Unit Again");
-//                            serviceRateMissing.setVisibility(View.VISIBLE);
-//                        }
+                        }
+                        else {
+                            String sqt = "Please Provide Quantity";
+                            serviceQtyMissing.setText(sqt);
+                            serviceQtyMissing.setVisibility(View.VISIBLE);
+                        }
                     }
                     else {
                         serviceRateMissing.setVisibility(View.VISIBLE);

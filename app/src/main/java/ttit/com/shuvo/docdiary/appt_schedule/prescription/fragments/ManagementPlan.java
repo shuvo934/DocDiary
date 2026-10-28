@@ -116,7 +116,7 @@ public class ManagementPlan extends Fragment implements FragmentAdapterCallBack 
 
         patManagementLists = new ArrayList<>();
 
-        managementView.setHasFixedSize(true);
+//        managementView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(mContext);
         managementView.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(managementView.getContext(),DividerItemDecoration.VERTICAL);

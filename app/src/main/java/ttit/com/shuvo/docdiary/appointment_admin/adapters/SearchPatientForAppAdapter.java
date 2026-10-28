@@ -81,7 +81,11 @@ public class SearchPatientForAppAdapter extends RecyclerView.Adapter<SearchPatie
 
         @Override
         public void onClick(View v) {
-            mClickedItem.onItemClicked(getAdapterPosition());
+            int position = getBindingAdapterPosition();
+            if (position == RecyclerView.NO_POSITION) {
+                return;
+            }
+            mClickedItem.onItemClicked(position);
         }
     }
 

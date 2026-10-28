@@ -22,11 +22,14 @@ public class UserInfoList {
     private String all_presc;
     private String doc_head_flag;
     private String is_need_avail;
+    private String presc_active;
+    private String can_prescribe;
+    private String med_active;
 
     public UserInfoList(String doc_name, String doc_id, String doc_code, String depts_name, String deptd_name, String deptm_name, String desig_name,
                         String docd_eff_date, String docd_status, String depts_id, String desig_id,String doc_video_link,
                         String doc_video_link_enable_flag, String doc_center_name, String deptd_id, String pat_app_history, String upcoming_pat_history,
-                        String pat_pres_view, String all_presc, String doc_head_flag, String is_need_avail ) {
+                        String pat_pres_view, String all_presc, String doc_head_flag, String is_need_avail, String presc_active, String can_prescribe, String med_active) {
         this.doc_name = doc_name;
         this.doc_id = doc_id;
         this.doc_code = doc_code;
@@ -48,6 +51,9 @@ public class UserInfoList {
         this.all_presc = all_presc;
         this.doc_head_flag = doc_head_flag;
         this.is_need_avail = is_need_avail;
+        this.presc_active = presc_active;
+        this.can_prescribe = can_prescribe;
+        this.med_active = med_active;
     }
 
     public String getDoc_name() {
@@ -216,5 +222,29 @@ public class UserInfoList {
 
     public void setIs_need_avail(String is_need_avail) {
         this.is_need_avail = is_need_avail;
+    }
+
+    public String getPresc_active() {
+        return presc_active;
+    }
+
+    public void setPresc_active(String presc_active) {
+        this.presc_active = presc_active;
+    }
+
+    public String getCan_prescribe() {
+        return can_prescribe;
+    }
+
+    public void setCan_prescribe(String can_prescribe) {
+        this.can_prescribe = can_prescribe;
+    }
+
+    public String getMed_active() {
+        return med_active;
+    }
+
+    public void setMed_active(String med_active) {
+        this.med_active = med_active;
     }
 }

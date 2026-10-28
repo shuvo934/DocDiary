@@ -67,7 +67,11 @@ public class SearchDoctorForAppAdapter extends RecyclerView.Adapter<SearchDoctor
 
         @Override
         public void onClick(View v) {
-            mClickedItem.onItemClicked(getAdapterPosition());
+            int position = getBindingAdapterPosition();
+            if (position == RecyclerView.NO_POSITION) {
+                return;
+            }
+            mClickedItem.onItemClicked(position);
         }
     }
 

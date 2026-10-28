@@ -113,7 +113,7 @@ public class DocWisePayRcvRepShow extends AppCompatActivity {
         }
 
         recyclerView = findViewById(R.id.doc_wise_pay_receive_app_made_report_show_recyclerview);
-        recyclerView.setHasFixedSize(true);
+//        recyclerView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),DividerItemDecoration.VERTICAL);

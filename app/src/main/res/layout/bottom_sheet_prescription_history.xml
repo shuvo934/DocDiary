@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bottom_sheet_design"
+        android:padding="@dimen/_8sdp">
+
+        <View
+            android:id="@+id/drag_handler_history"
+            android:layout_width="@dimen/_32sdp"
+            android:layout_height="@dimen/_4sdp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/_7sdp"
+            android:background="#D0D5DD" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/drag_handler_history"
+            android:layout_marginTop="@dimen/_4sdp">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/card_history_header_icon"
+                android:layout_width="@dimen/_36sdp"
+                android:layout_height="@dimen/_36sdp"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                app:cardBackgroundColor="#EAF7F8"
+                app:cardCornerRadius="@dimen/_9sdp"
+                app:cardElevation="0dp">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="@dimen/_21sdp"
+                    android:layout_height="@dimen/_21sdp"
+                    android:layout_gravity="center"
+                    android:contentDescription="Prescription history"
+                    android:src="@drawable/medical_record"
+                    android:tint="@color/green_sea"
+                    tools:ignore="HardcodedText,UseAppTint" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="@dimen/_8sdp"
+                android:layout_toEndOf="@id/card_history_header_icon"
+                android:layout_toStartOf="@id/btn_close_history_sheet"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:text="Prescription History"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_11sdp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins"
+                    android:text="Select a previous prescription to load or preview"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_7sdp" />
+
+            </LinearLayout>
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/btn_close_history_sheet"
+                android:layout_width="@dimen/_36sdp"
+                android:layout_height="@dimen/_36sdp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Close"
+                android:padding="@dimen/_8sdp"
+                android:src="@drawable/close_24"
+                android:tint="@color/white"
+                tools:ignore="HardcodedText,UseAppTint" />
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/white"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/_10sdp"
+        android:paddingTop="@dimen/_10sdp"
+        android:paddingEnd="@dimen/_10sdp">
+
+        <TextView
+            android:id="@+id/tv_history_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_medium"
+            android:text="Previous prescriptions"
+            android:textColor="@color/prescription_text_secondary"
+            android:textSize="@dimen/_8sdp" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/_6sdp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_prescription_history"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:overScrollMode="never"
+                android:paddingBottom="@dimen/_8sdp" />
+
+            <LinearLayout
+                android:id="@+id/layout_history_empty"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="@dimen/_20sdp"
+                android:visibility="gone">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="@dimen/_42sdp"
+                    android:layout_height="@dimen/_42sdp"
+                    android:alpha="0.55"
+                    android:src="@drawable/medical_record"
+                    app:tint="@color/prescription_text_secondary" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_8sdp"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:gravity="center"
+                    android:text="No prescription history found"
+                    android:textColor="@color/prescription_text_primary"
+                    android:textSize="@dimen/_9sdp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_3sdp"
+                    android:fontFamily="@font/poppins"
+                    android:gravity="center"
+                    android:text="This patient has no previous prescription."
+                    android:textColor="@color/prescription_text_secondary"
+                    android:textSize="@dimen/_7sdp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_history_error"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="@dimen/_20sdp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tv_history_error"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins"
+                    android:gravity="center"
+                    android:textColor="#D92D20"
+                    android:textSize="@dimen/_8sdp"
+                    tools:text="Prescription history could not be loaded" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_retry_history"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/_38sdp"
+                    android:layout_marginTop="@dimen/_8sdp"
+                    android:fontFamily="@font/poppins_bold"
+                    android:text="RETRY"
+                    android:textColor="@color/prescription_primary"
+                    android:textSize="@dimen/_8sdp"
+                    app:cornerRadius="@dimen/_8sdp"
+                    app:strokeColor="@color/green_sea"
+                    app:strokeWidth="1dp"
+                    tools:ignore="HardcodedText" />
+
+            </LinearLayout>
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/progress_prescription_history"
+                android:layout_width="@dimen/_36sdp"
+                android:layout_height="@dimen/_36sdp"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:indeterminate="true"
+                app:indicatorColor="@color/green_sea"
+                app:trackThickness="@dimen/_3sdp" />
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#EAECF0" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/_12sdp"
+        android:paddingTop="@dimen/_8sdp"
+        android:paddingEnd="@dimen/_12sdp"
+        android:paddingBottom="@dimen/_10sdp">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_preview_history"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/_40sdp"
+            android:layout_weight="1"
+            android:enabled="false"
+            android:fontFamily="@font/poppins_bold"
+            android:text="PREVIEW"
+            android:alpha="0.45"
+            android:textColor="@color/prescription_primary"
+            android:textSize="@dimen/_9sdp"
+            app:cornerRadius="@dimen/_8sdp"
+            app:strokeColor="@color/green_sea"
+            app:strokeWidth="1dp"
+            tools:ignore="HardcodedText" />
+
+        <Space
+            android:layout_width="@dimen/_10sdp"
+            android:layout_height="1dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_load_history"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/_40sdp"
+            android:layout_weight="1"
+            android:enabled="false"
+            android:fontFamily="@font/poppins_bold"
+            android:text="LOAD to Current Rx"
+            android:maxLines="1"
+            android:alpha="0.45"
+            android:ellipsize="end"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_9sdp"
+            app:backgroundTint="@color/green_sea"
+            app:cornerRadius="@dimen/_8sdp"
+            tools:ignore="HardcodedText" />
+
+    </LinearLayout>
+
+</LinearLayout>

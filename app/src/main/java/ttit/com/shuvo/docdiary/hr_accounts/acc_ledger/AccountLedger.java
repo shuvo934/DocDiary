@@ -147,7 +147,7 @@ public class AccountLedger extends AppCompatActivity {
 
         itemView = findViewById(R.id.acc_ledger_report_view);
 
-        itemView.setHasFixedSize(true);
+//        itemView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(this);
         itemView.setLayoutManager(layoutManager);
 

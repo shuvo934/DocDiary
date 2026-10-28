@@ -3,7 +3,6 @@ package ttit.com.shuvo.docdiary.hr_accounts.leave;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 
 import android.os.Bundle;
-import android.text.Html;
 import android.text.Spanned;
 import android.view.Menu;
 import android.view.View;
@@ -19,6 +18,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 import androidx.cardview.widget.CardView;
+import androidx.core.text.HtmlCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -160,7 +160,7 @@ public class LeaveRecord extends AppCompatActivity {
         leaveRecLists = new ArrayList<>();
         filteredList = new ArrayList<>();
 
-        lvRecListView.setHasFixedSize(true);
+//        lvRecListView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getApplicationContext());
         lvRecListView.setLayoutManager(layoutManager);
 
@@ -676,11 +676,11 @@ public class LeaveRecord extends AppCompatActivity {
                         break;
                 }
             }
-            all_leave_stat = Html.fromHtml("Total Leave Application:   <font color='black'><b>"+ filteredList.size() +"</b></font><br>"+
+            all_leave_stat = HtmlCompat.fromHtml("Total Leave Application:   <font color='black'><b>"+ filteredList.size() +"</b></font><br>"+
                     "Pending:   <font color='black'><b>"+ p_c +"</b></font><br>"+
                     "Approved:   <font color='black'><b>"+a_c+"</b></font><br>"+
                     "Rejected:   <font color='black'><b>"+r_c+"</b></font><br>"+
-                    "Cancel Approved Leave:   <font color='black'><b>"+c_a_c+"</b></font><br>");
+                    "Cancel Approved Leave:   <font color='black'><b>"+c_a_c+"</b></font><br>", HtmlCompat.FROM_HTML_MODE_LEGACY);
         }
         else {
             selected_dept_id = "";
@@ -740,11 +740,11 @@ public class LeaveRecord extends AppCompatActivity {
                         break;
                 }
             }
-            all_leave_stat = Html.fromHtml("Total Leave Application:   <font color='black'><b>"+ leaveRecLists.size() +"</b></font><br>"+
+            all_leave_stat = HtmlCompat.fromHtml("Total Leave Application:   <font color='black'><b>"+ leaveRecLists.size() +"</b></font><br>"+
                     "Pending:   <font color='black'><b>"+ p_c +"</b></font><br>"+
                     "Approved:   <font color='black'><b>"+a_c+"</b></font><br>"+
                     "Rejected:   <font color='black'><b>"+r_c+"</b></font><br>"+
-                    "Cancel Approved Leave:   <font color='black'><b>"+c_a_c+"</b></font><br>");
+                    "Cancel Approved Leave:   <font color='black'><b>"+c_a_c+"</b></font><br>", HtmlCompat.FROM_HTML_MODE_LEGACY);
         }
     }
 

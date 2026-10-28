@@ -23,7 +23,6 @@ import androidx.fragment.app.FragmentManager;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.util.Base64;
 import android.view.View;
 import android.widget.ImageView;
@@ -231,14 +230,6 @@ public class DocProfile extends AppCompatActivity implements PictureChooseListen
 
         cameraCap.setOnClickListener(v -> {
             onResumeLoad = false;
-//            CropImage.activity()
-//                    .setGuidelines(CropImageView.Guidelines.ON)
-//                    .start(DocProfile.this);
-//            ImagePicker.with(this)
-//                    .crop()
-//                    .compress(1024)
-//                    .maxResultSize(1080,1080)
-//                    .start(1113);
             ImageTakerChoiceDialog imageTakerChoiceDialog = new ImageTakerChoiceDialog();
 //            imageTakerChoiceDialog.show(getSupportFragmentManager(),"CH_IMAGE_DOC");
             showDialogSafely(imageTakerChoiceDialog);
@@ -403,47 +394,7 @@ public class DocProfile extends AppCompatActivity implements PictureChooseListen
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-//        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
-//            CropImage.ActivityResult result = CropImage.getActivityResult(data);
-//            if (resultCode == RESULT_OK) {
-//                assert result != null;
-//                Uri resultUri = result.getUri();
-//                try {
-//                    selectedBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri);
-//                    System.out.println("UPLOADED PIC");
-//
-//                    updateUserImage();
-//
-//                } catch (IOException e) {
-//                    logger.log(Level.WARNING,e.getMessage(),e);
-//                }
-//            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-//                assert result != null;
-//                Exception error = result.getError();
-//                logger.log(Level.WARNING,error.getMessage(),error);
-//            }
-//        }
-        if (requestCode == 1113) {
-            if (resultCode == AppCompatActivity.RESULT_OK) {
-                if (data != null) {
-                    Uri resultUri = data.getData();
-                    try {
-                        selectedBitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), resultUri);
-                        System.out.println("UPLOADED PIC");
-
-                        updateUserImage();
-
-                    } catch (IOException e) {
-                        logger.log(Level.WARNING,e.getMessage(),e);
-                        Toast.makeText(getApplicationContext(),"Failed to upload image",Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-            else {
-                Toast.makeText(getApplicationContext(),"Failed to get image",Toast.LENGTH_SHORT).show();
-            }
-        }
-        else if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
+        if (resultCode == RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
             if (data != null) {
                 Uri croppedUri = UCrop.getOutput(data);
                 selectedBitmap = getCorrectlyOrientedBitmap(croppedUri);

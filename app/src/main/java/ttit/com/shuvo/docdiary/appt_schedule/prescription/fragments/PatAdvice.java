@@ -116,7 +116,7 @@ public class PatAdvice extends Fragment implements FragmentAdapterCallBack {
 
         patAdviceLists = new ArrayList<>();
 
-        adviceView.setHasFixedSize(true);
+//        adviceView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(mContext);
         adviceView.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(adviceView.getContext(),DividerItemDecoration.VERTICAL);

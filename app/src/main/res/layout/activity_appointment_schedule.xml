@@ -53,12 +53,38 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginStart="16dp"
-                android:layout_marginEnd="5dp"
+                android:layout_marginEnd="@dimen/_4sdp"
+                android:layout_alignWithParentIfMissing="true"
+                android:maxLines="1"
+                android:ellipsize="end"
                 android:layout_toEndOf="@+id/back_logo_of_appointment_schedule"
+                android:layout_toStartOf="@+id/walk_in_prescription"
                 android:fontFamily="@font/poppins_bold"
                 android:text="@string/appointment_schedule"
                 android:textColor="@color/white"
                 android:textSize="@dimen/_14sdp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/walk_in_prescription"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/_28sdp"
+                android:text="Walk-in Rx"
+                android:textAllCaps="false"
+                android:paddingTop="3dp"
+                android:paddingBottom="1dp"
+                android:textSize="@dimen/_9sdp"
+                android:visibility="gone"
+                android:layout_marginEnd="@dimen/_12sdp"
+                android:fontFamily="@font/poppins"
+                android:textColor="@color/green_sea"
+                app:backgroundTint="@color/white"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                app:strokeColor="@color/green_sea"
+                app:cornerRadius="@dimen/_8sdp"
+                tools:ignore="HardcodedText"
+                tools:visibility="visible"/>
 
         </RelativeLayout>
 

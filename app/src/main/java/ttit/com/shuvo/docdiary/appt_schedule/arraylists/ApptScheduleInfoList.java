@@ -5,6 +5,8 @@ public class ApptScheduleInfoList {
     private String time;
     private String apptInfo;
     private String patientName;
+    private String patGender;
+    private String patientId;
     private String apptStatus;
     private String patient_code;
     private String appointment_date;
@@ -13,6 +15,8 @@ public class ApptScheduleInfoList {
     private String doc_video_link;
     private String ts_video_conf_flag;
     private String pmm_for_prescription;
+    private String rvm_for_prescription;
+    private String rvm_id;
     private String depts_id;
     private String depts_name;
     private String is_ranked;
@@ -25,15 +29,18 @@ public class ApptScheduleInfoList {
     private String avail_flag;
 
 
-    public ApptScheduleInfoList(String adm_date, String time, String apptInfo, String patientName, String apptStatus, String patient_code,
+    public ApptScheduleInfoList(String adm_date, String time, String apptInfo, String patientName, String patGender, String patientId,
+                                String apptStatus, String patient_code,
                                 String appointment_date, String patient_age, String pfn_fee_name, String doc_video_link,
-                                String ts_video_conf_flag, String pmm_for_prescription,
+                                String ts_video_conf_flag, String pmm_for_prescription, String rvm_for_prescription, String rvm_id,
                                 String depts_id, String depts_name, String is_ranked, String pph_progress, String pfn_id, String ph_cat_id,
                                 String ad_id, String ad_prm_id, String ad_prd_id, String avail_flag) {
         this.adm_date = adm_date;
         this.time = time;
         this.apptInfo = apptInfo;
         this.patientName = patientName;
+        this.patGender = patGender;
+        this.patientId = patientId;
         this.apptStatus = apptStatus;
         this.patient_code = patient_code;
         this.appointment_date = appointment_date;
@@ -42,6 +49,8 @@ public class ApptScheduleInfoList {
         this.doc_video_link = doc_video_link;
         this.ts_video_conf_flag = ts_video_conf_flag;
         this.pmm_for_prescription = pmm_for_prescription;
+        this.rvm_for_prescription = rvm_for_prescription;
+        this.rvm_id = rvm_id;
         this.depts_id = depts_id;
         this.depts_name = depts_name;
         this.is_ranked = is_ranked;
@@ -84,6 +93,22 @@ public class ApptScheduleInfoList {
 
     public void setPatientName(String patientName) {
         this.patientName = patientName;
+    }
+
+    public String getPatGender() {
+        return patGender;
+    }
+
+    public void setPatGender(String patGender) {
+        this.patGender = patGender;
+    }
+
+    public String getPatientId() {
+        return patientId;
+    }
+
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
     }
 
     public String getApptStatus() {
@@ -228,5 +253,21 @@ public class ApptScheduleInfoList {
 
     public void setAvail_flag(String avail_flag) {
         this.avail_flag = avail_flag;
+    }
+
+    public String getRvm_for_prescription() {
+        return rvm_for_prescription;
+    }
+
+    public void setRvm_for_prescription(String rvm_for_prescription) {
+        this.rvm_for_prescription = rvm_for_prescription;
+    }
+
+    public String getRvm_id() {
+        return rvm_id;
+    }
+
+    public void setRvm_id(String rvm_id) {
+        this.rvm_id = rvm_id;
     }
 }

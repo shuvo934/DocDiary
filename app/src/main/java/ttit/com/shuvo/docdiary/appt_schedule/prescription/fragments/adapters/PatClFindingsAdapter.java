@@ -85,12 +85,16 @@ public class PatClFindingsAdapter extends RecyclerView.Adapter<PatClFindingsAdap
             delete = itemView.findViewById(R.id.pat_medic_history_delete);
 
             itemView.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 AppCompatActivity activity = (AppCompatActivity) v.getContext();
-                String cf_id = mCategory.get(getAdapterPosition()).getCf_id();
-                String pmm_id = mCategory.get(getAdapterPosition()).getCf_pmm_id();
-                String cfm_id = mCategory.get(getAdapterPosition()).getCfm_id();
-                String cfm_name = mCategory.get(getAdapterPosition()).getCfm_name();
-                String details = mCategory.get(getAdapterPosition()).getCf_details();
+                String cf_id = mCategory.get(position).getCf_id();
+                String pmm_id = mCategory.get(position).getCf_pmm_id();
+                String cfm_id = mCategory.get(position).getCfm_id();
+                String cfm_name = mCategory.get(position).getCfm_name();
+                String details = mCategory.get(position).getCf_details();
 
                 Intent intent = new Intent(mContext, ClinicalFindingsModify.class);
                 intent.putExtra("P_PMM_ID", pmm_id);
@@ -104,13 +108,17 @@ public class PatClFindingsAdapter extends RecyclerView.Adapter<PatClFindingsAdap
             });
 
             delete.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext);
-                builder.setTitle(mCategory.get(getAdapterPosition()).getCfm_name())
+                builder.setTitle(mCategory.get(position).getCfm_name())
                         .setMessage("Do you want to delete this Clinical Findings?")
                         .setPositiveButton("Yes", (dialogInterface, i) -> {
-                            String cf_id = mCategory.get(getAdapterPosition()).getCf_id();
+                            String cf_id = mCategory.get(position).getCf_id();
                             System.out.println(cf_id);
-                            deleteClinicalFindings(cf_id,getAdapterPosition());
+                            deleteClinicalFindings(cf_id,position);
                         })
                         .setNegativeButton("No", (dialogInterface, i) -> dialogInterface.dismiss());
                 AlertDialog alertDialog = builder.create();

@@ -115,7 +115,7 @@ public class DrugHistory extends Fragment implements FragmentAdapterCallBack {
 
         patDrugHistLists = new ArrayList<>();
 
-        drugHistoryView.setHasFixedSize(true);
+//        drugHistoryView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(mContext);
         drugHistoryView.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(drugHistoryView.getContext(),DividerItemDecoration.VERTICAL);

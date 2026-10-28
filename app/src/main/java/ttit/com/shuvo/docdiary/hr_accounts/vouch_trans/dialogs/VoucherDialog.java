@@ -107,7 +107,7 @@ public class VoucherDialog extends AppCompatDialogFragment {
 
         debitCreditVoucherItemLists = new ArrayList<>();
 
-        itemView.setHasFixedSize(true);
+//        itemView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getContext());
         itemView.setLayoutManager(layoutManager);
 

@@ -575,9 +575,13 @@ public class IncomeExpenseStateAdapter extends RecyclerView.Adapter<IncomeExpens
             itemDivider = itemView.findViewById(R.id.layout_bottom_border_income_state_first);
 
             headAccount3.setOnClickListener(view -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 AppCompatActivity activity = (AppCompatActivity) view.getContext();
 
-                String ad_id = mCategoryItem.get(getAdapterPosition()).getLg_ad_id();
+                String ad_id = mCategoryItem.get(position).getLg_ad_id();
 
                 Intent intent = new Intent(myContext, AccountLedger.class);
                 intent.putExtra("FIRST_DATE",firstDate);

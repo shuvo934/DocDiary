@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_vitals_summary_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="@dimen/_7sdp"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/prescription_outline"
+    app:strokeWidth="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/_6sdp"
+        android:paddingTop="@dimen/_6sdp"
+        android:paddingEnd="@dimen/_6sdp"
+        android:paddingBottom="@dimen/_6sdp">
+
+        <!-- Summary header -->
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_26sdp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:fontFamily="@font/poppins_medium"
+                android:text="Recorded measurements"
+                android:textColor="@color/prescription_primary"
+                android:textSize="@dimen/_9sdp"
+                tools:ignore="HardcodedText" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv_edit_vitals"
+                android:layout_width="@dimen/_26sdp"
+                android:layout_height="@dimen/_26sdp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Edit vitals"
+                android:padding="@dimen/_5sdp"
+                app:srcCompat="@drawable/edit_24"
+                app:tint="@color/green_sea" />
+
+        </RelativeLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginEnd="@dimen/_3sdp"
+            android:background="@color/prescription_outline" />
+
+        <!-- BP and pulse -->
+
+        <TextView
+            android:id="@+id/tv_vitals_summary_row_one"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_6sdp"
+            android:fontFamily="@font/poppins_medium"
+            android:textColor="@color/prescription_text_primary"
+            android:textSize="@dimen/_9sdp"
+            android:visibility="gone"
+            tools:text="BP: 120/80 mmHg  •  Pulse: 72 bpm"
+            tools:visibility="visible" />
+
+        <!-- Temperature and SpO2 -->
+
+        <TextView
+            android:id="@+id/tv_vitals_summary_row_two"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_4sdp"
+            android:fontFamily="@font/poppins_medium"
+            android:textColor="@color/prescription_text_primary"
+            android:textSize="@dimen/_9sdp"
+            android:visibility="gone"
+            tools:text="Temperature: 36.8 °C  •  SpO₂: 98%"
+            tools:visibility="visible" />
+
+        <!-- Respiratory rate and BMI -->
+
+        <TextView
+            android:id="@+id/tv_vitals_summary_row_three"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_4sdp"
+            android:fontFamily="@font/poppins_medium"
+            android:textColor="@color/prescription_text_primary"
+            android:textSize="@dimen/_9sdp"
+            android:visibility="gone"
+            tools:text="Respiratory: 18/min  •  BMI: 23.4 kg/m²"
+            tools:visibility="visible" />
+
+        <!-- Height and weight -->
+
+        <TextView
+            android:id="@+id/tv_vitals_summary_row_four"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_4sdp"
+            android:fontFamily="@font/poppins_medium"
+            android:textColor="@color/prescription_text_primary"
+            android:textSize="@dimen/_9sdp"
+            android:visibility="gone"
+            tools:text="Height: 170 cm  •  Weight: 68 kg"
+            tools:visibility="visible" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

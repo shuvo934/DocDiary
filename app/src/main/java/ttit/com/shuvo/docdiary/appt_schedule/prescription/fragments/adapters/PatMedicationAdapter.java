@@ -90,16 +90,20 @@ public class PatMedicationAdapter extends RecyclerView.Adapter<PatMedicationAdap
             delete = itemView.findViewById(R.id.patient_medication_delete);
 
             itemView.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 AppCompatActivity activity = (AppCompatActivity) v.getContext();
-                String pmp_id = mCategory.get(getAdapterPosition()).getPmp_id();
-                String pmm_id = mCategory.get(getAdapterPosition()).getPmp_pmm_id();
-                String medicine_id = mCategory.get(getAdapterPosition()).getMedicine_id();
-                String medicine_name = mCategory.get(getAdapterPosition()).getMedicine_name();
-                String dose_id = mCategory.get(getAdapterPosition()).getDose_id();
-                String dose_name = mCategory.get(getAdapterPosition()).getDose_name();
-                String mpm_name = mCategory.get(getAdapterPosition()).getMpm_name();
-                String mpm_id = mCategory.get(getAdapterPosition()).getMpm_id();
-                String duration = mCategory.get(getAdapterPosition()).getPmp_duration();
+                String pmp_id = mCategory.get(position).getPmp_id();
+                String pmm_id = mCategory.get(position).getPmp_pmm_id();
+                String medicine_id = mCategory.get(position).getMedicine_id();
+                String medicine_name = mCategory.get(position).getMedicine_name();
+                String dose_id = mCategory.get(position).getDose_id();
+                String dose_name = mCategory.get(position).getDose_name();
+                String mpm_name = mCategory.get(position).getMpm_name();
+                String mpm_id = mCategory.get(position).getMpm_id();
+                String duration = mCategory.get(position).getPmp_duration();
 
                 Intent intent = new Intent(mContext, MedicationModify.class);
                 intent.putExtra("P_PMM_ID", pmm_id);
@@ -117,13 +121,17 @@ public class PatMedicationAdapter extends RecyclerView.Adapter<PatMedicationAdap
             });
 
             delete.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext);
-                builder.setTitle(mCategory.get(getAdapterPosition()).getMedicine_name())
+                builder.setTitle(mCategory.get(position).getMedicine_name())
                         .setMessage("Do you want to delete this Medicine?")
                         .setPositiveButton("Yes", (dialogInterface, i) -> {
-                            String pmp_id = mCategory.get(getAdapterPosition()).getPmp_id();
+                            String pmp_id = mCategory.get(position).getPmp_id();
                             System.out.println(pmp_id);
-                            deleteMedicine(pmp_id,getAdapterPosition());
+                            deleteMedicine(pmp_id,position);
                         })
                         .setNegativeButton("No", (dialogInterface, i) -> dialogInterface.dismiss());
                 AlertDialog alertDialog = builder.create();

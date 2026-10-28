@@ -4,7 +4,6 @@ import static ttit.com.shuvo.docdiary.payment.AddPayment.selected_pat_cat_id;
 
 import android.content.Context;
 import android.content.Intent;
-import android.text.Html;
 import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +13,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.text.HtmlCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -74,14 +74,19 @@ public class UpdatedServiceAdapter extends RecyclerView.Adapter<UpdatedServiceAd
             availableQty = itemView.findViewById(R.id.updated_service_avail_qty);
 
             availableQty.setOnClickListener(v -> {
-                Spanned spanned = Html.fromHtml("Total Quantity:   <font color='black'><b>"+updatedServiceLists.get(getAdapterPosition()).getPrd_qty()+"</b></font><br>"+
-                        "Schedule Taken:   <font color='black'><b>"+updatedServiceLists.get(getAdapterPosition()).getPrd_sched_avail_mark()+"</b></font><br>"+
-                        "Cancel:   <font color='black'><b>"+updatedServiceLists.get(getAdapterPosition()).getPrd_cancel_mark()+"</b></font><br>"+
-                        "Return:   <font color='black'><b>"+updatedServiceLists.get(getAdapterPosition()).getPrd_return_mark()+"</b></font><br>"+
-                        "Available Quantity:   <font color='black'><b>"+updatedServiceLists.get(getAdapterPosition()).getAvailable_qty()+"</b></font><br>");
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
+                Spanned spanned = HtmlCompat.fromHtml("Total Quantity:   <font color='black'><b>"+updatedServiceLists.get(position).getPrd_qty()+"</b></font><br>"+
+                        "Schedule Taken:   <font color='black'><b>"+updatedServiceLists.get(position).getPrd_sched_avail_mark()+"</b></font><br>"+
+                        "Cancel:   <font color='black'><b>"+updatedServiceLists.get(position).getPrd_cancel_mark()+"</b></font><br>"+
+                        "Return:   <font color='black'><b>"+updatedServiceLists.get(position).getPrd_return_mark()+"</b></font><br>"+
+                        "Available Quantity:   <font color='black'><b>"+updatedServiceLists.get(position).getAvailable_qty()+"</b></font><br>",
+                        HtmlCompat.FROM_HTML_MODE_LEGACY);
 
                 MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext);
-                builder.setTitle(updatedServiceLists.get(getAdapterPosition()).getPfn_fee_name())
+                builder.setTitle(updatedServiceLists.get(position).getPfn_fee_name())
                         .setMessage(spanned)
                         .setPositiveButton("Close", (dialogInterface, i) -> dialogInterface.dismiss());
                 AlertDialog alertDialog = builder.create();
@@ -89,19 +94,23 @@ public class UpdatedServiceAdapter extends RecyclerView.Adapter<UpdatedServiceAd
             });
 
             itemView.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 AppCompatActivity activity = (AppCompatActivity) v.getContext();
-                String pfn_id = updatedServiceLists.get(getAdapterPosition()).getPrd_pfn_id();
-                String pfn_name = updatedServiceLists.get(getAdapterPosition()).getPfn_fee_name();
-                String depts_name = updatedServiceLists.get(getAdapterPosition()).getDepts_name();
-                String depts_id = updatedServiceLists.get(getAdapterPosition()).getPrd_depts_id();
-                String service_rate = updatedServiceLists.get(getAdapterPosition()).getPrd_rate();
-                String service_top_rate = updatedServiceLists.get(getAdapterPosition()).getPrd_top_cat_rate();
-                String service_qty = updatedServiceLists.get(getAdapterPosition()).getPrd_qty();
-                String service_amount = updatedServiceLists.get(getAdapterPosition()).getAmount();
-                String available_qty = updatedServiceLists.get(getAdapterPosition()).getAvailable_qty();
-                String schedule_taken = updatedServiceLists.get(getAdapterPosition()).getPrd_sched_avail_mark();
-                String cancel_qty = updatedServiceLists.get(getAdapterPosition()).getPrd_cancel_mark();
-                String return_qty = updatedServiceLists.get(getAdapterPosition()).getPrd_return_mark();
+                String pfn_id = updatedServiceLists.get(position).getPrd_pfn_id();
+                String pfn_name = updatedServiceLists.get(position).getPfn_fee_name();
+                String depts_name = updatedServiceLists.get(position).getDepts_name();
+                String depts_id = updatedServiceLists.get(position).getPrd_depts_id();
+                String service_rate = updatedServiceLists.get(position).getPrd_rate();
+                String service_top_rate = updatedServiceLists.get(position).getPrd_top_cat_rate();
+                String service_qty = updatedServiceLists.get(position).getPrd_qty();
+                String service_amount = updatedServiceLists.get(position).getAmount();
+                String available_qty = updatedServiceLists.get(position).getAvailable_qty();
+                String schedule_taken = updatedServiceLists.get(position).getPrd_sched_avail_mark();
+                String cancel_qty = updatedServiceLists.get(position).getPrd_cancel_mark();
+                String return_qty = updatedServiceLists.get(position).getPrd_return_mark();
 
                 boolean found = false;
                 for (int i = 0; i < updatedServiceLists.size(); i++) {
@@ -139,7 +148,7 @@ public class UpdatedServiceAdapter extends RecyclerView.Adapter<UpdatedServiceAd
                     intent.putExtra("SCH_QTY", schedule_taken);
                     intent.putExtra("CANCEL_QTY", cancel_qty);
                     intent.putExtra("RETURN_QTY", return_qty);
-                    intent.putExtra("POSITION", getAdapterPosition());
+                    intent.putExtra("POSITION", position);
                     activity.startActivity(intent);
                 }
             });

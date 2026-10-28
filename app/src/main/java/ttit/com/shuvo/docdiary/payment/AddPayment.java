@@ -273,7 +273,7 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
             }
         }
 
-        serviceView.setHasFixedSize(true);
+//        serviceView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(AddPayment.this);
         serviceView.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecorationRS = new DividerItemDecoration(serviceView.getContext(),DividerItemDecoration.VERTICAL);
@@ -282,7 +282,7 @@ public class AddPayment extends AppCompatActivity implements PatCodeCallBackList
         addedServiceAdapter = new AddedServiceAdapter(addedServiceLists,AddPayment.this, this);
         serviceView.setAdapter(addedServiceAdapter);
 
-        upServiceView.setHasFixedSize(true);
+//        upServiceView.setHasFixedSize(true);
         upLayoutManager = new LinearLayoutManager(AddPayment.this);
         upServiceView.setLayoutManager(upLayoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(upServiceView.getContext(),DividerItemDecoration.VERTICAL);

@@ -4,10 +4,12 @@ import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.adminInfoLists;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.pre_url_api;
 import static ttit.com.shuvo.docdiary.dashboard.DocDashboard.userInfoLists;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 import androidx.cardview.widget.CardView;
+import androidx.core.text.HtmlCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,7 +20,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
 import android.os.Bundle;
-import android.text.Html;
 import android.text.Spanned;
 import android.view.View;
 import android.view.animation.Animation;
@@ -168,7 +169,7 @@ public class AllAppointment extends AppCompatActivity {
         deptsCard = findViewById(R.id.unit_total_blank_count_card_view);
         unitDocCount = findViewById(R.id.unit_docs_count_all_app);
 
-        docListView.setHasFixedSize(true);
+//        docListView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getApplicationContext());
         docListView.setLayoutManager(layoutManager);
 
@@ -371,6 +372,9 @@ public class AllAppointment extends AppCompatActivity {
         backButton.setOnClickListener(v -> finish());
 
         departmentSelect.setOnItemClickListener((parent, view, position, id) -> {
+            if (id < 0 || id >= choiceDepartmentLists.size()) {
+                return;
+            }
             selected_depts_id = "";
             unitSelect.setText("");
             unitSelectLay.setEnabled(false);
@@ -383,14 +387,9 @@ public class AllAppointment extends AppCompatActivity {
             unitDoctorsLists = new ArrayList<>();
             filteredList = new ArrayList<>();
 
-            String name = parent.getItemAtPosition(position).toString();
-            System.out.println(position+": "+name);
-            for (int i = 0; i <choiceDepartmentLists.size(); i++) {
-                if (name.equals(choiceDepartmentLists.get(i).getDeptd_name())) {
-
-                    selected_deptd_id = choiceDepartmentLists.get(i).getDeptd_id();
-                }
-            }
+            selected_deptd_id = choiceDepartmentLists.get((int) id).getDeptd_id();
+            String name = choiceDepartmentLists.get((int) id).getDeptd_name();
+            System.out.println(position + ": " + name + ": " + selected_deptd_id);
 
             getUnits(2);
 
@@ -403,14 +402,13 @@ public class AllAppointment extends AppCompatActivity {
             docSelectLay.setEnabled(false);
             selected_doc_id = "";
 
-            String name = parent.getItemAtPosition(position).toString();
-            System.out.println(position+": "+name);
-            for (int i = 0; i <choiceUnitLists.size(); i++) {
-                if (name.equals(choiceUnitLists.get(i).getDetps_name())) {
-
-                    selected_depts_id = choiceUnitLists.get(i).getPph_depts_id();
-                }
+            if (id < 0 || id >= choiceUnitLists.size()) {
+                return;
             }
+
+            ChoiceUnitList selectedUnit = choiceUnitLists.get((int) id);
+            selected_depts_id = selectedUnit.getPph_depts_id();
+            System.out.println("Unit: " + selectedUnit.getDetps_name() + ", ID: " + selected_depts_id);
             unitSelectLay.setHint("Unit");
             fromCalendar = false;
             getDoctors(selected_depts_id,2);
@@ -418,19 +416,17 @@ public class AllAppointment extends AppCompatActivity {
         });
 
         docSelect.setOnItemClickListener((parent, view, position, id) -> {
-            selected_doc_id = "";
-            String name = parent.getItemAtPosition(position).toString();
-            for (int i = 0; i <choiceDoctorLists.size(); i++) {
-                if (name.equals(choiceDoctorLists.get(i).getDoc_name())) {
-                    if (name.equals("...")) {
-                        docSelect.setText("");
-                        docSelectLay.setHint("Select Doctor/Therapist");
-                    }
-                    else {
-                        docSelectLay.setHint("Doctor/Therapist");
-                    }
-                    selected_doc_id = choiceDoctorLists.get(i).getPph_doc_id();
-                }
+            if (id < 0 || id >= choiceDoctorLists.size()) {
+                return;
+            }
+
+            ChoiceDoctorList selectedDoctor = choiceDoctorLists.get((int) id);
+            selected_doc_id = selectedDoctor.getPph_doc_id();
+            if ("...".equals(selectedDoctor.getDoc_name())) {
+                docSelect.setText("");
+                docSelectLay.setHint("Select Doctor/Therapist");
+            } else {
+                docSelectLay.setHint("Doctor/Therapist");
             }
 
             filter(selected_doc_id);
@@ -438,8 +434,9 @@ public class AllAppointment extends AppCompatActivity {
 
         deptCard.setOnClickListener(view -> {
             String text = departmentSelect.getText().toString();
-            Spanned spanned = Html.fromHtml("Total Appointment:   <font color='black'><b>"+deptd_sch_count+"</b></font><br>"+
-                    "Total Blank Schedule:   <font color='black'><b>"+deptd_blank_count+"</b></font><br>");
+
+            Spanned spanned = HtmlCompat.fromHtml("Total Appointment:   <font color='black'><b>"+deptd_sch_count+"</b></font><br>"+
+                    "Total Blank Schedule:   <font color='black'><b>"+deptd_blank_count+"</b></font><br>", HtmlCompat.FROM_HTML_MODE_LEGACY);
 
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(AllAppointment.this);
             builder.setTitle(text)
@@ -451,8 +448,8 @@ public class AllAppointment extends AppCompatActivity {
 
         deptsCard.setOnClickListener(view -> {
             String text = unitSelect.getText().toString();
-            Spanned spanned = Html.fromHtml("Total Appointment:   <font color='black'><b>"+unit_sch_count+"</b></font><br>"+
-                    "Total Blank Schedule:   <font color='black'><b>"+unit_blank_count+"</b></font><br>");
+            Spanned spanned = HtmlCompat.fromHtml("Total Appointment:   <font color='black'><b>"+unit_sch_count+"</b></font><br>"+
+                    "Total Blank Schedule:   <font color='black'><b>"+unit_blank_count+"</b></font><br>", HtmlCompat.FROM_HTML_MODE_LEGACY);
 
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(AllAppointment.this);
             builder.setTitle(text)
@@ -465,31 +462,63 @@ public class AllAppointment extends AppCompatActivity {
         getDepartments();
     }
 
-    private void filter(String text) {
-        filteredList = new ArrayList<>();
-        for (UnitDoctorsList item : unitDoctorsLists) {
-            if (text.isEmpty()) {
-                filteredList.add((item));
-            }
-            else {
-                if (item.getDoc_id().toLowerCase().contains(text.toLowerCase())) {
-                    filteredList.add((item));
-                }
-            }
+    private static final class DropdownItem {
+        final int originalPosition;
+        final String name;
 
+        DropdownItem(int originalPosition, String name) {
+            this.originalPosition = originalPosition;
+            this.name = name == null ? "" : name;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
+    private ArrayAdapter<DropdownItem> createDropdownAdapter(ArrayList<String> names) {
+        ArrayList<DropdownItem> items = new ArrayList<>();
+
+        for (int i = 0; i < names.size(); i++) {
+            items.add(new DropdownItem(i, names.get(i)));
+        }
+
+        return new ArrayAdapter<>(AllAppointment.this, R.layout.dropdown_menu_popup_item, R.id.drop_down_item, items) {
+            @Override
+            public long getItemId(int position) {
+                if (position < 0 || position >= getCount()) {
+                    return -1;
+                }
+
+                DropdownItem item = getItem(position);
+                return item == null ? -1 : item.originalPosition;
+            }
+        };
+    }
+
+    private void filter(String doctorId) {
+        filteredList = new ArrayList<>();
+
+        for (UnitDoctorsList item : unitDoctorsLists) {
+            if (doctorId == null || doctorId.isEmpty() || doctorId.equals(item.getDoc_id())) {
+                filteredList.add(item);
+            }
         }
 
         if (filteredList.isEmpty()) {
+            noDocsMess.setText(no_doc_msg);
             noDocsMess.setVisibility(View.VISIBLE);
-        }
-        else {
+        } else {
             noDocsMess.setVisibility(View.GONE);
         }
-        try {
+
+        if (doctorsListAdapter == null) {
+            doctorsListAdapter = new DoctorsListAdapter(filteredList, AllAppointment.this);
+            docListView.setAdapter(doctorsListAdapter);
+        } else {
             doctorsListAdapter.filterList(filteredList);
-        }
-        catch (Exception e) {
-            restart("App is paused for a long time. Please Start the app again.");
         }
     }
 
@@ -585,8 +614,7 @@ public class AllAppointment extends AppCompatActivity {
                     type.add(choiceDepartmentLists.get(i).getDeptd_name());
                 }
 
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(AllAppointment.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
-                departmentSelect.setAdapter(arrayAdapter);
+                departmentSelect.setAdapter(createDropdownAdapter(type));
 
                 if (selected_deptd_id.isEmpty()) {
                     try {
@@ -796,8 +824,7 @@ public class AllAppointment extends AppCompatActivity {
                     type.add(choiceUnitLists.get(i).getDetps_name());
                 }
 
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(AllAppointment.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
-                unitSelect.setAdapter(arrayAdapter);
+                unitSelect.setAdapter(createDropdownAdapter(type));
 
                 doctorsListAdapter = new DoctorsListAdapter(unitDoctorsLists,AllAppointment.this);
                 docListView.setAdapter(doctorsListAdapter);
@@ -1252,8 +1279,7 @@ public class AllAppointment extends AppCompatActivity {
                     type.add(choiceDoctorLists.get(i).getDoc_name());
                 }
 
-                ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(AllAppointment.this,R.layout.dropdown_menu_popup_item,R.id.drop_down_item,type);
-                docSelect.setAdapter(arrayAdapter);
+                docSelect.setAdapter(createDropdownAdapter(type));
 
                 if (unitDoctorsLists.isEmpty()) {
                     noDocsMess.setText(no_doc_msg);

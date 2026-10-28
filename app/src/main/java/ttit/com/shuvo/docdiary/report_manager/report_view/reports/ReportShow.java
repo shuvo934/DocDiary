@@ -3,12 +3,20 @@ package ttit.com.shuvo.docdiary.report_manager.report_view.reports;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.app.DownloadManager;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.ColorMatrix;
@@ -20,11 +28,12 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.ParcelFileDescriptor;
+import android.provider.Settings;
 import android.util.Log;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -36,6 +45,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.github.chrisbanes.photoview.PhotoView;
 import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 
 import java.io.File;
@@ -50,6 +60,39 @@ import ttit.com.shuvo.docdiary.report_manager.report_view.reports.request.ByteAr
 import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
 
 public class ReportShow extends AppCompatActivity {
+
+    private static final String KEY_PENDING_REPORT_DOWNLOAD = "pending_report_download";
+    private boolean pendingReportDownload = false;
+
+    private final ActivityResultLauncher<String> storagePermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
+                if (isFinishing() || isDestroyed() || !pendingReportDownload) {
+                    return;
+                }
+
+                if (granted) {
+                    pendingReportDownload = false;
+                    downloadPDF();
+                } else {
+                    showReportStoragePermissionDialog();
+                }
+            });
+
+    private final ActivityResultLauncher<Intent> storageSettingsLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (isFinishing() || isDestroyed() || !pendingReportDownload) {
+                    return;
+                }
+
+                pendingReportDownload = false;
+
+                // Recheck actual access after returning from Settings.
+                if (hasLegacyStoragePermission()) {
+                    downloadPDF();
+                } else {
+                    Toast.makeText(this, "Storage permission was not granted. Report was not saved to Downloads.", Toast.LENGTH_LONG).show();
+                }
+            });
 
     ImageView close;
     TextView appbarName;
@@ -80,6 +123,9 @@ public class ReportShow extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            pendingReportDownload = savedInstanceState.getBoolean(KEY_PENDING_REPORT_DOWNLOAD, false);
+        }
         EdgeToEdgeHelper.enable(this);
         setContentView(R.layout.activity_report_show);
         EdgeToEdgeHelper.applyInsets(
@@ -300,6 +346,10 @@ public class ReportShow extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        if (pDialog != null && pDialog.isShowing()) {
+            pDialog.dismiss();
+        }
+
         try {
             if (currentPage != null) currentPage.close();
             if (pdfRenderer != null) pdfRenderer.close();
@@ -311,21 +361,20 @@ public class ReportShow extends AppCompatActivity {
     }
 
     public void Download(String url, String title) {
-
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
         String tempTitle = title.replace(" ", "_");
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
+
         request.setTitle(tempTitle);
-        request.allowScanningByMediaScanner();
+        request.setMimeType("application/pdf");
+
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
 
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, tempTitle+".pdf");
-        DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
-        request.setMimeType("application/pdf");
-        request.allowScanningByMediaScanner();
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
+
+        DownloadManager downloadManager = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
         downloadManager.enqueue(request);
         infoConnected = true;
-
     }
 
     public boolean isConnected() {
@@ -365,42 +414,125 @@ public class ReportShow extends AppCompatActivity {
         return false;
     }
 
+    /**
+     * Entry point used by the download confirmation and retry button.
+     * Permission is requested only for API 23-28, when saving to public Downloads.
+     */
     public void downloadPDF() {
+        if (isFinishing() || isDestroyed()) {
+            return;
+        }
+
+        if (!requiresLegacyStoragePermission() || hasLegacyStoragePermission()) {
+            pendingReportDownload = false;
+            startReportDownload();
+            return;
+        }
+
+        pendingReportDownload = true;
+
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            showReportStoragePermissionDialog();
+        } else {
+            storagePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+    }
+
+    private boolean requiresLegacyStoragePermission() {
+        return Build.VERSION.SDK_INT <= Build.VERSION_CODES.P;
+    }
+
+    private boolean hasLegacyStoragePermission() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void showReportStoragePermissionDialog() {
+        if (isFinishing() || isDestroyed() || !pendingReportDownload) {
+            return;
+        }
+
+        boolean canRequestAgain = ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        String message = canRequestAgain
+                ? "On this Android version, storage permission is needed to save the report in Downloads. You can cancel and continue viewing the report."
+                : "Storage access was not granted. You can open Settings and allow the storage permission to save this report in Downloads.";
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Storage permission")
+                .setMessage(message)
+                .setPositiveButton(canRequestAgain ? "Try again" : "Open Settings", (dialog, which) -> {
+                    if (canRequestAgain) {
+                        storagePermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                    } else {
+                        openReportStorageSettings();
+                    }
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> pendingReportDownload = false)
+                .setOnCancelListener(dialog -> pendingReportDownload = false)
+                .show();
+    }
+
+    private void openReportStorageSettings() {
+        Intent settingsIntent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
+
+        try {
+            storageSettingsLauncher.launch(settingsIntent);
+        } catch (ActivityNotFoundException exception) {
+            pendingReportDownload = false;
+            Toast.makeText(this, "Unable to open application settings.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putBoolean(KEY_PENDING_REPORT_DOWNLOAD, pendingReportDownload);
+        super.onSaveInstanceState(outState);
+    }
+
+    private void startReportDownload() {
+        if (pDialog.isShowing()) {
+            return;
+        }
+
         pDialog.setCanceledOnTouchOutside(false);
         pDialog.setCancelable(false);
         pDialog.show();
 
         new Thread(() -> {
-            if (isConnected() && isOnline()) {
+            boolean downloadStarted = false;
+            String failureMessage = "Please check your internet connection.";
 
-                Download(report_url, app_bar_name+"_"+firstDate+" to "+lastDate);
-            }
-            else {
-                infoConnected = false;
-            }
-            runOnUiThread(() -> {
-                pDialog.dismiss();
-                if (infoConnected) {
-                    Toast.makeText(getApplicationContext(), "Download Complete", Toast.LENGTH_SHORT).show();
-                    infoConnected = false;
+            try {
+                if (isConnected() && isOnline()) {
+                    Download(report_url, app_bar_name + "_" + firstDate + " to " + lastDate);
+                    downloadStarted = true;
                 }
-                else {
-                    Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
-                    AlertDialog dialog = new AlertDialog.Builder(ReportShow.this)
-                            .setMessage("Please Check Your Internet Connection")
-                            .setPositiveButton("Retry", null)
-                            .setNegativeButton("Cancel",null)
+            } catch (Exception exception) {
+                logger.log(Level.WARNING, "Unable to start report download", exception);
+                failureMessage = "Unable to start the report download. Please try again.";
+            }
+
+            boolean finalDownloadStarted = downloadStarted;
+            String finalFailureMessage = failureMessage;
+
+            runOnUiThread(() -> {
+                if (isFinishing() || isDestroyed()) {
+                    return;
+                }
+
+                pDialog.dismiss();
+                infoConnected = false;
+
+                if (finalDownloadStarted) {
+                    // enqueue() starts a download; it does not confirm completion.
+                    Toast.makeText(this, "Download started. Check Downloads for progress.", Toast.LENGTH_LONG).show();
+                } else {
+                    new AlertDialog.Builder(ReportShow.this)
+                            .setTitle("Download report")
+                            .setMessage(finalFailureMessage)
+                            .setPositiveButton("Retry", (dialog, which) -> downloadPDF())
+                            .setNegativeButton("Cancel", null)
                             .show();
-
-                    Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                    positive.setOnClickListener(v -> {
-
-                        downloadPDF();
-                        dialog.dismiss();
-                    });
-
-                    Button negative = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-                    negative.setOnClickListener(v -> dialog.dismiss());
                 }
             });
         }).start();

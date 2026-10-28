@@ -59,7 +59,11 @@ public class SearchPaymentForAppAdapter extends RecyclerView.Adapter<SearchPayme
 
         @Override
         public void onClick(View v) {
-            mClickedItem.onItemClicked(getAdapterPosition());
+            int position = getBindingAdapterPosition();
+            if (position == RecyclerView.NO_POSITION) {
+                return;
+            }
+            mClickedItem.onItemClicked(position);
         }
     }
 

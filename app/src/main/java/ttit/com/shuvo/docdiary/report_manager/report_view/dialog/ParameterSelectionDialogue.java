@@ -103,7 +103,7 @@ public class ParameterSelectionDialogue extends AppCompatDialogFragment implemen
         noParamFound = view.findViewById(R.id.no_report_parameter_found_message);
         noParamFound.setVisibility(View.GONE);
 
-        recyclerView.setHasFixedSize(true);
+//        recyclerView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),DividerItemDecoration.VERTICAL);

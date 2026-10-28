@@ -110,7 +110,7 @@ public class DrugHistPSV extends Fragment {
 
         patDrugHistLists = new ArrayList<>();
 
-        drugHistoryView.setHasFixedSize(true);
+//        drugHistoryView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(mContext);
         drugHistoryView.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(drugHistoryView.getContext(),DividerItemDecoration.VERTICAL);

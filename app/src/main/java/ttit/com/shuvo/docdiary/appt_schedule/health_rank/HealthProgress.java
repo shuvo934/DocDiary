@@ -207,7 +207,7 @@ public class HealthProgress extends AppCompatActivity {
         addProgress = findViewById(R.id.pat_add_health_progress_button);
 
         healthProgressLists = new ArrayList<>();
-        patProgressHistView.setHasFixedSize(true);
+//        patProgressHistView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getApplicationContext());
         patProgressHistView.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(patProgressHistView.getContext(),DividerItemDecoration.VERTICAL);

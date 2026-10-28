@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/_10sdp"
+    android:paddingTop="@dimen/_7sdp"
+    android:paddingEnd="@dimen/_10sdp"
+    android:paddingBottom="@dimen/_7sdp">
+
+    <TextView
+        android:id="@+id/tv_patient_detail_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins"
+        android:textColor="@color/prescription_text_secondary"
+        android:textSize="@dimen/_7sdp"
+        tools:text="Patient Code" />
+
+    <TextView
+        android:id="@+id/tv_patient_detail_value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_1sdp"
+        android:fontFamily="@font/poppins_medium"
+        android:textColor="@color/prescription_text_primary"
+        android:textIsSelectable="true"
+        android:textSize="@dimen/_9sdp"
+        tools:text="23.01.000003.01" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="@dimen/_6sdp"
+        android:background="@color/prescription_outline" />
+
+</LinearLayout>

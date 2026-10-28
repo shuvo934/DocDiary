@@ -89,14 +89,18 @@ public class ComplainAdapter extends RecyclerView.Adapter<ComplainAdapter.CMPHol
             delete = itemView.findViewById(R.id.delete_complain);
 
             itemView.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 AppCompatActivity activity = (AppCompatActivity) v.getContext();
-                String pci_id = mCategory.get(getAdapterPosition()).getPci_id();
-                String pmm_id = mCategory.get(getAdapterPosition()).getPci_pmm_id();
-                String cm_id = mCategory.get(getAdapterPosition()).getCm_id();
-                String cm_name = mCategory.get(getAdapterPosition()).getCm_name();
-                String injury_id = mCategory.get(getAdapterPosition()).getInjury_id();
-                String injury_name = mCategory.get(getAdapterPosition()).getInjury_name();
-                String injury_date = mCategory.get(getAdapterPosition()).getPci_date();
+                String pci_id = mCategory.get(position).getPci_id();
+                String pmm_id = mCategory.get(position).getPci_pmm_id();
+                String cm_id = mCategory.get(position).getCm_id();
+                String cm_name = mCategory.get(position).getCm_name();
+                String injury_id = mCategory.get(position).getInjury_id();
+                String injury_name = mCategory.get(position).getInjury_name();
+                String injury_date = mCategory.get(position).getPci_date();
 
                 Intent intent = new Intent(mContext, ComplainModify.class);
                 intent.putExtra("P_PMM_ID", pmm_id);
@@ -112,13 +116,17 @@ public class ComplainAdapter extends RecyclerView.Adapter<ComplainAdapter.CMPHol
             });
 
             delete.setOnClickListener(v -> {
+                int position = getBindingAdapterPosition();
+                if (position == RecyclerView.NO_POSITION) {
+                    return;
+                }
                 MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(mContext);
-                builder.setTitle(mCategory.get(getAdapterPosition()).getCm_name())
+                builder.setTitle(mCategory.get(position).getCm_name())
                         .setMessage("Do you want to delete this Complain?")
                         .setPositiveButton("Yes", (dialogInterface, i) -> {
-                            String pci_id = mCategory.get(getAdapterPosition()).getPci_id();
+                            String pci_id = mCategory.get(position).getPci_id();
                             System.out.println(pci_id);
-                            deleteComplain(pci_id,getAdapterPosition());
+                            deleteComplain(pci_id,position);
                         })
                         .setNegativeButton("No", (dialogInterface, i) -> dialogInterface.dismiss());
                 AlertDialog alertDialog = builder.create();

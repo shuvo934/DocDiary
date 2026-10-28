@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/clinical_scroll_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:clipToPadding="false"
+    android:fillViewport="true"
+    android:overScrollMode="never"
+    tools:context=".dynamic_prescription.fragments.PrescriptionClinicalFragment">
+
+    <LinearLayout
+        android:id="@+id/clinical_content_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/_4sdp"
+        android:paddingTop="@dimen/_4sdp"
+        android:paddingEnd="@dimen/_4sdp"
+        android:paddingBottom="@dimen/_10sdp">
+
+        <!-- Default expanded -->
+        <include
+            android:id="@+id/section_vitals"
+            layout="@layout/view_prescription_expandable_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:tag="vitals" />
+
+        <!-- Default collapsed -->
+        <include
+            android:id="@+id/section_complaints"
+            layout="@layout/view_prescription_expandable_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:tag="complain" />
+
+        <!-- Default collapsed -->
+        <include
+            android:id="@+id/section_injury"
+            layout="@layout/view_prescription_expandable_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:tag="injury" />
+
+        <!-- Default expanded -->
+        <include
+            android:id="@+id/section_diagnosis"
+            layout="@layout/view_prescription_expandable_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:tag="diagnosis" />
+
+        <!-- Default collapsed -->
+        <include
+            android:id="@+id/section_objective_info"
+            layout="@layout/view_prescription_expandable_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:tag="objective_info" />
+
+        <!-- Default collapsed -->
+        <include
+            android:id="@+id/section_drug_history"
+            layout="@layout/view_prescription_expandable_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:tag="drug_history" />
+
+        <!-- Default collapsed -->
+        <include
+            android:id="@+id/section_clinical_findings"
+            layout="@layout/view_prescription_expandable_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:tag="clinical_findings" />
+
+        <!-- Default collapsed -->
+        <include
+            android:id="@+id/section_tests_investigation"
+            layout="@layout/view_prescription_expandable_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:tag="tests_investigation" />
+
+        <!-- important info -->
+        <include
+            android:id="@+id/section_important_info"
+            layout="@layout/view_prescription_expandable_section"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:layout_marginBottom="@dimen/_5sdp"/>
+
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

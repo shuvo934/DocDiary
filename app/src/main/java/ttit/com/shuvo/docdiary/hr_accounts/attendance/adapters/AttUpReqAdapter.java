@@ -1,5 +1,6 @@
 package ttit.com.shuvo.docdiary.hr_accounts.attendance.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -68,7 +69,11 @@ public class AttUpReqAdapter extends RecyclerView.Adapter<AttUpReqAdapter.AURAHo
 
         @Override
         public void onClick(View v) {
-            mClickedItem.onItemClicked(getAdapterPosition());
+            int position = getBindingAdapterPosition();
+            if (position == RecyclerView.NO_POSITION) {
+                return;
+            }
+            mClickedItem.onItemClicked(position);
         }
     }
 
@@ -76,6 +81,7 @@ public class AttUpReqAdapter extends RecyclerView.Adapter<AttUpReqAdapter.AURAHo
         void onItemClicked(int Position);
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void filterList(ArrayList<AttendanceUpReqList> filteredList) {
         mCategoryItem = filteredList;
         notifyDataSetChanged();

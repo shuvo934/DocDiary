@@ -285,13 +285,13 @@ public class AppointmentModify extends AppCompatActivity implements PatAppSelect
         appTimeLists = new ArrayList<>();
         appointDateTimeCancelLists = new ArrayList<>();
 
-        appointDateTimeView.setHasFixedSize(true);
+//        appointDateTimeView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getApplicationContext());
         appointDateTimeView.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(appointDateTimeView.getContext(),DividerItemDecoration.VERTICAL);
         appointDateTimeView.addItemDecoration(dividerItemDecoration);
 
-        appTimeView.setHasFixedSize(true);
+//        appTimeView.setHasFixedSize(true);
         timeLayoutManager = new LinearLayoutManager(getApplicationContext());
         appTimeView.setLayoutManager(timeLayoutManager);
 

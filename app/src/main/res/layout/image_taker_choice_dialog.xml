@@ -69,7 +69,7 @@
                 <ImageView
                     android:layout_width="@dimen/_44sdp"
                     android:layout_height="@dimen/_44sdp"
-                    android:src="@drawable/ic_photo_camera_black_48dp"
+                    android:src="@drawable/round_camera"
                     app:tint="@color/light_green"/>
 
                 <TextView

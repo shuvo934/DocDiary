@@ -277,7 +277,7 @@ public class AnalyticsDashboard extends AppCompatActivity {
         opasPayCardChart = findViewById(R.id.pay_status_card_by_overview_barchart);
 
         recyclerView = findViewById(R.id.card_wise_payment_status_recyclerview);
-        recyclerView.setHasFixedSize(true);
+//        recyclerView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
@@ -285,7 +285,7 @@ public class AnalyticsDashboard extends AppCompatActivity {
         afterItemSelect.setVisibility(View.GONE);
         cardErrorText = findViewById(R.id.card_wise_error_summary_text);
         errorView = findViewById(R.id.card_wise_result_status_recyclerview);
-        errorView.setHasFixedSize(true);
+//        errorView.setHasFixedSize(true);
         errLayoutManager = new LinearLayoutManager(this);
         errorView.setLayoutManager(errLayoutManager);
 

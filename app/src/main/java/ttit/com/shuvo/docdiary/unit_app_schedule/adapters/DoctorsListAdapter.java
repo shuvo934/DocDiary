@@ -50,7 +50,7 @@ public class DoctorsListAdapter extends RecyclerView.Adapter<DoctorsListAdapter.
                     new LinearLayoutManager(myContext, LinearLayoutManager.HORIZONTAL,false);
             DoctorAppSchAdapter doctorAppSchAdapter = new DoctorAppSchAdapter(doctorAppSchLists,myContext);
 
-            holder.recyclerView.setHasFixedSize(true);
+//            holder.recyclerView.setHasFixedSize(true);
             holder.recyclerView.setLayoutManager(layoutManager);
             holder.recyclerView.setAdapter(doctorAppSchAdapter);
         }
@@ -60,7 +60,7 @@ public class DoctorsListAdapter extends RecyclerView.Adapter<DoctorsListAdapter.
                     new LinearLayoutManager(myContext, LinearLayoutManager.HORIZONTAL,false);
             DoctorAppSchAdapter doctorAppSchAdapter = new DoctorAppSchAdapter(doctorAppSchLists,myContext);
 
-            holder.recyclerView.setHasFixedSize(true);
+//            holder.recyclerView.setHasFixedSize(true);
             holder.recyclerView.setLayoutManager(layoutManager);
             holder.recyclerView.setAdapter(doctorAppSchAdapter);
             String pos = "0";
