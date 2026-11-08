@@ -23,7 +23,6 @@ android {
         }
         release {
             minifyEnabled true
-            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -37,6 +36,7 @@ dependencies {
 
     implementation 'androidx.activity:activity-ktx:1.13.0'
     implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'androidx.exifinterface:exifinterface:1.4.2'
     implementation 'com.google.android.material:material:1.14.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.activity:activity:1.13.0'
@@ -64,8 +64,8 @@ dependencies {
 
 //    implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
 //    implementation 'com.github.ArthurHub:Android-Image-Cropper:2.8.0'
-    implementation 'com.github.bumptech.glide:glide:4.13.2'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.13.2'
+//    implementation 'com.github.bumptech.glide:glide:4.13.2'
+//    annotationProcessor 'com.github.bumptech.glide:compiler:4.13.2'
 
     //in app update
     implementation 'com.google.android.play:app-update:2.1.0'

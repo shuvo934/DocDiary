@@ -1,6 +1,7 @@
 package ttit.com.shuvo.docdiary.login;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
@@ -25,8 +26,11 @@ import android.widget.Toast;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.BasicNetwork;
+import com.android.volley.toolbox.HurlStack;
+import com.android.volley.toolbox.NoCache;
 import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
@@ -78,7 +82,6 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
     private Boolean connected = false;
     String user_message = "";
     String is_available = "";
-    String prv_message = "";
     SharedPreferences sharedpreferences;
     SharedPreferences sharedLoginRemember;
 
@@ -122,8 +125,55 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
         return false;
     }
 
-    ArrayList<AllUrlList> urls;
+    private final Object LOGIN_TAG = new Object();
+    private final Object SERVER_LIST_TAG = new Object();
+    private final Object FLAG_UPDATE_TAG = new Object();
+
+    // One Activity-owned queue for server discovery, login and flag updates.
+    private RequestQueue loginQueue;
+    private int loginGeneration = 0;
+    private static final int MAX_LOGIN_THREADS = 24;
+    private static final int LOGIN_TIMEOUT_MS = 15000;
+    private static final int SERVER_LIST_TIMEOUT_MS = 60000;
+    private static final int FLAG_TIMEOUT_MS = 15000;
+
+    // These fields describe the whole login attempt, not the last server.
+    private String loginFailureMessage = "Could not find your id";
+    private boolean loginFailureCanRetry = false;
+
+    private boolean uiResumed = false;
+    private Runnable pendingUiAction;
+
+    private RequestQueue getLoginQueue() {
+        if (loginQueue == null) {
+            loginQueue = new RequestQueue(new NoCache(),
+                    new BasicNetwork(new HurlStack()), MAX_LOGIN_THREADS);
+            loginQueue.start();
+        }
+        return loginQueue;
+    }
+
+    private void configureRequest(Request<?> request, Object tag, int timeoutMs) {
+        request.setTag(tag);
+        request.setShouldCache(false);
+        request.setRetryPolicy(new DefaultRetryPolicy(
+                timeoutMs, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+    }
+
+    ArrayList<AllUrlList> urls = new ArrayList<>();
     String text_url = "https://raw.githubusercontent.com/shuvo934/Story/refs/heads/master/docDiaryServers";
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle out) {
+        super.onSaveInstanceState(out);
+        out.putString("u_mobile", user_mobile);
+        out.putString("u_pass", user_password);
+        out.putString("json", json);
+        out.putString("c_api", center_api);
+        out.putString("c_doc", center_doc_code);
+        out.putString("c_admin", center_admin_user_id);
+        out.putString("c_flag", user_or_admin_flag);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,6 +185,16 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
                 findViewById(R.id.login_scroll_view),
                 false,
                 false);
+
+        if (savedInstanceState != null) {
+            user_mobile = savedInstanceState.getString("u_mobile", "");
+            user_password = savedInstanceState.getString("u_pass", "");
+            json = savedInstanceState.getString("json", "");
+            center_api = savedInstanceState.getString("c_api", "");
+            center_doc_code = savedInstanceState.getString("c_doc", "");
+            center_admin_user_id = savedInstanceState.getString("c_admin", "");
+            user_or_admin_flag = savedInstanceState.getString("c_flag", "");
+        }
 
         fullLayout = findViewById(R.id.login_full_layout);
         circularProgressIndicator = findViewById(R.id.progress_indicator_doc_log_in);
@@ -231,7 +291,7 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
 
         login.setOnClickListener(v -> {
             closeKeyBoard();
-            if (isFastClick()) return;
+            if (isFastClick() || loading) return;
 
             user_mobile = Objects.requireNonNull(userMobile.getText()).toString();
             user_password = Objects.requireNonNull(userPassword.getText()).toString();
@@ -270,7 +330,7 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
                     builder.setTitle("Exit!")
                             .setIcon(R.drawable.doc_diary_default)
                             .setMessage("Do you want to exit?")
-                            .setPositiveButton("YES", (dialog, which) -> System.exit(0))
+                            .setPositiveButton("YES", (dialog, which) -> finish())
                             .setNegativeButton("NO", (dialog, which) -> {
 
                             });
@@ -304,7 +364,7 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
     public void readApiText() {
         fullLayout.setVisibility(View.GONE);
         circularProgressIndicator.setVisibility(View.VISIBLE);
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        RequestQueue requestQueue = getLoginQueue();
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, text_url, response -> {
             urls = new ArrayList<>();
@@ -328,17 +388,21 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
             for (AllUrlList item : urls) {
                 Log.d("SERVER_URL", item.getUrls());
             }
-            fullLayout.setVisibility(View.VISIBLE);
-            circularProgressIndicator.setVisibility(View.GONE);
+            if (!loading) {
+                fullLayout.setVisibility(View.VISIBLE);
+                circularProgressIndicator.setVisibility(View.GONE);
+            }
 
         }, volleyError -> {
             Log.e("READ_API_TEXT", "Could not download server list", volleyError);
             addFallbackUrls();
-            fullLayout.setVisibility(View.VISIBLE);
-            circularProgressIndicator.setVisibility(View.GONE);
+            if (!loading) {
+                fullLayout.setVisibility(View.VISIBLE);
+                circularProgressIndicator.setVisibility(View.GONE);
+            }
         });
 
-        stringRequest.setRetryPolicy(new DefaultRetryPolicy(60000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        configureRequest(stringRequest, SERVER_LIST_TAG, SERVER_LIST_TIMEOUT_MS);
         requestQueue.add(stringRequest);
     }
 
@@ -355,6 +419,12 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
         urls.add(new AllUrlList("http://103.73.227.28:8080/cstar/cstar_bsd/",false));
     }
 
+    private void showLoading() {
+        fullLayout.setVisibility(View.GONE);
+        circularProgressIndicator.setVisibility(View.VISIBLE);
+        loading = true;
+    }
+
     public void dynamicLoginCheck() {
         fullLayout.setVisibility(View.GONE);
         circularProgressIndicator.setVisibility(View.VISIBLE);
@@ -362,7 +432,11 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
         conn = false;
         connected = false;
         loading = true;
-        prv_message = "";
+        is_available = "";
+        json = "";
+        loginFailureMessage = "Could not find your id";
+        loginFailureCanRetry = false;
+        pendingUiAction = null;
         centerLists = new ArrayList<>();
         center_api = "";
         center_doc_code = "";
@@ -375,171 +449,204 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
     }
 
     public void checkToGetLoginData() {
-        boolean allUpdated = false;
-        for (int i = 0; i < urls.size(); i++) {
-            allUpdated = urls.get(i).isChecked();
-            if (!urls.get(i).isChecked()) {
-                allUpdated = urls.get(i).isChecked();
-                String url = urls.get(i).getUrls();
-//                System.out.println(i+" Started");
-                getLoginData(url,i);
-                break;
-            }
-        }
-        if (allUpdated) {
-//            System.out.println("all clear");
+        if (isFinishing() || isDestroyed()) return;
+
+        final int generation = ++loginGeneration;
+        RequestQueue queue = getLoginQueue();
+        queue.cancelAll(LOGIN_TAG);
+
+        final int total = urls.size();
+        if (total == 0) {
+            loginFailureMessage = "Could not load the center list. Please try again.";
+            loginFailureCanRetry = true;
             updateLayout();
+            return;
+        }
+
+        final String[] responses = new String[total];
+        final VolleyError[] errors = new VolleyError[total];
+        final boolean[] isError = new boolean[total];
+        final int[] finished = {0};
+        final String mobile = user_mobile;
+        final String password = user_password;
+
+        for (int i = 0; i < total; i++) {
+            final int index = i;
+            String useridUrl = Uri.parse(urls.get(i).getUrls()
+                            + "login/getAllLoginData")
+                    .buildUpon()
+                    .appendQueryParameter("doc_code", mobile)
+                    .appendQueryParameter("doc_password", password)
+                    .build()
+                    .toString();
+
+            StringRequest req = new StringRequest(Request.Method.GET, useridUrl, response -> {
+                if (generation != loginGeneration || isFinishing() || isDestroyed()) return;
+                responses[index] = response;
+                finished[0]++;
+                if (finished[0] == total) processAllInOrder(responses, errors, isError);
+            }, error -> {
+                if (generation != loginGeneration || isFinishing() || isDestroyed()) return;
+                isError[index] = true;
+                errors[index] = error;
+                finished[0]++;
+                if (finished[0] == total) processAllInOrder(responses, errors, isError);
+            });
+            configureRequest(req, LOGIN_TAG, LOGIN_TIMEOUT_MS);
+            queue.add(req);
         }
     }
 
-    public void getLoginData(String url, int index) {
-        String useridUrl = url+"login/getAllLoginData?doc_code="+ user_mobile +"&doc_password="+user_password;
-        RequestQueue requestQueue = Volley.newRequestQueue(DocLogin.this);
+    // Replay in server-list order and aggregate every server's outcome.
+    private void processAllInOrder(String[] responses, VolleyError[] errors, boolean[] isError) {
+        int validResponses = 0;
+        int failedResponses = 0;
+        String statusZeroMessage = "";
+        String otherMessage = "";
 
-        StringRequest getUserMessage = new StringRequest(Request.Method.GET, useridUrl, response -> {
-            conn = true;
-            try {
-                JSONObject jsonObject = new JSONObject(response);
-                user_message = jsonObject.getString("is_online");
-                is_available = jsonObject.getString("is_available");
-                center_doc_code = jsonObject.getString("p_doc_code");
-                center_api = jsonObject.getString("p_center_api");
-                user_or_admin_flag = jsonObject.getString("p_admin_user_flag");
-                center_admin_user_id = jsonObject.getString("p_admin_user_id");
-                user_center_name = jsonObject.getString("p_center_name");
-                switch (is_available) {
-                    case "1":
-                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
-                                center_admin_user_id, user_or_admin_flag, new ArrayList<>()));
-                        connected = true;
-                        urls.get(index).setChecked(true);
-                        System.out.println(index + 1 +"st Found : 1");
-                        checkToGetLoginData();
-                        break;
-                    case "0":
-                        if (index != urls.size()-1) {
-                            prv_message = user_message;
-                        }
-                        connected = true;
-                        urls.get(index).setChecked(true);
-                        System.out.println(index + 1 +"st Found : 0");
-                        checkToGetLoginData();
-                        break;
-                    case "3":
-                        String p_doc_list = jsonObject.getString("p_doc_list");
-                        JSONArray array = new JSONArray(p_doc_list);
-                        ArrayList<MultipleUserList> multipleUserLists = new ArrayList<>();
-                        for (int i = 0; i < array.length(); i++) {
-                            JSONObject docInfo = array.getJSONObject(i);
-                            String dc = docInfo.getString("doc_code")
-                                    .equals("null") ? "" : docInfo.getString("doc_code");
-                            String dn = docInfo.getString("doc_name")
-                                    .equals("null") ? "" : docInfo.getString("doc_name");
-                            String dep_name = docInfo.getString("depts_name")
-                                    .equals("null") ? "" : docInfo.getString("depts_name");
-                            multipleUserLists.add(new MultipleUserList(dc, dn, dep_name,user_or_admin_flag,
-                                    "","","",""));
-                        }
-                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
-                                center_admin_user_id, user_or_admin_flag, multipleUserLists));
-                        connected = true;
-                        urls.get(index).setChecked(true);
-                        System.out.println(index + 1 +"st Found : 3");
-                        checkToGetLoginData();
-                        break;
-                    case "4":
-                        String p_admin_list = jsonObject.getString("p_admin_list");
-                        JSONArray admin_array = new JSONArray(p_admin_list);
-                        ArrayList<MultipleUserList> multipleUserLists1 = new ArrayList<>();
-                        for (int i = 0; i < admin_array.length(); i++) {
-                            JSONObject adminInfo = admin_array.getJSONObject(i);
-                            String usr_id = adminInfo.getString("usr_id")
-                                    .equals("null") ? "" : adminInfo.getString("usr_id");
-                            String usr_name = adminInfo.getString("usr_name")
-                                    .equals("null") ? "" : adminInfo.getString("usr_name");
-                            String usr_fname = adminInfo.getString("usr_fname")
-                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
-                            String usr_lname = adminInfo.getString("usr_lname")
-                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
-
-                            multipleUserLists1.add(new MultipleUserList("", "", "",
-                                    user_or_admin_flag, usr_id,usr_fname,usr_lname,usr_name));
-                        }
-                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
-                                center_admin_user_id, user_or_admin_flag, multipleUserLists1));
-                        connected = true;
-                        urls.get(index).setChecked(true);
-                        System.out.println(index + 1 +"st Found : 4");
-                        checkToGetLoginData();
-                        break;
-                    case "5":
-                        String p_admin_list_5 = jsonObject.getString("p_admin_list");
-                        JSONArray admin_array_5 = new JSONArray(p_admin_list_5);
-                        String p_doc_list_5 = jsonObject.getString("p_doc_list");
-                        JSONArray doc_array_5 = new JSONArray(p_doc_list_5);
-                        ArrayList<MultipleUserList> multipleUserLists2 = new ArrayList<>();
-
-                        for (int i = 0; i < admin_array_5.length(); i++) {
-                            JSONObject adminInfo = admin_array_5.getJSONObject(i);
-                            String usr_id = adminInfo.getString("usr_id")
-                                    .equals("null") ? "" : adminInfo.getString("usr_id");
-                            String usr_name = adminInfo.getString("usr_name")
-                                    .equals("null") ? "" : adminInfo.getString("usr_name");
-                            String usr_fname = adminInfo.getString("usr_fname")
-                                    .equals("null") ? "" : adminInfo.getString("usr_fname");
-                            String usr_lname = adminInfo.getString("usr_lname")
-                                    .equals("null") ? "" : adminInfo.getString("usr_lname");
-
-                            multipleUserLists2.add(new MultipleUserList("", "", "",
-                                    "2", usr_id,usr_fname,usr_lname,usr_name));
-                        }
-
-                        for (int i = 0; i < doc_array_5.length(); i++) {
-                            JSONObject docInfo = doc_array_5.getJSONObject(i);
-                            String dc = docInfo.getString("doc_code")
-                                    .equals("null") ? "" : docInfo.getString("doc_code");
-                            String dn = docInfo.getString("doc_name")
-                                    .equals("null") ? "" : docInfo.getString("doc_name");
-                            String dep_name = docInfo.getString("depts_name")
-                                    .equals("null") ? "" : docInfo.getString("depts_name");
-                            multipleUserLists2.add(new MultipleUserList(dc, dn, dep_name,"1",
-                                    "","","",""));
-                        }
-                        centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
-                                center_admin_user_id, user_or_admin_flag, multipleUserLists2));
-                        connected = true;
-                        urls.get(index).setChecked(true);
-                        System.out.println(index + 1 +"st Found : 5");
-                        checkToGetLoginData();
-                        break;
-                    default:
-                        connected = true;
-                        urls.get(index).setChecked(true);
-                        System.out.println(index + 1 +"st Found : 2");
-                        checkToGetLoginData();
-                        break;
+        for (int index = 0; index < responses.length; index++) {
+            if (isError[index]) {
+                handleLoginError(index, errors[index]);
+                failedResponses++;
+            } else if (handleLoginResponse(index, responses[index])) {
+                validResponses++;
+                String message = cleanServerMessage(user_message);
+                if (!message.isEmpty()) {
+                    if ("0".equals(is_available)) {
+                        statusZeroMessage = message;
+                    } else {
+                        otherMessage = message;
+                    }
                 }
-
+            } else {
+                failedResponses++;
             }
-            catch (JSONException e) {
-                connected = false;
-                logger.log(Level.WARNING,e.getMessage(),e);
-                urls.get(index).setChecked(true);
-                checkToGetLoginData();
-            }
+        }
 
-        }, error -> {
-            conn = false;
-            connected = false;
-            logger.log(Level.WARNING,error.getMessage(),error);
+
+        if (!statusZeroMessage.isEmpty()) {
+            loginFailureCanRetry = failedResponses > 0;
+            loginFailureMessage = statusZeroMessage;
+
+            if (loginFailureCanRetry) {
+                loginFailureMessage +=
+                        "\n\nSome centers could not be checked. Please retry.";
+            }
+        } else if (validResponses == 0) {
+            loginFailureMessage = "Unable to check the centers. Please check your internet connection or try again.";
+            loginFailureCanRetry = true;
+        } else if (failedResponses > 0) {
+            loginFailureMessage = "Could not check all centers. Please try again.";
+            loginFailureCanRetry = true;
+        } else {
+            loginFailureMessage = !otherMessage.isEmpty() ? otherMessage : "Could not find your id";
+            loginFailureCanRetry = false;
+        }
+        updateLayout();
+    }
+
+    private String cleanServerMessage(String message) {
+        if (message == null) return "";
+        String trimmed = message.trim();
+        return "null".equalsIgnoreCase(trimmed) ? "" : trimmed;
+    }
+
+    private void handleLoginError(int index, VolleyError error) {
+        // Do not log the full request URL: it contains credentials.
+        Log.w("DOC_LOGIN", "Center check failed at index " + index
+                + ": " + (error == null ? "unknown error" : error.getClass().getSimpleName()));
+        urls.get(index).setChecked(true);
+    }
+
+    private boolean handleLoginResponse(int index, String response) {
+        try {
+            JSONObject jsonObject = new JSONObject(response);
+            user_message = jsonObject.getString("is_online");
+            is_available = jsonObject.getString("is_available");
+            center_doc_code = jsonObject.getString("p_doc_code");
+            center_api = jsonObject.getString("p_center_api");
+            user_or_admin_flag = jsonObject.getString("p_admin_user_flag");
+            center_admin_user_id = jsonObject.getString("p_admin_user_id");
+            user_center_name = jsonObject.getString("p_center_name");
+
+            switch (is_available) {
+                case "1":
+                    centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
+                            center_admin_user_id, user_or_admin_flag, new ArrayList<>()));
+                    break;
+                case "0":
+                    // Its message is collected by processAllInOrder().
+                    break;
+                case "3": {
+                    JSONArray array = new JSONArray(jsonObject.getString("p_doc_list"));
+                    ArrayList<MultipleUserList> list = new ArrayList<>();
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject d = array.getJSONObject(i);
+                        String dc = d.getString("doc_code").equals("null") ? "" : d.getString("doc_code");
+                        String dn = d.getString("doc_name").equals("null") ? "" : d.getString("doc_name");
+                        String dep = d.getString("depts_name").equals("null") ? "" : d.getString("depts_name");
+                        list.add(new MultipleUserList(dc, dn, dep, user_or_admin_flag, "", "", "", ""));
+                    }
+                    centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
+                            center_admin_user_id, user_or_admin_flag, list));
+                    break;
+                }
+                case "4": {
+                    JSONArray arr = new JSONArray(jsonObject.getString("p_admin_list"));
+                    ArrayList<MultipleUserList> list = new ArrayList<>();
+                    for (int i = 0; i < arr.length(); i++) {
+                        JSONObject a = arr.getJSONObject(i);
+                        String id = a.getString("usr_id").equals("null") ? "" : a.getString("usr_id");
+                        String nm = a.getString("usr_name").equals("null") ? "" : a.getString("usr_name");
+                        String fn = a.getString("usr_fname").equals("null") ? "" : a.getString("usr_fname");
+                        String ln = a.getString("usr_lname").equals("null") ? "" : a.getString("usr_lname");
+                        list.add(new MultipleUserList("", "", "", user_or_admin_flag, id, fn, ln, nm));
+                    }
+                    centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
+                            center_admin_user_id, user_or_admin_flag, list));
+                    break;
+                }
+                case "5": {
+                    JSONArray adminArr = new JSONArray(jsonObject.getString("p_admin_list"));
+                    JSONArray docArr = new JSONArray(jsonObject.getString("p_doc_list"));
+                    ArrayList<MultipleUserList> list = new ArrayList<>();
+                    for (int i = 0; i < adminArr.length(); i++) {
+                        JSONObject a = adminArr.getJSONObject(i);
+                        String id = a.getString("usr_id").equals("null") ? "" : a.getString("usr_id");
+                        String nm = a.getString("usr_name").equals("null") ? "" : a.getString("usr_name");
+                        String fn = a.getString("usr_fname").equals("null") ? "" : a.getString("usr_fname");
+                        String ln = a.getString("usr_lname").equals("null") ? "" : a.getString("usr_lname");
+                        list.add(new MultipleUserList("", "", "", "2", id, fn, ln, nm));
+                    }
+                    for (int i = 0; i < docArr.length(); i++) {
+                        JSONObject d = docArr.getJSONObject(i);
+                        String dc = d.getString("doc_code").equals("null") ? "" : d.getString("doc_code");
+                        String dn = d.getString("doc_name").equals("null") ? "" : d.getString("doc_name");
+                        String dep = d.getString("depts_name").equals("null") ? "" : d.getString("depts_name");
+                        list.add(new MultipleUserList(dc, dn, dep, "1", "", "", "", ""));
+                    }
+                    centerLists.add(new CenterList(user_center_name, center_api, center_doc_code,
+                            center_admin_user_id, user_or_admin_flag, list));
+                    break;
+                }
+                default:
+                    break;
+            }
             urls.get(index).setChecked(true);
-            checkToGetLoginData();
-        });
+            return true;
 
-        requestQueue.add(getUserMessage);
+        } catch (JSONException e) {
+            Log.w("DOC_LOGIN", "Invalid center response at index " + index);
+            urls.get(index).setChecked(true);
+            return false;
+        }
     }
 
     private void updateLayout() {
+        runWhenResumed(this::renderLoginResult);
+    }
+
+    private void renderLoginResult() {
         if (!centerLists.isEmpty()) {
             if (centerLists.size() == 1) {
                 ArrayList<MultipleUserList> multipleUserLists = centerLists.get(0).getMultipleUserLists();
@@ -592,145 +699,36 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
             fullLayout.setVisibility(View.VISIBLE);
             circularProgressIndicator.setVisibility(View.GONE);
             loading = false;
-            if (conn) {
-                if (connected) {
-                    MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocLogin.this);
-                    if (is_available.equals("0")) {
-                        alertDialogBuilder.setTitle("Warning!")
-                                .setIcon(R.drawable.doc_diary_default)
-                                .setMessage(user_message)
-                                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
 
-                        AlertDialog alert = alertDialogBuilder.create();
-                        try {
-                            alert.show();
-                        }
-                        catch (Exception e) {
-                            restart("App is paused for a long time. Please Start the app again.");
-                        }
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(DocLogin.this)
+                    .setTitle("Warning!")
+                    .setIcon(R.drawable.doc_diary_default)
+                    .setMessage(loginFailureMessage);
+
+            if (loginFailureCanRetry) {
+                builder.setPositiveButton("Retry", (dialog, which) -> {
+                    dialog.dismiss();
+                    if (urls.isEmpty()) {
+                        readApiText();
+                    } else {
+                        dynamicLoginCheck();
                     }
-                    else {
-                        if (prv_message.isEmpty()) {
-                            alertDialogBuilder.setTitle("Warning!")
-                                    .setIcon(R.drawable.doc_diary_default)
-                                    .setMessage(user_message)
-                                    .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
-
-                            AlertDialog alert = alertDialogBuilder.create();
-                            try {
-                                alert.show();
-                            }
-                            catch (Exception e) {
-                                restart("App is paused for a long time. Please Start the app again.");
-                            }
-                        }
-                        else {
-                            alertDialogBuilder.setTitle("Warning!")
-                                    .setIcon(R.drawable.doc_diary_default)
-                                    .setMessage(prv_message)
-                                    .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
-
-                            AlertDialog alert = alertDialogBuilder.create();
-                            try {
-                                alert.show();
-                            }
-                            catch (Exception e) {
-                                restart("App is paused for a long time. Please Start the app again.");
-                            }
-                        }
-                    }
-                }
-                else {
-                    fullLayout.setVisibility(View.VISIBLE);
-                    circularProgressIndicator.setVisibility(View.GONE);
-                    loading = false;
-                    MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocLogin.this);
-                    if (prv_message.isEmpty()) {
-                        alertDialogBuilder.setTitle("Warning!")
-                                .setIcon(R.drawable.doc_diary_default)
-                                .setMessage("There is a network issue in the server. Please Try later.")
-                                .setPositiveButton("Retry", (dialog, which) -> {
-                                    for (int i = 0; i < urls.size(); i++) {
-                                        urls.get(i).setChecked(false);
-                                    }
-                                    dynamicLoginCheck();
-                                    dialog.dismiss();
-                                });
-
-                        AlertDialog alert = alertDialogBuilder.create();
-                        try {
-                            alert.show();
-                        }
-                        catch (Exception e) {
-                            restart("App is paused for a long time. Please Start the app again.");
-                        }
-                    }
-                    else {
-                        alertDialogBuilder.setTitle("Warning!")
-                                .setIcon(R.drawable.doc_diary_default)
-                                .setMessage(prv_message)
-                                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
-
-                        AlertDialog alert = alertDialogBuilder.create();
-                        try {
-                            alert.show();
-                        }
-                        catch (Exception e) {
-                            restart("App is paused for a long time. Please Start the app again.");
-                        }
-                    }
-
-                }
+                });
+                builder.setNegativeButton("CANCEL", (dialog, which) -> dialog.dismiss());
+            } else {
+                builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
             }
-            else {
-                fullLayout.setVisibility(View.VISIBLE);
-                circularProgressIndicator.setVisibility(View.GONE);
-                loading = false;
-                MaterialAlertDialogBuilder alertDialogBuilder = new MaterialAlertDialogBuilder(DocLogin.this);
-                if (prv_message.isEmpty()) {
-                    alertDialogBuilder.setTitle("Warning!")
-                            .setIcon(R.drawable.doc_diary_default)
-                            .setMessage("Server Problem or Internet Not Connected")
-                            .setPositiveButton("Retry", (dialog, which) -> {
-                                for (int i = 0; i < urls.size(); i++) {
-                                    urls.get(i).setChecked(false);
-                                }
-                                dynamicLoginCheck();
-                                dialog.dismiss();
-                            });
-
-                    AlertDialog alert = alertDialogBuilder.create();
-                    try {
-                        alert.show();
-                    }
-                    catch (Exception e) {
-                        restart("App is paused for a long time. Please Start the app again.");
-                    }
-                }
-                else {
-                    alertDialogBuilder.setTitle("Warning!")
-                            .setIcon(R.drawable.doc_diary_default)
-                            .setMessage(prv_message)
-                            .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
-
-                    AlertDialog alert = alertDialogBuilder.create();
-                    try {
-                        alert.show();
-                    }
-                    catch (Exception e) {
-                        restart("App is paused for a long time. Please Start the app again.");
-                    }
-                }
-            }
+            builder.show();
         }
     }
 
     public void updateFLFlag() {
+        showLoading();
         conn = false;
         connected = false;
 
         String flagUpdateUrl = center_api+"login/updateFLFlag";
-        RequestQueue requestQueue = Volley.newRequestQueue(DocLogin.this);
+        RequestQueue requestQueue = getLoginQueue();
         StringRequest flagUpdateReq = new StringRequest(Request.Method.POST, flagUpdateUrl, response -> {
             conn = true;
             try {
@@ -765,10 +763,15 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
             }
         };
 
+        configureRequest(flagUpdateReq, FLAG_UPDATE_TAG, FLAG_TIMEOUT_MS);
         requestQueue.add(flagUpdateReq);
     }
 
     private void updateInterface() {
+        runWhenResumed(this::renderFlagResult);
+    }
+
+    private void renderFlagResult() {
         fullLayout.setVisibility(View.VISIBLE);
         circularProgressIndicator.setVisibility(View.GONE);
         loading = false;
@@ -850,11 +853,12 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
     }
 
     public void updateAdminFLFlag() {
+        showLoading();
         conn = false;
         connected = false;
 
         String flagUpdateUrl = center_api+"login/updateAdminFLFlag";
-        RequestQueue requestQueue = Volley.newRequestQueue(DocLogin.this);
+        RequestQueue requestQueue = getLoginQueue();
         StringRequest flagUpdateReq = new StringRequest(Request.Method.POST, flagUpdateUrl, response -> {
             conn = true;
             try {
@@ -889,6 +893,7 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
             }
         };
 
+        configureRequest(flagUpdateReq, FLAG_UPDATE_TAG, FLAG_TIMEOUT_MS);
         requestQueue.add(flagUpdateReq);
     }
 
@@ -929,20 +934,52 @@ public class DocLogin extends AppCompatActivity implements CallBackListener, IDC
         updateAdminFLFlag();
     }
 
-    // safe dialog open
-    private boolean canShowDialog(String tag) {
-        if (isFinishing()) return false;
-        if (isDestroyed()) return false;
+    // Keep network work running while paused, but defer dialogs/navigation.
+    private void runWhenResumed(Runnable action) {
+        if (isFinishing() || isDestroyed()) return;
+        if (!uiResumed || getSupportFragmentManager().isStateSaved()) {
+            pendingUiAction = action;
+            return;
+        }
+        action.run();
+    }
 
-        FragmentManager fm = getSupportFragmentManager();
-        if (fm.isStateSaved()) return false;
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+        uiResumed = true;
+        Runnable action = pendingUiAction;
+        pendingUiAction = null;
+        if (action != null) runWhenResumed(action);
+    }
 
-        return fm.findFragmentByTag(tag) == null;
+    @Override
+    protected void onPause() {
+        uiResumed = false;
+        super.onPause();
     }
 
     private void showDialogSafely(androidx.fragment.app.DialogFragment dialog, String tag) {
-        if (canShowDialog(tag)) {
-            dialog.show(getSupportFragmentManager(), tag);
+        runWhenResumed(() -> {
+            FragmentManager fm = getSupportFragmentManager();
+            if (fm.findFragmentByTag(tag) == null) {
+                // Immediate commit prevents duplicate pending show transactions.
+                dialog.showNow(fm, tag);
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        ++loginGeneration;
+        uiResumed = false;
+        pendingUiAction = null;
+        if (loginQueue != null) {
+            // The queue belongs only to this Activity; cancel every request type.
+            loginQueue.cancelAll(request -> true);
+            loginQueue.stop();
+            loginQueue = null;
         }
+        super.onDestroy();
     }
 }

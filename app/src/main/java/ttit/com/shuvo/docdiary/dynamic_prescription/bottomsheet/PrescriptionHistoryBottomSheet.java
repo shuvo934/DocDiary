@@ -1,10 +1,18 @@
 package ttit.com.shuvo.docdiary.dynamic_prescription.bottomsheet;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -22,6 +30,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.ArrayList;
 
@@ -57,7 +66,10 @@ public class PrescriptionHistoryBottomSheet extends BottomSheetDialogFragment {
     private LinearLayout emptyLayout;
     private LinearLayout errorLayout;
 
+    private TextInputEditText historySearchInput;
     private TextView historyCountView;
+    private TextView emptyTitleView;
+    private TextView emptyMessageView;
     private TextView errorView;
 
     private AppCompatImageButton closeButton;
@@ -113,6 +125,7 @@ public class PrescriptionHistoryBottomSheet extends BottomSheetDialogFragment {
         viewModel = new ViewModelProvider(requireActivity()).get(PrescriptionBuilderViewModel.class);
 
         configureHistoryList();
+        configureHistorySearch();
         configureActions();
 
         /*
@@ -141,7 +154,10 @@ public class PrescriptionHistoryBottomSheet extends BottomSheetDialogFragment {
         emptyLayout = view.findViewById(R.id.layout_history_empty);
         errorLayout = view.findViewById(R.id.layout_history_error);
 
+        historySearchInput = view.findViewById(R.id.et_search_prescription_history);
         historyCountView = view.findViewById(R.id.tv_history_count);
+        emptyTitleView = view.findViewById(R.id.tv_history_empty_title);
+        emptyMessageView = view.findViewById(R.id.tv_history_empty_message);
         errorView = view.findViewById(R.id.tv_history_error);
 
         closeButton = view.findViewById(R.id.btn_close_history_sheet);
@@ -158,6 +174,51 @@ public class PrescriptionHistoryBottomSheet extends BottomSheetDialogFragment {
 
         historyRecyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         historyRecyclerView.setAdapter(historyAdapter);
+    }
+
+    private void configureHistorySearch() {
+        historySearchInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence text, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence text, int start, int before, int count) {
+                selectedHistory = null;
+                historyAdapter.filter(text);
+
+                updateHistoryCount();
+                updateContentState();
+                updateActionButtons();
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
+
+        historySearchInput.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH ||
+                    actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT || event != null && event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER &&
+                    event.getKeyCode() == KeyEvent.KEYCODE_NAVIGATE_NEXT) {
+                if (event == null || !event.isShiftPressed()) {
+                    // the user is done typing.
+                    Log.i("Let see", "Come here");
+                    historySearchInput.clearFocus();
+                    hideKeyboard(historySearchInput);
+
+                    return false; // consume.
+                }
+            }
+            return false;
+        });
+    }
+
+    private void hideKeyboard(@NonNull View view) {
+        InputMethodManager inputMethodManager = (InputMethodManager) requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (inputMethodManager != null) {
+            inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
     private void configureActions() {
@@ -180,22 +241,26 @@ public class PrescriptionHistoryBottomSheet extends BottomSheetDialogFragment {
                     items == null ? new ArrayList<>() : items;
 
             historyAdapter.submitList(currentItems);
-            updateHistoryCount(currentItems.size());
-            updateContentState(currentItems);
+            selectedHistory = null;
+            historyAdapter.clearSelection();
+
+            updateHistoryCount();
+            updateContentState();
+            updateActionButtons();
         });
 
         viewModel.getPrescriptionHistoryLoading().observe(getViewLifecycleOwner(), loading -> {
             historyLoading = Boolean.TRUE.equals(loading);
 
             updateProgressState();
-            updateContentState(viewModel.getCurrentPrescriptionHistoryItems());
+            updateContentState();
             updateActionButtons();
         });
 
         viewModel.getPrescriptionHistoryError().observe(getViewLifecycleOwner(), errorMessage -> {
             historyError = cleanValue(errorMessage);
 
-            updateContentState(viewModel.getCurrentPrescriptionHistoryItems());
+            updateContentState();
         });
     }
 
@@ -206,6 +271,7 @@ public class PrescriptionHistoryBottomSheet extends BottomSheetDialogFragment {
             setCancelable(!previousPrescriptionLoading);
 
             updateProgressState();
+            updateContentState();
             updateActionButtons();
 
             historyRecyclerView.setAlpha(previousPrescriptionLoading ? 0.45f : 1.0f);
@@ -295,28 +361,69 @@ public class PrescriptionHistoryBottomSheet extends BottomSheetDialogFragment {
         dismiss();
     }
 
-    private void updateHistoryCount(int itemCount) {
-        if (itemCount <= 0) {
+    private void updateHistoryCount() {
+        int totalItemCount = historyAdapter.getTotalItemCount();
+
+        if (totalItemCount <= 0) {
             historyCountView.setVisibility(View.GONE);
             return;
         }
 
-        String countText = itemCount == 1 ? "1 prescription found" : itemCount + " prescriptions found";
+        int visibleItemCount = historyAdapter.getItemCount();
+        String searchText = getHistorySearchText();
+        String countText;
+
+        if (searchText.isEmpty()) {
+            countText = totalItemCount == 1
+                    ? "1 prescription found"
+                    : totalItemCount + " prescriptions found";
+
+        } else {
+            countText = visibleItemCount + " of " + totalItemCount + " prescriptions found";
+        }
 
         historyCountView.setText(countText);
         historyCountView.setVisibility(View.VISIBLE);
     }
 
-    private void updateContentState(@NonNull ArrayList<PrescriptionHistoryItem> items) {
+    @SuppressLint("SetTextI18n")
+    private void updateContentState() {
         boolean hasError = !historyError.isEmpty();
-        boolean empty = !historyLoading && !hasError && items.isEmpty();
-        boolean showList = !historyLoading && !hasError && !items.isEmpty();
+        boolean hasSearchText = !getHistorySearchText().isEmpty();
+        int visibleItemCount = historyAdapter == null ? 0 : historyAdapter.getItemCount();
+        int totalItemCount = historyAdapter == null ? 0 : historyAdapter.getTotalItemCount();
+
+        boolean empty = !historyLoading && !hasError && visibleItemCount == 0;
+        boolean showList = !historyLoading && !hasError && visibleItemCount > 0;
 
         historyRecyclerView.setVisibility(showList ? View.VISIBLE : View.GONE);
         emptyLayout.setVisibility(empty ? View.VISIBLE : View.GONE);
         errorLayout.setVisibility(hasError ? View.VISIBLE : View.GONE);
 
+        if (hasSearchText && totalItemCount > 0) {
+            emptyTitleView.setText("No matching prescription found");
+            emptyMessageView.setText("Try another prescription code or clear the search field.");
+
+        } else {
+            emptyTitleView.setText("No prescription history found");
+            emptyMessageView.setText("This patient has no previous prescription.");
+        }
+
+        boolean searchEnabled = !historyLoading
+                && !previousPrescriptionLoading
+                && !hasError
+                && totalItemCount > 0;
+
+        historySearchInput.setEnabled(searchEnabled);
+        historySearchInput.setAlpha(searchEnabled ? 1.0f : 0.55f);
+
         errorView.setText(historyError);
+    }
+
+    @NonNull
+    private String getHistorySearchText() {
+        Editable editable = historySearchInput == null ? null : historySearchInput.getText();
+        return editable == null ? "" : editable.toString().trim();
     }
 
     private void updateProgressState() {
@@ -399,7 +506,10 @@ public class PrescriptionHistoryBottomSheet extends BottomSheetDialogFragment {
         emptyLayout = null;
         errorLayout = null;
 
+        historySearchInput = null;
         historyCountView = null;
+        emptyTitleView = null;
+        emptyMessageView = null;
         errorView = null;
 
         closeButton = null;

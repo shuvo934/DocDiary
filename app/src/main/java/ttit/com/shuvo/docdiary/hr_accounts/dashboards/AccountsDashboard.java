@@ -60,6 +60,7 @@ import ttit.com.shuvo.docdiary.hr_accounts.vouch_approval.JournalVoucherApproval
 import ttit.com.shuvo.docdiary.hr_accounts.vouch_trans.VoucherTransaction;
 import ttit.com.shuvo.docdiary.report_manager.report_view.reports.ReportShow;
 import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
+import ttit.com.shuvo.docdiary.utilities.NativeAccountsNumbers;
 
 public class AccountsDashboard extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -473,6 +474,8 @@ public class AccountsDashboard extends AppCompatActivity implements NavigationVi
         incExpPieEntry = new ArrayList<>();
         total_income = "0";
         total_expense = "0";
+        total_voucher_amount = "0";
+        total_voucher_count = "0";
 
         String voucherCountUrl = pre_url_api+"acc_dashboard/getVoucherCount?first_date="+first_date+"&end_date="+end_date;
         String voucherAmntUrl = pre_url_api+"acc_dashboard/getVoucherTotalAmnt?first_date="+first_date+"&end_date="+end_date;
@@ -495,6 +498,8 @@ public class AccountsDashboard extends AppCompatActivity implements NavigationVi
                                 .equals("null") ? "0" : docInfo.getString("income");
                         total_expense = docInfo.getString("expense")
                                 .equals("null") ? "0" : docInfo.getString("expense");
+                        NativeAccountsNumbers.decimal(total_income);
+                        NativeAccountsNumbers.decimal(total_expense);
 
                     }
                 }
@@ -502,7 +507,7 @@ public class AccountsDashboard extends AppCompatActivity implements NavigationVi
                 connected = true;
                 updateInterface();
             }
-            catch (JSONException e) {
+            catch (JSONException | NumberFormatException e) {
                 connected = false;
                 logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
@@ -529,13 +534,14 @@ public class AccountsDashboard extends AppCompatActivity implements NavigationVi
 
                         total_voucher_amount = docInfo.getString("amount")
                                 .equals("null") ? "0" : docInfo.getString("amount");
+                        NativeAccountsNumbers.decimal(total_voucher_amount);
 
                     }
                 }
 
                 requestQueue.add(incExpReq);
             }
-            catch (JSONException e) {
+            catch (JSONException | NumberFormatException e) {
                 connected = false;
                 logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
@@ -574,7 +580,7 @@ public class AccountsDashboard extends AppCompatActivity implements NavigationVi
                 requestQueue.add(voucherAmountReq);
 
             }
-            catch (JSONException e) {
+            catch (JSONException | NumberFormatException e) {
                 connected = false;
                 logger.log(Level.WARNING,e.getMessage(),e);
                 parsing_message = e.getLocalizedMessage();
@@ -620,7 +626,7 @@ public class AccountsDashboard extends AppCompatActivity implements NavigationVi
                 conn = false;
                 connected = false;
 
-                double va = Double.parseDouble(total_voucher_amount);
+                int va = NativeAccountsNumbers.decimal(total_voucher_amount).signum();
                 if (va > 0.0) {
                     voucherAmount.setTextColor(getColor(R.color.green_sea));
                     String tt = total_voucher_amount + " (Net Profit)";
@@ -633,8 +639,8 @@ public class AccountsDashboard extends AppCompatActivity implements NavigationVi
                 }
                 else {
                     voucherAmount.setTextColor(getColor(R.color.red_dark));
-                    total_voucher_amount = total_voucher_amount.replace("-","");
-                    String tt = total_voucher_amount + " (Net Loss)";
+                    String tt = NativeAccountsNumbers.decimal(total_voucher_amount)
+                            .abs().stripTrailingZeros().toPlainString() + " (Net Loss)";
                     voucherAmount.setText(tt);
                 }
 
@@ -712,10 +718,10 @@ public class AccountsDashboard extends AppCompatActivity implements NavigationVi
                 totalIncome.setText(total_income);
                 totalExpense.setText(total_expense);
 
-                if (!total_income.equals("0")) {
+                if (NativeAccountsNumbers.decimal(total_income).signum() != 0) {
                     incExpPieEntry.add(new PieEntry(Float.parseFloat(total_income), "Income",0));
                 }
-                if (!total_expense.equals("0")) {
+                if (NativeAccountsNumbers.decimal(total_expense).signum() != 0) {
                     incExpPieEntry.add(new PieEntry(Float.parseFloat(total_expense), "Expense",1));
                 }
 
@@ -730,8 +736,10 @@ public class AccountsDashboard extends AppCompatActivity implements NavigationVi
                 PieData incExpdata = new PieData(incExpdataSet);
                 incExpdataSet.setValueFormatter(new ValueFormatter() {
                     @Override
-                    public String getFormattedValue(float value) {
-                        return String.valueOf((int) Math.floor(value));
+                    public String getPieLabel(float value, PieEntry entry) {
+                        if ("Income".equals(entry.getLabel())) return NativeAccountsNumbers.label(total_income);
+                        if ("Expense".equals(entry.getLabel())) return NativeAccountsNumbers.label(total_expense);
+                        return "";
                     }
                 });
 

@@ -1054,9 +1054,6 @@ public class PrescriptionBuilder extends AppCompatActivity {
                 headers.put("P_PAT_ID", cleanHeaderValue(pat_id));
                 headers.put("P_AD_ID", cleanHeaderValue(ad_id));
 
-                headers.put("P_REFERENCE", cleanHeaderValue(getSingleAdviceText(AdviceEntryType.REFERENCE)));
-                headers.put("P_NOTES", cleanHeaderValue(getSingleAdviceText(AdviceEntryType.NOTES)));
-
                 headers.put("P_TD_ID", cleanHeaderValue(prescriptionViewModel.getLoadedDiseaseTemplateId()));
                 headers.put("P_TT_ID", cleanHeaderValue(prescriptionViewModel.getLoadedTreatmentTemplateId()));
 
@@ -1162,9 +1159,6 @@ public class PrescriptionBuilder extends AppCompatActivity {
                 headers.put("P_PH_ID", cleanHeaderValue(ph_id));
                 headers.put("P_PAT_ID", cleanHeaderValue(pat_id));
                 headers.put("P_AD_ID", cleanHeaderValue(ad_id));
-
-                headers.put("P_REFERENCE", cleanHeaderValue(getSingleAdviceText(AdviceEntryType.REFERENCE)));
-                headers.put("P_NOTES", cleanHeaderValue(getSingleAdviceText(AdviceEntryType.NOTES)));
 
                 headers.put("P_TD_ID", cleanHeaderValue(prescriptionViewModel.getLoadedDiseaseTemplateId()));
                 headers.put("P_TT_ID", cleanHeaderValue(prescriptionViewModel.getLoadedTreatmentTemplateId()));
@@ -1298,6 +1292,8 @@ public class PrescriptionBuilder extends AppCompatActivity {
         bodyObject.put("advice", adviceArray);
         bodyObject.put("followups", followUpsArray);
         bodyObject.put("special_alerts", specialAlertsArray);
+        bodyObject.put("reference", getSingleAdviceText(AdviceEntryType.REFERENCE));
+        bodyObject.put("prescription_notes", getSingleAdviceText(AdviceEntryType.NOTES));
     }
 
     @NonNull

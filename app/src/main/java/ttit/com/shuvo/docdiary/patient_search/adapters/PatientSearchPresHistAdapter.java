@@ -15,6 +15,7 @@ import com.google.android.material.card.MaterialCardView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import ttit.com.shuvo.docdiary.R;
 import ttit.com.shuvo.docdiary.dynamic_prescription.model.PrescriptionHistoryItem;
@@ -76,8 +77,12 @@ public class PatientSearchPresHistAdapter extends RecyclerView.Adapter<PatientSe
         void onHistorySelected(@NonNull PrescriptionHistoryItem historyItem);
     }
 
+    private final ArrayList<PrescriptionHistoryItem> allItems = new ArrayList<>();
     private final ArrayList<PrescriptionHistoryItem> items = new ArrayList<>();
     private final PresHistorySelectionListener selectionListener;
+
+    @NonNull
+    private String currentSearchText = "";
 
     @Nullable
     private String selectedRvmId;
@@ -88,17 +93,32 @@ public class PatientSearchPresHistAdapter extends RecyclerView.Adapter<PatientSe
 
     @SuppressLint("NotifyDataSetChanged")
     public void submitList(@Nullable List<PrescriptionHistoryItem> newItems) {
-        items.clear();
+        allItems.clear();
 
         if (newItems != null) {
-            items.addAll(newItems);
+            allItems.addAll(newItems);
         }
+
+        applyFilter();
 
         if (selectedRvmId != null && findItemByRvmId(selectedRvmId) == null) {
             selectedRvmId = null;
         }
 
         notifyDataSetChanged();
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    public void filter(@Nullable CharSequence searchText) {
+        currentSearchText = normalizeSearchText(searchText);
+        applyFilter();
+
+        selectedRvmId = null;
+        notifyDataSetChanged();
+    }
+
+    public int getTotalItemCount() {
+        return allItems.size();
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -110,6 +130,35 @@ public class PatientSearchPresHistAdapter extends RecyclerView.Adapter<PatientSe
     private void setOptionalText(@NonNull TextView textView, @NonNull String value) {
         textView.setText(value);
         textView.setVisibility(value.isEmpty() ? View.GONE : View.VISIBLE);
+    }
+
+    private void applyFilter() {
+        items.clear();
+
+        if (currentSearchText.isEmpty()) {
+            items.addAll(allItems);
+            return;
+        }
+
+        for (PrescriptionHistoryItem item : allItems) {
+            String prescriptionCode = normalizeSearchText(item.getRvmCode());
+
+            if (prescriptionCode.contains(currentSearchText)) {
+                items.add(item);
+            }
+        }
+    }
+
+    @NonNull
+    private String normalizeSearchText(@Nullable CharSequence value) {
+        if (value == null) {
+            return "";
+        }
+
+        return value.toString()
+                .trim()
+                .replace(" ", "")
+                .toLowerCase(Locale.ROOT);
     }
 
     @NonNull

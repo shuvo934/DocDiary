@@ -34,7 +34,6 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
@@ -530,10 +529,7 @@ public class DocProfile extends AppCompatActivity implements PictureChooseListen
 
                 if (imageFound) {
                     try {
-                        Glide.with(getApplicationContext())
-                                .load(bitmap)
-                                .fitCenter()
-                                .into(docImage);
+                        docImage.setImageBitmap(bitmap);
                     }
                     catch (Exception e) {
                         restart("App is paused for a long time. Please Start the app again.");
@@ -735,10 +731,7 @@ public class DocProfile extends AppCompatActivity implements PictureChooseListen
                 Toast.makeText(getApplicationContext(), "Picture Uploaded", Toast.LENGTH_SHORT).show();
 
                 try {
-                    Glide.with(getApplicationContext())
-                            .load(selectedBitmap)
-                            .fitCenter()
-                            .into(docImage);
+                    docImage.setImageBitmap(selectedBitmap);
                 }
                 catch (Exception e) {
                     restart("App is paused for a long time. Please Start the app again.");

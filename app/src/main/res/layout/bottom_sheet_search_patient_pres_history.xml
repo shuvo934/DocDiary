@@ -116,6 +116,33 @@
             android:textSize="@dimen/_8sdp"
             tools:ignore="HardcodedText" />
 
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_6sdp"
+            android:hint="Search by prescription code"
+            app:boxCornerRadiusBottomEnd="@dimen/_8sdp"
+            app:boxCornerRadiusBottomStart="@dimen/_8sdp"
+            app:boxCornerRadiusTopEnd="@dimen/_8sdp"
+            app:boxCornerRadiusTopStart="@dimen/_8sdp"
+            app:endIconMode="clear_text"
+            tools:ignore="HardcodedText">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_search_pat_prescription_history"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:fontFamily="@font/poppins"
+                android:imeOptions="actionDone"
+                android:inputType="text"
+                android:maxLines="1"
+                android:textColor="@color/prescription_text_primary"
+                android:textSize="@dimen/_9sdp" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -146,6 +173,7 @@
                     app:tint="@color/prescription_text_secondary" />
 
                 <TextView
+                    android:id="@+id/tv_pat_search_pres_history_empty_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/_8sdp"
@@ -157,6 +185,7 @@
                     tools:ignore="HardcodedText" />
 
                 <TextView
+                    android:id="@+id/tv_pat_search_pres_history_empty_message"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/_3sdp"

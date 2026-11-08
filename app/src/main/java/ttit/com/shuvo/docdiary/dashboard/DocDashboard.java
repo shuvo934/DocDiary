@@ -18,9 +18,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
-import androidx.exifinterface.media.ExifInterface;
+//import androidx.exifinterface.media.ExifInterface;
 import androidx.fragment.app.FragmentManager;
 
+import androidx.exifinterface.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -42,7 +43,6 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.bumptech.glide.Glide;
 import com.github.dewinjm.monthyearpicker.MonthFormat;
 import com.github.dewinjm.monthyearpicker.MonthYearPickerDialogFragment;
 import com.github.mikephil.charting.charts.LineChart;
@@ -2768,10 +2768,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                                 if (imageFound) {
                                     try {
-                                        Glide.with(getApplicationContext())
-                                                .load(bitmap)
-                                                .fitCenter()
-                                                .into(docImage);
+                                        docImage.setImageBitmap(bitmap);
                                     } catch (Exception e) {
                                         restart("App is paused for a long time. Please Start the app again.");
                                     }
@@ -3213,10 +3210,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                     if (imageFound) {
                         try {
-                            Glide.with(getApplicationContext())
-                                    .load(bitmap)
-                                    .fitCenter()
-                                    .into(docImage);
+                            docImage.setImageBitmap(bitmap);
                         } catch (Exception e) {
                             restart("App is paused for a long time. Please Start the app again.");
                         }
@@ -4391,10 +4385,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                                 if (imageFound) {
                                     try {
-                                        Glide.with(getApplicationContext())
-                                                .load(bitmap)
-                                                .fitCenter()
-                                                .into(docImage);
+                                        docImage.setImageBitmap(bitmap);
                                     } catch (Exception e) {
                                         restart("App is paused for a long time. Please Start the app again.");
                                     }
@@ -4847,10 +4838,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
                     if (imageFound) {
                         try {
-                            Glide.with(getApplicationContext())
-                                    .load(bitmap)
-                                    .fitCenter()
-                                    .into(docImage);
+                            docImage.setImageBitmap(bitmap);
                         } catch (Exception e) {
                             restart("App is paused for a long time. Please Start the app again.");
                         }
@@ -6596,10 +6584,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 Toast.makeText(getApplicationContext(), "Picture Uploaded", Toast.LENGTH_SHORT).show();
 
                 try {
-                    Glide.with(getApplicationContext())
-                            .load(selectedBitmap)
-                            .fitCenter()
-                            .into(docImage);
+                    docImage.setImageBitmap(selectedBitmap);
                 }
                 catch (Exception e) {
                     restart("App is paused for a long time. Please Start the app again.");

@@ -45,7 +45,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 import java.util.logging.Level;
@@ -58,6 +57,7 @@ import ttit.com.shuvo.docdiary.hr_accounts.vouch_trans.arraylists.VoucherLists1;
 import ttit.com.shuvo.docdiary.hr_accounts.vouch_trans.arraylists.VoucherLists2;
 import ttit.com.shuvo.docdiary.hr_accounts.vouch_trans.arraylists.VoucherLists3;
 import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
+import ttit.com.shuvo.docdiary.utilities.NativeAccountsNumbers;
 
 public class VoucherTransaction extends AppCompatActivity {
 
@@ -834,59 +834,23 @@ public class VoucherTransaction extends AppCompatActivity {
 
                 for (int j = 0; j < voucherLists2s.size(); j++) {
                     ArrayList<VoucherLists3> voucherLists3s = new ArrayList<>();
-                    ArrayList<VoucherLists3> voucherLists3s_dr = new ArrayList<>();
-                    ArrayList<VoucherLists3> voucherLists3s_cr = new ArrayList<>();
-                    ArrayList<Integer> dr_coll = new ArrayList<>();
-                    ArrayList<Integer> cr_coll = new ArrayList<>();
                     String vNo = voucherLists2s.get(j).getvNo();
-
                     for (int k = 0; k < voucherAllData.size(); k++) {
-                        String voucherNo = voucherAllData.get(k).getLg_voucher_no();
-                        String acc_dtl = voucherAllData.get(k).getAd_dtl();
-                        String lg_dr_amt = voucherAllData.get(k).getLg_dr_amt();
-                        String lg_cr_amt = voucherAllData.get(k).getLg_cr_amt();
-
-                        if (date.equals(voucherAllData.get(k).getVdate()) && vNo.equals(voucherNo)) {
-                            if (lg_dr_amt.isEmpty()) {
-                                if (!lg_cr_amt.isEmpty()) {
-                                    cr_coll.add(Integer.parseInt(lg_cr_amt));
-                                }
-                                voucherLists3s_cr.add(new VoucherLists3(acc_dtl,lg_dr_amt,lg_cr_amt));
-                            }
-                            if (lg_cr_amt.isEmpty()) {
-                                if (!lg_dr_amt.isEmpty()) {
-                                    dr_coll.add(Integer.parseInt(lg_dr_amt));
-                                }
-                                voucherLists3s_dr.add(new VoucherLists3(acc_dtl,lg_dr_amt,lg_cr_amt));
-                            }
+                        if (date.equals(voucherAllData.get(k).getVdate()) && vNo.equals(voucherAllData.get(k).getLg_voucher_no())) {
+                            voucherLists3s.add(new VoucherLists3(voucherAllData.get(k).getAd_dtl(), voucherAllData.get(k).getLg_dr_amt(), voucherAllData.get(k).getLg_cr_amt()));
                         }
                     }
-
-                    Collections.sort(cr_coll, Collections.reverseOrder());
-                    Collections.sort(dr_coll, Collections.reverseOrder());
-
-                    for (int k = 0; k < dr_coll.size(); k++) {
-                        for (int l = 0; l < voucherLists3s_dr.size(); l++) {
-                            String acc_dtl = voucherLists3s_dr.get(l).getAccountDetails();
-                            String lg_dr_amt = voucherLists3s_dr.get(l).getDebit();
-                            String lg_cr_amt = voucherLists3s_dr.get(l).getCredit();
-
-                            if (dr_coll.get(k) == Integer.parseInt(voucherLists3s_dr.get(l).getDebit())) {
-                                voucherLists3s.add(new VoucherLists3(acc_dtl,lg_dr_amt,lg_cr_amt));
-                            }
-                        }
-                    }
-
-                    for (int k = 0; k < cr_coll.size(); k++) {
-                        for (int l = 0; l < voucherLists3s_cr.size(); l++) {
-                            String acc_dtl = voucherLists3s_cr.get(l).getAccountDetails();
-                            String lg_dr_amt = voucherLists3s_cr.get(l).getDebit();
-                            String lg_cr_amt = voucherLists3s_cr.get(l).getCredit();
-
-                            if (cr_coll.get(k) == Integer.parseInt(voucherLists3s_cr.get(l).getCredit())) {
-                                voucherLists3s.add(new VoucherLists3(acc_dtl,lg_dr_amt,lg_cr_amt));
-                            }
-                        }
+                    try {
+                        voucherLists3s = NativeAccountsNumbers.sortDebitThenCredit(voucherLists3s, VoucherLists3::getDebit, VoucherLists3::getCredit);
+                    } catch (NumberFormatException failure) {
+                        logger.log(Level.WARNING, "Invalid voucher amount", failure);
+                        runOnUiThread(() -> {
+                            conn = true;
+                            connected = false;
+                            parsing_message = "The server returned an invalid voucher amount.";
+                            updateInterface();
+                        });
+                        return;
                     }
 
                     voucherLists2s.get(j).setVoucherLists3s(voucherLists3s);
