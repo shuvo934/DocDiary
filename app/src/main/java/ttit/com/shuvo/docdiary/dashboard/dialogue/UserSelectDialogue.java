@@ -14,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
-import androidx.core.os.BundleCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -82,7 +81,7 @@ public class UserSelectDialogue extends AppCompatDialogFragment implements Multi
     public static final String ADMIN_OR_USER_FLAG = "ADMIN_OR_USER_FLAG";
     public static final String ADMIN_USR_ID = "ADMIN_USR_ID";
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("deprecation, unchecked")
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -104,11 +103,11 @@ public class UserSelectDialogue extends AppCompatDialogFragment implements Multi
             selected_admin_id = getArguments().getString("selected_admin_id", "");
             admin_or_user = getArguments().getString("admin_or_user", "");
 
-//            centerLists = (ArrayList<CenterList>) getArguments().getSerializable("centerLists");
-//            multipleUserLists = (ArrayList<MultipleUserList>) getArguments().getSerializable("multipleUserLists");
+            centerLists = (ArrayList<CenterList>) getArguments().getSerializable("centerLists");
+            multipleUserLists = (ArrayList<MultipleUserList>) getArguments().getSerializable("multipleUserLists");
 
-            centerLists = (ArrayList<CenterList>) BundleCompat.getSerializable(getArguments(), "centerLists", ArrayList.class);
-            multipleUserLists = (ArrayList<MultipleUserList>) BundleCompat.getSerializable(getArguments(), "multipleUserLists", ArrayList.class);
+//            centerLists = (ArrayList<CenterList>) BundleCompat.getSerializable(getArguments(), "centerLists", ArrayList.class);
+//            multipleUserLists = (ArrayList<MultipleUserList>) BundleCompat.getSerializable(getArguments(), "multipleUserLists", ArrayList.class);
         }
 
         userIdView = view.findViewById(R.id.multiple_user_list_view);

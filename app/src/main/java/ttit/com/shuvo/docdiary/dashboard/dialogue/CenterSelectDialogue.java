@@ -5,7 +5,6 @@ import static android.content.Context.MODE_PRIVATE;
 import android.app.Dialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import androidx.core.os.BundleCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -80,7 +79,7 @@ public class CenterSelectDialogue extends AppCompatDialogFragment implements Cen
     public static final String ADMIN_OR_USER_FLAG = "ADMIN_OR_USER_FLAG";
     public static final String ADMIN_USR_ID = "ADMIN_USR_ID";
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("deprecation,unchecked")
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -95,8 +94,8 @@ public class CenterSelectDialogue extends AppCompatDialogFragment implements Cen
         View view = inflater.inflate(R.layout.center_selectable_view, null);
 
         if (getArguments() != null) {
-//            centerLists = (ArrayList<CenterList>) getArguments().getSerializable("centerLists");
-            centerLists = (ArrayList<CenterList>) BundleCompat.getSerializable(getArguments(), "centerLists", ArrayList.class);
+            centerLists = (ArrayList<CenterList>) getArguments().getSerializable("centerLists");
+//            centerLists = (ArrayList<CenterList>) BundleCompat.getSerializable(getArguments(), "centerLists", ArrayList.class);
             center_api = getArguments().getString("center_api","");
             selected_doc_code = getArguments().getString("selected_doc_code", "");
             selected_admin_id = getArguments().getString("selected_admin_id", "");

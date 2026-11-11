@@ -15,7 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
-import androidx.core.os.BundleCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -59,7 +58,7 @@ public class SelectUserIdDialogue extends AppCompatDialogFragment implements Mul
     private CloseCallBack closeCallBack;
     private AdminIDCallbackListener adminIDCallbackListener;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("deprecation, unchecked")
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -75,8 +74,8 @@ public class SelectUserIdDialogue extends AppCompatDialogFragment implements Mul
             adminIDCallbackListener = (AdminIDCallbackListener) getActivity();
 
         if (getArguments() != null) {
-//            multipleUserLists = (ArrayList<MultipleUserList>) getArguments().getSerializable("multipleUserLists");
-            multipleUserLists = (ArrayList<MultipleUserList>) BundleCompat.getSerializable(getArguments(),"multipleUserLists", ArrayList.class);
+            multipleUserLists = (ArrayList<MultipleUserList>) getArguments().getSerializable("multipleUserLists");
+//            multipleUserLists = (ArrayList<MultipleUserList>) BundleCompat.getSerializable(getArguments(),"multipleUserLists", ArrayList.class);
             c_name = getArguments().getString("c_name", "");
         }
 

@@ -5,6 +5,8 @@
     android:id="@+id/srv_mod_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     android:background="@drawable/cloud_gray_background"
     tools:context=".payment.service.ServiceModify">
 

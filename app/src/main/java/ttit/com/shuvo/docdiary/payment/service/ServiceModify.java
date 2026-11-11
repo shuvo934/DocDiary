@@ -7,6 +7,9 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import android.content.Context;
 import android.content.Intent;
@@ -280,22 +283,6 @@ public class ServiceModify extends AppCompatActivity {
             }
         });
 
-        service.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEARCH ||
-                    actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT || event != null && event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER &&
-                    event.getKeyCode() == KeyEvent.KEYCODE_NAVIGATE_NEXT) {
-                if (event == null || !event.isShiftPressed()) {
-                    // the user is done typing.
-                    Log.i("Let see", "Come here");
-                    service.clearFocus();
-                    closeKeyBoard();
-
-                    return false; // consume.
-                }
-            }
-            return false;
-        });
-
         serviceUnit.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -382,22 +369,6 @@ public class ServiceModify extends AppCompatActivity {
             }
         });
 
-        serviceUnit.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEARCH ||
-                    actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT || event != null && event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER &&
-                    event.getKeyCode() == KeyEvent.KEYCODE_NAVIGATE_NEXT) {
-                if (event == null || !event.isShiftPressed()) {
-                    // the user is done typing.
-                    Log.i("Let see", "Come here");
-                    serviceUnit.clearFocus();
-                    closeKeyBoard();
-
-                    return false; // consume.
-                }
-            }
-            return false;
-        });
-
         serviceQty.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -454,21 +425,36 @@ public class ServiceModify extends AppCompatActivity {
             }
         });
 
-        serviceQty.setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEARCH ||
-                    actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT || event != null && event.getAction() == KeyEvent.ACTION_DOWN && event.getKeyCode() == KeyEvent.KEYCODE_ENTER &&
-                    event.getKeyCode() == KeyEvent.KEYCODE_NAVIGATE_NEXT) {
-                if (event == null || !event.isShiftPressed()) {
-                    // the user is done typing.
-                    Log.i("Let see", "Come here");
-                    serviceQty.clearFocus();
-                    closeKeyBoard();
+        TextView.OnEditorActionListener keyboardDoneListener =
+                (v, actionId, event) -> {
 
-                    return false; // consume.
-                }
-            }
-            return false;
-        });
+                    boolean isImeAction =
+                            actionId == EditorInfo.IME_ACTION_DONE
+                                    || actionId == EditorInfo.IME_ACTION_SEARCH
+                                    || actionId == EditorInfo.IME_ACTION_NEXT;
+
+                    boolean isEnterKey =
+                            event != null
+                                    && !event.isShiftPressed()
+                                    && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER
+                                    || event.getKeyCode()
+                                    == KeyEvent.KEYCODE_NAVIGATE_NEXT);
+
+                    if (!isImeAction && !isEnterKey) {
+                        return false;
+                    }
+
+                    if (event == null
+                            || event.getAction() == KeyEvent.ACTION_DOWN) {
+                        closeKeyBoard();
+                    }
+
+                    return true;
+                };
+
+        service.setOnEditorActionListener(keyboardDoneListener);
+        serviceUnit.setOnEditorActionListener(keyboardDoneListener);
+        serviceQty.setOnEditorActionListener(keyboardDoneListener);
 
         close.setOnClickListener(v -> finish());
 
@@ -684,13 +670,28 @@ public class ServiceModify extends AppCompatActivity {
         return super.onTouchEvent(event);
     }
 
+//    private void closeKeyBoard() {
+//        View view = getCurrentFocus();
+//        if (view != null) {
+//            view.clearFocus();
+//            InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//            mgr.hideSoftInputFromWindow(view.getWindowToken(), 0);
+//        }
+//    }
+
     private void closeKeyBoard() {
-        View view = getCurrentFocus();
-        if (view != null) {
-            view.clearFocus();
-            InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            mgr.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
+        View root = findViewById(R.id.srv_mod_root);
+
+        service.dismissDropDown();
+        serviceUnit.dismissDropDown();
+
+        // Hide করার জন্য getCurrentFocus()-এর ওপর নির্ভর করতে হবে না।
+        WindowCompat.getInsetsController(getWindow(), root)
+                .hide(WindowInsetsCompat.Type.ime());
+
+        // কোনো input-এ focus ফিরে যাওয়া ঠেকাবে।
+        root.requestFocus();
+        root.post(() -> ViewCompat.requestApplyInsets(root));
     }
 
     public void getServices() {

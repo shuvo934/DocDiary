@@ -15,7 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
-import androidx.core.os.BundleCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -59,7 +58,7 @@ public class SelectCenterDialogue extends AppCompatDialogFragment implements Cen
     private CloseCallBack closeCallBack;
     private AdminCallBackListener adminCallBackListener;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("deprecation, unchecked")
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -75,8 +74,8 @@ public class SelectCenterDialogue extends AppCompatDialogFragment implements Cen
             adminCallBackListener = (AdminCallBackListener) getActivity();
 
         if (getArguments() != null) {
-//            centerLists = (ArrayList<CenterList>) getArguments().getSerializable("centerLists");
-            centerLists = (ArrayList<CenterList>) BundleCompat.getSerializable(getArguments(), "centerLists", ArrayList.class);
+            centerLists = (ArrayList<CenterList>) getArguments().getSerializable("centerLists");
+//            centerLists = (ArrayList<CenterList>) BundleCompat.getSerializable(getArguments(), "centerLists", ArrayList.class);
         }
 
         if (centerLists == null) centerLists = new ArrayList<>();
