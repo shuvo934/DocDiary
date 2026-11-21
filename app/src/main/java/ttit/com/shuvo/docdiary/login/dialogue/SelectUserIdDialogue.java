@@ -58,7 +58,7 @@ public class SelectUserIdDialogue extends AppCompatDialogFragment implements Mul
     private CloseCallBack closeCallBack;
     private AdminIDCallbackListener adminIDCallbackListener;
 
-    @SuppressWarnings("deprecation, unchecked")
+    @SuppressWarnings({"deprecation", "unchecked"})
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -115,7 +115,7 @@ public class SelectUserIdDialogue extends AppCompatDialogFragment implements Mul
     public void onCategoryClicked(int CategoryPosition) {
 
         String user_admin_flag = multipleUserLists.get(CategoryPosition).getUser_admin_flag();
-        if (user_admin_flag.equals("1")) {
+        if ("1".equals(user_admin_flag)) {
             d_code = multipleUserLists.get(CategoryPosition).getDoc_code();
             center_doc_code = d_code;
             user_or_admin_flag = user_admin_flag;

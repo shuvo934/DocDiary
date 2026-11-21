@@ -46,7 +46,7 @@ public class MultipleUserAdapter extends RecyclerView.Adapter<MultipleUserAdapte
     public void onBindViewHolder(@NonNull MUHolder holder, int position) {
         MultipleUserList centerList = mCategory.get(position);
         String flag = centerList.getUser_admin_flag();
-        if (flag.equals("1")) {
+        if ("1".equals(flag)) {
             holder.docCode.setVisibility(View.VISIBLE);
             holder.docName.setText(centerList.getDoc_name());
             holder.docCode.setText(centerList.getDoc_code());

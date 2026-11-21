@@ -40,9 +40,7 @@ import com.androchef.happytimer.countdowntimer.HappyTimer;
 import com.androchef.happytimer.countdowntimer.NormalCountDownView;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.github.dewinjm.monthyearpicker.MonthFormat;
 import com.github.dewinjm.monthyearpicker.MonthYearPickerDialogFragment;
 import com.github.mikephil.charting.charts.LineChart;
@@ -138,6 +136,7 @@ import ttit.com.shuvo.docdiary.profile.DocProfile;
 import ttit.com.shuvo.docdiary.report_manager.ReportManager;
 import ttit.com.shuvo.docdiary.unit_app_schedule.UnitWiseAppointment;
 import ttit.com.shuvo.docdiary.utilities.EdgeToEdgeHelper;
+import ttit.com.shuvo.docdiary.utilities.VolleySingleton;
 
 public class DocDashboard extends AppCompatActivity implements CallBackListener, IDCallbackListener, AdminIDCallbackListener,
         AdminCallBackListener, BitmapCallBack, PictureChooseListener, ErrorHandlerListener {
@@ -303,6 +302,14 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     Bitmap selectedBitmap;
     ReviewManager reviewManager;
     boolean cameraResumeLoad = true;
+
+    private final Object NET_TAG = new Object();
+
+    private void addRequest(Request<?> request) {
+        request.setTag(NET_TAG);
+        request.setShouldCache(false); // dashboard data সবসময় নতুন, তাই disk cache লাগবে না
+        VolleySingleton.getQueue(this).add(request);
+    }
 
     private long lastDialogClickTime = 0L;
 
@@ -479,7 +486,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     mHandler.postDelayed(() -> getDocSchedule(),3000);
                 }
                 else {
-                    mHandler.postDelayed(() -> onResume(),3000);
+                    mHandler.postDelayed(() -> reloadData(),3000);
                 }
 
 
@@ -1517,24 +1524,19 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         admin_usr_id = sharedPreferences.getString(ADMIN_USR_ID,"");
         admin_user_flag = sharedPreferences.getString(ADMIN_OR_USER_FLAG,"");
         pre_url_api = sharedPreferences.getString(DOC_DATA_API,"");
-        Gson gson1 = new Gson();
         String json1 = sharedPreferences.getString(DOC_ALL_ID, "");
-        Type type = new TypeToken<ArrayList<CenterList>>(){}.getType();
-        centerLists = gson1.fromJson(json1, type);
+        centerLists = parseCenterLists(json1);
 
-        if (centerLists != null) {
-            if (centerLists.isEmpty()) {
-                System.out.println("NO USER");
-                switchUser.setVisibility(View.GONE);
-            }
-            else {
-                switchUser.setVisibility(View.VISIBLE);
-            }
+        if (centerLists == null) {
+            sharedPreferences.edit().remove(DOC_ALL_ID).apply();
+            centerLists = new ArrayList<>();
+            Toast.makeText(
+                    this,
+                    "Please log out and sign in again to refresh your account list.",
+                    Toast.LENGTH_LONG
+            ).show();
         }
-        else {
-            System.out.println("USER NULL PAISE");
-            switchUser.setVisibility(View.GONE);
-        }
+        switchUser.setVisibility(centerLists.isEmpty() ? View.GONE : View.VISIBLE);
 
         if (admin_user_flag.equals("1")) {
             bottomNavigationView.getMenu().clear();
@@ -1585,6 +1587,58 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         osName = builder.toString();
         //        android_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
         System.out.println("1st Phase");
+    }
+
+    @Nullable
+    private ArrayList<CenterList> parseCenterLists(String json) {
+        if (json == null || json.trim().isEmpty()) return new ArrayList<>();
+        try {
+            Type type = TypeToken.getParameterized(ArrayList.class, CenterList.class).getType();
+            ArrayList<CenterList> list = new Gson().fromJson(json, type);
+            if (list == null) return null;
+            for (Object c : list) {
+                if (!(c instanceof CenterList)) return null;
+                CenterList cl = (CenterList) c;
+                if (cl.getCenter_api() == null || cl.getUser_admin_flag() == null) return null;
+                if (!hasText(cl.getCenter_api())) return null;
+                ArrayList<MultipleUserList> users = cl.getMultipleUserLists();
+
+                if (users == null || users.isEmpty()) {
+                    String centerFlag = cl.getUser_admin_flag();
+
+                    boolean validSingleAccount =
+                            ("1".equals(centerFlag) && hasText(cl.getDoc_code()))
+                                    || ("2".equals(centerFlag) && hasText(cl.getAdmin_user_id()));
+
+                    if (!validSingleAccount) return null;
+                }
+                if (cl.getMultipleUserLists() != null) {
+                    for (Object u : cl.getMultipleUserLists()) {
+                        if (!(u instanceof MultipleUserList)) return null;
+
+                        MultipleUserList user = (MultipleUserList) u;
+                        String flag = user.getUser_admin_flag();
+
+                        if ("1".equals(flag)) {
+                            if (!hasText(user.getDoc_code())) return null;
+                        } else if ("2".equals(flag)) {
+                            if (!hasText(user.getAdmin_user_id())) return null;
+                        } else {
+                            return null;
+                        }
+                    }
+                }
+            }
+            return list;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private boolean hasText(String value) {
+        return value != null
+                && !value.trim().isEmpty()
+                && !"null".equalsIgnoreCase(value.trim());
     }
 
     public void LineChartInit() {
@@ -1741,6 +1795,10 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
     protected void onResume() {
         super.onResume();
         System.out.println("First_flag on resume: "+ first_flag);
+        reloadData();
+    }
+
+    private void reloadData() {
         if (!cameraResumeLoad) {
             cameraResumeLoad = true;
         }
@@ -1840,8 +1898,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
         String docDataUrl = pre_url_api+"doc_dashboard/getDocData?doc_code="+doc_code;
         String expiryDateUrl = pre_url_api+"doc_dashboard/updateDocExpDate";
-
-        RequestQueue requestQueue = Volley.newRequestQueue(DocDashboard.this);
 
         StringRequest expDateUpdate = new StringRequest(Request.Method.POST, expiryDateUrl, response -> {
             conn = true;
@@ -1996,7 +2052,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                 if (expiry_date.isEmpty()) {
                                     expiry_date = dateFormat.format(mmm);
                                 }
-                                requestQueue.add(expDateUpdate);
+                                addRequest(expDateUpdate);
                             }
                         }
                         else {
@@ -2024,13 +2080,11 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             updateInterface();
         });
 
-        requestQueue.add(docDataReq);
+        addRequest(docDataReq);
     }
 
     public void loginLogInsert() {
         String loginLogUrl = pre_url_api+"doc_dashboard/loginLog";
-
-        RequestQueue requestQueue = Volley.newRequestQueue(DocDashboard.this);
 
         StringRequest loginLogReq = new StringRequest(Request.Method.POST, loginLogUrl, response -> {
             conn = true;
@@ -2083,7 +2137,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             }
         };
 
-        requestQueue.add(loginLogReq);
+        addRequest(loginLogReq);
     }
 
     public void getDocSchedule() {
@@ -2115,8 +2169,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         remaining_meeting = 0;
         total_schedule = 0;
         blocked_schedule = 0;
-
-        RequestQueue requestQueue = Volley.newRequestQueue(DocDashboard.this);
 
         StringRequest docPicReq = new StringRequest(Request.Method.GET, docPicUrl, response -> {
             conn = true;
@@ -2206,7 +2258,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     }
                 }
 
-                requestQueue.add(docPicReq);
+                addRequest(docPicReq);
 
             }
             catch (JSONException e) {
@@ -2270,7 +2322,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     total_meeting = Integer.parseInt(count);
                 }
 
-                requestQueue.add(docSchCountReq);
+                addRequest(docSchCountReq);
 
             }
             catch (JSONException e) {
@@ -2320,7 +2372,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     }
                 }
 
-                requestQueue.add(docMeetReq);
+                addRequest(docMeetReq);
             }
             catch (JSONException e) {
                 connected = false;
@@ -2373,7 +2425,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     }
                 }
                 else {
-                    requestQueue.add(docSchReq);
+                    addRequest(docSchReq);
                 }
             }
             catch (JSONException e) {
@@ -2401,10 +2453,10 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         });
 
         if (first_flag == 0) {
-            requestQueue.add(docSchReq);
+            addRequest(docSchReq);
         }
         else {
-            requestQueue.add(docFlReq);
+            addRequest(docFlReq);
         }
 
     }
@@ -3324,8 +3376,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         total_schedule = 0;
         blocked_schedule = 0;
 
-        RequestQueue requestQueue = Volley.newRequestQueue(DocDashboard.this);
-
         StringRequest docSchCountReq = new StringRequest(Request.Method.GET, docScheduleUrl, response -> {
             conn = true;
             try {
@@ -3407,7 +3457,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     total_meeting = Integer.parseInt(count);
                 }
 
-                requestQueue.add(docSchCountReq);
+                addRequest(docSchCountReq);
 
             }
             catch (JSONException e) {
@@ -3424,7 +3474,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             updateTabLayout();
         });
 
-        requestQueue.add(docMeetReq);
+        addRequest(docMeetReq);
     }
 
     private void updateTabLayout() {
@@ -3535,8 +3585,9 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
+        VolleySingleton.getQueue(this).cancelAll(NET_TAG);
         mHandler.removeCallbacksAndMessages(null);
+        super.onDestroy();
     }
 
 
@@ -3613,8 +3664,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 return  headers;
             }
         };
-
-        RequestQueue requestQueue = Volley.newRequestQueue(DocDashboard.this);
 
         StringRequest adminDataReq = new StringRequest(Request.Method.GET, adminDataUrl, response -> {
             conn = true;
@@ -3706,7 +3755,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                                 if (admin_expiry_date.isEmpty()) {
                                     admin_expiry_date = dateFormat.format(mmm);
                                 }
-                                requestQueue.add(expDateUpdate);
+                                addRequest(expDateUpdate);
                             }
                         }
                         else {
@@ -3739,13 +3788,11 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 0,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         ));
-        requestQueue.add(adminDataReq);
+        addRequest(adminDataReq);
     }
 
     public void adminLoginLogInsert() {
         String loginLogUrl = pre_url_api+"doc_dashboard/loginLog";
-
-        RequestQueue requestQueue = Volley.newRequestQueue(DocDashboard.this);
 
         StringRequest loginLogReq = new StringRequest(Request.Method.POST, loginLogUrl, response -> {
             conn = true;
@@ -3799,7 +3846,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             }
         };
 
-        requestQueue.add(loginLogReq);
+        addRequest(loginLogReq);
     }
 
     public void getAdminDashboardData() {
@@ -3863,8 +3910,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         String adminAppPayUrl = pre_url_api + "doc_dashboard/getAdminAppPayCountNew?begin_date="+date_now+"&end_date="+date_now+"&user_id="+admin_usr_name;
         String paymentChartMonthUrl = pre_url_api + "doc_dashboard/getPaymentDataMonthly?begin_date="+firstDate+"&end_date="+lastDate+"&user_id="+admin_usr_name;
         String appointChartMonthUrl = pre_url_api + "doc_dashboard/getAppointDataMonthly?begin_date="+firstDate+"&end_date="+lastDate;
-
-        RequestQueue requestQueue = Volley.newRequestQueue(DocDashboard.this);
 
         StringRequest adminPicReq = new StringRequest(Request.Method.GET, adminPicUrl, response -> {
             conn = true;
@@ -3953,7 +3998,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     }
                 }
 
-                requestQueue.add(adminPicReq);
+                addRequest(adminPicReq);
 
             }
             catch (JSONException e) {
@@ -4002,7 +4047,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     }
                 }
 
-                requestQueue.add(appointChartMonthReq);
+                addRequest(appointChartMonthReq);
 
             }
             catch (JSONException e) {
@@ -4042,7 +4087,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 total_payment_return = jsonObject.getString("total_pay_rtn")
                         .equals("null") ? "0" : jsonObject.getString("total_pay_rtn");
 
-                requestQueue.add(payChartMonthReq);
+                addRequest(payChartMonthReq);
             }
             catch (JSONException e) {
                 connected = false;
@@ -4095,7 +4140,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     }
                 }
                 else {
-                    requestQueue.add(adminPayAppReq);
+                    addRequest(adminPayAppReq);
                 }
             }
             catch (JSONException e) {
@@ -4147,10 +4192,10 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         ));
 
         if (first_flag == 0) {
-            requestQueue.add(adminPayAppReq);
+            addRequest(adminPayAppReq);
         }
         else {
-            requestQueue.add(adminFlReq);
+            addRequest(adminFlReq);
         }
     }
 
@@ -5143,8 +5188,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 
         String adminAppPayUrl = pre_url_api + "doc_dashboard/getAdminAppPayCountNew?begin_date="+tabFirstDate+"&end_date="+tabEndDate+"&user_id="+admin_usr_name;
 
-        RequestQueue requestQueue = Volley.newRequestQueue(DocDashboard.this);
-
         StringRequest adminPayAppReq = new StringRequest(Request.Method.GET, adminAppPayUrl, response -> {
             conn = true;
             try {
@@ -5182,7 +5225,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
         ));
 
-        requestQueue.add(adminPayAppReq);
+        addRequest(adminPayAppReq);
     }
 
     private void updateTabLayoutAdmin() {
@@ -5384,8 +5427,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         String paymentChartUrl;
         String appointChartUrl;
 
-        RequestQueue requestQueue = Volley.newRequestQueue(DocDashboard.this);
-
         if (chartTabPosition == 0) {
             if (pay_app_type == 0) {
                 paymentChartUrl = pre_url_api + "doc_dashboard/getPaymentDataMonthly?begin_date="+paymentChartFirstDate+"&end_date="+paymentChartLastDate+"&user_id="+admin_usr_name;
@@ -5466,7 +5507,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                         }
                     }
 
-                    requestQueue.add(appChartReq);
+                    addRequest(appChartReq);
 
                 }
                 catch (JSONException e) {
@@ -5495,7 +5536,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
             ));
 
-            requestQueue.add(payChartReq);
+            addRequest(payChartReq);
         }
         else {
             if (pay_app_type == 0) {
@@ -5577,7 +5618,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                         }
                     }
 
-                    requestQueue.add(appChartReq);
+                    addRequest(appChartReq);
 
                 }
                 catch (JSONException e) {
@@ -5606,7 +5647,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
             ));
 
-            requestQueue.add(payChartReq);
+            addRequest(payChartReq);
         }
     }
 
@@ -5864,8 +5905,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         paymentChart.invalidate();
         paymentChart.fitScreen();
 
-        RequestQueue requestQueue = Volley.newRequestQueue(DocDashboard.this);
-
         String paymentChartUrl;
 
         if (chartTabPosition == 0) {
@@ -5928,7 +5967,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
             ));
 
-            requestQueue.add(payChartReq);
+            addRequest(payChartReq);
         }
         else {
             if (pay_app_type == 0) {
@@ -5990,7 +6029,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
             ));
 
-            requestQueue.add(payChartReq);
+            addRequest(payChartReq);
         }
     }
 
@@ -6163,8 +6202,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
         appointmentChart.invalidate();
         appointmentChart.fitScreen();
 
-        RequestQueue requestQueue = Volley.newRequestQueue(DocDashboard.this);
-
         String appointChartUrl;
 
         if (chartTabPosition == 0) {
@@ -6227,7 +6264,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
             ));
 
-            requestQueue.add(appointChartReq);
+            addRequest(appointChartReq);
         }
         else {
             if (pay_app_type == 0) {
@@ -6289,7 +6326,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
             ));
 
-            requestQueue.add(appointChartReq);
+            addRequest(appointChartReq);
         }
     }
 
@@ -6519,8 +6556,6 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
 //
         byte[] finalBArray = compressBitmap(selectedBitmap,1024);
 
-        RequestQueue requestQueue = Volley.newRequestQueue(DocDashboard.this);
-
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url, response ->  {
             conn = true;
             try {
@@ -6568,7 +6603,7 @@ public class DocDashboard extends AppCompatActivity implements CallBackListener,
             }
         };
 
-        requestQueue.add(stringRequest);
+        addRequest(stringRequest);
 
     }
 

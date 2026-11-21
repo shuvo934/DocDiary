@@ -79,7 +79,7 @@ public class CenterSelectDialogue extends AppCompatDialogFragment implements Cen
     public static final String ADMIN_OR_USER_FLAG = "ADMIN_OR_USER_FLAG";
     public static final String ADMIN_USR_ID = "ADMIN_USR_ID";
 
-    @SuppressWarnings("deprecation,unchecked")
+    @SuppressWarnings({"deprecation", "unchecked"})
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -167,7 +167,7 @@ public class CenterSelectDialogue extends AppCompatDialogFragment implements Cen
             editor1.apply();
             editor1.commit();
 
-            if (admin_user_flag.equals("1")) {
+            if ("1".equals(admin_user_flag)) {
                 if(callBackListener != null)
                     callBackListener.onDismiss();
 

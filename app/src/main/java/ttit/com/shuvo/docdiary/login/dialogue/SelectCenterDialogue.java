@@ -58,7 +58,7 @@ public class SelectCenterDialogue extends AppCompatDialogFragment implements Cen
     private CloseCallBack closeCallBack;
     private AdminCallBackListener adminCallBackListener;
 
-    @SuppressWarnings("deprecation, unchecked")
+    @SuppressWarnings({"deprecation", "unchecked"})
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
@@ -119,7 +119,7 @@ public class SelectCenterDialogue extends AppCompatDialogFragment implements Cen
         center_api = centerAPI;
         if (multipleUserLists.isEmpty()) {
             String user_admin_flag = centerLists.get(CategoryPosition).getUser_admin_flag();
-            if (user_admin_flag.equals("1")) {
+            if ("1".equals(user_admin_flag)) {
                 d_code = centerLists.get(CategoryPosition).getDoc_code();
                 center_doc_code = d_code;
                 user_or_admin_flag = user_admin_flag;

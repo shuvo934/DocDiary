@@ -1,16 +1,20 @@
 package ttit.com.shuvo.docdiary.login.arraylists;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 
 public class MultipleUserList implements Serializable {
-    private String doc_code;
-    private String doc_name;
-    private String depts_name;
-    private String user_admin_flag;
-    private String admin_user_id;
-    private String admin_user_fname;
-    private String admin_user_lname;
-    private String admin_user_name;
+    private static final long serialVersionUID = 1L;
+
+    @SerializedName("doc_code")         private String doc_code;
+    @SerializedName("doc_name")         private String doc_name;
+    @SerializedName("depts_name")       private String depts_name;
+    @SerializedName("user_admin_flag")  private String user_admin_flag;
+    @SerializedName("admin_user_id")    private String admin_user_id;
+    @SerializedName("admin_user_fname") private String admin_user_fname;
+    @SerializedName("admin_user_lname") private String admin_user_lname;
+    @SerializedName("admin_user_name")  private String admin_user_name;
 
 
     public MultipleUserList(String doc_code, String doc_name, String depts_name, String user_admin_flag, String admin_user_id, String admin_user_fname, String admin_user_lname, String admin_user_name) {

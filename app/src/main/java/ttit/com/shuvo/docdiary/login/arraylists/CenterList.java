@@ -1,15 +1,19 @@
 package ttit.com.shuvo.docdiary.login.arraylists;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
 public class CenterList implements Serializable {
-    private String center_name;
-    private String center_api;
-    private String doc_code;
-    private String admin_user_id;
-    private String user_admin_flag;
-    private ArrayList<MultipleUserList> multipleUserLists;
+    private static final long serialVersionUID = 1L;
+
+    @SerializedName("center_name")       private String center_name;
+    @SerializedName("center_api")        private String center_api;
+    @SerializedName("doc_code")          private String doc_code;
+    @SerializedName("admin_user_id")     private String admin_user_id;
+    @SerializedName("user_admin_flag")   private String user_admin_flag;
+    @SerializedName("multipleUserLists") private ArrayList<MultipleUserList> multipleUserLists;
 
     public CenterList(String center_name, String center_api, String  doc_code, String admin_user_id, String user_admin_flag, ArrayList<MultipleUserList> multipleUserLists) {
         this.center_name = center_name;
